@@ -6,6 +6,7 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signI
 import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
+import { OWNER_EMAILS } from './site-config.js';
 
 const notReady = !config || !config.apiKey || String(config.apiKey).startsWith('PASTE');
 if (notReady) {
@@ -86,9 +87,11 @@ async function start() {
   const db = { doc: D, collection: p => Q(p) };
 
   /* ---------- user ---------- */
-  let isAdmin = false;
+  let isAdmin = false, isOwner = false;
   if (u) {
-    try { const a = await getDoc(doc(fs, 'site/admins')); isAdmin = a.exists() && !!(a.data().uids || {})[u.uid]; } catch (e) {}
+    isOwner = !!u.email && u.emailVerified !== false && OWNER_EMAILS.map(e => e.toLowerCase()).includes(u.email.toLowerCase());
+    isAdmin = isOwner;
+    try { const a = await getDoc(doc(fs, 'site/admins')); if (a.exists() && (a.data().uids || {})[u.uid]) isAdmin = true; } catch (e) {}
     // 公開的名字與頭像，讓別人看得到「誰出價、誰留言」
     setDoc(doc(fs, 'profiles/' + u.uid), { name: u.displayName || '', avatar: u.photoURL || '', phoneVerified: !!u.phoneNumber, updatedAt: Date.now() }).catch(() => {});
   }
@@ -96,7 +99,7 @@ async function start() {
   const user = {
     async me() { return u ? { id: u.uid, name: u.displayName || '', avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber } : { id: null, name: '', avatarUrl: '' }; },
     async id() { return u ? u.uid : null; },
-    async isOwner() { return isAdmin; },
+    async isOwner() { return isOwner; },
     async canEdit() { return isAdmin; },
     async can() { return !!u; },
     async profiles(ids) {

@@ -2,35 +2,56 @@ rules_version = '2';
 // VEIN 資料庫權限
 // - 所有人都能讀公開資料（商品、賣場、抽獎、出價、評價）
 // - 每個人只能寫自己的資料：social/{自己}、shops/{自己}/…、data/users/{自己}/…、profiles/{自己}
-// - 出價、下單、報名抽獎、開店與上架：必須先完成手機驗證
-// - 網站設定與賣家審核（site/*）只有管理員能寫；管理員名單在 site/admins 的 uids 欄位
+// - 被封禁的帳號（site/bans）不能再寫入任何公開資料
+// - 網站設定開啟「要求手機驗證」時，出價、下單、報名抽獎、開店與上架前必須先完成手機驗證
+// - 管理員：擁有者 Google 帳號（isOwner）＋ site/admins 名單；可以審核、下架、刪除任何人的內容、封禁帳號
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isMe(uid) { return signedIn() && request.auth.uid == uid; }
     function hasPhone() { return signedIn() && ('phone_number' in request.auth.token); }
-    function isAdmin() {
+    // ⚠️ 擁有者帳號：要跟 public/js/site-config.js 的 OWNER_EMAILS 一致
+    function isOwner() {
       return signedIn()
-        && exists(/databases/$(database)/documents/site/admins)
-        && request.auth.uid in get(/databases/$(database)/documents/site/admins).data.uids;
+        && request.auth.token.get('email', '') == 'chriswu91204@gmail.com'
+        && request.auth.token.get('email_verified', false) == true;
     }
+    function isAdmin() {
+      return isOwner() || (signedIn()
+        && exists(/databases/$(database)/documents/site/admins)
+        && request.auth.uid in get(/databases/$(database)/documents/site/admins).data.uids);
+    }
+    function notBanned() {
+      return !exists(/databases/$(database)/documents/site/bans)
+        || !(request.auth.uid in get(/databases/$(database)/documents/site/bans).data.get('uids', {}));
+    }
+    function phoneOK() {
+      return hasPhone()
+        || !exists(/databases/$(database)/documents/site/info)
+        || !get(/databases/$(database)/documents/site/info).data.get('requirePhone', false);
+    }
+    // 賣家可以改自己的商品，但不能自己解除「被管理員下架」
+    function blockedUnchanged() {
+      return request.resource == null
+        || request.resource.data.get('blocked', false) == (resource == null ? false : resource.data.get('blocked', false));
+    }
+    function seller(uid) { return isMe(uid) && notBanned() && phoneOK(); }
 
-    // 網站設定、賣家審核、管理員名單
+    // 網站設定、賣家審核、管理員名單、封禁名單
     match /site/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() && (docId != 'admins' || isOwner());
     }
 
-    // 公開的名字、頭像與「手機已驗證」標記（標記必須跟登入憑證一致，不能自己亂填）
+    // 公開的名字、頭像與「手機已驗證」標記
     match /profiles/{uid} {
       allow read: if true;
       allow create, update: if isMe(uid)
         && request.resource.data.get('phoneVerified', false) == hasPhone();
-      allow delete: if isMe(uid);
+      allow delete: if isMe(uid) || isAdmin();
     }
 
     // 每位會員的公開互動：出價、提問、訂單、抽獎報名、追蹤、評價
-    // 追蹤、提問、評價不需要手機；出價、訂單、抽獎報名需要
     match /social/{uid} {
       function noTrade() {
         return request.resource.data.get('bids', {}).size() == 0
@@ -42,18 +63,34 @@ service cloud.firestore {
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['bids', 'orders', 'raffles']);
       }
       allow read: if true;
-      allow create, update: if isMe(uid) && (hasPhone() || noTrade() || tradeUnchanged());
-      allow delete: if isMe(uid);
+      allow create, update: if (isMe(uid) && notBanned() && (phoneOK() || noTrade() || tradeUnchanged())) || isAdmin();
+      allow delete: if isMe(uid) || isAdmin();
     }
 
-    // 賣場：資料、商品、成長紀錄照片、抽獎、訂單確認、回覆（賣家必須驗證手機）
+    // 賣場
     match /shops/{uid} {
       allow read: if true;
-      allow write: if isMe(uid) && hasPhone();
-      match /{rest=**} {
-        allow read: if true;
-        allow write: if isMe(uid) && hasPhone();
-      }
+      allow write: if seller(uid) || isAdmin();
+    }
+    match /shops/{uid}/plants/{pid} {
+      allow read: if true;
+      allow write: if (seller(uid) && blockedUnchanged()) || isAdmin();
+    }
+    match /shops/{uid}/plants/{pid}/photos/{photoId} {
+      allow read: if true;
+      allow write: if seller(uid) || isAdmin();
+    }
+    match /shops/{uid}/raffles/{rid} {
+      allow read: if true;
+      allow write: if (seller(uid) && blockedUnchanged()) || isAdmin();
+    }
+    match /shops/{uid}/orders/{oid} {
+      allow read: if true;
+      allow write: if seller(uid) || isAdmin();
+    }
+    match /shops/{uid}/answers/{aid} {
+      allow read: if true;
+      allow write: if seller(uid) || isAdmin();
     }
 
     // 私人資料（收藏、購物車）：只有本人看得到

@@ -37,6 +37,8 @@ async function findPlant(pid, hintShop) {
   return null;
 }
 async function adminUids() { const s = await db.doc('site/admins').get(); return s.exists ? Object.keys(s.data().uids || {}).filter(k => s.data().uids[k]) : []; }
+const OWNER_EMAILS = ['chriswu91204@gmail.com'];
+async function ownerUids() { const out = []; for (const e of OWNER_EMAILS) { try { out.push((await admin.auth().getUserByEmail(e)).uid); } catch (x) {} } return out; }
 
 function page(title, lines, link) {
   const body = lines.filter(Boolean).map(l => `<p style="margin:6px 0;color:#333;line-height:1.7">${esc(l)}</p>`).join('');
@@ -130,7 +132,7 @@ exports.onRaffle = onDocumentUpdated({ document: 'shops/{shop}/raffles/{rid}', s
 /* ---------- 賣家申請與核准 ---------- */
 exports.onShopCreated = onDocumentCreated({ document: 'shops/{uid}', secrets }, async ev => {
   const s = ev.data.data(), uid = ev.params.uid;
-  const admins = await adminUids();
+  const admins = [...new Set([...(await ownerUids()), ...(await adminUids())])];
   if (admins.includes(uid)) return;
   for (const a of admins) await send(a, '有新的賣家申請', [`賣場名稱：${s.name}`, s.location ? `地區：${s.location}` : '', s.line ? `LINE：${s.line}` : '', s.bio ? `介紹：${s.bio}` : '', '到管理後台「賣家審核」核准或婉拒。'], '/#admin');
 });
