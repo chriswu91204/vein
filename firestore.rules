@@ -2,13 +2,19 @@ rules_version = '2';
 // VEIN 資料庫權限
 // - 所有人都能讀公開資料（商品、賣場、抽獎、出價、評價）
 // - 每個人只能寫自己的資料：social/{自己}、shops/{自己}/…、data/users/{自己}/…、profiles/{自己}
-// - 出價、下單、報名抽獎、開店與上架：必須先完成手機驗證
+// - 出價、下單、報名抽獎、開店與上架：網站設定開啟「要求手機驗證」時，必須先完成手機驗證
 // - 網站設定與賣家審核（site/*）只有管理員能寫；管理員名單在 site/admins 的 uids 欄位
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isMe(uid) { return signedIn() && request.auth.uid == uid; }
     function hasPhone() { return signedIn() && ('phone_number' in request.auth.token); }
+    // 網站設定 site/info 的 requirePhone 打開時，才要求手機驗證
+    function phoneOK() {
+      return hasPhone()
+        || !exists(/databases/$(database)/documents/site/info)
+        || !get(/databases/$(database)/documents/site/info).data.get('requirePhone', false);
+    }
     function isAdmin() {
       return signedIn()
         && exists(/databases/$(database)/documents/site/admins)
@@ -42,17 +48,17 @@ service cloud.firestore {
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['bids', 'orders', 'raffles']);
       }
       allow read: if true;
-      allow create, update: if isMe(uid) && (hasPhone() || noTrade() || tradeUnchanged());
+      allow create, update: if isMe(uid) && (phoneOK() || noTrade() || tradeUnchanged());
       allow delete: if isMe(uid);
     }
 
-    // 賣場：資料、商品、成長紀錄照片、抽獎、訂單確認、回覆（賣家必須驗證手機）
+    // 賣場：資料、商品、成長紀錄照片、抽獎、訂單確認、回覆
     match /shops/{uid} {
       allow read: if true;
-      allow write: if isMe(uid) && hasPhone();
+      allow write: if isMe(uid) && phoneOK();
       match /{rest=**} {
         allow read: if true;
-        allow write: if isMe(uid) && hasPhone();
+        allow write: if isMe(uid) && phoneOK();
       }
     }
 
