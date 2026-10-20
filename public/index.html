@@ -1011,6 +1011,14 @@ a.shopchip:hover{color:var(--fg)}
 .ptags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.ptags .tg{background:var(--leaf-soft);color:var(--leaf)}
 .banbar{position:fixed;left:0;right:0;top:0;z-index:200;background:#B3261E;color:#fff;text-align:center;padding:8px 16px;font-size:14px}
 .btn.red{background:var(--live)!important;color:#fff!important}
+
+.vh{position:absolute!important;width:1px!important;height:1px!important;opacity:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+label.drop{position:relative;display:grid;place-items:center;cursor:pointer}
+.drop-b{display:grid;justify-items:center;gap:6px;text-align:center}
+.drop-b img{max-width:100%;max-height:220px;border-radius:14px;object-fit:cover}
+.up-st{font-size:14.5px}.up-bar{display:block;width:220px;max-width:100%;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.up-bar i{display:block;height:100%;width:0;background:var(--leaf-2);transition:width .2s}
+.up-ok{color:var(--leaf-2);font-weight:600}
+label.imgpick{position:relative;display:grid;place-items:center}.imgpick-in{display:contents}
 </style>
 
 </head>
@@ -2560,7 +2568,7 @@ function admNew(m, motherId){
     h('div',{class:'three'}, field('葉片數', h('input',{type:'number',min:0,max:99,'data-k':'leaves'})), field('狀態', h('select',{'data-k':'status'}, ...Object.entries(STATUS).map(([k,v])=>h('option',{value:k,text:v,selected:k==='available'})))), field('照片階段', stageSel)),
     fieldBox('標籤（可多選，也能自訂）', tgN.el),
     sale.el,
-    field('第一張紀錄照片', picker.el),
+    fieldBox('第一張紀錄照片', picker.el),
     field('商品說明（選填，前台顯示）', h('textarea',{'data-k':'notes',maxlength:600,placeholder:'例如：三條白根，約 4 公分；附原盆出貨'})),
     h('label',{class:'row',style:'font-size:14px'}, h('input',{type:'checkbox',class:'sw','data-k':'show',checked:true}), '立即在前台顯示'),
     h('p',{class:'hint',text:'編號、拍攝時間與紀錄照片登錄後不能修改或刪除；其他資料之後都可以編輯。'}),
@@ -2574,7 +2582,7 @@ function admNew(m, motherId){
   momSel.addEventListener('change',()=>{ mother=S.plants.get(momSel.value); sync(); });
   sync();
   f.addEventListener('submit',async e=>{ e.preventDefault(); const err=f.querySelector('.err'); err.textContent='';
-    const s=sale.read(f); if(s.err){ err.textContent=s.err; return; } const ph=picker.get(); if(!ph){ err.textContent='請加上一張紀錄照片。'; return; } if(!spC.get().trim()){ err.textContent='請選擇分類（屬）。'; return; }
+    const s=sale.read(f); if(s.err){ err.textContent=s.err; return; } const ph=picker.get(); if(!ph){ err.textContent=picker.busy()?'照片還在上傳，請稍候。':'請加上一張紀錄照片。'; return; } if(!spC.get().trim()){ err.textContent='請選擇分類（屬）。'; return; }
     const code=f.dataset.code, label=btn.textContent; btn.disabled=true; btn.textContent='上架中…';
     try{ const ref=S.db.collection(`shops/${S.me}/plants`).doc(), reg=nowLocal();
       const data={code,kind:isPup?'pup':'mother',species:spIn.value.trim(),cultivar:q('cultivar').value.trim(),cross:q('cross').value.trim(),leaves:q('leaves').value?Number(q('leaves').value):null,status:q('status').value,notes:q('notes').value.trim(),
@@ -2590,9 +2598,9 @@ function admEditor(m, id){
   m.append(h('div',{class:'top'}, h('div',{}, h('button',{class:'link',type:'button',style:'margin-bottom:6px',onclick:()=>{ S.admEdit=null; renderAdmin(true); }}, '← 商品列表'), h('h2',{class:'mono',style:'font-weight:500',text:p.code})),
     h('div',{class:'row'}, h('button',{class:'btn soft',type:'button',onclick:()=>{ adm.close(); openPlant(p.id); },text:'前台預覽'}), p.kind==='mother'?h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; m.replaceChildren(); renderAdmNav(); admNew(m,p.id); },text:'＋ 從這株分出側芽'}):null)));
   const picker=photoPicker();
-  const rec=h('form',{class:'form'}, field('新的紀錄照片', picker.el), h('div',{class:'two'}, field('階段', h('select',{'data-r':'stage'}, ...(p.kind==='pup'?STAGES_PUP:STAGES_MOM).map(s=>h('option',{value:s,text:s})))), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
+  const rec=h('form',{class:'form'}, fieldBox('新的紀錄照片', picker.el), h('div',{class:'two'}, field('階段', h('select',{'data-r':'stage'}, ...(p.kind==='pup'?STAGES_PUP:STAGES_MOM).map(s=>h('option',{value:s,text:s})))), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
     field('說明（選填）', h('input',{'data-r':'note',maxlength:300,placeholder:'例如：根長約 3 公分'})), h('div',{class:'err'}), h('div',{}, h('button',{class:'btn pri',type:'submit',text:'加入時間軸'})));
-  rec.addEventListener('submit',async e=>{ e.preventDefault(); const ph=picker.get(), err=rec.querySelector('.err'); if(!ph){ err.textContent='請先選一張照片。'; return; } const b=rec.querySelector('button[type=submit]'); b.disabled=true; b.textContent='上傳中…';
+  rec.addEventListener('submit',async e=>{ e.preventDefault(); const ph=picker.get(), err=rec.querySelector('.err'); if(!ph){ err.textContent=picker.busy()?'照片還在上傳，請稍候。':'請先選一張照片。'; return; } const b=rec.querySelector('button[type=submit]'); b.disabled=true; b.textContent='上傳中…';
     try{ const reg=nowLocal(), stage=rec.querySelector('[data-r=stage]').value; await S.db.collection(pPath(p)+'/photos').doc().set({...ph.full,takenAt:ph.takenAt,takenSource:ph.takenSource,stage,note:rec.querySelector('[data-r=note]').value.trim(),registeredAt:reg});
       const cur=S.plants.get(p.id), upd={photoCount:(cur.photoCount||1)+1}; if(!cur.coverThumb) upd.coverThumb=cur.thumb||ph.thumb; if(!cur.lastPhotoAt||ph.takenAt>=cur.lastPhotoAt){ upd.thumb=ph.thumb; upd.lastPhotoAt=ph.takenAt; upd.lastStage=stage; } const lv=rec.querySelector('[data-r=leaves]').value; if(lv) upd.leaves=Number(lv);
       await S.db.doc(pPath(p)).update(upd); toast('已加入時間軸'); renderAdmin(true); }catch(ex){ b.disabled=false; b.textContent='加入時間軸'; err.textContent='上傳失敗，請稍後再試。'; } });
@@ -2675,12 +2683,12 @@ function admRaffleForm(m){
     field('抽獎標題', h('input',{'data-f':'title',required:true,maxlength:40,placeholder:'例如 十月追蹤抽獎'})),
     field('獎品', h('input',{'data-f':'prize',required:true,maxlength:80,placeholder:'例如 水晶花燭側芽一株（AN-2610-K7Q3-S03）'})),
     h('div',{class:'three'}, field('開始時間', h('input',{type:'datetime-local','data-f':'start',value:tsLocal(start.getTime())})), field('截止時間', h('input',{type:'datetime-local','data-f':'end',value:tsLocal(end.getTime())})), field('得獎名額', h('input',{type:'number',min:1,max:50,'data-f':'n',value:1}))),
-    field('連結獎品植株（選填）', plantSel), field('抽獎圖片（選填，沒選會用植株照片）', picker.el),
+    field('連結獎品植株（選填）', plantSel), fieldBox('抽獎圖片（選填，沒選會用植株照片）', picker.el),
     field('補充說明（選填）', h('input',{'data-f':'notes',maxlength:120,placeholder:'例如：限台灣本島寄送'})),
     h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri lg',type:'submit',text:'建立抽獎'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admEdit=null; renderAdmin(true); },text:'取消'})));
   f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-f="${k}"]`).value.trim(), err=f.querySelector('.err');
     const s=new Date(v('start')).getTime(), en=new Date(v('end')).getTime(); if(!s||!en||en<=s){ err.textContent='截止時間要晚於開始時間。'; return; } if(en<Date.now()+5*6e4){ err.textContent='截止時間至少要在 5 分鐘後。'; return; }
-    const ph=picker.get(); try{ await S.db.collection(`shops/${S.me}/raffles`).doc().set({title:v('title'),prize:v('prize'),mode,startsAtMs:s,endsAtMs:en,winnersN:Math.max(1,Number(v('n')||1)),plantId:v('plant')||null,img:ph?.thumb||null,notes:v('notes'),createdAt:Date.now()}); toast('抽獎已建立'); S.admEdit=null; renderAdmin(true); }
+    if(picker.busy()){ err.textContent='圖片還在上傳，請稍候。'; return; } const ph=picker.get(); try{ await S.db.collection(`shops/${S.me}/raffles`).doc().set({title:v('title'),prize:v('prize'),mode,startsAtMs:s,endsAtMs:en,winnersN:Math.max(1,Number(v('n')||1)),plantId:v('plant')||null,img:ph?.thumb||null,notes:v('notes'),createdAt:Date.now()}); toast('抽獎已建立'); S.admEdit=null; renderAdmin(true); }
     catch(ex){ err.textContent='建立失敗，請稍後再試。'; } });
   m.append(admTop('新增抽獎'), f);
 }
@@ -2704,11 +2712,15 @@ function admQA(m){
     box.append(h('form',{class:'qform',onsubmit:async e=>{ e.preventDefault(); const t=ta.value.trim(); if(!t) return; try{ await S.db.doc(`shops/${S.me}/answers/${ansKey(q.asker,q.id)}`).set({text:t,at:Date.now(),pid:q.pid}); toast('已回覆'); renderAdmin(true); }catch(ex){ toast('回覆失敗'); } }}, ta, h('button',{class:'btn pri',type:'submit',text:q.answer?'更新回覆':'回覆'})));
     return box; })));
 }
-function imgPicker(label,max,limit,cur,round){ let val=cur||null; const inp=h('input',{type:'file',accept:'image/*',hidden:true}); const pv=h('div',{class:'imgpick'+(round?' round':'')}, val?h('img',{src:val,alt:''}):h('span',{class:'hint',text:'選擇圖片'}));
-  pv.addEventListener('click',()=>inp.click()); inp.addEventListener('change',async()=>{ const f=inp.files[0]; if(!f) return; try{ const img=await loadImage(f); val=dataUrlUnder(img,max,limit); pv.replaceChildren(h('img',{src:val,alt:''})); }catch(e){ toast('無法讀取這張圖片'); } });
-  return {el:field(label,h('div',{},inp,pv)),get:()=>val}; }
+function imgPicker(label,max,q,cur,round){ let val=cur||null, busy=false; const inp=h('input',{type:'file',accept:'image/*',class:'vh'}); const pv=h('span',{class:'imgpick-in'}, val?h('img',{src:val,alt:''}):h('span',{class:'hint',text:'選擇圖片'}));
+  const zone=h('label',{class:'imgpick'+(round?' round':'')}, inp, pv);
+  inp.addEventListener('change',async()=>{ const f=inp.files&&inp.files[0]; if(!f) return; busy=true; pv.replaceChildren(h('span',{class:'hint',text:'上傳中…'}));
+    try{ const img=await loadImage(f); val=S.assets?await uploadBlob(await encode(img,max,q)):dataUrlUnder(img,max,max>800?160000:30000); pv.replaceChildren(h('img',{src:val,alt:''})); }
+    catch(e){ pv.replaceChildren(h('span',{class:'hint',style:'color:#B3261E',text:'上傳失敗，請再試一次'})); toast('圖片上傳失敗'); }
+    finally{ busy=false; inp.value=''; } });
+  return {el:fieldBox(label,zone),get:()=>val,busy:()=>busy}; }
 function admShop(m){
-  const s=shopOf(S.me)||{}; const av=imgPicker('頭像',240,30000,s.avatar,true), bn=imgPicker('封面圖',1400,160000,s.banner);
+  const s=shopOf(S.me)||{}; const av=imgPicker('頭像',320,.8,s.avatar,true), bn=imgPicker('封面圖',1600,.78,s.banner);
   const f=h('form',{class:'form',style:'max-width:720px'},
     h('div',{class:'two'}, av.el, bn.el),
     h('div',{class:'two'}, field('賣場名稱', h('input',{'data-s':'name',required:true,maxlength:30,value:s.name||''})), field('所在地區', h('input',{'data-s':'location',maxlength:20,value:s.location||''}))),
@@ -2716,7 +2728,7 @@ function admShop(m){
     field('賣場介紹', h('textarea',{'data-s':'bio',maxlength:400}, s.bio||'')),
     field('運送與付款說明（顯示在商品頁與賣場頁）', h('textarea',{'data-s':'ship',maxlength:400,placeholder:'例如：轉帳或面交；週一、週三出貨，黑貓低溫；7–10 月加保溫'}, s.ship||'')),
     h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'儲存'}), h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看賣場頁'})));
-  f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const d={...s,name:v('name'),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
+  f.addEventListener('submit',async e=>{ e.preventDefault(); if(av.busy()||bn.busy()){ f.querySelector('.err').textContent='圖片還在上傳，請稍候再按儲存。'; return; } const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const d={...s,name:v('name'),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
     try{ await S.db.doc('shops/'+S.me).set(d); S.shops.set(S.me,d); toast('賣場設定已儲存'); renderAll(); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'圖片太大或沒有權限':'請稍後再試'); } });
   m.append(admTop('賣場設定', approved(S.me)?h('span',{class:'tag lime',text:'已上架'}):h('span',{class:'tag grey',text:'審核中'})), f);
 }
@@ -2730,6 +2742,19 @@ function admSellers(m){
       h('span',{class:'tag '+(ok?'lime':'grey'),text:ok?'已上架':'待審核'})),
       h('div',{class:'row',style:'margin-top:12px;justify-content:flex-end'}, h('a',{class:'btn soft sm',href:'#/seller/'+u,onclick:()=>adm.close(),text:'預覽賣場'}), ok?h('button',{class:'btn soft sm',type:'button',onclick:()=>setA(u,false),text:'停權'}):h('button',{class:'btn pri sm',type:'button',onclick:()=>setA(u,true),text:'核准上架'}))); })));
 }
+async function migrateImages(log){
+  const isData=v=>typeof v==='string'&&v.startsWith('data:');
+  const toUrl=async v=>uploadBlob(await (await fetch(v)).blob());
+  let n=0;
+  for (const p of all()){
+    const upd={}; for(const k of ['thumb','coverThumb']) if(isData(p[k])) upd[k]=await toUrl(p[k]);
+    if (Object.keys(upd).length){ await S.db.doc(pPath(p)).update(upd); n++; log('商品 '+p.code); }
+    try{ const ph=await S.db.collection(pPath(p)+'/photos').get(); for(const d of ph.docs){ const x=d.data(); if(isData(x.img)&&!x.asset){ await S.db.doc(pPath(p)+'/photos/'+d.id).update({asset:await toUrl(x.img),img:null}); n++; log('成長紀錄 '+p.code); } } }catch(e){}
+  }
+  for (const [u,sh] of S.shops){ const upd={}; for(const k of ['avatar','banner']) if(isData(sh[k])) upd[k]=await toUrl(sh[k]); if(Object.keys(upd).length){ await S.db.doc('shops/'+u).update(upd); n++; log('賣場 '+(sh.name||u)); } }
+  for (const r of S.raffles.values()) if(isData(r.img)){ await S.db.doc(`shops/${r.shop}/raffles/${r.id}`).update({img:await toUrl(r.img)}); n++; log('抽獎 '+r.title); }
+  return n;
+}
 function admSite(m){
   const s=S.site;
   const f=h('form',{class:'form',style:'max-width:640px'},
@@ -2739,7 +2764,10 @@ function admSite(m){
     h('label',{class:'row',style:'font-size:14.5px;align-items:flex-start;gap:10px'}, h('input',{type:'checkbox',class:'sw','data-s':'requirePhone',checked:!!s.requirePhone}), h('span',{}, h('b',{text:'要求手機驗證'}), h('br'), h('span',{class:'hint',text:'開啟後，出價、下單、報名抽獎與開店前都要先驗證手機。開啟前請先在 Firebase → Authentication → 登入方式 啟用「電話」。'}))),
     h('div',{class:'err'}), h('div',{}, h('button',{class:'btn pri',type:'submit',text:'儲存'})));
   f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); try{ await S.db.doc('site/info').set({line:v('line'),contact:v('contact'),about:v('about'),requirePhone:f.querySelector('[data-s=requirePhone]').checked}); toast('網站設定已儲存'); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } });
-  m.append(admTop('網站設定'), f, h('div',{class:'panel',style:'margin-top:20px;max-width:640px'}, h('h3',{text:'權限說明'}), h('p',{class:'hint',text:'平台管理員（Firestore 的 site/admins 文件裡列出的帳號）可以審核賣家。一般會員申請開店、通過審核後，就能在自己的賣家後台上架、處理訂單與抽獎；每個賣家只能改自己的資料。'})));
+  const mlog=h('p',{class:'hint'}), mbtn=h('button',{class:'btn ink sm',type:'button',text:'開始搬移'});
+  mbtn.addEventListener('click',async()=>{ if(!S.assets){ toast('需要登入才能上傳'); return; } mbtn.disabled=true; mlog.textContent='搬移中…'; try{ const n=await migrateImages(t=>{ mlog.textContent='已搬移：'+t; }); mlog.textContent=n?'完成，共搬移 '+n+' 筆圖片。':'沒有需要搬移的圖片，都已經是最省流量的格式。'; }catch(e){ mlog.textContent='搬移中斷：'+(e?.code||e?.message||'請稍後再試'); } finally{ mbtn.disabled=false; } });
+  const savePanel=h('div',{class:'panel',style:'margin-top:20px;max-width:640px'}, h('h3',{text:'省流量工具'}), h('p',{class:'hint',text:'把舊版直接存在資料庫裡的圖片（縮圖、賣場頭像與封面、抽獎圖、成長紀錄照片）搬到 Storage，資料庫只留網址。每位訪客載入的資料會小很多。只需要執行一次。'}), h('div',{class:'row',style:'margin-top:10px'}, mbtn), mlog);
+  m.append(admTop('網站設定'), f, savePanel, h('div',{class:'panel',style:'margin-top:20px;max-width:640px'}, h('h3',{text:'權限說明'}), h('p',{class:'hint',text:'平台管理員（擁有者 Google 帳號，以及在「會員管理」被指派的管理員）可以審核賣家、下架內容與封禁帳號。一般會員申請開店、通過審核後，就能在自己的賣家後台上架、處理訂單與抽獎；每個賣家只能改自己的資料。'})));
 }
 
 /* ---------- photos ---------- */
@@ -2752,16 +2780,39 @@ async function exifDate(file){ try{ const buf=await file.slice(0,256*1024).array
 async function loadImage(file){ const url=URL.createObjectURL(file); try{ return await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=url; }); } finally{ setTimeout(()=>URL.revokeObjectURL(url),1000); } }
 function scaled(img,max){ const r=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)); const c=document.createElement('canvas'); c.width=Math.round(img.naturalWidth*r); c.height=Math.round(img.naturalHeight*r); c.getContext('2d').drawImage(img,0,0,c.width,c.height); return c; }
 function dataUrlUnder(img,max,limit){ let size=max,q=.8,u; for(let i=0;i<9;i++){ u=scaled(img,size).toDataURL('image/jpeg',q); if(u.length<limit) return u; q-=.08; if(q<.45){ q=.72; size=Math.round(size*.8); } } return u; }
-async function preparePhoto(file){ const exif=await exifDate(file); const img=await loadImage(file); const thumb=dataUrlUnder(img,700,70000); let full=null;
-  if(S.assets){ try{ const blob=await new Promise(r=>scaled(img,1800).toBlob(r,'image/jpeg',.86)); const up=await S.assets.upload(blob,{type:'image/jpeg'}); full={asset:up.id}; }catch(e){ full=null; } }
-  if(!full) full={img:dataUrlUnder(img,1200,170000)}; return {takenAt:exif||tsLocal(file.lastModified||Date.now()),takenSource:exif?'exif':'file',thumb,full}; }
-function photoPicker(){ let prepared=null; const inp=h('input',{type:'file',accept:'image/*',hidden:true});
-  const prev=h('div',{class:'drop',tabindex:'0',role:'button'}, h('strong',{style:'color:var(--fg)',text:'選擇或拍攝照片'}), h('span',{class:'hint',text:'用手機原相機直接拍，才會保留原始拍攝時間'}));
-  prev.addEventListener('click',()=>inp.click()); prev.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); inp.click(); } });
-  inp.addEventListener('change',async()=>{ const file=inp.files[0]; if(!file) return; prev.replaceChildren(h('span',{text:'處理照片中…'}));
-    try{ prepared=await preparePhoto(file); prev.replaceChildren(h('img',{src:prepared.thumb,alt:'預覽'}), h('div',{class:'meta'}, '拍攝時間 '+fmtDate(prepared.takenAt), h('span',{class:'src '+(prepared.takenSource==='exif'?'exif':''),text:prepared.takenSource==='exif'?'EXIF 原始時間':'檔案時間'})), h('span',{class:'hint',text:'點一下可更換照片'})); }
-    catch(e){ prepared=null; prev.replaceChildren(h('strong',{text:'無法讀取這張照片'}), h('span',{class:'hint',text:'請改用 JPG 或 PNG。iPhone 可到「設定 › 相機 › 格式」改成「最相容」。'})); } });
-  return {el:h('div',{},inp,prev),get:()=>prepared}; }
+const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+async function encode(img,max,q){ const c=scaled(img,max); let b=await toBlob(c,'image/webp',q); if(!b||b.type!=='image/webp') b=await toBlob(c,'image/jpeg',q); return b; }
+async function uploadBlob(blob,onP){ const up=await S.assets.upload(blob,{onProgress:onP}); return up.url||up.id; }
+// 照片：大圖 1600px、縮圖 480px，都存到 Storage（資料庫只存網址，省流量）
+async function preparePhoto(file,onStage){
+  onStage&&onStage('處理照片中…');
+  const exif=await exifDate(file), img=await loadImage(file), preview=dataUrlUnder(img,480,45000), takenAt=exif||tsLocal(file.lastModified||Date.now()), takenSource=exif?'exif':'file';
+  if (S.assets){
+    try{
+      const fullB=await encode(img,1600,.8), thB=await encode(img,640,.75), total=fullB.size+thB.size;
+      onStage&&onStage('上傳中 0%',preview);
+      const thumb=await uploadBlob(thB,b=>onStage&&onStage('上傳中 '+Math.round(b/total*100)+'%'));
+      const full=await uploadBlob(fullB,b=>onStage&&onStage('上傳中 '+Math.round((thB.size+b)/total*100)+'%'));
+      return {takenAt,takenSource,thumb,full:{asset:full},preview};
+    }catch(e){ console.warn('[VEIN] upload failed',e); const x=new Error('upload'); x.vein='upload'; x.code=e?.code||e?.original?.code; throw x; }
+  }
+  return {takenAt,takenSource,thumb:preview,full:{img:dataUrlUnder(img,1200,170000)},preview};
+}
+function photoPicker(){
+  let prepared=null, busy=false;
+  const inp=h('input',{type:'file',accept:'image/*',class:'vh'});
+  const body=h('span',{class:'drop-b'}, h('strong',{style:'color:var(--fg)',text:'選擇或拍攝照片'}), h('span',{class:'hint',text:'用手機原相機直接拍，才會保留原始拍攝時間'}));
+  const zone=h('label',{class:'drop'}, inp, body);
+  inp.addEventListener('change',async()=>{ const file=inp.files&&inp.files[0]; if(!file) return; busy=true; prepared=null;
+    const st=h('b',{class:'up-st',text:'處理照片中…'}), bar=h('i'); body.replaceChildren(st, h('span',{class:'up-bar'}, bar));
+    try{
+      prepared=await preparePhoto(file,(msg,prev)=>{ st.textContent=msg; const m=msg.match(/(\d+)%/); if(m) bar.style.width=m[1]+'%'; if(prev&&!body.querySelector('img')) body.prepend(h('img',{src:prev,alt:'預覽'})); });
+      body.replaceChildren(h('img',{src:prepared.preview,alt:'預覽'}), h('span',{class:'up-ok',text:S.assets?'✓ 已上傳':'✓ 已處理'}), h('span',{class:'meta'}, '拍攝時間 '+fmtDate(prepared.takenAt), h('span',{class:'src '+(prepared.takenSource==='exif'?'exif':''),text:prepared.takenSource==='exif'?'EXIF 原始時間':'檔案時間'})), h('span',{class:'hint',text:'點一下可更換照片'}));
+    }catch(e){ prepared=null;
+      body.replaceChildren(h('strong',{style:'color:#B3261E',text:e?.vein==='upload'?'上傳失敗':'無法讀取這張照片'}), h('span',{class:'hint',text:e?.vein==='upload'?('請確認網路後再選一次照片'+(e.code?'（'+e.code+'）':'')+'。'):'請改用 JPG 或 PNG。iPhone 可到「設定 › 相機 › 格式」改成「最相容」。'}));
+    }finally{ busy=false; inp.value=''; } });
+  return {el:zone,get:()=>prepared,busy:()=>busy};
+}
 
 /* ---------- render ---------- */
 let rq=0;

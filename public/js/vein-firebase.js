@@ -3,8 +3,8 @@
 // window.claude.use('db' | 'user' | 'assets')。網站其他程式碼不需要知道底層是 Firebase。
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
 import { OWNER_EMAILS } from './site-config.js';
 
@@ -20,7 +20,10 @@ if (notReady) {
 async function start() {
   const app = initializeApp(config);
   const auth = getAuth(app);
-  const fs = getFirestore(app);
+  // 本機快取：重複造訪與換頁時直接用快取，減少資料庫讀取與流量
+  let fs;
+  try { fs = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+  catch (e) { fs = getFirestore(app); }
   const st = getStorage(app);
 
   // 等第一次登入狀態回報
@@ -117,10 +120,15 @@ async function start() {
 
   /* ---------- assets（照片上傳到 Storage）---------- */
   const assets = u ? {
-    async upload(blob) {
-      const name = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)) + '.jpg';
+    async upload(blob, opts = {}) {
+      const ext = blob.type === 'image/webp' ? '.webp' : blob.type === 'image/png' ? '.png' : '.jpg';
+      const name = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)) + ext;
       const r = ref(st, `uploads/${u.uid}/${name}`);
-      await uploadBytes(r, blob, { contentType: blob.type || 'image/jpeg', cacheControl: 'public,max-age=31536000' });
+      // 一年瀏覽器快取：同一張圖只下載一次
+      await new Promise((res, rej) => {
+        const t = uploadBytesResumable(r, blob, { contentType: blob.type || 'image/jpeg', cacheControl: 'public,max-age=31536000,immutable' });
+        t.on('state_changed', s => opts.onProgress && opts.onProgress(s.bytesTransferred), rej, res);
+      });
       const url = await getDownloadURL(r);
       return { id: url, url, sizeBytes: blob.size, contentType: blob.type || 'image/jpeg' };
     }
