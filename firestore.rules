@@ -1,0 +1,45 @@
+rules_version = '2';
+// VEIN 資料庫權限
+// - 所有人都能讀公開資料（商品、賣場、抽獎、出價、評價）
+// - 每個人只能寫自己的資料：social/{自己}、shops/{自己}/…、data/users/{自己}/…、profiles/{自己}
+// - 網站設定與賣家審核（site/*）只有管理員能寫；管理員名單在 site/admins 的 uids 欄位
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/site/admins)
+        && request.auth.uid in get(/databases/$(database)/documents/site/admins).data.uids;
+    }
+
+    // 網站設定、賣家審核、管理員名單
+    match /site/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // 公開的名字與頭像
+    match /profiles/{uid} {
+      allow read: if true;
+      allow write: if isMe(uid);
+    }
+    // 每位會員的公開互動：出價、提問、訂單、抽獎報名、追蹤、評價
+    match /social/{uid} {
+      allow read: if true;
+      allow write: if isMe(uid);
+    }
+    // 賣場：資料、商品、成長紀錄照片、抽獎、訂單確認、回覆
+    match /shops/{uid} {
+      allow read: if true;
+      allow write: if isMe(uid);
+      match /{rest=**} {
+        allow read: if true;
+        allow write: if isMe(uid);
+      }
+    }
+    // 私人資料（收藏、購物車）：只有本人看得到
+    match /data/users/{uid}/{rest=**} {
+      allow read, write: if isMe(uid);
+    }
+  }
+}

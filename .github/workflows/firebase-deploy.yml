@@ -1,0 +1,42 @@
+# 推到 main → 自動部署正式網站與資料庫規則
+# 開 Pull Request → 自動產生一個預覽網址（留言在 PR 裡），確認沒問題再合併
+name: Deploy to Firebase
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preview channel (PR)
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          expires: 7d
+      - name: Live site (main)
+        if: github.event_name == 'push'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+      - uses: actions/setup-node@v4
+        if: github.event_name == 'push'
+        with:
+          node-version: 20
+      - name: Database & storage rules (main)
+        if: github.event_name == 'push'
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx --yes firebase-tools@13 deploy --only firestore:rules,firestore:indexes,storage --non-interactive
