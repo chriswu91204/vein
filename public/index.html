@@ -1019,6 +1019,111 @@ label.drop{position:relative;display:grid;place-items:center;cursor:pointer}
 .up-st{font-size:14.5px}.up-bar{display:block;width:220px;max-width:100%;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.up-bar i{display:block;height:100%;width:0;background:var(--leaf-2);transition:width .2s}
 .up-ok{color:var(--leaf-2);font-weight:600}
 label.imgpick{position:relative;display:grid;place-items:center}.imgpick-in{display:contents}
+
+/* ---- fx carousels v19 ---- */
+/* coverflow */
+.cfx{padding-bottom:34px}
+.cf{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:center;padding:0 max(var(--gl),calc((100vw - 1240px)/2))}
+.tr:not(.dark).cfx .cf{padding:0}
+.cf-stage{position:relative;height:min(460px,72vw);perspective:1400px;touch-action:pan-y;user-select:none;overflow:clip;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.cf-card{position:absolute;left:50%;top:50%;width:min(300px,52vw);aspect-ratio:3/4;margin:calc(min(300px,52vw)*-.6666) 0 0 calc(min(300px,52vw)*-.5);border-radius:24px;overflow:hidden;cursor:pointer;transition:transform .75s cubic-bezier(.2,.8,.2,1),opacity .6s;box-shadow:0 40px 80px -30px rgba(0,0,0,.6);background:#222}
+.cf-card img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.cf-card .tag{position:absolute;left:12px;top:12px}
+.cf-card::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.cf-card.on::after{box-shadow:inset 0 0 0 2px var(--lime)}
+.cf-glare{position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);transform:translateX(-60%);pointer-events:none}
+.cf-card.on .cf-glare{animation:glare 2.6s ease-in-out infinite}
+@keyframes glare{0%{transform:translateX(-60%)}60%,100%{transform:translateX(60%)}}
+.cf-t{display:grid;gap:6px;justify-items:start;animation:hsin .6s var(--ease) both}
+.cf-t b{font-family:var(--f-display);font-size:clamp(30px,3.4vw,46px);font-weight:600;line-height:1.05}
+.cf-s{opacity:.6;font-size:14px}
+.cf-p{display:flex;gap:26px;margin:8px 0 6px}.cf-p small{display:block;font-size:12px;opacity:.55}.cf-p strong{font-family:var(--f-display);font-size:26px;font-weight:600}
+.tr.dark .cf-p strong.mono{color:var(--lime)}
+/* deck */
+.dk{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:linear-gradient(135deg,var(--leaf-soft),#fff);border-radius:34px;padding:clamp(24px,4vw,56px);overflow:hidden}
+.dk-txt h3{font-family:var(--f-display);font-size:clamp(32px,4vw,56px);font-weight:600;line-height:1.02;margin-top:8px}
+.dk-txt p{color:var(--fg2);margin-top:6px}
+.dk-btn{width:58px;height:58px;border-radius:50%;border:0;background:#fff;box-shadow:0 10px 30px -12px rgba(0,0,0,.35);font-size:20px;cursor:pointer;transition:transform .25s var(--ease)}
+.dk-btn:hover{transform:scale(1.1)}.dk-btn.go{width:auto;border-radius:999px;padding:0 22px;font-size:15px;font-weight:600;background:var(--ink);color:#fff}.dk-btn.like{color:#E0245E}
+.dk-stack{position:relative;height:min(470px,110vw);display:grid;place-items:center;touch-action:pan-y}
+.dk-card{position:absolute;width:min(320px,78vw);aspect-ratio:3/4.1;border-radius:28px;overflow:hidden;background:#222;box-shadow:0 30px 60px -28px rgba(0,0,0,.5);transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .4s;cursor:grab;user-select:none}
+.dk-card.grab{transition:none;cursor:grabbing}.dk-card.fly{transition:transform .43s ease-in,opacity .43s}
+.dk-card img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.dk-card::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.75))}
+.dk-i{position:absolute;left:18px;right:18px;bottom:18px;z-index:2;color:#fff;display:grid;gap:4px;justify-items:start}
+.dk-i b{font-family:var(--f-display);font-size:28px;font-weight:600}.dk-i span:last-child{opacity:.8;font-size:14px}
+.dk-like,.dk-nope{position:absolute;top:22px;z-index:3;font-weight:800;font-size:22px;letter-spacing:.1em;padding:4px 12px;border:3px solid;border-radius:10px;transform:rotate(-12deg);pointer-events:none}
+.dk-like{left:18px;color:var(--lime);opacity:var(--like,0)}.dk-nope{right:18px;color:#FF6B6B;opacity:var(--nope,0);transform:rotate(12deg)}
+.dk-card.top{animation:nudge 3.5s ease-in-out 1.2s 2}
+@keyframes nudge{0%,100%{translate:0}20%{translate:14px;rotate:3deg}40%{translate:-10px;rotate:-2deg}60%{translate:0;rotate:0deg}}
+/* marquee */
+.mqx{overflow:hidden}
+.mq-l{overflow:hidden;margin:0 calc(-1*var(--gl)) 12px;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.mq-t{display:flex;gap:12px;width:max-content;animation:mq 60s linear infinite;padding:4px 0}
+.mq-l.rev .mq-t{animation-direction:reverse}
+.mq-l:hover .mq-t{animation-play-state:paused}
+.mq-p{flex:none;display:flex;align-items:center;gap:12px;border:0;background:var(--surface);border-radius:999px;padding:6px 20px 6px 6px;cursor:pointer;font:inherit;color:var(--fg);transition:transform .3s var(--ease),background .3s}
+.mq-p:hover{transform:translateY(-3px) scale(1.03);background:var(--ink);color:#fff}
+.mq-p img{width:54px;height:54px;border-radius:50%;object-fit:cover}
+.mq-p span{display:grid;text-align:left}.mq-p b{font-size:15px}.mq-p small{color:var(--fg2);font-size:12.5px}.mq-p:hover small{color:var(--lime)}
+/* pinned gallery */
+.pg{position:relative;margin:40px calc(-1*var(--gl)) 0}
+.pg-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--ink);color:#fff;display:flex;flex-direction:column;justify-content:center}
+.pg-pin::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(212,242,90,.12),transparent 50%),repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 90px);pointer-events:none}
+.pg-t{display:flex;gap:26px;align-items:center;padding:0 48px;will-change:transform;width:max-content}
+.pg-intro{flex:0 0 min(420px,80vw);display:grid;gap:10px;justify-items:start}
+.pg-intro h3{font-family:var(--f-display);font-size:clamp(44px,6vw,92px);font-weight:600;line-height:.95;letter-spacing:-.03em}
+.pg-intro p{opacity:.6}.pg-intro .tr-k{color:var(--lime)}
+.pg-hint{font-size:12px;letter-spacing:.2em;color:var(--lime);animation:blink 1.6s infinite;margin-top:10px}
+.pg-c{flex:0 0 min(340px,68vw);display:grid;gap:6px;cursor:pointer;transform:translateY(calc(var(--am,0)*60px)) rotate(calc(var(--m,0)*-6deg)) scale(calc(1 - var(--am,0)*.12));transition:transform .15s linear}
+.pg-im{aspect-ratio:3/4;border-radius:26px;overflow:hidden;background:#222}
+.pg-im img{width:100%;height:100%;object-fit:cover;transform:translateX(calc(var(--m,0)*-40px)) scale(1.18)}
+.pg-n{font-size:12px;letter-spacing:.2em;color:var(--lime);margin-top:6px}
+.pg-c b{font-family:var(--f-display);font-size:26px;font-weight:600}.pg-s{opacity:.6;font-size:13.5px}
+.pg-foot{position:absolute;left:48px;right:48px;bottom:28px;display:flex;gap:16px;align-items:center}
+.pg-count{font-size:13px;color:rgba(255,255,255,.7)}
+.pg-bar{flex:1;height:2px;background:rgba(255,255,255,.14)}.pg-bar i{display:block;height:100%;width:0;background:var(--lime)}
+.pg.static .pg-pin{position:static;height:auto;padding:40px 0}.pg.static .pg-t{overflow-x:auto;width:auto}
+/* bento */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,minmax(180px,22vw));grid-template-areas:"a a b c" "a a d e";gap:12px}
+.bo{position:relative;border-radius:26px;overflow:hidden;background:#1a1d1b;perspective:900px}
+.bo0{grid-area:a}.bo1{grid-area:b}.bo2{grid-area:c}.bo3{grid-area:d}.bo4{grid-area:e}
+.bo-c{position:absolute;inset:0;cursor:pointer}
+.bo-c img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.bo-c:hover img{transform:scale(1.07)}
+.bo-c::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.72))}
+.bo-i{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:#fff;display:grid;gap:3px;justify-items:start}
+.bo-i b{font-family:var(--f-display);font-size:22px;font-weight:600}.bo0 .bo-i b{font-size:34px}.bo-i span:last-child{font-size:13px;opacity:.8}
+.bo-c.in.up{animation:boUp .9s cubic-bezier(.2,.8,.2,1) both}.bo-c.in.flip{animation:boFlip .9s cubic-bezier(.2,.8,.2,1) both}.bo-c.in.zoom{animation:boZoom .9s cubic-bezier(.2,.8,.2,1) both}.bo-c.in.left{animation:boLeft .9s cubic-bezier(.2,.8,.2,1) both}
+.bo-c.out{animation:boOut .8s ease both}
+@keyframes boUp{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
+@keyframes boLeft{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0)}}
+@keyframes boFlip{from{transform:rotateY(-90deg);opacity:.3}to{transform:none;opacity:1}}
+@keyframes boZoom{from{transform:scale(1.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes boOut{to{opacity:0;transform:scale(.94)}}
+/* split showcase */
+.sshow{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:stretch}
+.ss-m{position:relative;border-radius:30px;overflow:hidden;min-height:440px;background:var(--ink)}
+.ss-m img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.08);transition:opacity .9s var(--ease),transform 4.5s linear}
+.ss-m img.on{opacity:1;transform:scale(1)}
+.ss-m::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.7))}
+.ss-cap{position:absolute;left:22px;right:22px;bottom:20px;z-index:2;color:#fff;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;animation:hsin .6s var(--ease) both}
+.ss-cap .mono{color:var(--lime);font-size:13px}.ss-cap b{font-family:var(--f-display);font-size:30px;font-weight:600}
+.ss-l{display:grid;gap:8px;align-content:center}
+.ss-r{position:relative;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;text-align:left;border:0;background:var(--surface);border-radius:20px;padding:14px 18px;cursor:pointer;font:inherit;color:var(--fg);overflow:hidden;transition:background .3s,transform .3s var(--ease)}
+.ss-r.on{background:var(--ink);color:#fff;transform:translateX(-6px)}
+.ss-no{font-size:22px;color:var(--fg3)}.ss-r.on .ss-no{color:var(--lime)}
+.ss-tx{display:grid}.ss-tx strong{font-size:17px}.ss-tx small{font-size:12.5px;opacity:.6}
+.ss-pr{position:absolute;left:0;right:0;bottom:0;height:3px}.ss-pr i{display:block;height:100%;width:0;background:var(--lime)}
+.ss-r.on .ss-pr i{animation:dotp 4.2s linear forwards}
+@media (max-width:860px){
+  .cf{grid-template-columns:1fr}.cf-stage{height:min(420px,96vw)}.cf-card{width:min(260px,62vw);margin:calc(min(260px,62vw)*-.6666) 0 0 calc(min(260px,62vw)*-.5)}
+  .dk{grid-template-columns:1fr;gap:20px}.dk-stack{height:min(440px,118vw)}
+  .bento{grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(150px,44vw));grid-template-areas:"a a" "b c" "d e"}.bo0{grid-row:span 1}
+  .sshow{grid-template-columns:1fr}.ss-m{min-height:320px}.ss-cap b{font-size:22px}
+  .pg-t{padding:0 22px;gap:16px}.pg-c{flex-basis:72vw}.pg-intro{flex-basis:78vw}.pg-foot{left:22px;right:22px}
+}
+@media (prefers-reduced-motion:reduce){.mq-t,.cf-card.on .cf-glare,.dk-card.top{animation:none}}
 </style>
 
 </head>
@@ -1869,20 +1974,135 @@ function band(text,cls){ return h('div',{class:'band'+(cls?' '+cls:''),'aria-hid
 function statStrip(items){ return h('div',{class:'statstrip'}, ...items.map(([v,l])=>h('div',{}, h('b',{class:'mono',text:v}), h('span',{text:l})))); }
 function more(label,hash){ return h('a',{class:'tr-more',href:hash,text:label+' →'}); }
 
+/* ================= 更多輪播：3D 封面流、卡片堆疊、跑馬燈、釘住橫向捲動、Bento 輪換、分割展示 ================= */
+let FX=[];
+function fxClear(){ FX.forEach(f=>{ try{ f(); }catch(e){} }); FX=[]; }
+function every(ms,fn){ if(REDUCE) return; const t=setInterval(()=>{ if(!document.hidden&&PAGE==='shop') fn(); },ms); FX.push(()=>clearInterval(t)); }
+function revealSec(sec){ if(!trIO) trIO=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); trIO.unobserve(e.target); } }),{rootMargin:'0px 0px -10% 0px'}); REDUCE?sec.classList.add('in'):trIO.observe(sec); return sec; }
+function secHead(kicker,title,sub,right){ return h('div',{class:'tr-head'}, h('div',{class:'tr-ti'}, h('span',{class:'tr-k mono'}, h('i'), kicker||''), h('h3',{text:title}), sub?h('p',{text:sub}):null), right?h('div',{class:'tr-ctl'}, ...[].concat(right)):null); }
+const arrowBtn=(t,fn,l)=>h('button',{class:'tr-btn',type:'button','aria-label':l,onclick:fn,text:t});
+
+/* A. 3D 封面流 */
+function coverflow(o){
+  const items=(o.items||[]).slice(0,12); if(items.length<3) return null;
+  let i=0, hold=0;
+  const stage=h('div',{class:'cf-stage'}), info=h('div',{class:'cf-info','aria-live':'polite'});
+  const cards=items.map((p,k)=>{ const c=h('div',{class:'cf-card'}, h('img',{src:cover(p),alt:short(p.species),draggable:'false'}), live(p)?h('span',{class:'tag live',text:'LIVE'}):null, h('span',{class:'cf-glare'}));
+    c.addEventListener('click',()=>{ if(moved) return; if(k===i) openPlant(p.id,c.querySelector('img')); else show(k,true); }); stage.append(c); return c; });
+  const show=(k,user)=>{ i=(k+items.length)%items.length; if(user) hold=Date.now();
+    cards.forEach((c,j)=>{ let d=j-i; if(d>items.length/2) d-=items.length; if(d<-items.length/2) d+=items.length; const a=Math.abs(d);
+      c.style.transform=`translateX(${d*56}%) translateZ(${-a*160}px) rotateY(${-Math.sign(d)*Math.min(a,1)*38}deg) scale(${1-Math.min(a,3)*.07})`;
+      c.style.zIndex=String(100-a); c.style.opacity=a>3?'0':String(1-a*.16); c.style.pointerEvents=a>3?'none':'auto'; c.classList.toggle('on',d===0); });
+    const p=items[i], pl=priceLabel(p);
+    info.replaceChildren(h('div',{class:'cf-t'}, h('span',{class:'mono tr-k',text:pad2(i+1)+' / '+pad2(items.length)}), h('b',{text:short(p.species)}), h('span',{class:'cf-s',text:[spCn(p.species),shopName(p.shop),p.code].filter(Boolean).join(' · ')}),
+      h('div',{class:'cf-p'}, h('div',{}, h('small',{text:pl.sub}), h('strong',{text:pl.main})), live(p)?h('div',{}, h('small',{text:'剩餘'}), h('strong',{class:'mono','data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())})):null),
+      h('button',{class:'btn lime',type:'button',onclick:()=>openPlant(p.id),text:live(p)?'出價 →':'查看 →'}))); };
+  let sx=null, moved=false;
+  stage.addEventListener('pointerdown',e=>{ sx=e.clientX; moved=false; });
+  stage.addEventListener('pointermove',e=>{ if(sx!=null&&Math.abs(e.clientX-sx)>8) moved=true; });
+  stage.addEventListener('pointerup',e=>{ if(sx==null) return; const d=e.clientX-sx; sx=null; if(Math.abs(d)>40) show(i+(d<0?1:-1),true); setTimeout(()=>{ moved=false; },0); });
+  const sec=h('section',{class:'tr cfx'+(o.dark?' dark':''),tabindex:'0'}, secHead(o.kicker,o.title,o.sub,[arrowBtn('←',()=>show(i-1,true),'上一株'),arrowBtn('→',()=>show(i+1,true),'下一株'),o.more]), h('div',{class:'cf'}, stage, info));
+  sec.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft') show(i-1,true); if(e.key==='ArrowRight') show(i+1,true); });
+  every(4200,()=>{ if(Date.now()-hold>7000&&!sec.matches(':hover')) show(i+1); });
+  show(0); return revealSec(sec);
+}
+
+/* B. 卡片堆疊（滑一滑） */
+function deck(o){
+  const items=(o.items||[]).slice(0,10); if(items.length<2) return null;
+  let order=items.map((_,k)=>k);
+  const stack=h('div',{class:'dk-stack'});
+  const cards=items.map(p=>{ const c=h('div',{class:'dk-card'}, h('img',{src:cover(p),alt:'',draggable:'false'}), h('div',{class:'dk-i'}, h('span',{class:'tag '+(live(p)?'live':'lime'),text:live(p)?'LIVE':(p.kind==='pup'?'側芽':'母株')}), h('b',{text:short(p.species)}), h('span',{text:shopName(p.shop)+' · '+priceLabel(p).main})), h('span',{class:'dk-like',text:'收藏'}), h('span',{class:'dk-nope',text:'略過'})); stack.append(c); return c; });
+  const layout=()=>order.forEach((k,pos)=>{ const c=cards[k]; c.style.zIndex=String(50-pos); c.style.transform=pos?`translate(${pos*12}px,${-pos*12}px) rotate(${pos%2?3:-3}deg) scale(${1-pos*.05})`:'none'; c.style.opacity=pos>3?'0':'1'; c.classList.toggle('top',pos===0); c.style.setProperty('--like',0); c.style.setProperty('--nope',0); });
+  const topP=()=>items[order[0]];
+  const fling=dir=>{ const c=cards[order[0]]; c.classList.add('fly'); c.style.transform=`translate(${dir*150}%,-6%) rotate(${dir*30}deg)`; c.style.opacity='0'; setTimeout(()=>{ c.classList.remove('fly'); order.push(order.shift()); layout(); },430); };
+  let sx=0, sy=0, dx=0, drag=false;
+  stack.addEventListener('pointerdown',e=>{ const c=e.target.closest('.dk-card'); if(!c||!c.classList.contains('top')) return; drag=true; sx=e.clientX; sy=e.clientY; dx=0; c.setPointerCapture(e.pointerId); c.classList.add('grab'); });
+  stack.addEventListener('pointermove',e=>{ if(!drag) return; const c=cards[order[0]]; dx=e.clientX-sx; const dy=e.clientY-sy; c.style.transform=`translate(${dx}px,${dy*.3}px) rotate(${dx/14}deg)`; c.style.setProperty('--like',Math.max(0,Math.min(1,dx/120))); c.style.setProperty('--nope',Math.max(0,Math.min(1,-dx/120))); });
+  stack.addEventListener('pointerup',()=>{ if(!drag) return; drag=false; const c=cards[order[0]]; c.classList.remove('grab'); if(dx>100){ if(!(S.prefs.favs||[]).includes(topP().id)) toggleFav(topP().id); fling(1); } else if(dx<-100) fling(-1); else if(Math.abs(dx)<6) openPlant(topP().id); else layout(); });
+  layout();
+  return revealSec(h('section',{class:'tr dkx'}, h('div',{class:'dk'},
+    h('div',{class:'dk-txt'}, h('span',{class:'tr-k mono'}, h('i'), o.kicker||'DAILY PICKS'), h('h3',{text:o.title}), h('p',{text:o.sub||''}),
+      h('div',{class:'row',style:'margin-top:18px'}, h('button',{class:'dk-btn',type:'button','aria-label':'略過',onclick:()=>fling(-1),text:'✕'}), h('button',{class:'dk-btn go',type:'button',onclick:()=>openPlant(topP().id),text:'看這株'}), h('button',{class:'dk-btn like',type:'button','aria-label':'收藏',onclick:()=>{ if(!(S.prefs.favs||[]).includes(topP().id)) toggleFav(topP().id); fling(1); },text:'♥'})),
+      h('p',{class:'hint',style:'margin-top:12px',text:'往右滑收藏、往左滑略過，點一下看詳情'})), stack)));
+}
+
+/* C. 雙向跑馬燈 */
+function marquee(o){
+  const items=o.items||[]; if(items.length<4) return null;
+  const pill=p=>h('button',{type:'button',class:'mq-p',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{}, h('b',{text:short(p.species)}), h('small',{text:priceLabel(p).main+(live(p)?' · LIVE':'')})));
+  const fill=a=>{ let x=[...a]; while(x.length<10) x=x.concat(a); return x; };
+  const half=Math.ceil(items.length/2), A=items.slice(0,half), B=items.slice(half).length>=2?items.slice(half):[...items].reverse();
+  const lane=(a,rev)=>{ const f=fill(a); return h('div',{class:'mq-l'+(rev?' rev':'')}, h('div',{class:'mq-t',style:`animation-duration:${f.length*3.2}s`}, ...f.map(pill), ...f.map(pill))); };
+  return revealSec(h('section',{class:'tr mqx'}, secHead(o.kicker,o.title,o.sub,o.more), lane(A,false), lane(B,true)));
+}
+
+/* D. 釘住的橫向捲動（往下捲，商品往左走） */
+function pinGallery(o){
+  const items=(o.items||[]).slice(0,12); if(items.length<3) return null;
+  const cards=items.map((p,k)=>activate(h('article',{class:'pg-c'}, h('div',{class:'pg-im'}, h('img',{src:cover(p),alt:'',loading:'lazy',draggable:'false'})), h('span',{class:'pg-n mono',text:pad2(k+1)}), h('b',{text:short(p.species)}), h('span',{class:'pg-s',text:shopName(p.shop)+' · '+priceLabel(p).main})), ()=>openPlant(p.id)));
+  const track=h('div',{class:'pg-t'}, h('div',{class:'pg-intro'}, h('span',{class:'tr-k mono'}, h('i'), o.kicker), h('h3',{text:o.title}), o.sub?h('p',{text:o.sub}):null, h('span',{class:'pg-hint mono',text:'SCROLL ↓ →'})), ...cards);
+  const bar=h('i'), count=h('span',{class:'mono pg-count',text:'01 / '+pad2(items.length)});
+  const pin=h('div',{class:'pg-pin'}, track, h('div',{class:'pg-foot'}, count, h('div',{class:'pg-bar'}, bar)));
+  const sec=h('section',{class:'pg'}, pin);
+  if (REDUCE){ sec.classList.add('static'); return sec; }
+  let over=0;
+  const size=()=>{ over=Math.max(0,track.scrollWidth-pin.clientWidth+48); sec.style.height=(innerHeight+over)+'px'; };
+  const onS=()=>{ if(PAGE!=='shop') return; const r=sec.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) return; const p=Math.min(1,Math.max(0,-r.top/Math.max(1,over)));
+    track.style.transform=`translate3d(${-p*over}px,0,0)`; bar.style.width=(p*100)+'%';
+    let best=0,bd=1e9; cards.forEach((c,k)=>{ const cr=c.getBoundingClientRect(), m=(cr.left+cr.width/2)/innerWidth-.5; c.style.setProperty('--m',m.toFixed(3)); c.style.setProperty('--am',Math.abs(m).toFixed(3)); if(Math.abs(m)<bd){ bd=Math.abs(m); best=k; } });
+    count.textContent=pad2(best+1)+' / '+pad2(items.length); };
+  const rs=()=>{ size(); onS(); };
+  addEventListener('scroll',onS,{passive:true}); addEventListener('resize',rs);
+  FX.push(()=>{ removeEventListener('scroll',onS); removeEventListener('resize',rs); });
+  track.querySelectorAll('img').forEach(im=>im.addEventListener('load',rs,{once:true}));
+  requestAnimationFrame(rs);
+  return sec;
+}
+
+/* E. Bento 拼貼，格子輪流換商品 */
+function bento(o){
+  const items=o.items||[]; if(items.length<5) return null;
+  const tiles=[0,1,2,3,4].map(k=>h('div',{class:'bo bo'+k}));
+  const put=(t,p,anim)=>{ const c=activate(h('div',{class:'bo-c'+(anim?' in '+(['up','flip','zoom','left'][Math.floor(Math.random()*4)]):'')}, h('img',{src:cover(p),alt:'',loading:'lazy'}),
+      h('div',{class:'bo-i'}, h('span',{class:'tag '+(live(p)?'live':'lime'),text:live(p)?'LIVE':(tagsOf(p)[0]||(p.kind==='pup'?'側芽':'母株'))}), h('b',{text:short(p.species)}), h('span',{text:shopName(p.shop)+' · '+priceLabel(p).main}))), ()=>openPlant(p.id));
+    const old=[...t.children]; t.append(c); old.forEach(x=>{ x.classList.add('out'); setTimeout(()=>x.remove(),900); }); };
+  tiles.forEach((t,k)=>put(t,items[k],false));
+  let ptr=5, last=-1;
+  if (items.length>5) every(2800,()=>{ let k; do{ k=Math.floor(Math.random()*5); }while(k===last); last=k; put(tiles[k],items[ptr%items.length],true); ptr++; });
+  return revealSec(h('section',{class:'tr btx'}, secHead(o.kicker,o.title,o.sub,o.more), h('div',{class:'bento'}, ...tiles)));
+}
+
+/* F. 分割展示：左大圖、右清單，自動輪播 */
+function splitShow(o){
+  const items=(o.items||[]).slice(0,6); if(items.length<3) return null;
+  let i=0, hold=0;
+  const media=h('div',{class:'ss-m'}), list=h('div',{class:'ss-l'});
+  const imgs=items.map((p,k)=>{ const im=h('img',{src:cover(p),alt:'',class:k===0?'on':''}); media.append(im); return im; });
+  const cap=h('div',{class:'ss-cap'}); media.append(cap);
+  const rows=items.map((p,k)=>{ const r=h('button',{type:'button',class:'ss-r'+(k===0?' on':''),onmouseenter:()=>sel(k,true),onfocus:()=>sel(k,true),onclick:()=>openPlant(p.id)}, h('b',{class:'ss-no mono',text:pad2(k+1)}), h('span',{class:'ss-tx'}, h('strong',{text:short(p.species)}), h('small',{text:shopName(p.shop)+' · '+(o.meta?o.meta(p):priceLabel(p).main)})), h('span',{class:'ss-pr'}, h('i'))); list.append(r); return r; });
+  const sel=(k,user)=>{ i=k; if(user) hold=Date.now(); imgs.forEach((im,j)=>im.classList.toggle('on',j===k)); rows.forEach((r,j)=>{ r.classList.toggle('on',j===k); const b=r.querySelector('.ss-pr i'); b.style.animation='none'; void b.offsetWidth; b.style.animation=''; }); const p=items[k]; cap.replaceChildren(h('span',{class:'mono',text:pad2(k+1)}), h('b',{text:short(p.species)}), h('span',{text:priceLabel(p).main})); };
+  every(4200,()=>{ if(Date.now()-hold>6000) sel((i+1)%items.length); });
+  sel(0);
+  return revealSec(h('section',{class:'tr ssx'}, secHead(o.kicker,o.title,o.sub), h('div',{class:'sshow'}, media, list)));
+}
+
 /* ---- 主頁 ---- */
 function storeHome(body){
   const avail=pub().filter(p=>p.status==='available'), liveL=pub().filter(live).sort((a,b)=>a.endsAtMs-b.endsAtMs), wk=Date.now()-7*864e5;
   const fresh=avail.filter(p=>toMs(p.createdAt)>wk).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
   const fixed=avail.filter(p=>!isAuc(p)&&p.price);
   const add=x=>x&&body.append(x);
-  add(techRow({kicker:'LIVE AUCTION',title:'限時競標',sub:'倒數結束時最高出價者得標',items:liveL,card:aucCard,dark:true,big:true,bg:'LIVE AUCTION',more:more('全部競標','#/store/auction')}));
+  add(coverflow({kicker:'LIVE AUCTION',title:'限時競標',sub:'左右滑動或點兩側卡片切換，倒數結束時最高出價者得標',items:liveL,dark:true,more:more('全部競標','#/store/auction')})||techRow({kicker:'LIVE AUCTION',title:'限時競標',sub:'倒數結束時最高出價者得標',items:liveL,card:aucCard,dark:true,big:true,bg:'LIVE AUCTION',more:more('全部競標','#/store/auction')}));
   const rc=recommend(); add(techRow({kicker:rc.personal?'FOR YOU':'TRENDING',title:rc.personal?'為你推薦':'熱門推薦',sub:rc.personal?'依你追蹤的賣家與收藏的品種':'收藏或追蹤賣家後，這裡會更懂你',items:rc.list}));
-  add(techRow({kicker:'NEW IN',title:'本週新到',sub:'七天內上架，附完整成長紀錄',items:fresh,more:more('看直購','#/store/buy')}));
+  add(deck({kicker:'DAILY PICKS',title:'今日精選',sub:'像翻卡一樣逛：一次一株，喜歡就收藏。',items:(rc.list.length>=3?rc.list:avail).slice(0,8)}));
+  add(pinGallery({kicker:'NEW IN',title:'本週新到',sub:'七天內上架，附完整成長紀錄',items:fresh})||techRow({kicker:'NEW IN',title:'本週新到',sub:'七天內上架，附完整成長紀錄',items:fresh,more:more('看直購','#/store/buy')}));
   const sw=sellerWall(); if(sw) add(h('section',{class:'tr dark wallsec in'}, h('div',{class:'tr-head'}, h('div',{class:'tr-ti'}, h('span',{class:'tr-k mono'}, h('i'), 'GREENHOUSES'), h('h3',{text:'推薦賣家'}), h('p',{text:'追蹤、評價與成交最多的溫室'})), h('div',{class:'tr-ctl'}, more('全部商家','#/store/sellers'))), sw));
+  add(marquee({kicker:'JUST LISTED',title:'新品跑馬燈',sub:'滑鼠移上去會停下來',items:[...avail].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,16)}));
   add(techRow({kicker:'UNDER 3K',title:'NT$3,000 以下',sub:'入門好養，第一株就從這裡開始',items:fixed.filter(p=>p.price<=3000).sort((a,b)=>a.price-b.price)}));
-  const rk=ranking(); if(rk.length) add(h('section',{class:'tr in'}, h('div',{class:'tr-head'}, h('div',{class:'tr-ti'}, h('span',{class:'tr-k mono'}, h('i'), 'TOP 5'), h('h3',{text:'人氣排行'}), h('p',{text:'依出價與提問數'}))), rankRow(rk)));
+  const rk=ranking(); add(splitShow({kicker:'TOP CHARTS',title:'人氣排行',sub:'依出價與提問數，每 4 秒換一株',items:rk.map(x=>x.p),meta:p=>bidsFor(p.id).length+' 次出價 · '+priceLabel(p).main})||(rk.length?h('section',{class:'tr in'}, secHead('TOP 5','人氣排行','依出價與提問數'), rankRow(rk)):null));
   const groups=new Map(); avail.forEach(p=>{ const k=spKey(p); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(p); });
-  [...groups].sort((a,b)=>b[1].length-a[1].length).slice(0,3).forEach(([k,ps])=>{ if(ps.length>=2) add(techRow({kicker:(TAX_BY.get(k)?.sci||k).toUpperCase(),title:(genusZh(k)||k)+'精選',items:ps})); });
+  [...groups].sort((a,b)=>b[1].length-a[1].length).slice(0,3).forEach(([k,ps],gi)=>{ if(ps.length<2) return; const o={kicker:(TAX_BY.get(k)?.sci||k).toUpperCase(),title:(genusZh(k)||k)+'精選',items:ps,sub:gi===0?'格子會輪流換上不同植株':''}; add((gi===0&&bento(o))||techRow(o)); });
   add(techRow({kicker:'MOTHER PLANTS',title:'母株專區',sub:'血統源頭，附雜交親本',items:avail.filter(p=>p.kind==='mother')}));
   const rs=pubRaffles().filter(r=>rState(r)==='open');
   add(techRow({kicker:'RAFFLE',title:'抽獎進行中',sub:'免費參加，到點公開開獎',items:rs,card:raffleCard,dark:true,more:more('全部抽獎','#/raffle')}));
@@ -1897,7 +2117,7 @@ function storeAuction(body){
   const bids=L.reduce((n,p)=>n+bidsFor(p.id).length,0), hi=Math.max(0,...L.map(p=>topBid(p.id)?.amt||p.startPrice||0));
   body.append(band('LIVE AUCTION','live'), statStrip([[String(L.length),'場進行中'],[String(bids),'次出價'],[money(hi),'最高出價'],[L[0]?fmtLeft(L[0].endsAtMs-Date.now()):'—','最快結標']]));
   const add=x=>x&&body.append(x);
-  add(techRow({kicker:'ENDING SOON',title:'即將結標',sub:'倒數最後幾小時，別錯過',items:L.slice(0,10),card:aucCard,dark:true,big:true,bg:'ENDING SOON'}));
+  add(coverflow({kicker:'ENDING SOON',title:'即將結標',sub:'倒數最後幾小時，別錯過',items:L.slice(0,10),dark:true})||techRow({kicker:'ENDING SOON',title:'即將結標',sub:'倒數最後幾小時，別錯過',items:L.slice(0,10),card:aucCard,dark:true,big:true,bg:'ENDING SOON'}));
   add(techRow({kicker:'MOST BIDS',title:'最多人出價',items:[...L].sort((a,b)=>bidsFor(b.id).length-bidsFor(a.id).length).filter(p=>bidsFor(p.id).length).slice(0,10),card:aucCard}));
   add(techRow({kicker:'NO BIDS YET',title:'還沒人出價',sub:'起標價就能拿下',items:L.filter(p=>!bidsFor(p.id).length),card:aucCard}));
   storeResults(body,'全部競標',[ended.length?h('div',{style:'margin-top:40px'}, h('div',{class:'shead'}, h('h3',{text:'已結標'}), h('span',{class:'hint',text:ended.length+' 株'})), h('div',{class:'grid sold'}, ...ended.slice(0,12).map(tile))):null]);
@@ -1907,7 +2127,8 @@ function storeBuy(body){
   const F=pub().filter(p=>!isAuc(p)&&p.status==='available'), wk=Date.now()-7*864e5;
   body.append(band('BUY NOW','buy'));
   const add=x=>x&&body.append(x);
-  add(techRow({kicker:'NEW IN',title:'新到直購',items:F.filter(p=>toMs(p.createdAt)>wk),dark:true,big:true,bg:'NEW ARRIVALS'}));
+  const nf=F.filter(p=>toMs(p.createdAt)>wk); add(bento({kicker:'NEW IN',title:'新到直購',sub:'格子會輪流換上不同植株',items:nf.length>=5?nf:F})||techRow({kicker:'NEW IN',title:'新到直購',items:nf,dark:true,big:true,bg:'NEW ARRIVALS'}));
+  add(marquee({kicker:'ALL BUY NOW',title:'直購跑馬燈',items:F.slice(0,16)}));
   [['UNDER 3K','NT$3,000 以下',p=>p.price&&p.price<=3000],['3K–8K','NT$3,000–8,000',p=>p.price>3000&&p.price<=8000],['PREMIUM','NT$8,000 以上',p=>p.price>8000]].forEach(([k,t,fn])=>add(techRow({kicker:k,title:t,items:F.filter(fn).sort((a,b)=>a.price-b.price)})));
   add(techRow({kicker:'PUPS',title:'側芽專區',sub:'從母株分出，編號直接連回母株',items:F.filter(p=>p.kind==='pup')}));
   storeResults(body,'全部直購');
@@ -1974,6 +2195,7 @@ function renderShop(force){
   $('#catRow').hidden=T==='sellers'; renderCats();
   if (T==='home') renderHero(); else { $('#shopHero').hidden=true; clearInterval(heroTimer); }
   $('#ticker').hidden=T!=='home'; renderTicker();
+  fxClear();
   const body=$('#shopBody'), nt=$('#shopNotice'); nt.replaceChildren(); body.replaceChildren();
   const dc=$('#doorCount'); if(dc) dc.textContent=pub().length?'· '+pub().length+' 株':'';
   const dr=$('#doorRaffle'); if(dr){ const n=pubRaffles().filter(r=>rState(r)==='open').length; dr.textContent=n?n+' 場進行中':'即將推出'; }
