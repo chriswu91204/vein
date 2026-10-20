@@ -1,4 +1,4 @@
-# 推到 main → 自動部署正式網站與資料庫規則
+# 推到 main → 自動部署正式網站、資料庫規則、Email 通知（Cloud Functions）
 # 開 Pull Request → 自動產生一個預覽網址（留言在 PR 裡），確認沒問題再合併
 name: Deploy to Firebase
 on:
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: github.event_name == 'push'
         with:
-          node-version: 20
+          node-version: 22
       - name: Database & storage rules (main)
         if: github.event_name == 'push'
         env:
@@ -39,4 +39,14 @@ jobs:
         run: |
           echo "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
-          npx --yes firebase-tools@13 deploy --only firestore:rules,firestore:indexes,storage --non-interactive
+          npx --yes firebase-tools@14 deploy --only firestore,storage --non-interactive
+      # 設定好 Gmail 密碼與權限後，在 GitHub → Settings → Variables 新增 DEPLOY_FUNCTIONS = true 才會部署
+      - name: Email notifications / Cloud Functions (main)
+        if: github.event_name == 'push' && vars.DEPLOY_FUNCTIONS == 'true'
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npm --prefix functions install --no-audit --no-fund
+          npx --yes firebase-tools@14 deploy --only functions --non-interactive --force

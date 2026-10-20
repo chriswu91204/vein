@@ -2,7 +2,7 @@
 // 把 Firebase（Firestore、Authentication、Storage）包裝成網站原本使用的資料介面：
 // window.claude.use('db' | 'user' | 'assets')。網站其他程式碼不需要知道底層是 Firebase。
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
@@ -34,8 +34,24 @@ async function start() {
         throw e;
       }
     },
-    async signOut() { await signOut(auth); location.reload(); }
+    async signOut() { await signOut(auth); location.reload(); },
+    // 手機驗證：把手機號碼綁到目前的 Google 帳號（一支手機只能綁一個帳號）
+    phoneVerified: () => !!(auth.currentUser && auth.currentUser.phoneNumber),
+    async sendCode(raw, buttonId) {
+      let n = String(raw || '').replace(/[\s-]/g, '');
+      if (/^09\d{8}$/.test(n)) n = '+886' + n.slice(1);
+      if (!/^\+\d{8,15}$/.test(n)) { const e = new Error('bad'); e.code = 'vein/bad-number'; throw e; }
+      if (window.__veinRecaptcha) { try { window.__veinRecaptcha.clear(); } catch (e) {} }
+      window.__veinRecaptcha = new RecaptchaVerifier(auth, buttonId, { size: 'invisible' });
+      const c = await linkWithPhoneNumber(auth.currentUser, n, window.__veinRecaptcha);
+      return { async confirm(code) {
+        await c.confirm(String(code).trim());
+        await auth.currentUser.reload(); await auth.currentUser.getIdToken(true);
+        await setDoc(doc(fs, 'profiles/' + auth.currentUser.uid), { name: auth.currentUser.displayName || '', avatar: auth.currentUser.photoURL || '', phoneVerified: true, updatedAt: Date.now() });
+      } };
+    }
   };
+  auth.languageCode = 'zh-TW';
 
   /* ---------- db ---------- */
   const mapErr = e => ({ code: e && e.code === 'permission-denied' ? 'invalid_argument' : (e && e.code) || 'unknown', message: e && e.message, original: e });
@@ -74,11 +90,11 @@ async function start() {
   if (u) {
     try { const a = await getDoc(doc(fs, 'site/admins')); isAdmin = a.exists() && !!(a.data().uids || {})[u.uid]; } catch (e) {}
     // 公開的名字與頭像，讓別人看得到「誰出價、誰留言」
-    setDoc(doc(fs, 'profiles/' + u.uid), { name: u.displayName || '', avatar: u.photoURL || '', updatedAt: Date.now() }).catch(() => {});
+    setDoc(doc(fs, 'profiles/' + u.uid), { name: u.displayName || '', avatar: u.photoURL || '', phoneVerified: !!u.phoneNumber, updatedAt: Date.now() }).catch(() => {});
   }
   const cache = new Map();
   const user = {
-    async me() { return u ? { id: u.uid, name: u.displayName || '', avatarUrl: u.photoURL || '', email: u.email || null } : { id: null, name: '', avatarUrl: '' }; },
+    async me() { return u ? { id: u.uid, name: u.displayName || '', avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber } : { id: null, name: '', avatarUrl: '' }; },
     async id() { return u ? u.uid : null; },
     async isOwner() { return isAdmin; },
     async canEdit() { return isAdmin; },
@@ -87,7 +103,7 @@ async function start() {
       const out = {};
       await Promise.all(ids.map(async id => {
         if (!cache.has(id)) {
-          try { const s = await getDoc(doc(fs, 'profiles/' + id)); cache.set(id, s.exists() ? { name: s.data().name || '', avatarUrl: s.data().avatar || '' } : { name: '', avatarUrl: '' }); }
+          try { const s = await getDoc(doc(fs, 'profiles/' + id)); cache.set(id, s.exists() ? { name: s.data().name || '', avatarUrl: s.data().avatar || '', phoneVerified: !!s.data().phoneVerified } : { name: '', avatarUrl: '', phoneVerified: false }); }
           catch (e) { cache.set(id, { name: '', avatarUrl: '' }); }
         }
         out[id] = { id, ...cache.get(id), isMe: !!u && id === u.uid };

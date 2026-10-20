@@ -1187,6 +1187,16 @@ const rImg=r=>r.img||S.plants.get(r.plantId)?.thumb||'m/p5.jpg';
 const queue=()=>{ let q=Promise.resolve(); return fn=>(q=q.then(fn,fn)); };
 const socialQ=queue(), prefsQ=queue();
 function needLogin(){ if(!S.me){ openLogin(); return true; } if(S.canWrite===false){ toast('目前帳號只能瀏覽'); return true; } return false; }
+function needPhone(){ if(!window.__veinAuth||S.meInfo?.phoneVerified) return false; openPhone(); return true; }
+function openPhone(){
+  const num=h('input',{type:'tel',inputmode:'tel',autocomplete:'tel',placeholder:'0912345678',maxlength:16}), code=h('input',{inputmode:'numeric',autocomplete:'one-time-code',placeholder:'6 位數驗證碼',maxlength:6}), err=h('div',{class:'err'});
+  const send=h('button',{class:'btn pri',type:'button',id:'phoneSend',text:'傳送驗證碼'}), ok=h('button',{class:'btn lime',type:'button',text:'確認'}); let conf=null;
+  const step2=h('div',{class:'form',hidden:true}, field('驗證碼',code), h('div',{class:'row'}, ok, h('button',{class:'link',type:'button',onclick:()=>{ step2.hidden=true; send.disabled=false; },text:'重新傳送'})));
+  const msg=e=>({'vein/bad-number':'手機號碼格式不對，請輸入 09 開頭的 10 碼。','auth/invalid-phone-number':'手機號碼格式不對。','auth/too-many-requests':'嘗試太多次，請稍後再試。','auth/credential-already-in-use':'這支手機已經綁定其他帳號。','auth/account-exists-with-different-credential':'這支手機已經綁定其他帳號。','auth/provider-already-linked':'這個帳號已經驗證過手機了。','auth/invalid-verification-code':'驗證碼不正確。','auth/code-expired':'驗證碼已過期，請重新傳送。','auth/quota-exceeded':'今天的簡訊額度用完了，請明天再試。'}[e?.code]||'沒有成功，請稍後再試。');
+  send.addEventListener('click',async()=>{ err.textContent=''; send.disabled=true; try{ conf=await window.__veinAuth.sendCode(num.value,'phoneSend'); step2.hidden=false; code.focus(); toast('驗證碼已傳送'); }catch(e){ err.textContent=msg(e); send.disabled=false; } });
+  ok.addEventListener('click',async()=>{ err.textContent=''; ok.disabled=true; try{ await conf.confirm(code.value); S.meInfo={...S.meInfo,phoneVerified:true}; toast('手機驗證完成'); dlg.close(); renderAll(); }catch(e){ err.textContent=msg(e); ok.disabled=false; } });
+  openDialog('驗證手機', h('div',{class:'form'}, h('h3',{style:'font-size:28px;font-weight:600',text:'驗證手機號碼'}), h('p',{class:'hint',text:'出價、下單、參加抽獎與開店前需要驗證一次。一支手機只能綁定一個帳號，號碼不會公開。'}), field('手機號碼',num), h('div',{}, send), step2, err), true);
+}
 function saveSocial(patch){ if(!S.socialReady){ toast('資料還在載入，請稍候'); return Promise.reject(new Error('nr')); } const cur={...mySocial(),...patch}; S.social.set(S.me,cur); renderAll(); return socialQ(()=>S.db.doc('social/'+S.me).set(cur)).catch(e=>{ toast('儲存失敗，請稍後再試'); throw e; }); }
 function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsQ(()=>S.db.doc(`data/users/${S.me}/prefs`).set(S.prefs)).catch(()=>toast('沒有存成功，請稍後再試')); }
 function toggleFav(id){ if(needLogin()) return; const f=new Set(S.prefs.favs||[]); const on=!f.has(id); on?f.add(id):f.delete(id); savePrefs({favs:[...f]},on?'已加入收藏':'已取消收藏'); }
@@ -1443,7 +1453,7 @@ function renderRaffleDetail(first){
       r.drawn?h('div',{class:'win',id:'winBox'}, h('div',{class:'row',style:'justify-content:space-between'}, h('b',{text:'得獎名單'}), h('button',{class:'link',type:'button',onclick:()=>playDraw(r),text:'重播開獎'})),
         h('div',{class:'wnames',id:'wNames'}, ...(w.length?w.map(u=>h('span',{class:'wn'+(u===S.me?' me':''),text:u===S.me?'🎉 你':nameOf(u)})):[h('span',{class:'hint',text:'沒有符合資格的參加者。'})])),
         h('p',{class:'hint',text:'從 '+(r.drawn.pool??es.length)+' 位符合資格的參加者中隨機抽出'+(r.drawn.entrants!=null&&r.drawn.entrants!==r.drawn.pool?'（共 '+r.drawn.entrants+' 人報名）':'')+'。'})):null,
-      h('ul',{class:'rrules'}, h('li',{text:'每人限參加一次，截止後才報名的不列入。'}), r.mode==='buyers'?h('li',{text:'開獎時系統會再次確認購買紀錄。'}):null, h('li',{text:'得獎名單公開，賣家會私訊得獎者寄送方式。'}), r.notes?h('li',{text:r.notes}):null))));
+      h('ul',{class:'rrules'}, h('li',{text:'每人限參加一次，需完成手機驗證；截止後才報名的不列入。'}), r.mode==='buyers'?h('li',{text:'開獎時系統會再次確認購買紀錄。'}):null, h('li',{text:'得獎名單公開，賣家會私訊得獎者寄送方式。'}), r.notes?h('li',{text:r.notes}):null))));
   if (first&&r.drawn&&!sessionStorageGet('played:'+k)){ sessionStorageSet('played:'+k); setTimeout(()=>playDraw(r),350); }
 }
 function sessionStorageGet(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }
@@ -1457,7 +1467,7 @@ function playDraw(r){
     roll.firstChild.textContent=names[i++%names.length]; t=setTimeout(step, 40+e*e*220); };
   step();
 }
-async function joinRaffle(r){ if(needLogin()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(!eligible(S.me,r)){ toast('這場限有購買紀錄的會員參加'); return; } try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
+async function joinRaffle(r){ if(needLogin()||needPhone()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(!eligible(S.me,r)){ toast('這場限有購買紀錄的會員參加'); return; } try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
 async function leaveRaffle(r){ const x={...mySocial().raffles}; delete x[rKey(r)]; try{ await saveSocial({raffles:x}); toast('已取消參加'); }catch(e){} }
 
 /* ---------- verify ---------- */
@@ -1512,7 +1522,7 @@ function renderMe(){
   const ords=buyerOrders(S.me);
   const rafs=Object.keys(mySocial().raffles||{}).map(k=>S.raffles.get(k)).filter(Boolean).sort((a,b)=>b.endsAtMs-a.endsAtMs);
   const fol=(mySocial().follows||[]).filter(u=>shopOf(u));
-  box.append(h('div',{class:'row',style:'gap:14px;margin-bottom:18px'}, S.meInfo?.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:'',style:'width:52px;height:52px;border-radius:50%'}):null, h('div',{}, h('b',{style:'font-size:20px;display:block',text:S.meInfo?.name||'VEIN 會員'}), h('span',{class:'hint',text:purchasesOf(S.me).length?'已購買 '+purchasesOf(S.me).length+' 筆 · 符合買家限定抽獎':'會員'}))),
+  box.append(h('div',{class:'row',style:'gap:14px;margin-bottom:18px'}, S.meInfo?.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:'',style:'width:52px;height:52px;border-radius:50%'}):null, h('div',{}, h('b',{style:'font-size:20px;display:block',text:S.meInfo?.name||'VEIN 會員'}), h('span',{class:'hint',text:purchasesOf(S.me).length?'已購買 '+purchasesOf(S.me).length+' 筆 · 符合買家限定抽獎':'會員'}), window.__veinAuth?(S.meInfo?.phoneVerified?h('span',{class:'tag lime',style:'margin-left:8px',text:'✓ 手機已驗證'}):h('button',{class:'link',type:'button',style:'margin-left:8px;font-size:13px',onclick:()=>{ sheet.close(); openPhone(); },text:'驗證手機 →'})):null)),
     h('div',{class:'htabs scroll',role:'tablist'}, ...[['orders','訂單',ords.length],['favs','收藏',favs.length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['follows','追蹤',fol.length],['qs','提問',qs.length]].map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(S.meTab===k),onclick:()=>{ S.meTab=k; renderMe(); }}, l, n?h('span',{class:'n',text:String(n)}):null))));
   const T=S.meTab, empty=(a,b)=>box.append(h('div',{class:'empty'}, h('h3',{text:a}), h('p',{text:b})));
   if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else box.append(h('div',{class:'list'}, ...ords.map(orderCard))); }
@@ -1559,13 +1569,13 @@ function renderCart(){
       h('p',{class:'hint',text:'下單不需要先付款。賣家確認後會私訊你付款與寄送方式；地址與電話請私下提供，不要寫在備註。'})); }));
 }
 async function placeOrder(shop,ps,note,btn){
-  if(needLogin()) return; btn.disabled=true; const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  if(needLogin()||needPhone()) return; btn.disabled=true; const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   try{ await saveSocial({orders:{...mySocial().orders,[id]:{seller:shop,items:ps.map(p=>p.id),total:ps.reduce((n,p)=>n+(p.price||0),0),note,at:Date.now()}}});
     savePrefs({cart:cartIds().filter(x=>!ps.some(p=>p.id===x))}); toast('訂單已送出，等待賣家確認'); dlg.close(); openMe('orders'); }catch(e){ btn.disabled=false; }
 }
 
 /* ---------- apply as seller ---------- */
-function openApply(){ if(needLogin()) return; if(isSeller()){ openAdmin(); return; }
+function openApply(){ if(needLogin()||needPhone()) return; if(isSeller()){ openAdmin(); return; }
   const f=h('form',{class:'form'}, h('h3',{style:'font-size:28px;font-weight:600',text:'在 VEIN 開店'}), h('p',{class:'hint',text:'送出後由 VEIN 審核。審核通過前，你可以先在賣家後台上架，商品會在通過後公開。'}),
     field('賣場名稱', h('input',{'data-a':'name',required:true,maxlength:30,placeholder:'例如 慢葉溫室'})), h('div',{class:'two'}, field('所在地區', h('input',{'data-a':'location',maxlength:20,placeholder:'例如 台中'})), field('LINE ID', h('input',{'data-a':'line',maxlength:40,placeholder:'@yourshop'}))),
     field('賣場介紹', h('textarea',{'data-a':'bio',maxlength:300,placeholder:'主要品種、溫室環境、出貨方式'})), h('div',{class:'err'}), h('div',{}, h('button',{class:'btn pri lg',type:'submit',text:'送出申請'})));
@@ -1730,7 +1740,7 @@ function refreshDetail(first){
   const qf=$('#dQAForm');
   if (!qf.firstChild && !own){ const inp=h('input',{maxlength:300,placeholder:S.me?'向賣家提問':'登入後可以提問','aria-label':'提問'}); qf.append(h('form',{class:'qform',onsubmit:e=>{ e.preventDefault(); askQ(id,inp.value.trim(),inp); }}, inp, h('button',{class:'btn pri',type:'submit',text:'送出提問'}))); }
 }
-async function placeBid(id,amt){ if(needLogin()) return; const p=S.plants.get(id), err=$('#bidErr'); err.textContent=''; if(!live(p)){ err.textContent='競標已經結束。'; return; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return; } try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now()}}}); toast('已出價 '+money(amt)); }catch(e){} }
+async function placeBid(id,amt){ if(needLogin()||needPhone()) return; const p=S.plants.get(id), err=$('#bidErr'); err.textContent=''; if(!live(p)){ err.textContent='競標已經結束。'; return; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return; } try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now(),shop:p.shop}}}); toast('已出價 '+money(amt)); }catch(e){} }
 async function askQ(id,text,inp){ if(needLogin()||!text) return; const p=S.plants.get(id); const qa=[...mySocial().qa,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:id,shop:p?.shop,text,at:Date.now()}].slice(-200); try{ await saveSocial({qa}); inp.value=''; toast('已送出提問'); }catch(e){} }
 
 /* ---------- viewer ---------- */
@@ -1753,7 +1763,7 @@ async function ensureHouse(){
     syncSubs();
   }catch(e){}
 }
-async function openAdmin(tab){ if(!isSeller()){ if(S.me) openApply(); else openLogin(); return; } if(sheet.open) sheet.close(); if(tab){ S.admTab=tab; S.admEdit=null; } if(S.admin) await ensureHouse(); renderAdmin(true); if(!adm.open) adm.showModal(); }
+async function openAdmin(tab){ if(!isSeller()){ if(S.me) openApply(); else openLogin(); return; } if(needPhone()) return; if(sheet.open) sheet.close(); if(tab){ S.admTab=tab; S.admEdit=null; } if(S.admin) await ensureHouse(); renderAdmin(true); if(!adm.open) adm.showModal(); }
 adm.addEventListener('close',()=>{ if(location.hash==='#admin') history.replaceState(null,'','#/'); });
 function field(label,input){ return h('label',{class:'field'}, h('span',{text:label}), input); }
 function renderAdmin(force){
@@ -1816,7 +1826,7 @@ function saleFields(p){
   const auc=h('div',{class:'aucbox'}, h('div',{class:'three'}, field('起標價 NT$', h('input',{type:'number',min:0,step:'any','data-k':'startPrice',value:p?.startPrice??''})), field('每口加價 NT$', h('input',{type:'number',min:1,step:'any','data-k':'step',value:p?.step??100})), field('結束時間', h('input',{type:'datetime-local','data-k':'endsAt',value:p?.endsAtMs?tsLocal(p.endsAtMs):tsLocal(def.getTime())}))));
   const sync=()=>{ const a=mode.value==='auction'; auc.hidden=!a; fixed.hidden=a; }; mode.addEventListener('change',sync); sync();
   return {el:h('div',{class:'form'}, field('販售方式',mode), fixed, auc), read:f=>{ const v=k=>f.querySelector(`[data-k="${k}"]`)?.value;
-    if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'}; if(end<Date.now()+5*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 5 分鐘後。'}; return {mode:'auction',startPrice:Number(v('startPrice')||0),step:Math.max(1,Number(v('step')||100)),endsAtMs:end,price:null}; }
+    if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'}; if(end<Date.now()+5*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 5 分鐘後。'}; return {mode:'auction',startPrice:Number(v('startPrice')||0),step:Math.max(1,Number(v('step')||100)),endsAtMs:end,price:null,endNotified:false}; }
     return {mode:'fixed',price:v('price')?Number(v('price')):null,endsAtMs:null}; }};
 }
 function genCode(){ const A='23456789ABCDEFGHJKMNPQRSTUVWXYZ', d=new Date(), ym=String(d.getFullYear()).slice(2)+p2(d.getMonth()+1); for(let i=0;i<20;i++){ let r=''; for(let j=0;j<4;j++) r+=A[Math.floor(Math.random()*A.length)]; const c=`AN-${ym}-${r}`; if(!all().some(p=>p.code===c)) return c; } return `AN-${ym}-${Date.now().toString(36).slice(-4).toUpperCase()}`; }
@@ -1963,7 +1973,8 @@ function admRaffleForm(m){
 }
 async function drawRaffle(r,btn){
   if (!S.socialReady){ toast('資料還在載入'); return; } if(btn) btn.disabled=true;
-  const es=entrants(r), pool=es.filter(e=>eligible(e.uid,r)).map(e=>e.uid), n=Math.min(r.winnersN||1,pool.length), a=[...pool];
+  const es=entrants(r); let ver={}; if(window.__veinAuth&&S.user){ try{ ver=await S.user.profiles(es.map(e=>e.uid)); }catch(e){} }
+  const pool=es.filter(e=>eligible(e.uid,r)&&(!window.__veinAuth||ver[e.uid]?.phoneVerified)).map(e=>e.uid), n=Math.min(r.winnersN||1,pool.length), a=[...pool];
   const rnd=new Uint32Array(Math.max(1,a.length)); crypto.getRandomValues(rnd); for(let i=a.length-1;i>0;i--){ const j=rnd[i]%(i+1); [a[i],a[j]]=[a[j],a[i]]; }
   try{ await S.db.doc(`shops/${r.shop}/raffles/${r.id}`).update({drawn:{at:Date.now(),winners:a.slice(0,n),pool:pool.length,entrants:es.length}}); toast(n?'已開獎，抽出 '+n+' 位':'沒有符合資格的參加者'); }catch(e){ toast('開獎失敗'); if(btn) btn.disabled=false; }
 }
