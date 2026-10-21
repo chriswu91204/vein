@@ -1427,6 +1427,34 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .ls-row.on{box-shadow:0 0 0 2px var(--leaf-2);background:var(--surface)}
 .ls-row img{width:38px;height:38px;border-radius:9px;object-fit:cover}
 @media (max-width:900px){.rg{grid-template-columns:1fr}.rg-side{position:static;max-height:none}}
+.rg-rows,.rg-ftog{display:none}
+.rg-row{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;padding:10px 12px;cursor:pointer;box-shadow:0 1px 0 var(--line)}
+.rg-row.sel{box-shadow:0 0 0 2px var(--leaf-2)}
+.rg-rimg{width:64px;height:64px;border-radius:12px;object-fit:cover;flex:none;background:var(--leaf-soft)}
+.rg-noimg{display:grid;place-items:center;font-size:24px}
+.rg-rm{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rg-rn{font-size:15.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rg-rc{font-size:12.5px;color:var(--fg2);letter-spacing:.02em}
+.rg-rs{font-size:12.5px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rg-rt{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.rg-rx{font-size:12px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rg-rgo{font-size:22px;color:var(--fg3);flex:none}
+.rg-rck{flex:none;display:flex}
+@media (max-width:820px){
+  .rg-rows{display:flex;flex-direction:column;gap:8px}
+  .rg .rg-tbl{display:none}
+  .rg .tblwrap:has(.rg-tbl){background:none;box-shadow:none;padding:0;overflow:visible}
+  .rg-side{display:none;background:var(--surface);border-radius:18px;padding:12px 14px}
+  .rg-side.open{display:block}
+  .rg{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+  .rg-main{display:contents}
+  .rg>.rg-side{order:1}
+  .rg-main>*{order:2}
+  .rg-main>.bf-bar{order:0}
+  .rg-ftog{display:inline-flex;flex:none}
+  .bf-bar{flex-wrap:wrap}
+  .bf-bar .bf-q{flex:1 1 200px;min-width:0}
+}
 
 /* ===== 賣場頁 ===== */
 .sf{--sa:var(--sprout);position:relative}
@@ -3873,7 +3901,8 @@ function admReg(m){
   const gC=cnt('g',spKey), kC=cnt('kind',p=>p.kind||'mother'), sC=cnt('sale',saleK), tL=all0.filter(p=>match(p,'tag'));
   const genera=[...new Set(all0.map(spKey))].sort((a,b)=>gC(b)-gC(a)).map(g=>[g,(genusZh(g)||'')+' '+(TAX_BY.get(g)?.sci||g),gC(g)]);
   const tags=[...new Set(all0.flatMap(tagsOf))].map(t=>[t,'#'+t,tL.filter(p=>tagsOf(p).includes(t)).length]).sort((a,b)=>b[2]-a[2]);
-  const side=h('div',{class:'rg-side'},
+  const nAct=['g','kind','sale','tag'].filter(k=>F[k]).length;
+  const side=h('div',{class:'rg-side'+(S.rgOpen?' open':'')},
     facet('分類（屬）','g',genera), facet('類型','kind',[['mother','母株',kC('mother')],['pup','側芽',kC('pup')],['seedling','實生苗',kC('seedling')]]),
     facet('販售','sale',[['off','未上架',sC('off')],['on','販售中',sC('on')],['live','競標中',sC('live')],['sold','已售／結束',sC('sold')]]), facet('標籤','tag',tags.slice(0,20)));
   const q=h('input',{type:'search',placeholder:'搜尋編號、品種、品系、親本編號、標籤',value:F.q}); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); set({q:q.value.trim()}); } }); q.addEventListener('search',()=>set({q:q.value.trim()}));
@@ -3893,7 +3922,15 @@ function admReg(m){
     body=h('div',{class:'rg-tree'}, ...roots.flatMap(r=>node(r,0)));
   } else body=h('div',{class:'tblwrap'}, h('table',{class:'tbl rg-tbl'}, h('thead',{}, h('tr',{}, h('th',{}, h('input',{type:'checkbox','aria-label':'全選',checked:list.length&&list.every(p=>sel.has(p.id)),onchange:e=>{ list.forEach(p=>e.target.checked?sel.add(p.id):sel.delete(p.id)); renderAdmin(true); }})), ...['','編號','品種','類型','親本','紀錄','最新紀錄','販售','展示',''].map(t=>h('th',{text:t})))),
     h('tbody',{}, ...list.map(p=>{ const tr=h('tr',{class:'rg-tr'}, h('td',{}, pick(p)), h('td',{}, p.thumb?h('img',{src:p.thumb,alt:''}):h('span',{class:'hint',text:'—'})), h('td',{class:'mono',text:p.code}), h('td',{}, h('div',{text:short(p.species)}), p.cultivar?h('div',{class:'hint',text:p.cultivar}):null), h('td',{}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)})), h('td',{class:'mono hint',text:parTxt(p)}), h('td',{text:String(p.photoCount||0)}), h('td',{class:'hint',text:fmtDay(p.lastPhotoAt)||'—'}), h('td',{}, saleChip(p)), h('td',{}, h('input',{type:'checkbox',class:'sw',title:'在商店與溫室牆展示',checked:!p.hidden,onclick:e=>e.stopPropagation(),onchange:e=>updatePlant(p.id,{hidden:!e.target.checked},e.target.checked?'已展示':'已改成不展示（血統與查驗仍看得到）')})), h('td',{}, h('button',{class:'btn soft sm',type:'button',onclick:e=>{ e.stopPropagation(); openE(p); },text:'管理'})));
-      tr.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; openE(p); }); return tr; }))));
+      tr.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; openE(p); }); return tr; }))),
+    h('div',{class:'rg-rows'}, ...list.map(p=>{ const nm=p.cultivar||short(p.species)||'未命名', sub=p.cultivar&&short(p.species)!==p.cultivar?short(p.species):(genusZh(spKey(p))||'');
+      const r=h('div',{class:'rg-row'+(sel.has(p.id)?' sel':'')}, h('span',{class:'rg-rck'}, pick(p)),
+        p.thumb?h('img',{class:'rg-rimg',src:p.thumb,alt:'',loading:'lazy'}):h('span',{class:'rg-rimg rg-noimg',text:'🌱'}),
+        h('div',{class:'rg-rm'}, h('b',{class:'rg-rn',text:nm}), h('div',{class:'rg-rc mono',text:p.code+(sub?'':'')}), sub?h('div',{class:'rg-rs',text:sub}):null,
+          h('div',{class:'rg-rt'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.hidden?h('span',{class:'tag',text:'不展示'}):null),
+          h('div',{class:'rg-rx'}, (p.photoCount||0)+' 筆紀錄'+(p.lastPhotoAt?' · '+fmtDay(p.lastPhotoAt):'')+(parTxt(p)!=='—'?' · 親本 '+parTxt(p):''))),
+        h('span',{class:'rg-rgo',text:'›'}));
+      r.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; openE(p); }); return r; })));
   const bulk=h('div',{class:'rg-bulk',hidden:!sel.size}, h('span',{}, '已選 ', selN, ' 株'),
     h('button',{class:'btn pri sm',type:'button',onclick:()=>{ S.listSel=new Set([...sel].filter(id=>{ const p=S.plants.get(id); return p&&!listed(p)&&p.status!=='sold'; })); S.admTab='list'; renderAdmin(true); },text:'上架販售'}),
     h('button',{class:'btn ink sm',type:'button',onclick:()=>printLabels([...sel].map(id=>S.plants.get(id)),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'列印標籤'}),
@@ -3903,7 +3940,7 @@ function admReg(m){
   m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('植物管理', h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='batch'; renderAdmin(true); },text:'批量登錄'}), h('button',{class:'btn pri',type:'button',onclick:()=>{ S.admTab='new'; S.newPreset=null; renderAdmin(true); },text:'＋ 登錄一株'})),
     h('p',{class:'hint',style:'margin:-6px 0 14px',text:'所有登錄過的植株（不論有沒有上架）都在這裡：加成長紀錄、設定父母本、看族譜。點一列就能管理那一株。'}),
     h('div',{class:'rg'}, side, h('div',{class:'rg-main'},
-      h('div',{class:'bf-bar'}, h('label',{class:'search bf-q'}, svg('i-search'), q), h('div',{class:'row bf-r'}, h('span',{class:'hint',text:list.length+' / '+all0.length+' 株'}), sortSel, views)),
+      h('div',{class:'bf-bar'}, h('label',{class:'search bf-q'}, svg('i-search'), q), h('button',{type:'button',class:'btn soft sm rg-ftog','aria-expanded':String(!!S.rgOpen),onclick:()=>{ S.rgOpen=!S.rgOpen; renderAdmin(true); },text:(S.rgOpen?'收起篩選':'篩選')+(nAct?'（'+nAct+'）':'')}), h('div',{class:'row bf-r'}, h('span',{class:'hint',text:list.length+' / '+all0.length+' 株'}), sortSel, views)),
       chips.length?h('div',{class:'bf-chips'}, ...chips.map(([k,l])=>h('button',{type:'button',class:'bf-chip',onclick:()=>set({[k]:''})}, l, h('span',{text:'✕'}))), h('button',{type:'button',class:'bf-lk',onclick:()=>set({q:'',g:'',kind:'',sale:'',tag:''}),text:'全部清除'})):null,
       bulk, h('div',{style:'margin-top:14px'}, body)))));
 }
