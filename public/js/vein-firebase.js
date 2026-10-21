@@ -121,9 +121,11 @@ async function start() {
   /* ---------- assets（照片上傳到 Storage）---------- */
   const assets = u ? {
     async upload(blob, opts = {}) {
-      const ext = blob.type === 'image/webp' ? '.webp' : blob.type === 'image/png' ? '.png' : '.jpg';
+      const EXT = { 'image/webp': '.webp', 'image/png': '.png', 'image/jpeg': '.jpg', 'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov' };
+      const ext = EXT[blob.type] || '.jpg';
       const name = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)) + ext;
-      const r = ref(st, `uploads/${u.uid}/${name}`);
+      // dir:'site' = 主頁素材（只有擁有者帳號能寫，見 storage.rules）
+      const r = ref(st, opts.dir === 'site' ? `site/${name}` : `uploads/${u.uid}/${name}`);
       // 一年瀏覽器快取：同一張圖只下載一次
       await new Promise((res, rej) => {
         const t = uploadBytesResumable(r, blob, { contentType: blob.type || 'image/jpeg', cacheControl: 'public,max-age=31536000,immutable' });

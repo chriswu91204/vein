@@ -1,7 +1,16 @@
 rules_version = '2';
 // 照片：每個人只能上傳到 uploads/{自己的 uid}/，限圖片、8MB 以內；所有人可讀
+// 主頁素材：site/ 只有擁有者 Google 帳號能上傳（圖片或影片，100MB 以內）；要跟 public/js/site-config.js 的 OWNER_EMAILS 一致
 service firebase.storage {
   match /b/{bucket}/o {
+    match /site/{file} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.token.get('email', '') == 'chriswu91204@gmail.com'
+        && request.auth.token.get('email_verified', false) == true
+        && request.resource.size < 100 * 1024 * 1024
+        && request.resource.contentType.matches('(image|video)/.*');
+    }
     match /uploads/{uid}/{file} {
       allow read: if true;
       allow write: if request.auth != null

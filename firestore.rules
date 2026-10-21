@@ -37,10 +37,10 @@ service cloud.firestore {
     }
     function seller(uid) { return isMe(uid) && notBanned() && phoneOK(); }
 
-    // 網站設定、賣家審核、管理員名單、封禁名單
+    // 網站設定、賣家審核、管理員名單、封禁名單、主頁素材（media 只有擁有者能改）
     match /site/{docId} {
       allow read: if true;
-      allow write: if isAdmin() && (docId != 'admins' || isOwner());
+      allow write: if isAdmin() && ((docId != 'admins' && docId != 'media') || isOwner());
     }
 
     // 公開的名字、頭像與「手機已驗證」標記

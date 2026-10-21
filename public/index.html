@@ -1248,6 +1248,18 @@ body[data-tone="dark"] .catc:not(.all),body[data-tone="dark"] .lrow,body[data-to
   .bf-views{margin-left:auto}
   .cat-st{grid-template-columns:repeat(2,1fr)}
 }
+
+/* 主頁素材 */
+.ms-g{margin-top:26px}.ms-g h3{font-size:16px;margin-bottom:12px}
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.mslot{background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:0 1px 0 var(--line);display:flex;flex-direction:column}
+.mslot.custom{box-shadow:0 0 0 2px var(--leaf-2)}
+.mslot.busy{opacity:.7;pointer-events:none}
+.ms-pv{position:relative;aspect-ratio:3/4;background:#ddd}
+.ms-pv video,.ms-pv img{width:100%;height:100%;object-fit:cover;display:block}
+.ms-t{position:absolute;left:8px;top:8px;font-size:10.5px;letter-spacing:.12em;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:2px 6px}
+.ms-b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.ms-st{font-size:12.5px}
 </style>
 
 </head>
@@ -1324,11 +1336,11 @@ body[data-tone="dark"] .catc:not(.all),body[data-tone="dark"] .lrow,body[data-to
         <div style="display:grid;gap:10px;justify-items:end"><div class="hprog"><i id="hsProg"></i></div></div>
       </div>
       <div class="track" id="hsTrack">
-        <article class="hcard"><div class="m"><img src="m/p5.jpg" alt="手持一片近乎圓形的深酒紅色花燭葉，粉紫色葉脈" loading="lazy"></div><div><div class="n">01</div><h3>酒紅圓葉</h3></div></article>
-        <article class="hcard"><div class="m"><img src="m/p1.jpg" alt="深紅褐色心形絨葉，粉色主脈" loading="lazy"></div><div><div class="n">02</div><h3>心形絨葉</h3></div></article>
+        <article class="hcard"><div class="m"><img data-m="p5" src="m/p5.jpg" alt="手持一片近乎圓形的深酒紅色花燭葉，粉紫色葉脈" loading="lazy"></div><div><div class="n">01</div><h3>酒紅圓葉</h3></div></article>
+        <article class="hcard"><div class="m"><img data-m="p1" src="m/p1.jpg" alt="深紅褐色心形絨葉，粉色主脈" loading="lazy"></div><div><div class="n">02</div><h3>心形絨葉</h3></div></article>
         <article class="hcard"><div class="m"><video data-src="darkred" muted loop playsinline preload="none"></video></div><div><div class="n">03</div><h3>酒紅與粉脈</h3></div></article>
-        <article class="hcard"><div class="m"><img src="m/p2.jpg" alt="補光燈下深色葉面浮出銀白脈紋" loading="lazy"></div><div><div class="n">04</div><h3>紫光下的銀脈</h3></div></article>
-        <article class="hcard"><div class="m"><img src="m/p3.jpg" alt="手掌上的古銅綠色葉片，銀色絨毛沿葉脈分布" loading="lazy"></div><div><div class="n">05</div><h3>古銅與銀</h3></div></article>
+        <article class="hcard"><div class="m"><img data-m="p2" src="m/p2.jpg" alt="補光燈下深色葉面浮出銀白脈紋" loading="lazy"></div><div><div class="n">04</div><h3>紫光下的銀脈</h3></div></article>
+        <article class="hcard"><div class="m"><img data-m="p3" src="m/p3.jpg" alt="手掌上的古銅綠色葉片，銀色絨毛沿葉脈分布" loading="lazy"></div><div><div class="n">05</div><h3>古銅與銀</h3></div></article>
         <article class="hcard"><div class="m"><video data-src="silver" muted loop playsinline preload="none"></video></div><div><div class="n">06</div><h3>銀白網紋</h3></div></article>
       </div>
     </div>
@@ -1348,27 +1360,25 @@ body[data-tone="dark"] .catc:not(.all),body[data-tone="dark"] .lrow,body[data-to
     <div class="pin">
       <div class="wrap">
         <div>
-          <h2>Traced<small>從母株到你手上</small></h2>
+          <h2>Traced<small>從一顆種子到你手上</small></h2>
           <ol class="steps" id="steps">
-            <li><b>母株登錄</b><span>取得永久編號</span></li>
-            <li><b>側芽冒出</b><span>自動接上子編號，保存拍攝時間</span></li>
-            <li><b>長出新根</b><span>紀錄登錄後不能修改</span></li>
-            <li><b>分株上盆</b><span>插上編號標籤</span></li>
-            <li><b>交到你手上</b><span>輸入編號，查看完整紀錄</span></li>
+            <li><b>種子發芽</b><span>冒出胚根那天取得永久編號，接上親本</span></li>
+            <li><b>長出幼苗</b><span>每張照片自動保存拍攝時間</span></li>
+            <li><b>一葉一紀錄</b><span>每片新葉都拍照存證，登錄後不能修改</span></li>
+            <li><b>成株交到你手上</b><span>輸入編號，查看從種子開始的完整紀錄</span></li>
           </ol>
         </div>
         <div class="passport" id="passport">
-          <div class="pp-top"><span>植物護照</span><span id="ppStage">母株</span></div>
-          <div class="pp-code" id="ppCode">AN-2610-K7Q3</div>
+          <div class="pp-top"><span>植物護照</span><span id="ppStage">種子 · 發芽</span></div>
+          <div class="pp-code" id="ppCode">AN-2610-K7Q3-F01</div>
           <div class="pp-media" id="ppMedia">
-            <img class="on" src="m/p1.jpg" alt="母株葉片">
-            <video data-src="offset-var" muted loop playsinline preload="none"></video>
-            <video data-src="roots" muted loop playsinline preload="none"></video>
-            <video data-src="slowleaf" muted loop playsinline preload="none"></video>
-            <video data-src="nursery" muted loop playsinline preload="none"></video>
-            <span class="pp-exif" id="ppExif">母株 · 已登錄</span>
+            <img class="on" data-m="trace1" src="m/trace1.webp" alt="色鉛筆畫：盆土上剛冒出胚根與新芽的花燭種子">
+            <img data-m="trace2" src="m/trace2.webp" alt="色鉛筆畫：長出兩片小葉的花燭幼苗" loading="lazy">
+            <img data-m="trace3" src="m/trace3.webp" alt="色鉛筆畫：長出多片銀脈葉的花燭小苗" loading="lazy">
+            <img data-m="trace4" src="m/trace4.webp" alt="色鉛筆畫：大片粉紫脈紋葉的花燭成株" loading="lazy">
+            <span class="pp-exif" id="ppExif">EXIF 2026:03:04 08:12</span>
           </div>
-          <div class="pp-tl" id="ppTl"><div><i></i>冒出</div><div><i></i>長根</div><div><i></i>上盆</div><div><i></i>查驗</div></div>
+          <div class="pp-tl" id="ppTl"><div><i></i>發芽</div><div><i></i>幼苗</div><div><i></i>成長</div><div><i></i>查驗</div></div>
           <div class="pp-stamp" id="ppStamp">已驗證<br>✓</div>
         </div>
       </div>
@@ -1380,9 +1390,9 @@ body[data-tone="dark"] .catc:not(.all),body[data-tone="dark"] .lrow,body[data-to
   <section class="sec wrap" id="wallSec" data-tone="dark">
     <div class="sh"><h2>Greenhouse<small>溫室日常</small></h2></div>
     <div class="wall" id="wall">
-      <div class="wcol" data-speed="-0.08"><div class="wi"><video data-src="offset-var" muted loop playsinline preload="none"></video><span>側芽上盆</span></div><div class="wi"><img src="m/p2.jpg" alt="" loading="lazy"><span>補光燈下</span></div></div>
+      <div class="wcol" data-speed="-0.08"><div class="wi"><video data-src="offset-var" muted loop playsinline preload="none"></video><span>側芽上盆</span></div><div class="wi"><img data-m="p2" src="m/p2.jpg" alt="" loading="lazy"><span>補光燈下</span></div></div>
       <div class="wcol" data-speed="0.06"><div class="wi"><video data-src="roots" muted loop playsinline preload="none"></video><span>檢查根系</span></div><div class="wi"><video data-src="rosette" muted loop playsinline preload="none"></video><span>溫室一角</span></div></div>
-      <div class="wcol" data-speed="-0.12"><div class="wi"><video data-src="slowleaf" muted loop playsinline preload="none"></video><span>插上標籤</span></div><div class="wi"><img src="m/p5.jpg" alt="" loading="lazy"><span>酒紅圓葉</span></div></div>
+      <div class="wcol" data-speed="-0.12"><div class="wi"><video data-src="slowleaf" muted loop playsinline preload="none"></video><span>插上標籤</span></div><div class="wi"><img data-m="p5" src="m/p5.jpg" alt="" loading="lazy"><span>酒紅圓葉</span></div></div>
       <div class="wcol" data-speed="0.04"><div class="wi"><video data-src="offset-var2" muted loop playsinline preload="none"></video><span>斑葉小苗</span></div><div class="wi"><video data-src="silver" muted loop playsinline preload="none"></video><span>銀白網紋</span></div></div>
     </div>
   </section>
@@ -1465,7 +1475,7 @@ body[data-tone="dark"] .catc:not(.all),body[data-tone="dark"] .lrow,body[data-to
   <!-- LINEAGE -->
   <section class="sec wrap">
     <div class="lin">
-      <div class="img rv pre"><img src="m/p4.jpg" alt="兩片花燭葉並列：銀綠色的銀色襯裙與深酒紅的紅皇后 2.0" loading="lazy">
+      <div class="img rv pre"><img data-m="p4" src="m/p4.jpg" alt="兩片花燭葉並列：銀綠色的銀色襯裙與深酒紅的紅皇后 2.0" loading="lazy">
       </div>
       <div>
         <h2 class="hd2">Lineage<small>血統，寫在編號裡</small></h2>
@@ -1510,10 +1520,23 @@ const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
 const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
 
 /* ================= media: lazy sources, play only when visible ================= */
-document.querySelectorAll('video[data-src]').forEach(v => { v.poster = 'm/'+v.dataset.src+'.jpg'; });
+// 主頁素材可在超級管理者後台「主頁素材」替換；替換資料存在 site/media，並快取在瀏覽器
+let MEDIA={}; try{ MEDIA=JSON.parse(localStorage.getItem('vein.media')||'{}')||{}; }catch(e){}
+const MEDIA_EXT={trace1:'webp',trace2:'webp',trace3:'webp',trace4:'webp'};
+const vSrc=k=>MEDIA[k]?.url||('m/'+k+'.mp4');
+const vPoster=k=>MEDIA[k]?(MEDIA[k].poster||''):('m/'+k+'.jpg');
+const mImg=k=>MEDIA[k]?.url||('m/'+k+'.'+(MEDIA_EXT[k]||'jpg'));
+function applyMedia(next){
+  if (next){ MEDIA=next; try{ localStorage.setItem('vein.media',JSON.stringify(next)); }catch(e){} }
+  document.querySelectorAll('video[data-src]').forEach(v=>{ const k=v.dataset.src, pst=vPoster(k);
+    if (v.getAttribute('poster')!==pst){ if(pst) v.poster=pst; else v.removeAttribute('poster'); }
+    if (v.getAttribute('src')&&v.getAttribute('src')!==vSrc(k)){ const was=!v.paused; v.src=vSrc(k); if(was&&!REDUCE) v.play().catch(()=>{}); } });
+  document.querySelectorAll('img[data-m]').forEach(im=>{ const u=mImg(im.dataset.m); if(im.getAttribute('src')!==u) im.src=u; });
+}
+applyMedia();
 const vio = new IntersectionObserver(es => es.forEach(e => {
   const v=e.target;
-  if (e.isIntersecting){ if (!v.src) v.src='m/'+v.dataset.src+'.mp4'; if (!REDUCE && !v.dataset.hold) v.play().catch(()=>{}); }
+  if (e.isIntersecting){ if (!v.src) v.src=vSrc(v.dataset.src); if (!REDUCE && !v.dataset.hold) v.play().catch(()=>{}); }
   else v.pause();
 }), { rootMargin:'200px 0px' });
 document.querySelectorAll('video[data-src]').forEach(v => vio.observe(v));
@@ -1552,18 +1575,17 @@ function hsFrame(){ const r=hs.getBoundingClientRect(); const over=Math.max(0,tr
 // story
 const story=$('#trace'), steps=[...document.querySelectorAll('#steps li')], media=[...document.querySelectorAll('#ppMedia > img, #ppMedia > video')];
 const ST=[
-  {code:'AN-2610-K7Q3', stage:'母株', exif:'母株 · 已登錄', tl:0},
-  {code:'AN-2610-K7Q3-S01', stage:'側芽 · 冒出', exif:'EXIF 2026:08:02 09:41', tl:1},
-  {code:'AN-2610-K7Q3-S01', stage:'側芽 · 長根', exif:'EXIF 2026:08:29 16:05', tl:2},
-  {code:'AN-2610-K7Q3-S01', stage:'側芽 · 上盆', exif:'EXIF 2026:09:12 10:22', tl:3},
-  {code:'AN-2610-K7Q3-S01', stage:'買家查驗', exif:'4 筆紀錄 · 母株已登錄', tl:4, stamp:true},
+  {code:'AN-2610-K7Q3-F01', stage:'種子 · 發芽', exif:'EXIF 2026:03:04 08:12', tl:1},
+  {code:'AN-2610-K7Q3-F01', stage:'幼苗', exif:'EXIF 2026:04:18 10:37', tl:2},
+  {code:'AN-2610-K7Q3-F01', stage:'小苗 · 5 片葉', exif:'EXIF 2026:07:26 15:02', tl:3},
+  {code:'AN-2610-K7Q3-F01', stage:'成株 · 買家查驗', exif:'24 筆紀錄 · 親本已登錄', tl:4, stamp:true},
 ];
 let si=-1;
 function setStep(i){ if(i===si) return; si=i; const s=ST[i];
   steps.forEach((li,k)=>li.classList.toggle('on',k===i));
   $('#ppCode').textContent=s.code; $('#ppStage').textContent=s.stage; $('#ppExif').textContent=s.exif;
   document.querySelectorAll('#ppTl div').forEach((d,k)=>d.classList.toggle('on',k<s.tl));
-  media.forEach((m,k)=>{ m.classList.toggle('on',k===i); if(m.tagName==='VIDEO'){ m.dataset.hold = k===i ? '' : '1'; if(k===i){ if(!m.src) m.src='m/'+m.dataset.src+'.mp4'; if(!REDUCE) m.play().catch(()=>{}); } else m.pause(); } });
+  media.forEach((m,k)=>{ m.classList.toggle('on',k===i); if(m.tagName==='VIDEO'){ m.dataset.hold = k===i ? '' : '1'; if(k===i){ if(!m.src) m.src=vSrc(m.dataset.src); if(!REDUCE) m.play().catch(()=>{}); } else m.pause(); } });
   $('#ppStamp').classList.toggle('on',!!s.stamp); $('#passport').style.setProperty('--ry',(-10+i*5)+'deg');
 }
 media.forEach((m,k)=>{ if(m.tagName==='VIDEO') m.dataset.hold='1'; });
@@ -2450,7 +2472,7 @@ function renderShop(force){
   const dr=$('#doorRaffle'); if(dr){ const n=pubRaffles().filter(r=>rState(r)==='open').length; dr.textContent=n?n+' 場進行中':'即將推出'; }
   if (S.failed) nt.append(h('div',{class:'notice',text:window.__veinNoConfig?'網站尚未設定 Firebase（public/js/firebase-config.js）。':'目前無法連線到資料，請稍後重新整理。'}));
   if (!pub().length&&T!=='sellers'){
-    body.append(h('div',{class:'empty-shop'}, h('video',{src:'m/nursery.mp4',poster:'m/nursery.jpg',muted:true,loop:true,playsinline:true,autoplay:!REDUCE}),
+    body.append(h('div',{class:'empty-shop'}, h('video',{src:vSrc('nursery'),poster:vPoster('nursery')||null,muted:true,loop:true,playsinline:true,autoplay:!REDUCE}),
       h('div',{class:'c'}, h('div',{class:'kick',style:'color:var(--sprout)',text:S.ready?'即將上架':'載入中'}), h('h3',{text:S.ready?'第一批側芽整理中。':'正在載入植株…'}),
         h('p',{text:'上架後，每一株都會附編號與成長紀錄出現在這裡。'}))));
     body.querySelector('video').muted=true; return;
@@ -2712,6 +2734,7 @@ async function boot(){
   db.doc('site/admins').onSnapshot(d=>{ S.adminUids=(d.exists&&d.data().uids)||{}; if(adm.open) renderAdmin(false); }, ()=>{});
   if (S.admin) db.collection('profiles').onSnapshot(sn=>{ S.profiles.clear(); sn.docs.forEach(d=>S.profiles.set(d.id,d.data())); if(adm.open) renderAdmin(false); }, ()=>{});
   db.doc('site/info').onSnapshot(d=>{ S.site=d.exists?d.data():{}; renderAll(); }, ()=>{});
+  db.doc('site/media').onSnapshot(d=>{ applyMedia(d.exists?d.data():{}); const am=document.getElementById('admMedia'); if(am) fillAdmMedia(am); }, ()=>{});
   if (S.me) db.doc(`data/users/${S.me}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); }, ()=>{});
   setTimeout(()=>{ if(!S.ready){ S.ready=true; renderAll(); } }, 4000);
   if (location.hash==='#admin') route();
@@ -2969,13 +2992,14 @@ function renderAdmin(force){
   if (T==='mod'&&S.admin) return admMod(main);
   if (T==='users'&&S.admin) return admUsers(main);
   if (T==='site'&&S.admin) return admSite(main);
+  if (T==='media'&&S.isOwner) return admMedia(main);
   S.admTab='home'; admHome(main);
 }
 function renderAdmNav(){
   const pendingQ=allQuestions(S.me).filter(q=>!q.answer).length, liveN=mine().filter(live).length, pendO=sellerOrders(S.me).filter(o=>o.status==='pending').length, rOpen=[...S.raffles.values()].filter(r=>r.shop===S.me&&rState(r)==='ended').length;
   const apps=S.admin?[...S.shops.keys()].filter(u=>u!==house()&&!approved(u)).length:0;
   const items=[['home','總覽'],['plants','商品管理',mine().length],['new','新增上架'],['orders','訂單',pendO],['auc','競標',liveN],['raffle','抽獎',rOpen],['qa','顧客提問',pendingQ],['shop','賣場設定']];
-  if (S.admin) items.push(['sellers','賣家審核',apps],['mod','內容管理'],['users','會員管理',Object.keys(S.bans||{}).length],['site','網站設定']);
+  if (S.admin) items.push(['sellers','賣家審核',apps],['mod','內容管理'],['users','會員管理',Object.keys(S.bans||{}).length],['site','網站設定']); if (S.isOwner) items.push(['media','主頁素材']);
   $('#admNav').replaceChildren(h('div',{class:'brand'}, 'VEIN'), h('div',{class:'hint admsub',style:'margin:-6px 0 10px 4px',text:S.admin?'管理後台':'賣家後台 · '+shopName(S.me)}),
     ...items.map(([k,l,n])=>h('button',{type:'button','aria-current':String(S.admTab===k),onclick:()=>{ S.admTab=k; S.admEdit=null; S.admQ=''; renderAdmin(true); }}, l, n?h('span',{class:'n',text:String(n)}):null)),
     h('div',{class:'bottom'}, h('button',{type:'button',onclick:()=>{ adm.close(); go('#/seller/'+S.me); }}, '我的賣場頁 →'), h('button',{type:'button',onclick:()=>adm.close()}, '回到前台 →')));
@@ -3240,6 +3264,72 @@ function admSite(m){
   const savePanel=h('div',{class:'panel',style:'margin-top:20px;max-width:640px'}, h('h3',{text:'省流量工具'}), h('p',{class:'hint',text:'把舊版直接存在資料庫裡的圖片（縮圖、賣場頭像與封面、抽獎圖、成長紀錄照片）搬到 Storage，資料庫只留網址。每位訪客載入的資料會小很多。只需要執行一次。'}), h('div',{class:'row',style:'margin-top:10px'}, mbtn), mlog);
   m.append(admTop('網站設定'), f, savePanel, h('div',{class:'panel',style:'margin-top:20px;max-width:640px'}, h('h3',{text:'權限說明'}), h('p',{class:'hint',text:'平台管理員（擁有者 Google 帳號，以及在「會員管理」被指派的管理員）可以審核賣家、下架內容與封禁帳號。一般會員申請開店、通過審核後，就能在自己的賣家後台上架、處理訂單與抽獎；每個賣家只能改自己的資料。'})));
 }
+
+
+/* ---------- 主頁素材（只有擁有者帳號可以改） ---------- */
+const MEDIA_SLOTS=[
+  ['首屏',[['nursery-hd','video','中央大影片，往下捲會放大成全螢幕'],['darkred','video','左側小影片，也是收藏第 3 張'],['silver-hand','video','右側小影片']]],
+  ['收藏 Collection',[['p5','image','第 1 張「酒紅圓葉」，也用在溫室牆'],['p1','image','第 2 張「心形絨葉」'],['p2','image','第 4 張「紫光下的銀脈」，也用在溫室牆'],['p3','image','第 5 張「古銅與銀」'],['silver','video','第 6 張「銀白網紋」，也用在商店入口與溫室牆']]],
+  ['血統 Lineage',[['p4','image','雙親葉片並列的大圖']]],
+  ['植物追蹤 Traced',[['trace1','image','第 1 步「種子發芽」'],['trace2','image','第 2 步「長出幼苗」'],['trace3','image','第 3 步「一葉一紀錄」'],['trace4','image','第 4 步「成株交到你手上」']]],
+  ['溫室牆 Greenhouse',[['offset-var','video','「側芽上盆」'],['roots','video','「檢查根系」'],['slowleaf','video','「插上標籤」'],['rosette','video','「溫室一角」'],['offset-var2','video','「斑葉小苗」']]],
+  ['頁尾與其他',[['darkred-hd','video','頁尾「Grow slow.」放大影片'],['nursery','video','商店還沒有商品時的背景影片']]],
+];
+async function videoPoster(file){
+  const url=URL.createObjectURL(file), v=document.createElement('video');
+  v.muted=true; v.playsInline=true; v.preload='auto'; v.src=url;
+  try{
+    await new Promise((res,rej)=>{ v.onloadeddata=res; v.onerror=()=>rej(new Error('decode')); setTimeout(()=>rej(new Error('decode')),15000); });
+    if (!v.videoWidth) throw new Error('decode');
+    v.currentTime=Math.min(0.6,(v.duration||1)/3); await new Promise(r=>{ v.onseeked=r; setTimeout(r,3000); });
+    const sc=Math.min(1,1280/Math.max(v.videoWidth,v.videoHeight)), c=document.createElement('canvas');
+    c.width=Math.round(v.videoWidth*sc); c.height=Math.round(v.videoHeight*sc); c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+    let b=await toBlob(c,'image/webp',0.8); if(!b||b.type!=='image/webp') b=await toBlob(c,'image/jpeg',0.82); return b;
+  } finally { URL.revokeObjectURL(url); }
+}
+async function saveMedia(map){ await S.db.doc('site/media').set(map); applyMedia(map); }
+function mediaCard(k,type,label){
+  const o=MEDIA[k], st=h('span',{class:'hint ms-st',text:o?'已自訂 · '+(o.name||''):'預設'});
+  const pv=h('div',{class:'ms-pv'}, type==='video'
+    ? h('video',{src:vSrc(k),poster:vPoster(k)||null,muted:true,loop:true,playsinline:true,preload:'none',onmouseenter:e=>e.target.play().catch(()=>{}),onmouseleave:e=>e.target.pause()})
+    : h('img',{src:mImg(k),alt:'',loading:'lazy'}), h('span',{class:'ms-t mono',text:type==='video'?'VIDEO':'PHOTO'}));
+  const inp=h('input',{type:'file',class:'vh',accept:type==='video'?'video/mp4,video/webm,video/quicktime':'image/*'});
+  let busy=false;
+  inp.addEventListener('change',async()=>{ const f=inp.files[0]; inp.value=''; if(!f||busy) return;
+    if (!S.assets){ toast('請先登入'); return; }
+    busy=true; card.classList.add('busy');
+    try{
+      let ent;
+      if (type==='video'){
+        if (!/^video\//.test(f.type)) throw new Error('請選影片檔');
+        if (f.size>100*1024*1024) throw new Error('影片超過 100MB，請先剪短或壓縮');
+        st.textContent='檢查影片格式…';
+        let poster; try{ poster=await videoPoster(f); }catch(e){ throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式）。請轉成 MP4（H.264）再上傳'); }
+        const pUrl=await uploadSiteBlob(poster);
+        const url=await uploadSiteBlob(f,b=>{ st.textContent='上傳中 '+Math.round(b/f.size*100)+'%'; });
+        ent={type:'video',url,poster:pUrl,name:f.name,at:Date.now()};
+      } else {
+        st.textContent='處理照片中…';
+        const blob=await encode(await loadImage(f),1800,0.85);
+        const url=await uploadSiteBlob(blob,b=>{ st.textContent='上傳中 '+Math.round(b/blob.size*100)+'%'; });
+        ent={type:'image',url,name:f.name,at:Date.now()};
+      }
+      await saveMedia({...MEDIA,[k]:ent}); toast('已更換，主頁馬上生效');
+    }catch(e){ st.textContent='失敗：'+(e?.code==='storage/unauthorized'?'沒有上傳權限（只有擁有者帳號可以改主頁素材）':(e?.message||'請稍後再試')); busy=false; card.classList.remove('busy'); return; }
+    busy=false; card.classList.remove('busy');
+  });
+  const card=h('div',{class:'mslot'+(o?' custom':'')}, pv,
+    h('div',{class:'ms-b'}, h('b',{text:label}), h('span',{class:'mono hint',text:k}), st,
+      h('div',{class:'row',style:'margin-top:8px;gap:8px'}, h('label',{class:'btn ink sm'}, inp, type==='video'?'更換影片':'更換照片'),
+        o?confirmBtn('還原預設','soft',async()=>{ const m={...MEDIA}; delete m[k]; try{ await saveMedia(m); toast('已還原'); }catch(e){ toast('還原失敗'); } }):null)));
+  return card;
+}
+function fillAdmMedia(box){ if(box.querySelector('.mslot.busy')) return; box.replaceChildren(...MEDIA_SLOTS.map(([g,items])=>h('section',{class:'ms-g'}, h('h3',{text:g}), h('div',{class:'ms-grid'}, ...items.map(([k,t,l])=>mediaCard(k,t,l)))))); }
+function admMedia(m){
+  const box=h('div',{id:'admMedia'}); fillAdmMedia(box);
+  m.append(admTop('主頁素材'), h('div',{class:'panel',style:'max-width:760px;margin-bottom:18px'}, h('p',{class:'hint',text:'替換主頁的影片與照片，存檔後所有訪客馬上看到新版本。影片建議用 MP4（H.264）、直式 9:16、10 秒內、20MB 以下；iPhone 可在「設定 → 相機 → 格式」選「最相容」。照片會自動壓縮成 WebP。隨時可以按「還原預設」。'})), box);
+}
+async function uploadSiteBlob(blob,onP){ const up=await S.assets.upload(blob,{onProgress:onP,dir:'site'}); return up.url||up.id; }
 
 /* ---------- photos ---------- */
 async function exifDate(file){ try{ const buf=await file.slice(0,256*1024).arrayBuffer(); const v=new DataView(buf); if(v.getUint16(0)!==0xFFD8) return null; let o=2;
