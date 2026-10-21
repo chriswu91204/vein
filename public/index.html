@@ -1963,6 +1963,16 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
 
 .kwarn{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#FFF6D6;border:1.5px solid #F2C94C;border-radius:14px;padding:10px 12px;font-size:13.5px;margin:4px 0 10px}.kwarn span{flex:1 1 260px}
 .rg-kind{background:rgba(255,255,255,.14);color:#fff;border:0}.rg-kind option{color:#111}
+
+/* 堆疊 */
+.tv-stw{display:flex;flex-direction:column;gap:6px}
+.tv-stack{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;padding:12px;cursor:pointer;position:relative;box-shadow:0 1px 0 var(--line),0 6px 0 -2px var(--surface),0 6px 0 -1px var(--line),0 12px 0 -4px var(--surface),0 12px 0 -3px var(--line);margin-bottom:10px;border-left:4px solid #D2FF00;transition:box-shadow .3s}
+.tv-stack.open{box-shadow:0 0 0 2px #D2FF00;margin-bottom:0}.tv-stack.sel{box-shadow:0 0 0 2px var(--leaf-2),0 6px 0 -2px var(--surface),0 6px 0 -1px var(--leaf-2)}
+.tv-pile{position:relative;width:70px;height:62px;flex:none}
+.tv-pile img{position:absolute;width:52px;height:52px;border-radius:11px;object-fit:cover;border:2px solid var(--surface);left:calc(var(--k)*9px);top:calc(var(--k)*-3px + 8px);transform:rotate(calc((var(--k) - 1)*6deg));box-shadow:0 4px 10px -4px rgba(0,0,0,.4);transition:transform .3s}
+.tv-stack:hover .tv-pile img{transform:rotate(calc((var(--k) - 1)*12deg)) translateX(calc((var(--k) - 1)*4px))}
+.tv-pile em{position:absolute;right:-4px;bottom:-4px;font-style:normal;font-size:12px;font-weight:800;background:#D2FF00;color:#111;border-radius:999px;padding:1px 7px}
+.tv-stk{display:flex;flex-direction:column;gap:8px;padding:10px 0 4px 18px;border-left:3px dashed #D2FF00;margin:0 0 12px 16px;animation:gpIn .35s var(--ease)}
 </style>
 
 </head>
@@ -4655,6 +4665,8 @@ function admPlants(m){
 }
 async function unlistPlant(p){ await updatePlant(p.id,{listed:false,status:'keep',mode:'fixed',endsAtMs:null},'已下架，履歷仍保留在植物管理'); renderAdmin(true); }
 /* ---- 植物管理（植物檔案庫） ---- */
+const parLbl=(p,w)=>{ const id=w==='m'?momId(p):dadId(p), x=id&&S.plants.get(id), e=w==='m'?p.momExt:p.dadExt; return x?x.code:e?(e.name||e.code):(w==='m'?momCode(p):dadCode(p))||''; };
+function stackKey(p){ if(p.stack) return String(p.stack).startsWith('x:')?null:'s:'+p.stack; const m=parLbl(p,'m'), d=parLbl(p,'d'); if(!m&&!d) return null; return 'a:'+[(p.kind||'mother'),normSp(p.species).toLowerCase(),String(p.cultivar||'').toLowerCase(),m.toLowerCase(),d.toLowerCase()].join('|'); }
 function admReg(m){
   const F=S.rg||(S.rg={q:'',g:'',kind:'',sale:'',tag:'',sort:'code',view:'tier',path:[],open:{}}), sel=S.rgSel||(S.rgSel=new Set()); F.path=F.path||[]; F.open=F.open||{};
   const all0=mine(), saleK=p=>saleState(p)[0]==='on'&&p.status==='available'?'on':saleState(p)[0];
@@ -4716,6 +4728,16 @@ function admReg(m){
         (ks.length||dk.length)?h('button',{type:'button',class:'tv-kids',onclick:e=>{ e.stopPropagation(); drill(p); }}, h('b',{text:String(all+dk.length)}), h('span',{text:kidsTxt}), h('i',{text:'›'})):null,
         h('button',{type:'button',class:'btn soft sm tv-m',onclick:e=>{ e.stopPropagation(); openE(p); },text:'管理'}));
       r.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; (ks.length||dk.length)?drill(p):openE(p); }); return r; };
+    const stackRow=(k,L)=>{ L.sort(codeSort); const p0=L[0], key='st:'+k, open=!!F.open[key], allOn=L.every(p=>sel.has(p.id)), pics=L.filter(p=>p.thumb).slice(0,3);
+      const kinds=[...new Set(L.map(p=>KIND[p.kind||'mother']))].join('、'), par=[parLbl(p0,'m'),parLbl(p0,'d')].filter(Boolean).join(' × ');
+      const head=h('div',{class:'tv-stack'+(open?' open':'')+(allOn?' sel':'')},
+        h('label',{class:'rg-rck',onclick:e=>e.stopPropagation()}, h('input',{type:'checkbox',checked:allOn,onchange:e=>selAll(L,e.target.checked)})),
+        h('span',{class:'tv-pile'}, ...pics.map((p,i)=>h('img',{src:p.thumb,alt:'',style:'--k:'+i})), !pics.length?h('span',{class:'tv-img rg-noimg',text:'🌱'}):null, h('em',{text:L.length})),
+        h('div',{class:'rg-rm'}, h('div',{class:'tv-t'}, h('b',{class:'rg-rn',text:p0.cultivar||short(p0.species)||'未命名'}), h('span',{class:'tag dark',text:'一疊 '+L.length+' 株'}), h('span',{class:'tag '+kindTag(p0),text:kinds})),
+          h('div',{class:'rg-rc mono',text:p0.code+' → '+L[L.length-1].code}), par?h('div',{class:'memo sm'}, h('i',{text:'親本'}), h('span',{text:par})):null, memoEl(p0,'sm')),
+        h('button',{type:'button',class:'tv-kids',onclick:e=>{ e.stopPropagation(); F.open[key]=!open; renderAdmin(true); }}, h('b',{text:String(L.length)}), h('span',{text:open?'收起':'展開這疊'}), h('i',{text:open?'⌃':'⌄'})));
+      head.addEventListener('click',e=>{ if(e.target.closest('input,button,label')) return; F.open[key]=!open; renderAdmin(true); });
+      return h('div',{class:'tv-stw'}, head, open?h('div',{class:'tv-stk'}, ...L.map(row)):null); };
     const groupsOf=L=>{ const m=new Map(); L.forEach(c=>{ const G=c.grp&&groupMeta(c.shop,c.grp); const k=c.kind==='pup'?'pup':G?'g:'+c.grp:c.batch?'b:'+c.batch+'|'+(c.kind||''):'one:'+(c.kind||''); if(!m.has(k)) m.set(k,[]); m.get(k).push(c); });
       return [...m].map(([k,L2])=>{ L2.sort(codeSort); const c0=L2[0], G=c0.grp&&groupMeta(c0.shop,c0.grp); return {k,L:L2,title:k==='pup'?'側芽':G?'群組：'+G.name:k.startsWith('b:')?KIND[c0.kind||'mother']+'（同一批）':KIND[c0.kind||'mother'],range:c0.code+(L2.length>1?' → '+L2[L2.length-1].code:''),at:Math.min(...L2.map(x=>toMs(x.createdAt)||0))}; })
         .sort((a,b)=>(a.k==='pup'?-1:b.k==='pup'?1:a.at-b.at)); };
@@ -4726,7 +4748,12 @@ function admReg(m){
         N>cut?h('button',{type:'button',class:'btn soft sm tv-more',onclick:()=>{ F.open[key]=true; renderAdmin(true); },text:'顯示全部 '+N+' 株'}):null); };
     if (!F.path.length){
       const roots=all0.filter(p=>!momId(p)||!byId.has(momId(p))).sort((a,b)=>((a.kind||'mother')==='mother'?0:1)-((b.kind||'mother')==='mother'?0:1)||codeSort(a,b));
-      return h('div',{}, h('div',{class:'tv-crumb'}, h('b',{text:'母本與源頭'}), h('span',{class:'hint',text:roots.length+' 株 · 有後代的點進去看側芽與實生苗（共 '+all0.length+' 株）'})), h('div',{class:'tv-list'}, ...roots.map(row)));
+      // 堆疊：手動疊在一起的（stack 欄位），或「名字一樣＋父母本一樣」的自動疊成一疊
+      const stacks=new Map(), items=[];
+      roots.forEach(p=>{ const k=stackKey(p); if(!k){ items.push(p); return; } if(!stacks.has(k)){ stacks.set(k,[]); items.push(k); } stacks.get(k).push(p); });
+      const out=items.map(x=>typeof x==='string'?(stacks.get(x).length>1?stackRow(x,stacks.get(x)):row(stacks.get(x)[0])):row(x));
+      const nSt=[...stacks.values()].filter(L=>L.length>1).length;
+      return h('div',{}, h('div',{class:'tv-crumb'}, h('b',{text:'母本與源頭'}), h('span',{class:'hint',text:roots.length+' 株'+(nSt?'（'+nSt+' 疊）':'')+' · 有後代的點進去看側芽與實生苗（共 '+all0.length+' 株）'})), h('div',{class:'tv-list'}, ...out));
     }
     const cur=byId.get(F.path[F.path.length-1]), ks=kidMap.get(cur.id)||[], dk=dadMap.get(cur.id)||[];
     const crumb=h('div',{class:'tv-crumb'}, h('button',{type:'button',class:'bf-lk',onclick:()=>{ F.path=[]; renderAdmin(true); },text:'← 母本與源頭'}), ...F.path.map((id,i)=>{ const x=byId.get(id); return [h('span',{class:'hint',text:'›'}), i<F.path.length-1?h('button',{type:'button',class:'bf-lk mono',onclick:()=>{ F.path=F.path.slice(0,i+1); renderAdmin(true); },text:x.code}):h('b',{class:'mono',text:x.code})]; }).flat());
@@ -4743,6 +4770,8 @@ function admReg(m){
     h('button',{class:'btn ink sm',type:'button',onclick:()=>printLabels([...sel].map(id=>S.plants.get(id)),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'列印標籤'}),
     h('button',{class:'btn soft sm',type:'button',onclick:()=>downloadCSV([...sel].map(id=>S.plants.get(id))),text:'下載 CSV'}),
     h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.grpNew=new Set(sel); S.admTab='groups'; renderAdmin(true); },text:'做成群組'}),
+    h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); if(ps.length<2){ toast('至少選 2 株才能疊在一起'); return; } const sid=ps.sort(codeSort)[0].id; let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:sid}); p.stack=sid; n++; }catch(x){} } toast('已把 '+n+' 株疊在一起'); sel.clear(); renderAdmin(true); },text:'疊在一起'}),
+    h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:'x:'+p.id}); p.stack='x:'+p.id; n++; }catch(x){} } toast('已把 '+n+' 株從疊裡拿出來'); sel.clear(); renderAdmin(true); },text:'取消堆疊'}),
     h('select',{class:'chip rg-kind','aria-label':'改類型',onchange:async e=>{ const k=e.target.value; if(!k) return; const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean), ok=ps.filter(p=>!isLocked(p)&&(p.kind||'mother')!==k&&(k!=='pup'||momId(p)||p.momExt)), skip=ps.length-ok.length-ps.filter(p=>(p.kind||'mother')===k).length;
       e.target.disabled=true; let n=0; for(const p of ok){ try{ const patch={kind:k}; if(k==='pup'){ patch.parentId=momId(p)||null; patch.parentCode=momCode(p)||null; patch.dadId=null; patch.dadCode=null; } else if(p.kind==='pup'){ patch.parentId=null; patch.parentCode=null; } await S.db.doc(pPath(p)).update(patch); Object.assign(p,patch); n++; }catch(x){} }
       toast('已把 '+n+' 株改成「'+KIND[k]+'」'+(skip>0?'（'+skip+' 株略過：已轉手鎖定，或改側芽但沒有母株）':'')); renderAdmin(true); }}, h('option',{value:'',text:'改類型…'}), h('option',{value:'seedling',text:'→ 實生苗'}), h('option',{value:'pup',text:'→ 側芽'}), h('option',{value:'mother',text:'→ 母株'})),
