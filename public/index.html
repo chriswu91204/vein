@@ -2028,6 +2028,40 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
 .tv-gc img{width:30px;height:30px;border-radius:8px;object-fit:cover}.tv-gc span{display:flex;flex-direction:column;line-height:1.2}.tv-gc small{color:var(--fg2);font-size:11px}
 .tv-gc.on{box-shadow:0 0 0 2px var(--leaf-2);background:var(--leaf-soft)}
 @media (max-width:820px){.tv-fam span{display:none}}
+
+/* 教學中心 */
+.help-btn{display:inline-flex;align-items:center;gap:6px}.help-btn b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#D2FF00;color:#111;font-size:12px}
+.gd-hero{background:#0C0E0D;color:#fff;border-radius:30px;padding:clamp(24px,5vw,54px);position:relative;overflow:hidden}
+.gd-hero::after{content:"";position:absolute;right:-40px;top:-60px;width:260px;height:260px;background:repeating-linear-gradient(135deg,#D2FF00 0 18px,transparent 18px 34px);opacity:.25;transform:rotate(8deg)}
+.gd-hero h1{font-size:clamp(32px,5vw,58px);margin:10px 0 8px;font-style:italic;font-weight:900}.gd-hero p{color:rgba(255,255,255,.75);max-width:36em}
+.gd-q{margin-top:18px;max-width:520px;background:#fff}
+.gd-hero .btn.soft{background:rgba(255,255,255,.12);color:#fff}
+.gd-cat{margin-top:34px}.gd-cat h3{font-size:22px;margin-bottom:12px}
+.gd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.gd-card{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:20px;padding:18px;text-decoration:none;color:inherit;box-shadow:0 1px 0 var(--line);transition:transform .3s var(--ease),box-shadow .3s;animation:gpChip .5s var(--ease) both;animation-delay:calc(var(--i)*50ms)}
+.gd-card:hover{transform:translateY(-4px);box-shadow:0 18px 30px -18px rgba(0,0,0,.35)}
+.gd-card b{font-size:16px;line-height:1.35;padding-right:20px}.gd-card small{color:var(--fg2)}.gd-card i{position:absolute;right:16px;bottom:14px;font-style:normal;color:var(--leaf-2);font-weight:800}
+.gd-card.seen{box-shadow:0 0 0 1.5px #D2FF00}
+.gd-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#D2FF00;font-size:22px;flex:none}
+.gd{max-width:760px}.gd-h{display:flex;gap:14px;align-items:center}.gd-h h2{font-size:clamp(20px,2.6vw,28px);line-height:1.25}
+.gd-steps{list-style:none;margin:20px 0 0;padding:0;position:relative}
+.gd-steps::before{content:"";position:absolute;left:17px;top:8px;bottom:8px;width:3px;background:linear-gradient(#D2FF00,#2E7D5B);border-radius:3px}
+.gd-steps li{display:flex;gap:14px;align-items:flex-start;padding:0 0 18px;position:relative;animation:gpChip .45s var(--ease) both;animation-delay:calc(var(--i)*80ms)}
+.gd-n{flex:none;width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:#111;color:#D2FF00;font-weight:900;position:relative;z-index:1;box-shadow:0 0 0 4px var(--paper)}
+.gd-steps h4{font-size:16px;margin:6px 0 4px}.gd-steps p{color:var(--fg2);line-height:1.7;font-size:14.5px}
+.gd-tips{background:#F5FFD6;border-radius:16px;padding:12px 14px;margin-top:6px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.gd-page{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:30px;align-items:start;margin-top:16px}
+.gd-next{display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:20px;padding:16px;position:sticky;top:84px}
+.gd-mini{display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit;font-size:13.5px;padding:8px;border-radius:12px}.gd-mini:hover{background:var(--paper)}.gd-mini span{font-size:18px}
+.ck{background:#0C0E0D;color:#fff}.ck-h{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.ck-h h3{color:#fff}.ck-h .hint{color:rgba(255,255,255,.6)}.ck-h .bf-lk{color:rgba(255,255,255,.6);margin-left:auto}
+.ck-bar{flex:1 1 160px;height:8px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden}.ck-bar i{display:block;height:100%;background:#D2FF00;border-radius:8px;transition:width .6s var(--ease)}
+.ck-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-top:14px}
+.ck-it{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:8px 10px}
+.ck-b{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:grid;place-items:center;font-weight:900;flex:none}
+.ck-it.ok .ck-b{background:#D2FF00;border-color:#D2FF00;color:#111}.ck-it.ok .ck-t{text-decoration:line-through;opacity:.5}
+.ck-t{flex:1;text-align:left;border:0;background:none;color:#fff;font:inherit;font-size:14px;cursor:pointer}.ck-g{border:0;background:none;color:#D2FF00;font:inherit;font-size:12.5px;cursor:pointer;font-weight:700}
+.ck .btn.soft{background:rgba(255,255,255,.12);color:#fff}
+@media (max-width:820px){.gd-page{grid-template-columns:1fr}.gd-next{position:static}}
 </style>
 
 </head>
@@ -2197,6 +2231,7 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
   <div class="page" id="pgSeller" hidden>
   <section class="sec wrap page-top" id="seller"><div id="sellerBody"></div></section>
   </div>
+  <div class="page" id="pgGuide" hidden><section class="sec wrap page-top" id="guidePage"></section></div>
   <div class="page" id="pgClaim" hidden><section class="sec wrap page-top" id="claimPage"></section></div>
   <div class="page" id="pgHistory" hidden><section class="sec wrap page-top" id="historyPage"></section></div>
   <div class="page" id="pgGroup" hidden><section class="sec wrap page-top" id="groupPage"></section></div>
@@ -2269,7 +2304,7 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
     <div class="cols">
       <div><div class="brand" style="margin-bottom:10px"><i></i>VEIN</div><p id="footAbout" style="max-width:26em">有編號、有紀錄的花燭側芽。</p></div>
       <div><h5>植物商店</h5><a href="#/store">商店主頁</a><a href="#/store/auction">競標</a><a href="#/store/buy">直購</a><a href="#/store/sellers">商家</a><a href="#/raffle">抽獎</a></div>
-      <div><h5>溯源</h5><a href="#/verify">怎麼運作</a><a href="#/verify">查驗編號</a></div>
+      <div><h5>溯源</h5><a href="#/verify">怎麼運作</a><a href="#/verify">查驗編號</a><h5 style="margin-top:14px">教學</h5><a href="#/guide">新手教學中心</a><a href="#/guide/new">植物上架</a><a href="#/guide/trace">溯源查驗</a></div>
       <div><h5>帳號</h5><button type="button" data-me="orders">我的訂單</button><button type="button" data-me="favs">我的收藏</button><button type="button" data-me="raffles">我的抽獎</button><button type="button" data-me="sell">成為賣家</button></div>
     </div>
     <div class="legal"><span>© VEIN</span><span id="footContact"></span></div>
@@ -3956,7 +3991,7 @@ async function boot(){
 }
 
 /* ---------- router ---------- */
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim'];
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide'];
 function go(hash){ if(location.hash===hash) route(); else location.hash=hash; }
 function route(){
   const hs=location.hash||'#/';
@@ -3978,13 +4013,14 @@ function route(){
   const changed=pg!==PAGE||(pg==='seller')||tabChanged||plantChanged||groupChanged||histChanged;
   const apply=()=>{
     PAGE=pg; document.body.dataset.page=pg;
-    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim';
+    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim'; $('#pgGuide').hidden=pg!=='guide';
     if (pg==='home'&&window.__hsSize) __hsSize();
     if (pg==='verify'&&arg){ $('#vcode').value=arg; renderVerify(arg); }
     if (pg==='seller') renderSeller(true);
     if (pg==='group') renderGroup(true);
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
+    if (pg==='guide') renderGuide(arg);
     if (pg==='plant'&&(plantChanged||!$('#dInfo'))) buildPlantPage(arg);
     if (pg==='shop') renderShop(true);
     if (pg==='raffle'){ renderRafflePage(); if(arg) openRaffle(arg); else if(dlg.open&&S.openR) dlg.close(); }
@@ -4062,6 +4098,118 @@ function renderGroup(force){
     h('div',{class:'gp-pk'}, h('div',{class:'gp-pkh'}, h('div',{}, h('h3',{text:'挑一個編號'}), h('p',{class:'hint',text:'每一個編號都是獨立的一株，有自己的照片和成長紀錄。'})), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('label',{class:'search'}, svg('i-search'), q), seg, rnd, cnt)), grid)));
   drawGrid();
   const s0=S.plants.get(S.gSel); pick(s0&&s0.grp===gid?s0:null,false);
+}
+
+/* ---------- 新手教學中心 ---------- */
+const GUIDE_CATS=[['seller','🌱 賣家：登錄與上架'],['trace','🧬 溯源與履歷'],['buyer','🛍 買家']];
+const GUIDES=[
+ {id:'start',cat:'seller',ic:'🚀',t:'5 分鐘開賣：從開店到第一株上架',min:5,steps:[
+  ['開賣場','右上角帳號 →「成為賣家」填資料送出，平台審核通過後商品才會公開（審核前也能先登錄、上架）。'],
+  ['設定聯絡方式與匯款帳號','後台「賣場 → 賣場設定」填 LINE 與匯款帳號。買家下單後會看到你的匯款帳號，並用 LINE 跟你聯絡。'],
+  ['登錄第一株','後台「植物 → 登錄一株」：選類型、填品種、拍照，系統自動給編號。'],
+  ['上架販售','「銷售 → 上架販售」勾選植株、設定直購價或競標，按上架。'],
+  ['分享出去','植物頁按「↗ 轉發」，會產生一張分享圖＋文字，傳到 LINE、IG。']],
+  tips:['編號與照片拍攝時間登錄後不能改，這是溯源可信的關鍵。','沒有要賣的母株也建議登錄，之後側芽、實生苗才接得上血統。'],go:[['登錄第一株','adm:new'],['賣場設定','adm:shop']]},
+ {id:'new',cat:'seller',ic:'🏷',t:'登錄一株植物',min:2,steps:[
+  ['選類型','母株＝你的源頭植株；側芽＝從某株母株分出來；實生苗＝播種出來的。選錯之後也能在「管理」改。'],
+  ['選父母本','點父母本欄位，輸入編號或品種搜尋 VEIN 上已登錄的植株。國外進口、向別人買的，打開「母本不在 VEIN 上」填名稱、來源、上傳父母本照片。'],
+  ['填品種與備註','選分類（屬）、填種名／品種名。「備註」會顯示在商品縮圖上，適合寫雜交組合或特色（例如：斑葉、已發根）。'],
+  ['拍照或錄影','可以放多張照片和 10 秒內的影片，第一張是封面。照片會保留原始拍攝時間。'],
+  ['公開與上架','預設會公開植物檔案；勾「直接上架販售」可以一起設定價格。按「登錄」就完成，編號自動產生。']],
+  tips:['編號格式：屬代碼-賣家代碼-流水號（例 AN-VEN-00012），側芽接在母株後面（-S01）。','沒照片也能先登錄，但會先不公開，補照片後再打開。'],go:[['去登錄一株','adm:new']]},
+ {id:'batch',cat:'seller',ic:'📷',t:'批量登錄＋連續拍照（一整批實生苗、側芽）',min:4,steps:[
+  ['選「新的一批」或「接續之前的一批」','同一組親本播的一批實生苗、同一株分出的側芽，用批量登錄最快。之後同一批還有新的，選「接續」就會沿用所有資料。'],
+  ['共同資料只填一次','類型（預設實生苗）、父母本、分類品種、備註、共同說明、標籤、要不要上架或做成群組，都只填一次。'],
+  ['📷 連續拍照','按「連續拍照」打開相機，畫面上方大字顯示現在拍的編號。按快門拍這株，按「下一株 →」編號自動 +1，整批拍完都不用離開相機。打開「拍一張就自動換下一株」更快。'],
+  ['或一株一株加','也可以按「＋ 增加編號並加照片」，每按一次多一株，再選照片。每張卡片可以填自己的價格、葉片數、備註。'],
+  ['建立並印標籤','按「建立 N 株」，完成頁可以「下載 Excel 標籤檔」或直接列印 QR 標籤。']],
+  tips:['編號是連號的，正好給標籤機一路往下印。','建立前可以按最後一株的 ✕ 刪掉多的編號。'],go:[['去批量登錄','adm:batch']]},
+ {id:'group',cat:'seller',ic:'🧺',t:'群組販售：一大批只顯示一張卡，買家挑編號',min:2,steps:[
+  ['建立群組','三種方式：批量登錄時勾「做成群組販售」；植物管理勾選多株按「做成群組」；或在堆疊上按「做成販售群組」。'],
+  ['設定名稱與主圖','填群組名稱、介紹，主圖可以是照片或影片。'],
+  ['買家怎麼看','商店裡只出現一張群組卡（有疊起來的動畫、編號跑馬燈），點進去是群組頁，點任一個編號就換成那一株自己的照片與價格，直接購買。'],
+  ['管理','「銷售 → 群組販售」可以改名稱、主圖，或解散群組（植株保留，變回單株）。']],
+  tips:['群組只能用直購（標價或洽詢），每一株可以有自己的價格。'],go:[['群組販售','adm:groups']]},
+ {id:'list',cat:'seller',ic:'🛒',t:'上架販售：直購、競標、議價',min:2,steps:[
+  ['挑植株','「銷售 → 上架販售」列出還沒上架的植株，可以搜尋、一次勾很多株。'],
+  ['選販售方式','直購：填售價（不填顯示「洽詢」）。競標：起標價、每口加價、結束時間。'],
+  ['逐株價格','每株可以有不同價格，留白就用共同價格。'],
+  ['上架後','買家可以加購物車、出價或議價。你在「訂單與客服」處理訂單、議價和提問。'],
+  ['下架','「商品管理」打開那株按「下架（保留履歷）」，植物檔案和履歷都會保留。']],
+  tips:['只展示不賣的植株，買家也能出價議價，你同意後會自動轉成訂單。'],go:[['上架販售','adm:list']]},
+ {id:'manage',cat:'seller',ic:'🗂',t:'植物管理：分層、堆疊、批量操作',min:3,steps:[
+  ['分層','第一層只列母本與源頭。有後代的右邊有黑色按鈕（例如「13｜1 側芽 · 12 實生苗」），點進去看側芽與每一批實生苗。'],
+  ['勾選','單株勾選；母本旁「連同後代」一次勾整個家族；每一批有「全選這批」；上方「販售群組」可以整組勾選。'],
+  ['堆疊','名字一樣、父母本也一樣的會自動疊成一疊。也可以勾選後按「疊在一起」或「取消堆疊」。疊上可以直接設定「這疊是：實生苗／側芽／母株」。'],
+  ['批量操作','底下的黑色功能列：上架販售、列印標籤、下載 Excel 標籤、做成群組、改類型。'],
+  ['搜尋','輸入編號、品種、親本編號或標籤，會列出所有符合的植株。']],
+  tips:['點沒有後代的植株會直接打開「管理」編輯。'],go:[['植物管理','adm:reg']]},
+ {id:'labels',cat:'seller',ic:'🖨',t:'標籤：Excel、GoLabel／BarTender、QR',min:3,steps:[
+  ['選植株','植物管理勾選，或批量登錄完成頁、「植物 → 標籤列印」。'],
+  ['下載 Excel 標籤檔','每株一列：編號、品種、備註、母本、父本、群組、售價、查驗網址…'],
+  ['連到標籤軟體','GoLabel／BarTender 用「資料庫」連接這個 Excel，文字物件接「編號」、QR Code 接「查驗網址」，列印全部記錄就一株一張。'],
+  ['或直接列印','「列印標籤」選尺寸（50×30、40×25、60×40、A4 貼紙），直接從瀏覽器印 QR 標籤。']],
+  tips:['GoLabel 讀 CSV 若變亂碼，改用 Excel 檔或選 UTF-8 編碼。','文字太長要換行，用 GoLabel 的文字方塊（段落）物件。'],go:[['標籤列印','adm:labels']]},
+ {id:'trace',cat:'trace',ic:'🔍',t:'溯源查驗：掃 QR 或輸入編號',min:1,steps:[
+  ['掃描標籤','用手機相機掃標籤上的 QR Code，會直接打開這株的查驗結果。'],
+  ['或輸入編號','網站上方「溯源查驗」，輸入標籤上的編號（例 AN-VEN-00012）。'],
+  ['看結果','會顯示登錄狀態、血統圖（母本、父本、同胞、後代）、目前所有者。'],
+  ['看完整履歷','按「看完整履歷」進入時間軸，看這株從登錄到現在發生的每件事。']],
+  tips:['編號與照片拍攝時間無法修改；轉手過的植株，品種與父母本也會鎖定不能竄改。'],go:[['去查驗','verify']]},
+ {id:'history',cat:'trace',ic:'🧬',t:'履歷時間軸：記錄成長、自訂事件',min:2,steps:[
+  ['自動出現的事件','登錄、成長紀錄、分出的側芽與實生苗、所有權轉移、上架，都會照時間排在時間軸上。'],
+  ['新增時間點','賣家在履歷頁按「＋ 新增時間點」：標題可以自訂（換盆、開花、出國參展…），可改發生時間、寫說明、放照片影片，也可以只寫文字。'],
+  ['後代可以點','側芽、實生苗會變成預覽卡，在售的有流光邊框，點了直接看那一株或購買。'],
+  ['修改','每個時間點可以改標題和說明；純文字事件可以刪除。轉手過的植株紀錄只能新增不能改。']],
+  tips:['後台植物「管理」頁的「加入履歷」也能新增，一樣可自訂標題。'],go:[]},
+ {id:'parents',cat:'trace',ic:'🌍',t:'外部親本：國外進口、向別人買的',min:1,steps:[
+  ['打開開關','登錄或編輯時，在父母本下方打開「母本／父本不在 VEIN 上」。'],
+  ['填資料','名稱或品種、對方的編號、來源（國外進口、向他人購買、朋友贈送…）、來源說明。'],
+  ['上傳照片','可以放父母本的照片或影片，會顯示在血統圖、植物頁與履歷時間軸最前面的「親本來源」。']],
+  tips:['之後如果親本也登錄到 VEIN，改選那一株就會自動連起來。'],go:[['去登錄一株','adm:new']]},
+ {id:'transfer',cat:'trace',ic:'🤝',t:'所有權轉移：傳一個連結就完成',min:2,steps:[
+  ['產生轉移連結','植物頁「目前所有者」下方或後台編輯頁的「轉移所有權」，按「產生轉移連結」（可以寫一句話給對方）。'],
+  ['傳給對方','會跳出分享圖＋文字（「○○ 要把 △△ 轉移給你」），一起傳到 LINE。連結 7 天內有效、只能用一次。'],
+  ['對方接受','對方打開連結、登入後按「接受轉移」，所有權就轉過去，履歷會記下這次轉移。'],
+  ['其他方式','也可以輸入對方的會員 ID 直接轉；訂單出貨後也會自動轉給買家。']],
+  tips:['轉移過的植株，品種、父母本、編號、登錄時間會鎖定，任何人都不能再改。','對方如果在 LINE 內建瀏覽器打不開登入，請改用 Safari／Chrome。'],go:[]},
+ {id:'share',cat:'trace',ic:'↗',t:'轉發分享圖',min:1,steps:[
+  ['按轉發','植物頁、履歷頁或後台按「↗ 轉發」。'],
+  ['自動產生圖片','植物照片滿版當背景，螢光綠排版，有編號、備註、價格與 QR Code。'],
+  ['一起送出','手機按「分享圖片＋文字」一次送出；電腦先下載圖片再「複製文字＋連結」。']],
+  tips:[],go:[]},
+ {id:'orders',cat:'buyer',ic:'💳',t:'買賣流程：下單、匯款、出貨、評價',min:2,steps:[
+  ['下單','直購的加入購物車結帳；競標出價最高者得標；只展示的可以議價，賣家同意會自動轉成訂單。群組商品點進去挑編號。'],
+  ['匯款','訂單會顯示賣家的匯款帳號，匯款後在訂單填寫後五碼。'],
+  ['賣家出貨','賣家確認收款 → 備貨中 → 出貨中。'],
+  ['確認收貨與評價','收到後按「確認收到」（沒按 14 天後自動完成），所有權自動轉給你，可以留下評價。']],
+  tips:['賣家在後台「訂單與客服」處理訂單、議價、提問。'],go:[['逛植物商店','store']]}];
+function guideGo(k){ if(k==='verify') return go('#/verify'); if(k==='store') return go('#/store'); if(k.startsWith('adm:')){ if(dlg.open) dlg.close(); const t=k.slice(4); if(t==='shop'){ S.shopTab='basic'; } openAdmin(t==='shop'?'shop':t); } }
+function guideBody(g,inDlg){
+  return h('div',{class:'gd'}, h('div',{class:'gd-h'}, h('span',{class:'gd-ic',text:g.ic}), h('div',{}, h('h2',{text:g.t}), h('span',{class:'hint',text:'約 '+g.min+' 分鐘 · '+g.steps.length+' 個步驟'}))),
+    h('ol',{class:'gd-steps'}, ...g.steps.map(([t,d],i)=>h('li',{style:'--i:'+i}, h('b',{class:'gd-n',text:String(i+1)}), h('div',{}, h('h4',{text:t}), h('p',{text:d}))))),
+    g.tips.length?h('div',{class:'gd-tips'}, h('b',{text:'💡 小提醒'}), ...g.tips.map(t=>h('p',{text:t}))):null,
+    h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:16px'}, ...g.go.map(([l,k])=>h('button',{class:'btn volt',type:'button',onclick:()=>guideGo(k),text:l+' →'})), inDlg?h('a',{class:'btn soft',href:'#/guide',onclick:()=>{ dlg.close(); try{ adm.close(); }catch(e){} },text:'所有教學'}):null));
+}
+function openGuide(id){ const g=GUIDES.find(x=>x.id===id); if(!g) return; openDialog('教學', guideBody(g,true), false); lsSet('vein.guide.'+id,1); }
+function renderGuide(id){
+  const box=$('#guidePage'), g=GUIDES.find(x=>x.id===id);
+  if (g){ lsSet('vein.guide.'+g.id,1); box.replaceChildren(h('nav',{class:'crumbs'}, h('a',{href:'#/guide',text:'教學中心'}), h('span',{text:'›'}), h('b',{text:g.t})), h('div',{class:'gd-page'}, guideBody(g,false),
+      h('div',{class:'gd-next'}, h('b',{text:'其他教學'}), ...GUIDES.filter(x=>x.cat===g.cat&&x.id!==g.id).map(x=>h('a',{href:'#/guide/'+x.id,class:'gd-mini'}, h('span',{text:x.ic}), x.t))))); return; }
+  const q=h('input',{type:'search',placeholder:'搜尋教學，例如：批量、標籤、轉移',oninput:()=>draw()}), grid=h('div',{});
+  const draw=()=>{ const t=q.value.trim().toLowerCase(); grid.replaceChildren(...GUIDE_CATS.map(([c,l])=>{ const L=GUIDES.filter(x=>x.cat===c&&(!t||[x.t,...x.steps.flat(),...x.tips].join(' ').toLowerCase().includes(t))); return L.length?h('section',{class:'gd-cat'}, h('h3',{text:l}), h('div',{class:'gd-grid'}, ...L.map((x,i)=>h('a',{class:'gd-card'+(lsGet('vein.guide.'+x.id,0)?' seen':''),href:'#/guide/'+x.id,style:'--i:'+i}, h('span',{class:'gd-ic',text:x.ic}), h('b',{text:x.t}), h('small',{text:'約 '+x.min+' 分鐘 · '+x.steps.length+' 步'+(lsGet('vein.guide.'+x.id,0)?' · ✓ 看過':'')}), h('i',{text:'→'}))))):null; })); };
+  box.replaceChildren(h('div',{class:'gd-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'GUIDE'), h('h1',{text:'新手教學中心'}), h('p',{text:'植物上架、批量登錄、標籤列印、溯源履歷、所有權轉移，一步一步帶你上手。'}), h('label',{class:'search gd-q'}, svg('i-search'), q),
+    h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:14px'}, ...['start','batch','trace','transfer'].map(id2=>{ const x=GUIDES.find(y=>y.id===id2); return h('a',{class:'btn soft',href:'#/guide/'+id2,text:x.ic+' '+x.t.split('：')[0]}); }))), grid);
+  draw();
+}
+function startChecklist(){
+  if (lsGet('vein.hideStart',false)) return null;
+  const sh=shopOf(S.me)||{}, ps=mine();
+  const items=[['設定 LINE 聯絡方式',!!(sh.line||sh.contact),()=>{ S.shopTab='basic'; S.admTab='shop'; renderAdmin(true); },'start'],['設定匯款帳號',!!S.bank?.account,()=>{ S.shopTab='basic'; S.admTab='shop'; renderAdmin(true); },'start'],['登錄第一株植物',ps.length>0,()=>{ S.admTab='new'; renderAdmin(true); },'new'],['上架販售一株',ps.some(p=>listed(p)&&p.status!=='keep'),()=>{ S.admTab='list'; renderAdmin(true); },'list'],['下載或列印一次標籤',!!lsGet('vein.didLabels',false),()=>{ S.admTab='labels'; renderAdmin(true); },'labels'],['看一次植物履歷頁',!!lsGet('vein.sawHistory',false),()=>{ const p=ps[0]; if(p) openHistory(p.id); else openGuide('history'); },'history'],['轉發一株到 LINE／IG',!!lsGet('vein.didShare',false),()=>{ const p=ps[0]; if(p) openShare(p); else openGuide('share'); },'share']];
+  const done=items.filter(x=>x[1]).length; if(done===items.length) return null;
+  return h('div',{class:'panel ck'}, h('div',{class:'ck-h'}, h('div',{}, h('h3',{text:'🚀 新手上手清單'}), h('span',{class:'hint',text:'完成 '+done+' / '+items.length+' · 每一項旁邊都有教學'})), h('div',{class:'ck-bar'}, h('i',{style:'width:'+Math.round(done/items.length*100)+'%'})), h('button',{class:'bf-lk',type:'button',onclick:()=>{ lsSet('vein.hideStart',true); renderAdmin(true); },text:'隱藏'})),
+    h('div',{class:'ck-list'}, ...items.map(([t,ok,fn,gid])=>h('div',{class:'ck-it'+(ok?' ok':'')}, h('span',{class:'ck-b',text:ok?'✓':''}), h('button',{type:'button',class:'ck-t',onclick:fn,text:t}), h('button',{type:'button',class:'ck-g',onclick:()=>openGuide(gid),text:'？教學'})))),
+    h('a',{class:'btn soft sm',href:'#/guide',onclick:()=>{ try{ adm.close(); }catch(e){} },style:'margin-top:12px',text:'打開教學中心 →'}));
 }
 
 /* ---------- 轉發：產生好看的分享圖＋文字 ---------- */
@@ -4154,7 +4302,7 @@ async function shareDialog(o){
     url?h('a',{class:'btn soft',href:url,download:o.file+'.jpg',text:'下載圖片'}):null);
   if (!canFile) note.textContent=(note.textContent?note.textContent+' ':'')+'這個瀏覽器不能一次分享圖片＋文字：請先「下載圖片」，再「複製文字＋連結」一起貼上。';
 }
-function openShare(p){ return shareDialog({title:'轉發這株',text:shareText(p),file:p.code,image:()=>shareImage(p)}); }
+function openShare(p){ lsSet('vein.didShare',true); return shareDialog({title:'轉發這株',text:shareText(p),file:p.code,image:()=>shareImage(p)}); }
 function xferText(p,x){ const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
   return '🌱 '+from+' 要把「'+nm+'」（編號 '+p.code+'）的所有權轉移給你'+(x.note?'\n「'+x.note+'」':'')+'\n\n打開連結、登入後按「接受」就完成轉移（7 天內有效，只能用一次）👇\n'+claimUrl(x.id); }
 function openXferShare(p,x){ const from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
@@ -4253,6 +4401,7 @@ function renderHistory(force){
   const ol=S.owners.get(id);
   const sig=JSON.stringify([id,p.code,p.species,p.status,p.listedAt,cover(p),(S.histDocs||[]).map(d=>d._id+(d.stage||'')+(d.title||'')+(d.note||'')+d.takenAt),kids.map(k=>k.id+k.status+listed(k)+(k.price||'')+cover(k)+(k.hidden?1:0)),ol?.log?.length,S.histOrder,S.histEdit,S.histNew,own]);
   if (!force&&sig===histSig) return; histSig=sig;
+  lsSet('vein.sawHistory',true);
   const docs=S.histDocs||[], born=toMs(p.createdAt)||Date.now(), M=S.plants.get(momId(p)), D=S.plants.get(dadId(p));
   // ---- 事件 ----
   const ev=[];
@@ -4713,16 +4862,17 @@ function renderAdmNav(){
       h('button',{type:'button',class:'navtoggle','aria-expanded':String(!!S.navMob),onclick:()=>{ S.navMob=!S.navMob; renderAdmNav(); }}, S.navMob?'✕ 關閉':'☰ 選單'), h('button',{type:'button',class:'navclose','aria-label':'回到前台',onclick:()=>adm.close(),text:'↩'})),
     h('div',{class:'navtree'},
       hasShop()?h('div',{class:'hint admsub',style:'margin:-10px 0 10px 8px',text:shopName(S.me)+(isVerified(S.me)?' · 認證賣家':'')}):null, ...G.flatMap(group),
-      h('div',{class:'bottom'}, hasShop()?h('button',{type:'button',onclick:()=>{ adm.close(); go('#/seller/'+S.me); }}, '我的賣場頁 →'):null, h('button',{type:'button',onclick:()=>adm.close()}, '回到前台 →'))));
+      h('div',{class:'bottom'}, h('button',{type:'button',onclick:()=>{ adm.close(); go('#/guide'); }}, '📘 新手教學中心 →'), hasShop()?h('button',{type:'button',onclick:()=>{ adm.close(); go('#/seller/'+S.me); }}, '我的賣場頁 →'):null, h('button',{type:'button',onclick:()=>adm.close()}, '回到前台 →'))));
 }
 function admHouse(m){
   m.append(admTop('開設官方賣場'), h('div',{class:'panel',style:'max-width:640px'}, h('h3',{text:'上架是賣家功能'}), h('p',{class:'hint',text:'平台管理員本身不會自動變成賣家。如果你也要用平台官方的名義賣植物，按下面的按鈕開一個「VEIN 官方」賣場（自動通過審核），之後左側會多出「我的賣場」的上架、訂單等功能。'}),
     h('div',{class:'row',style:'margin-top:12px'}, h('button',{class:'btn pri',type:'button',onclick:async e=>{ e.target.disabled=true; await ensureHouse(); S.admTab='shop'; renderAdmin(true); toast('官方賣場已開設'); },text:'開設 VEIN 官方賣場'}))));
 }
-function admTop(title, ...right){ return h('div',{class:'top'}, h('h2',{text:title}), h('div',{class:'row'}, ...right)); }
+const ADM_GUIDE={'總覽':'start','植物管理':'manage','登錄一株':'new','批量登錄':'batch','批量登錄完成':'labels','上架販售':'list','群組販售':'group','標籤列印':'labels','訂單':'orders','議價':'orders','賣場設定':'start','商品管理':'list'};
+function admTop(title, ...right){ const g=ADM_GUIDE[title]; return h('div',{class:'top'}, h('h2',{text:title}), h('div',{class:'row'}, g?h('button',{class:'btn soft help-btn',type:'button',onclick:()=>openGuide(g),title:'這一頁怎麼用'}, h('b',{text:'？'}), '教學'):null, ...right)); }
 function admHome(m){
   const ps=mine(), bidsN=ps.filter(isAuc).reduce((n,p)=>n+bidsFor(p.id).length,0), pend=allQuestions(S.me).filter(q=>!q.answer), os=sellerOrders(S.me), rt=rating(S.me);
-  m.append(admTop('總覽', h('button',{class:'btn pri',type:'button',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'＋ 登錄植物'})),
+  m.append(admTop('總覽', h('button',{class:'btn pri',type:'button',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'＋ 登錄植物'})), startChecklist()||'',
     h('div',{class:'kpis'}, ...[['在售',ps.filter(p=>p.status==='available'&&!p.hidden).length],['待確認訂單',os.filter(o=>o.status==='pending').length],['競標中',ps.filter(live).length],['收到出價',bidsN],['待回覆提問',pend.length],['評分',rt.n?rt.avg.toFixed(1)+'★':'—'],['追蹤者',followers(S.me)],['營業額',money(os.filter(o=>OK_ST.includes(o.status)).reduce((n,o)=>n+(o.total||0),0))]].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{text:String(v)})))));
   const recent=[]; for(const p of ps.filter(isAuc)) for(const b of bidsFor(p.id)) recent.push({t:b.at,txt:nameOf(b.uid)+' 出價 '+money(b.amt),go:()=>{ S.admTab='plants'; S.admEdit=p.id; },img:p.thumb});
   pend.forEach(q=>{ const p=S.plants.get(q.pid); recent.push({t:q.at,txt:nameOf(q.asker)+' 提問：'+q.text,go:()=>{ S.admTab='qa'; },img:p?.thumb}); });
@@ -5280,7 +5430,7 @@ function labelRows(list){ return list.map(p=>{ const g=genusOf(normSp(p.species)
   return [serialOf(p.code),p.code,g,normSp(p.species).slice(g.length).trim(),genusZh(g),p.cultivar||'',kindLabel(p),memoOf(p),parLbl(p,'m'),parLbl(p,'d'),pup?+pup[1]:'',G?.name||'',isAuc(p)?(p.startPrice??''):(p.price??''),STATUS[p.status]||'',verifyUrl(p.code),shopName(p.shop),shopCode(p.shop)]; }); }
 let xlsxP=null;
 function loadXLSX(){ if(window.XLSX) return Promise.resolve(window.XLSX); if(!xlsxP) xlsxP=new Promise(res=>{ const sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; sc.onload=()=>res(window.XLSX||null); sc.onerror=()=>{ xlsxP=null; res(null); }; document.head.append(sc); }); return xlsxP; }
-async function downloadXLSX(list,name){
+async function downloadXLSX(list,name){ lsSet('vein.didLabels',true);
   list=[...new Set(list.filter(Boolean))].sort(codeSort); if(!list.length){ toast('沒有選到植株'); return; }
   const X=await loadXLSX(); if(!X){ toast('Excel 元件載入失敗，改下載 CSV（Excel 一樣打得開）'); return downloadCSV(list); }
   const rows=labelRows(list);
@@ -5290,7 +5440,7 @@ async function downloadXLSX(list,name){
   const wb=X.utils.book_new(); X.utils.book_append_sheet(wb,ws,'標籤');
   X.writeFile(wb,(name||'vein-labels-'+new Date().toISOString().slice(0,10))+'.xlsx'); toast('已下載 '+list.length+' 株的 Excel 標籤檔');
 }
-function downloadCSV(list){
+function downloadCSV(list){ lsSet('vein.didLabels',true);
   list=list.filter(Boolean); if(!list.length){ toast('沒有選到植株'); return; }
   const head=LABEL_HEAD, rows=labelRows(list);
   const esc=v=>{ v=String(v??''); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
@@ -5298,7 +5448,7 @@ function downloadCSV(list){
   const a=h('a',{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),download:'vein-labels-'+new Date().toISOString().slice(0,10)+'.csv'}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
 }
 const LABEL_SIZES={'50x30':['50×30 mm 標籤機',50,30],'40x25':['40×25 mm 標籤機',40,25],'60x40':['60×40 mm 標籤機',60,40],'a4':['A4 貼紙 3×8 格',64,33.9]};
-function printLabels(list,o){
+function printLabels(list,o){ lsSet('vein.didLabels',true);
   list=list.filter(Boolean); if(!list.length){ toast('沒有選到植株'); return; }
   const [,W,H]=LABEL_SIZES[o.size]||LABEL_SIZES['50x30'], a4=o.size==='a4', q=Math.min(W,H)-4;
   const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
