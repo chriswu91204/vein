@@ -114,7 +114,7 @@ body[data-tone="dark"] .link{color:var(--sprout)}
 .hmain video,.hmain img{width:100%;height:100%;object-fit:cover;display:block}
 .hmain::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55));opacity:var(--capo,0)}
 .hside{position:absolute;z-index:1;border-radius:22px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.45);will-change:transform}
-.hside video{width:100%;height:100%;object-fit:cover;display:block}
+.hside video,.hside img{width:100%;height:100%;object-fit:cover;display:block}
 .hcap{position:absolute;left:0;right:0;bottom:calc(10vh + env(safe-area-inset-bottom,0px));z-index:4;color:#fff;text-align:center;padding-inline:var(--gl);opacity:0;pointer-events:none}
 .hcap h2{font-size:clamp(34px,5vw,72px);font-weight:800;line-height:1.02}
 .hcap p{margin-top:12px;font-size:clamp(15px,1.4vw,19px);opacity:.85}
@@ -280,7 +280,7 @@ body[data-tone="dark"] .link{color:var(--sprout)}
 .final{height:200vh;position:relative}
 .final .pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .final .fm{position:absolute;inset:0;clip-path:inset(18% 30% 18% 30% round 36px);will-change:clip-path}
-.final .fm video{width:100%;height:100%;object-fit:cover}
+.final .fm video,.final .fm img{width:100%;height:100%;object-fit:cover}
 .final .fm::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.42)}
 .final .ft{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#fff;z-index:2;padding-inline:var(--gl)}
 .final h2{font-size:clamp(44px,8vw,120px);font-weight:800;line-height:.98;letter-spacing:-.045em}
@@ -489,8 +489,8 @@ h3,.tile .nm{font-weight:600;letter-spacing:.02em}
 .doors{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
 .door{position:relative;display:flex;align-items:flex-end;min-height:min(70vh,620px);border-radius:36px;overflow:hidden;text-decoration:none;color:inherit;isolation:isolate;transition:transform .5s var(--ease)}
 .door:hover{transform:scale(.99)}
-.door video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;transition:transform 1.2s var(--ease)}
-.door:hover video{transform:scale(1.05)}
+.door video,.door > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;transition:transform 1.2s var(--ease)}
+.door:hover video,.door:hover > img{transform:scale(1.05)}
 .door.dark{color:#fff;background:#111}
 .door.dark::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.6));z-index:-1}
 .door.dark .hd2 small{color:rgba(255,255,255,.7)}
@@ -1283,6 +1283,24 @@ iframe.cblock{display:block;width:100%;border:0;background:transparent;color-sch
 .bpv-wrap{background:var(--paper);border-radius:20px;padding:12px;box-shadow:inset 0 0 0 1px var(--line);max-height:80vh;overflow:auto}
 textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:2;white-space:pre;background:#0f1211;color:#e8efe9;border-radius:12px}
 @media (max-width:1000px){.bed{grid-template-columns:1fr}.bed-r{position:static}.brow{grid-template-columns:minmax(0,1fr) auto auto;}}
+
+/* 主頁內容（影片照片＋文字） */
+.csec h3{font-size:17px}
+.csec-t{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0 16px;margin-top:4px}
+.citems{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;margin-top:14px}
+.citem{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;background:var(--paper);border-radius:18px;padding:12px}
+.ci-m{display:flex;flex-direction:column;gap:8px}
+.ci-m.busy{opacity:.6;pointer-events:none}
+.ci-m .ms-pv{border-radius:12px;overflow:hidden}
+.ci-btns{display:flex;flex-wrap:wrap;gap:6px}
+.ci-btns .btn{padding:6px 10px;font-size:12.5px}
+.ci-b{min-width:0}.ci-b b{font-size:15px}
+.ci-b .txr:first-of-type{margin-top:6px}
+.ms-c{position:absolute;right:8px;top:8px;font-size:11px;font-weight:700;background:var(--sprout);color:#111;border-radius:6px;padding:2px 6px}
+.txbar .warn{color:#B4580F;font-weight:600}
+.flash{animation:flash 2.4s}
+@keyframes flash{0%,60%{box-shadow:inset 0 0 0 4px var(--sprout)}100%{box-shadow:inset 0 0 0 0 transparent}}
+@media (max-width:560px){.citems{grid-template-columns:1fr}.citem{grid-template-columns:110px minmax(0,1fr)}}
 </style>
 
 </head>
@@ -1556,20 +1574,45 @@ const MEDIA_EXT={trace1:'webp',trace2:'webp',trace3:'webp',trace4:'webp'};
 const vSrc=k=>MEDIA[k]?.url||('m/'+k+'.mp4');
 const vPoster=k=>MEDIA[k]?(MEDIA[k].poster||''):('m/'+k+'.jpg');
 const mImg=k=>MEDIA[k]?.url||('m/'+k+'.'+(MEDIA_EXT[k]||'jpg'));
+// 每個位置（slot）各自可以換成影片或照片；沒換過就用預設檔案（def）
+const SLOT_DOM=[['hero.c','#hmain > *'],['hero.l','#hsL > *'],['hero.r','#hsR > *'],
+  ...[1,2,3,4,5,6].map(i=>['col.'+i,'#hsTrack .hcard:nth-child('+i+') .m > *']),
+  ['door.store','.door.dark > video'],
+  ...[1,2,3,4].map(i=>['tr.'+i,'#ppMedia > :nth-child('+i+')']),
+  ['fin','#fm > *'],['lin','.lin .img > img']];
+document.querySelectorAll('#wall .wi').forEach((w,i)=>{ const el=w.firstElementChild; if(el){ el.dataset.slot='wall.'+(i+1); } });
+SLOT_DOM.forEach(([slot,sel])=>{ const el=document.querySelector(sel); if(el) el.dataset.slot=slot; });
+document.querySelectorAll('[data-slot]').forEach(el=>{ el.dataset.def=el.dataset.src||el.dataset.m||''; el.dataset.dtype=el.tagName==='VIDEO'?'video':'image'; });
+function slotRes(slot,def,dtype){
+  const o=MEDIA[slot]||(def&&MEDIA[def]);
+  if (o) return {type:o.type==='video'?'video':'image',url:o.url,poster:o.poster||'',custom:true};
+  return dtype==='video'?{type:'video',url:'m/'+def+'.mp4',poster:'m/'+def+'.jpg'}:{type:'image',url:'m/'+def+'.'+(MEDIA_EXT[def]||'jpg')};
+}
+function mediaEl(r,base){
+  let el;
+  if (r.type==='video'){ el=document.createElement('video'); el.muted=true; el.loop=true; el.playsInline=true; el.setAttribute('muted',''); el.setAttribute('playsinline',''); el.preload='none'; if(r.poster) el.poster=r.poster; el.dataset.url=r.url; }
+  else { el=document.createElement('img'); el.src=r.url; el.loading='lazy'; el.alt=base?.getAttribute('alt')||base?.getAttribute('aria-label')||''; }
+  if (base){ el.className=base.className; Object.assign(el.dataset,{slot:base.dataset.slot,def:base.dataset.def,dtype:base.dataset.dtype}); if(base.getAttribute('alt')&&r.type==='video') el.setAttribute('aria-label',base.getAttribute('alt')); }
+  return el;
+}
 function applyMedia(next){
   if (next){ MEDIA=next; try{ localStorage.setItem('vein.media',JSON.stringify(next)); }catch(e){} }
-  document.querySelectorAll('video[data-src]').forEach(v=>{ const k=v.dataset.src, pst=vPoster(k);
-    if (v.getAttribute('poster')!==pst){ if(pst) v.poster=pst; else v.removeAttribute('poster'); }
-    if (v.getAttribute('src')&&v.getAttribute('src')!==vSrc(k)){ const was=!v.paused; v.src=vSrc(k); if(was&&!REDUCE) v.play().catch(()=>{}); } });
-  document.querySelectorAll('img[data-m]').forEach(im=>{ const u=mImg(im.dataset.m); if(im.getAttribute('src')!==u) im.src=u; });
+  document.querySelectorAll('[data-slot]').forEach(el=>{ const r=slotRes(el.dataset.slot,el.dataset.def,el.dataset.dtype);
+    const isV=el.tagName==='VIDEO';
+    if ((r.type==='video')!==isV){ const n=mediaEl(r,el); if(n.tagName==='VIDEO'){ if(n.closest?.('#ppMedia')||el.closest('#ppMedia')) n.dataset.hold=el.classList.contains('on')?'':'1'; } el.replaceWith(n); if(n.tagName==='VIDEO'&&window.__vio) window.__vio.observe(n); return; }
+    if (isV){ if((el.getAttribute('poster')||'')!==r.poster){ if(r.poster) el.poster=r.poster; else el.removeAttribute('poster'); }
+      const was=el.dataset.url; el.dataset.url=r.url; if(el.getAttribute('src')&&was!==r.url){ const pl=!el.paused; el.src=r.url; if(pl&&!REDUCE) el.play().catch(()=>{}); } }
+    else if (el.getAttribute('src')!==r.url) el.src=r.url; });
 }
-applyMedia();
 const vio = new IntersectionObserver(es => es.forEach(e => {
   const v=e.target;
-  if (e.isIntersecting){ if (!v.src) v.src=vSrc(v.dataset.src); if (!REDUCE && !v.dataset.hold) v.play().catch(()=>{}); }
+  if (e.isIntersecting){ if (!v.src) v.src=v.dataset.url||vSrc(v.dataset.src); if (!REDUCE && !v.dataset.hold) v.play().catch(()=>{}); }
   else v.pause();
 }), { rootMargin:'200px 0px' });
-document.querySelectorAll('video[data-src]').forEach(v => vio.observe(v));
+window.__vio=vio;
+document.querySelectorAll('video[data-src]').forEach(v => { if(!v.dataset.slot){ v.poster='m/'+v.dataset.src+'.jpg'; } });
+applyMedia();
+document.querySelectorAll('video').forEach(v => { if(v.dataset.src||v.dataset.slot) vio.observe(v); });
 
 /* ================= page motion ================= */
 (() => {
@@ -1606,7 +1649,7 @@ function hsFrame(){ const r=hs.getBoundingClientRect(); const over=Math.max(0,tr
   track.style.transform=`translateX(${-p*over}px)`; $('#hsProg').style.width=(p*100)+'%';
   track.querySelectorAll('.m').forEach(m=>{ const b=m.getBoundingClientRect(); const c=(b.left+b.width/2)/innerWidth; m.style.setProperty('--z', String(1.04+Math.abs(c-.5)*0.18)); }); }
 // story
-const story=$('#trace'), steps=[...document.querySelectorAll('#steps li')], media=[...document.querySelectorAll('#ppMedia > img, #ppMedia > video')];
+const story=$('#trace'), steps=[...document.querySelectorAll('#steps li')], trMedia=()=>[...document.querySelectorAll('#ppMedia > img, #ppMedia > video')];
 const ST=[
   {code:'AN-2610-K7Q3-F01', stage:'種子 · 發芽', exif:'EXIF 2026:03:04 08:12', tl:1},
   {code:'AN-2610-K7Q3-F01', stage:'幼苗', exif:'EXIF 2026:04:18 10:37', tl:2},
@@ -1618,10 +1661,10 @@ function setStep(i){ if(i===si) return; si=i; const s=ST[i];
   steps.forEach((li,k)=>li.classList.toggle('on',k===i));
   $('#ppCode').textContent=s.code; $('#ppStage').textContent=s.stage; $('#ppExif').textContent=s.exif;
   document.querySelectorAll('#ppTl div').forEach((d,k)=>d.classList.toggle('on',k<s.tl));
-  media.forEach((m,k)=>{ m.classList.toggle('on',k===i); if(m.tagName==='VIDEO'){ m.dataset.hold = k===i ? '' : '1'; if(k===i){ if(!m.src) m.src=vSrc(m.dataset.src); if(!REDUCE) m.play().catch(()=>{}); } else m.pause(); } });
+  trMedia().forEach((m,k)=>{ m.classList.toggle('on',k===i); if(m.tagName==='VIDEO'){ m.dataset.hold = k===i ? '' : '1'; if(k===i){ if(!m.src) m.src=m.dataset.url||vSrc(m.dataset.src); if(!REDUCE) m.play().catch(()=>{}); } else m.pause(); } });
   $('#ppStamp').classList.toggle('on',!!s.stamp); $('#passport').style.setProperty('--ry',(-10+i*5)+'deg');
 }
-media.forEach((m,k)=>{ if(m.tagName==='VIDEO') m.dataset.hold='1'; });
+trMedia().forEach((m,k)=>{ if(m.tagName==='VIDEO'&&!m.classList.contains('on')) m.dataset.hold='1'; });
 steps.forEach((li,k)=>li.addEventListener('click',()=>{ const total=story.offsetHeight-innerHeight; scrollTo({top:story.offsetTop+total*(k+.5)/ST.length, behavior:REDUCE?'auto':'smooth'}); }));
 function storyFrame(){ const r=story.getBoundingClientRect(); const total=story.offsetHeight-innerHeight; const p=clamp(-r.top/Math.max(total,1),0,1); $('#sbar').style.width=(p*100)+'%'; setStep(Math.min(ST.length-1,Math.floor(p*ST.length))); }
 // wall parallax
@@ -2610,10 +2653,11 @@ function renderShop(force){
   const dr=$('#doorRaffle'); if(dr){ const n=pubRaffles().filter(r=>rState(r)==='open').length; dr.textContent=n?n+' 場進行中':'即將推出'; }
   if (S.failed) nt.append(h('div',{class:'notice',text:window.__veinNoConfig?'網站尚未設定 Firebase（public/js/firebase-config.js）。':'目前無法連線到資料，請稍後重新整理。'}));
   if (!pub().length&&T!=='sellers'){
-    body.append(h('div',{class:'empty-shop'}, h('video',{src:vSrc('nursery'),poster:vPoster('nursery')||null,muted:true,loop:true,playsinline:true,autoplay:!REDUCE}),
+    const er=slotRes('shop.empty','nursery','video');
+    body.append(h('div',{class:'empty-shop'}, er.type==='video'?h('video',{src:er.url,poster:er.poster||null,muted:true,loop:true,playsinline:true,autoplay:!REDUCE}):h('img',{src:er.url,alt:''}),
       h('div',{class:'c'}, h('div',{class:'kick',style:'color:var(--sprout)',text:S.ready?'即將上架':'載入中'}), h('h3',{text:S.ready?'第一批側芽整理中。':'正在載入植株…'}),
         h('p',{text:'上架後，每一株都會附編號與成長紀錄出現在這裡。'}))));
-    body.querySelector('video').muted=true; return;
+    const ev0=body.querySelector('.empty-shop video'); if(ev0) ev0.muted=true; return;
   }
   if (T==='home') storeHome(body); else if (T==='auction') storeAuction(body); else if (T==='buy') storeBuy(body); else if (T==='sellers') storeSellers(body); else if (T==='cat') browse(body,{cat:S.storeCat,base:pub().filter(p=>spKey(p)===S.storeCat),head:catHead(S.storeCat)}); else storeSearch(body);
 }
@@ -2874,7 +2918,7 @@ async function boot(){
   db.doc('site/info').onSnapshot(d=>{ S.site=d.exists?d.data():{}; renderAll(); }, ()=>{});
   db.doc('site/text').onSnapshot(d=>{ applyText(d.exists?d.data():{}); }, ()=>{});
   db.doc('site/blocks').onSnapshot(d=>{ setBlocks(d.exists?(d.data().items||[]):[]); }, ()=>{});
-  db.doc('site/media').onSnapshot(d=>{ applyMedia(d.exists?d.data():{}); const am=document.getElementById('admMedia'); if(am) fillAdmMedia(am); }, ()=>{});
+  db.doc('site/media').onSnapshot(d=>{ applyMedia(d.exists?d.data():{}); refreshSlotCards(); }, ()=>{});
   if (S.me) db.doc(`data/users/${S.me}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); }, ()=>{});
   setTimeout(()=>{ if(!S.ready){ S.ready=true; renderAll(); } }, 4000);
   if (location.hash==='#admin') route();
@@ -3407,14 +3451,6 @@ function admSite(m){
 
 
 /* ---------- 主頁素材（只有擁有者帳號可以改） ---------- */
-const MEDIA_SLOTS=[
-  ['首屏',[['nursery-hd','video','中央大影片，往下捲會放大成全螢幕'],['darkred','video','左側小影片，也是收藏第 3 張'],['silver-hand','video','右側小影片']]],
-  ['收藏 Collection',[['p5','image','第 1 張「酒紅圓葉」，也用在溫室牆'],['p1','image','第 2 張「心形絨葉」'],['p2','image','第 4 張「紫光下的銀脈」，也用在溫室牆'],['p3','image','第 5 張「古銅與銀」'],['silver','video','第 6 張「銀白網紋」，也用在商店入口與溫室牆']]],
-  ['查驗頁',[['p4','image','「Lineage」雙親葉片並列大圖']]],
-  ['植物追蹤 Traced',[['trace1','image','第 1 步「種子發芽」'],['trace2','image','第 2 步「長出幼苗」'],['trace3','image','第 3 步「一葉一紀錄」'],['trace4','image','第 4 步「成株交到你手上」']]],
-  ['溫室牆 Greenhouse',[['offset-var','video','「側芽上盆」'],['roots','video','「檢查根系」'],['slowleaf','video','「插上標籤」'],['rosette','video','「溫室一角」'],['offset-var2','video','「斑葉小苗」']]],
-  ['頁尾與其他',[['darkred-hd','video','頁尾「Grow slow.」放大影片'],['nursery','video','商店還沒有商品時的背景影片']]],
-];
 async function videoPoster(file){
   const url=URL.createObjectURL(file), v=document.createElement('video');
   v.muted=true; v.playsInline=true; v.preload='auto'; v.src=url;
@@ -3428,67 +3464,81 @@ async function videoPoster(file){
   } finally { URL.revokeObjectURL(url); }
 }
 async function saveMedia(map){ await S.db.doc('site/media').set(map); applyMedia(map); }
-function mediaCard(k,type,label){
-  const o=MEDIA[k], st=h('span',{class:'hint ms-st',text:o?'已自訂 · '+(o.name||''):'預設'});
-  const pv=h('div',{class:'ms-pv'}, type==='video'
-    ? h('video',{src:vSrc(k),poster:vPoster(k)||null,muted:true,loop:true,playsinline:true,preload:'none',onmouseenter:e=>e.target.play().catch(()=>{}),onmouseleave:e=>e.target.pause()})
-    : h('img',{src:mImg(k),alt:'',loading:'lazy'}), h('span',{class:'ms-t mono',text:type==='video'?'VIDEO':'PHOTO'}));
-  const inp=h('input',{type:'file',class:'vh',accept:type==='video'?'video/mp4,video/webm,video/quicktime':'image/*'});
-  let busy=false;
-  inp.addEventListener('change',async()=>{ const f=inp.files[0]; inp.value=''; if(!f||busy) return;
-    if (!S.assets){ toast('請先登入'); return; }
-    busy=true; card.classList.add('busy');
-    try{
-      let ent;
-      if (type==='video'){
-        if (!/^video\//.test(f.type)) throw new Error('請選影片檔');
-        if (f.size>100*1024*1024) throw new Error('影片超過 100MB，請先剪短或壓縮');
-        st.textContent='檢查影片格式…';
-        let poster; try{ poster=await videoPoster(f); }catch(e){ throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式）。請轉成 MP4（H.264）再上傳'); }
-        const pUrl=await uploadSiteBlob(poster);
-        const url=await uploadSiteBlob(f,b=>{ st.textContent='上傳中 '+Math.round(b/f.size*100)+'%'; });
-        ent={type:'video',url,poster:pUrl,name:f.name,at:Date.now()};
-      } else {
-        st.textContent='處理照片中…';
-        const blob=await encode(await loadImage(f),1800,0.85);
-        const url=await uploadSiteBlob(blob,b=>{ st.textContent='上傳中 '+Math.round(b/blob.size*100)+'%'; });
-        ent={type:'image',url,name:f.name,at:Date.now()};
-      }
-      await saveMedia({...MEDIA,[k]:ent}); toast('已更換，主頁馬上生效');
-    }catch(e){ st.textContent='失敗：'+(e?.code==='storage/unauthorized'?'沒有上傳權限（只有擁有者帳號可以改主頁素材）':(e?.message||'請稍後再試')); busy=false; card.classList.remove('busy'); return; }
-    busy=false; card.classList.remove('busy');
-  });
-  const card=h('div',{class:'mslot'+(o?' custom':'')}, pv,
-    h('div',{class:'ms-b'}, h('b',{text:label}), h('span',{class:'mono hint',text:k}), st,
-      h('div',{class:'row',style:'margin-top:8px;gap:8px'}, h('label',{class:'btn ink sm'}, inp, type==='video'?'更換影片':'更換照片'),
-        o?confirmBtn('還原預設','soft',async()=>{ const m={...MEDIA}; delete m[k]; try{ await saveMedia(m); toast('已還原'); }catch(e){ toast('還原失敗'); } }):null)));
-  return card;
+// 主頁內容：依主頁由上到下排列，每個影片／照片旁邊就是它的文字
+const HOME_SECTIONS=[
+  {t:'首屏',a:'top',texts:['hero.l1','hero.l2','hero.sub','hero.cta1','hero.cta2'],items:[
+    {slot:'hero.c',n:'中央大畫面',note:'往下捲會放大成全螢幕，上面疊著編號與標語',texts:['hero.code','hero.cap']},
+    {slot:'hero.l',n:'左側小畫面'},{slot:'hero.r',n:'右側小畫面'}]},
+  {t:'跑馬燈與宣言',a:'#stmt',texts:['ribbon','stmt']},
+  {t:'收藏 Collection',a:'#collection',note:'橫向捲動的 6 張卡片',texts:['col.t','col.s'],items:[1,2,3,4,5,6].map(i=>({slot:'col.'+i,n:'第 '+i+' 張',texts:['col.c'+i]}))},
+  {t:'入口',a:'.doors-sec',note:'收藏下方的商店、查驗、抽獎三個入口',texts:['door.vt','door.vs','door.vb','door.rk','door.rt','door.rp','door.rb'],items:[{slot:'door.store',n:'商店入口背景',texts:['door.st','door.ss','door.sb']}]},
+  {t:'植物追蹤 Traced',a:'#trace',note:'捲動時依序切換的 4 個步驟',texts:['tr.t','tr.s'],items:[1,2,3,4].map(i=>({slot:'tr.'+i,n:'第 '+i+' 步',texts:['tr.b'+i,'tr.d'+i,'tr.l'+i]}))},
+  {t:'溫室牆 Greenhouse',a:'#wallSec',note:'4 欄上下錯動的牆，由左到右、由上到下編號',texts:['wall.t','wall.s'],items:[1,2,3,4,5,6,7,8].map(i=>({slot:'wall.'+i,n:'第 '+Math.ceil(i/2)+' 欄'+(i%2?'上':'下')+'格',texts:['wall.c'+i]}))},
+  {t:'頁尾',a:'#final',items:[{slot:'fin',n:'頁尾放大畫面',texts:['fin.t','fin.s','fin.b1','fin.b2']}]},
+  {t:'其他頁面',items:[{slot:'lin',n:'查驗頁「Lineage」大圖'},{slot:'shop.empty',n:'商店還沒有商品時的背景'}]},
+];
+const SLOT_DEF={'shop.empty':['nursery','video']};
+function slotInfo(slot){ const el=document.querySelector('[data-slot="'+slot+'"]'); if(el) return [el.dataset.def,el.dataset.dtype]; return SLOT_DEF[slot]||['','image']; }
+const TF=Object.fromEntries(TEXT_FIELDS.map(f=>[f[0],f]));
+async function uploadSlot(slot,f,st){
+  if (!S.assets) throw new Error('請先登入');
+  let ent;
+  if (/^video\//.test(f.type)){
+    if (f.size>100*1024*1024) throw new Error('影片超過 100MB，請先剪短或壓縮');
+    st('檢查影片格式…');
+    let poster; try{ poster=await videoPoster(f); }catch(e){ throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式）。請轉成 MP4（H.264）再上傳'); }
+    const pUrl=await uploadSiteBlob(poster);
+    const url=await uploadSiteBlob(f,b=>st('上傳中 '+Math.round(b/f.size*100)+'%'));
+    ent={type:'video',url,poster:pUrl,name:f.name,at:Date.now()};
+  } else if (/^image\//.test(f.type)){
+    st('處理照片中…');
+    const blob=await encode(await loadImage(f),1800,0.85);
+    const url=await uploadSiteBlob(blob,b=>st('上傳中 '+Math.round(b/blob.size*100)+'%'));
+    ent={type:'image',url,name:f.name,at:Date.now()};
+  } else throw new Error('請選照片或影片');
+  await saveMedia({...MEDIA,[slot]:ent});
 }
-function fillAdmMedia(box){ if(box.querySelector('.mslot.busy')) return; box.replaceChildren(...MEDIA_SLOTS.map(([g,items])=>h('section',{class:'ms-g'}, h('h3',{text:g}), h('div',{class:'ms-grid'}, ...items.map(([k,t,l])=>mediaCard(k,t,l)))))); }
+function slotPreview(slot){ const [def,dt]=slotInfo(slot), r=slotRes(slot,def,dt);
+  return h('div',{class:'ms-pv'}, r.type==='video'
+    ? h('video',{src:r.url,poster:r.poster||null,muted:true,loop:true,playsinline:true,preload:'none',onmouseenter:e=>e.target.play().catch(()=>{}),onmouseleave:e=>e.target.pause()})
+    : h('img',{src:r.url,alt:'',loading:'lazy'}), h('span',{class:'ms-t mono',text:r.type==='video'?'影片':'照片'}), r.custom?h('span',{class:'ms-c',text:'已自訂'}):null); }
+function slotMediaBox(slot){
+  const st=h('span',{class:'hint ms-st'}); let busy=false;
+  const inp=h('input',{type:'file',class:'vh',accept:'image/*,video/mp4,video/webm,video/quicktime'});
+  const box=h('div',{class:'ci-m','data-card':slot});
+  inp.addEventListener('change',async()=>{ const f=inp.files[0]; inp.value=''; if(!f||busy) return; busy=true; box.classList.add('busy');
+    try{ await uploadSlot(slot,f,t=>{ st.textContent=t; }); st.textContent=''; toast('已更換，主頁馬上生效'); }
+    catch(e){ st.textContent='失敗：'+(e?.code==='storage/unauthorized'?'沒有上傳權限（只有擁有者帳號可以改）':(e?.message||'請稍後再試')); }
+    busy=false; box.classList.remove('busy'); fillBox(); });
+  const fillBox=()=>{ const o=MEDIA[slot]; box.replaceChildren(slotPreview(slot), h('div',{class:'ci-btns'}, h('label',{class:'btn ink sm'}, inp, '換照片或影片'), o?confirmBtn('還原','soft',async()=>{ const m={...MEDIA}; delete m[slot]; try{ await saveMedia(m); fillBox(); toast('已還原'); }catch(e){ toast('還原失敗'); } }):null), st); };
+  box.__fill=fillBox; fillBox(); return box;
+}
+function refreshSlotCards(){ document.querySelectorAll('.ci-m[data-card]').forEach(b=>{ if(!b.classList.contains('busy')&&b.__fill) b.__fill(); }); }
 function admMedia(m){
-  const T=S.medTab||'media';
-  const tabs=h('div',{class:'segs',style:'margin-bottom:18px'}, ...[['media','影片照片'],['text','文字'],['blocks','自訂區塊']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(T===k),onclick:()=>{ S.medTab=k; S.blkEdit=null; renderAdmin(true); },text:l})));
+  const T=S.medTab==='blocks'?'blocks':'content';
+  const tabs=h('div',{class:'segs',style:'margin-bottom:18px'}, ...[['content','主頁內容'],['blocks','自訂區塊']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(T===k),onclick:()=>{ S.medTab=k; S.blkEdit=null; renderAdmin(true); },text:l})));
   m.append(admTop('主頁編輯'), tabs);
-  if (T==='text') return admText(m);
   if (T==='blocks') return admBlocks(m);
-  const box=h('div',{id:'admMedia'}); fillAdmMedia(box);
-  m.append(h('div',{class:'panel',style:'max-width:760px;margin-bottom:18px'}, h('p',{class:'hint',text:'替換主頁的影片與照片，存檔後所有訪客馬上看到新版本。影片建議用 MP4（H.264）、直式 9:16、10 秒內、20MB 以下；iPhone 可在「設定 → 相機 → 格式」選「最相容」。照片會自動壓縮成 WebP。隨時可以按「還原預設」。'})), box);
-}
-/* ---- 主頁文字 ---- */
-function admText(m){
-  const groups=[...new Set(TEXT_FIELDS.map(f=>f[1]))], inputs={};
-  const form=h('form',{class:'form txf',style:'max-width:820px'});
-  groups.forEach(g=>{ form.append(h('div',{class:'panel txg'}, h('h3',{text:g}), ...TEXT_FIELDS.filter(f=>f[1]===g).map(f=>{ const k=f[0], long=f[4]==='ribbon'||f[4]==='stmt'||TEXT_DEF[k].length>30;
-    const inp=h(long?'textarea':'input',{placeholder:TEXT_DEF[k],maxlength:f[4]==='ribbon'?600:300,rows:f[4]==='ribbon'?5:3}); inp.value=TEXT[k]||''; inputs[k]=inp;
-    const rs=h('button',{type:'button',class:'bf-lk',onclick:()=>{ inp.value=''; inp.focus(); },text:'還原預設'});
-    return h('div',{class:'field txr'}, h('div',{class:'row',style:'justify-content:space-between'}, h('span',{text:f[2]}), rs), inp); }))); });
-  const err=h('div',{class:'err'});
-  const bar=h('div',{class:'txbar'}, h('span',{class:'hint',text:'留白＝使用預設文字。存檔後主頁馬上更新。'}), err, h('button',{class:'btn pri',type:'submit',text:'儲存文字'}));
-  form.append(bar);
+  const inputs={}; let dirty=false;
+  const saveBtn=h('button',{class:'btn pri',type:'submit',text:'儲存文字'}), err=h('div',{class:'err'}), flag=h('span',{class:'hint',text:'照片／影片上傳完就生效；文字改完記得按儲存。留白＝使用預設文字。'});
+  const markDirty=()=>{ if(!dirty){ dirty=true; flag.textContent='有尚未儲存的文字修改'; flag.classList.add('warn'); } };
+  const tIn=k=>{ const f=TF[k]; if(!f) return null; const long=f[4]==='ribbon'||f[4]==='stmt'||(TEXT_DEF[k]||'').length>30;
+    const inp=h(long?'textarea':'input',{placeholder:TEXT_DEF[k],maxlength:f[4]==='ribbon'?600:300,rows:f[4]==='ribbon'?5:3}); inp.value=TEXT[k]||''; inp.addEventListener('input',markDirty); inputs[k]=inp;
+    return h('div',{class:'field txr'}, h('div',{class:'row',style:'justify-content:space-between'}, h('span',{text:f[2]}), h('button',{type:'button',class:'bf-lk',onclick:()=>{ inp.value=''; markDirty(); },text:'預設'})), inp); };
+  const where=a=>a?h('button',{type:'button',class:'bf-lk',onclick:()=>showOnHome(a),text:'在主頁看位置 ↗'}):null;
+  const form=h('form',{class:'form txf',style:'max-width:980px'},
+    ...HOME_SECTIONS.map(sec=>h('section',{class:'panel csec'},
+      h('div',{class:'row',style:'justify-content:space-between;align-items:baseline'}, h('h3',{text:sec.t}), where(sec.a)),
+      sec.note?h('p',{class:'hint',text:sec.note}):null,
+      sec.texts?h('div',{class:'csec-t'}, ...sec.texts.map(tIn)):null,
+      sec.items?h('div',{class:'citems'}, ...sec.items.map(it=>h('div',{class:'citem'}, slotMediaBox(it.slot),
+        h('div',{class:'ci-b'}, h('b',{text:it.n}), it.note?h('p',{class:'hint',text:it.note}):null, ...(it.texts||[]).map(tIn))))):null)),
+    h('div',{class:'txbar'}, flag, err, saveBtn));
   form.addEventListener('submit',async e=>{ e.preventDefault(); const out={}; for(const [k,inp] of Object.entries(inputs)){ const v=inp.value.trim(); if(v&&v!==TEXT_DEF[k]) out[k]=v; }
-    try{ await S.db.doc('site/text').set(out); applyText(out); toast('主頁文字已儲存'); }catch(ex){ err.textContent='儲存失敗：'+(ex?.code||'請稍後再試'); } });
+    saveBtn.disabled=true; try{ await S.db.doc('site/text').set(out); applyText(out); dirty=false; flag.textContent='文字已儲存'; flag.classList.remove('warn'); toast('主頁文字已儲存'); }catch(ex){ err.textContent='儲存失敗：'+(ex?.code||'請稍後再試'); } saveBtn.disabled=false; });
   m.append(form);
 }
+function showOnHome(anchor){ try{ adm.close(); }catch(e){} go('#/'); setTimeout(()=>{ const el=anchor==='top'?null:document.querySelector(anchor); if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),2400); } else scrollTo({top:0,behavior:'smooth'}); },350); }
 /* ---- 自訂區塊 ---- */
 const BLOCK_TPL={
   blank:{title:'新區塊',h:160,html:'<div class="box">\n  <h2>標題</h2>\n  <p>在這裡寫內容。</p>\n</div>',css:'body{padding:8px 16px}\n.box{max-width:1100px;margin:0 auto;background:#fff;border-radius:24px;padding:28px}',js:''},
