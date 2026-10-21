@@ -116,6 +116,21 @@ service cloud.firestore {
         || (request.auth.uid == resource.data.buyer && resource.data.status == 'open' && request.resource.data.status == 'withdrawn'));
       allow delete: if isAdmin();
     }
+    // 即時聊天：對話編號是兩個人的帳號用 ~ 連起來，只有這兩個人讀寫得到
+    match /chats/{cid} {
+      function mem() { return signedIn() && request.auth.uid in cid.split('~'); }
+      allow get: if mem() || isAdmin();
+      allow list: if signedIn() && request.auth.uid in resource.data.members;
+      allow create: if mem() && notBanned() && cid.split('~').size() == 2
+        && request.resource.data.members.hasAll(cid.split('~')) && request.resource.data.members.size() == 2;
+      allow update: if mem() && request.resource.data.members == resource.data.members;
+      match /messages/{mid} {
+        allow read: if mem() || isAdmin();
+        allow create: if mem() && notBanned() && request.resource.data.from == request.auth.uid;
+        allow update: if mem() && resource.data.from != request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resp', 'respAt', 'respBy']);
+      }
+    }
     // 交易私密資料（匯款帳號、匯款後五碼、物流、收貨）：只有該筆訂單的買賣雙方看得到
     match /deals/{id} {
       allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid) || isAdmin();

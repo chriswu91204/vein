@@ -2317,6 +2317,165 @@ a.lm-n:hover,button.lm-n:hover{background:#E9ECE4;transform:translateX(2px)}
 .iab{align-items:center;text-align:center}.iab h3{font-size:22px;margin:4px 0 0}.iab p{margin:0}
 .iab-ic{align-self:center;width:64px;height:64px;border-radius:20px;background:#111312;color:#D2FF00;display:grid;place-items:center;font-size:30px;font-weight:800}
 .iab-st{display:flex;flex-direction:column;gap:8px;width:100%;text-align:left}.iab-st>div{display:flex;gap:10px;align-items:center;background:var(--paper);border-radius:14px;padding:12px}.iab-st b{width:26px;height:26px;border-radius:50%;background:#D2FF00;display:grid;place-items:center;font-size:13px;flex:none}
+
+@media (max-width:640px){.grid>.gtile{grid-column:1/-1}.gtile .tm{min-width:0}}
+.gtile,.gtile .tm,.gtile .ft{min-width:0}
+
+/* ---- 聊天 ---- */
+.ch-bi{display:inline-block;width:16px;height:16px;border-radius:50% 50% 50% 4px;border:2px solid currentColor;position:relative;vertical-align:-3px;margin-right:6px}.ch-bi::after{content:"";position:absolute;left:3px;right:3px;top:5px;height:2px;border-radius:2px;background:currentColor;box-shadow:0 -0px 0 currentColor}
+.ch-bi.lg{width:20px;height:20px;margin:0}.ch-bi.lg::after{top:7px;left:4px;right:4px}
+#navChat{position:relative;display:grid;place-items:center;color:inherit}
+.ch-av{border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:hsl(var(--hue,140) 35% 38%)}
+#chDock{position:fixed;right:20px;bottom:20px;z-index:2147482000;display:flex;align-items:flex-end;gap:12px;pointer-events:none}
+#chDock>*{pointer-events:auto}
+.ch-fab{width:60px;height:60px;border-radius:50%;border:0;background:#111312;color:#D2FF00;display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 32px -10px rgba(0,0,0,.5);transition:transform .25s var(--ease);position:relative;order:3}
+.ch-fab:hover{transform:translateY(-3px) scale(1.04)}.ch-fab.on{background:#D2FF00;color:#111}
+.ch-fi{width:26px;height:24px;border:3px solid currentColor;border-radius:50% 50% 50% 6px;position:relative}.ch-fi::after{content:"";position:absolute;left:5px;right:5px;top:7px;height:3px;border-radius:3px;background:currentColor}
+.ch-badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:11px;background:#FF4D3D;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;padding:0 6px;border:2px solid var(--bg,#F4F4F1);animation:hkPulse 1.8s ease-in-out infinite}
+#navChat .ch-badge{top:2px;right:0;min-width:16px;height:16px;font-size:10px;border-width:1.5px}
+.ch-panel{position:absolute;right:0;bottom:74px;z-index:2;width:360px;max-height:min(560px,calc(100vh - 120px));background:var(--surface);border-radius:22px;box-shadow:0 24px 60px -18px rgba(0,0,0,.4);display:flex;flex-direction:column;overflow:hidden;animation:chUp .25s var(--ease)}
+@keyframes chUp{from{opacity:0;transform:translateY(12px) scale(.98)}}
+.ch-ph{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}.ch-ph b{font-size:20px}
+.ch-ib{width:32px;height:32px;border-radius:10px;border:0;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;font-size:15px;text-decoration:none;flex:none}.ch-ib:hover{background:rgba(127,127,127,.15)}
+.ch-perm{margin:8px 12px 12px;border:0;background:var(--paper);border-radius:12px;padding:10px;font:inherit;font-size:12.5px;cursor:pointer}
+.chl-l{display:flex;flex-direction:column;min-height:0;flex:1;width:100%}
+.chl-q{box-sizing:border-box;width:calc(100% - 24px);min-width:0;margin:0 12px 8px;border:0;background:var(--paper);border-radius:999px;padding:10px 16px;font:inherit}
+.chl-rows{overflow:auto;flex:1;padding:0 6px 8px}
+.chl-r{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:9px 10px;border-radius:14px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.chl-r:hover{background:var(--paper)}.chl-r.on{background:#EEF6CF}
+.chl-avw{position:relative}.chl-shop{position:absolute;right:-4px;bottom:-4px;font-style:normal;font-size:12px;background:var(--surface);border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
+.chl-tx{flex:1;min-width:0;display:flex;flex-direction:column}.chl-tx b{font-size:14.5px}.chl-tx small{color:var(--fg2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chl-r.un .chl-tx b,.chl-r.un .chl-tx small{color:var(--fg);font-weight:800}
+.chl-m{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.chl-m small{font-size:11px;color:var(--fg3)}.chl-dot{width:10px;height:10px;border-radius:50%;background:#2E7DFF}
+.chl-empty{text-align:center;padding:40px 20px;color:var(--fg2);display:flex;flex-direction:column;align-items:center;gap:6px}.chl-ei{font-size:40px}.chl-empty b{color:var(--fg)}.chl-empty p{margin:0;font-size:13px}
+.ch-wins{display:flex;gap:12px;align-items:flex-end;order:1}
+.cw{width:340px;height:min(480px,calc(100vh - 110px));background:var(--surface);border-radius:18px 18px 0 0;box-shadow:0 20px 50px -14px rgba(0,0,0,.45);display:flex;flex-direction:column;overflow:hidden;margin-bottom:-20px;animation:chUp .25s var(--ease);transition:height .25s var(--ease)}
+.cw.min{height:56px}.cw.min .cv{display:none}
+.cw-h{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 12px;border-bottom:1px solid var(--line);cursor:pointer;flex:none;background:var(--surface)}
+.cw-n{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}.cw-n b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cw-n small{font-size:11.5px;color:var(--fg2)}
+.cv{position:relative;display:flex;flex-direction:column;flex:1;min-height:0;background:var(--bg,#F4F4F1)}
+.cv-ms{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:3px;overscroll-behavior:contain}
+.cv-empty{margin:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px}.cv-empty p{margin:0;font-size:13px}
+.cm-day{align-self:center;font-size:11px;color:var(--fg3);margin:12px 0 6px;background:rgba(127,127,127,.1);padding:3px 10px;border-radius:999px}
+.cm-sys{align-self:center;font-size:12px;color:var(--fg2);margin:6px 0;text-align:center;max-width:85%}
+.cm{display:flex;align-items:flex-end;gap:8px;max-width:86%;margin-top:6px;animation:cmIn .22s var(--ease)}
+@keyframes cmIn{from{opacity:0;transform:translateY(6px)}}
+.cm.cont{margin-top:1px}.cm.me{align-self:flex-end;flex-direction:row-reverse}.cm.wide{max-width:92%}
+.cm-sp{width:28px;flex:none}
+.cm-b{display:flex;flex-direction:column;gap:2px;min-width:0}.cm.me .cm-b{align-items:flex-end}
+.cm-bub{background:var(--surface);padding:9px 13px;border-radius:18px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.cm.me .cm-bub{background:#111312;color:#fff}
+.cm:not(.me):not(.cont) .cm-bub{border-bottom-left-radius:6px}.cm.me:not(.cont) .cm-bub{border-bottom-right-radius:6px}
+.cm-t{font-size:10.5px;color:var(--fg3);padding:0 4px}
+.cm-img{border:0;padding:0;background:none;border-radius:16px;overflow:hidden;cursor:zoom-in;max-width:220px}.cm-img img,.cm-img video{display:block;width:100%;max-height:280px;object-fit:cover}
+.cm-card{background:var(--surface);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:8px;width:250px;max-width:100%;box-shadow:0 1px 0 rgba(0,0,0,.05);border:1px solid var(--line)}
+.cm.me .cm-card{border-color:#111312;box-shadow:0 0 0 1px #111312}
+.cm-ct{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:700}
+.cm-st{font-style:normal;font-size:11px;border-radius:999px;padding:2px 8px;background:var(--paper)}.cm-st.ok{background:#D2FF00;color:#111}.cm-st.no{background:#f1dcd6;color:#8a3a2a}
+.cm-prod{display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit;background:var(--paper);border-radius:12px;padding:6px}
+.cm-prod img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:none}.cm-prod span{display:flex;flex-direction:column;min-width:0;line-height:1.25}.cm-prod b{font-size:12.5px}.cm-prod small{font-size:11.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cm-prod em{font-style:normal;font-weight:800;font-size:13px;color:var(--leaf-2)}.cm-prod em.dim{color:var(--fg3);font-weight:600;font-size:11px}
+.cm-acts{display:flex;gap:6px;flex-wrap:wrap}.cm-acts .btn{flex:1;justify-content:center;min-width:0}
+.cm-amt{display:flex;align-items:baseline;gap:8px}.cm-amt small{font-size:11px;color:var(--fg2)}.cm-amt b{font-size:22px;letter-spacing:-.02em}.cm-amt s{color:var(--fg3);font-size:12px}
+.cm-note{margin:0;font-size:12.5px;color:var(--fg2);white-space:pre-wrap}.cm-q{margin:0;font-size:14.5px;font-weight:600;line-height:1.45}
+.cm-done{font-size:12.5px;font-weight:700;color:var(--leaf-2);background:#EEF6CF;border-radius:10px;padding:7px 10px}.cm-done.wait{color:var(--fg2);background:var(--paper);font-weight:600}
+.cm-ship{display:flex;align-items:center;justify-content:space-between;gap:8px}.cm-no{border:0;background:var(--paper);border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer}
+.cm-in{box-sizing:border-box;min-width:0;width:100%;flex:1 1 100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit}
+.cm-card .bankc{border-radius:12px;padding:10px}
+.cv-quick{display:flex;gap:6px;overflow-x:auto;padding:6px 10px 2px;scrollbar-width:none;flex:none}.cv-quick::-webkit-scrollbar{display:none}
+.cv-quick .q{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:background .2s}
+.cv-quick .q:hover{background:#EEF6CF}.cv-quick .q.prod{border-color:#9BC400;font-weight:700}.cv-quick .q img{width:22px;height:22px;border-radius:6px;object-fit:cover}
+.cv-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px 10px;flex:none;animation:chUp .2s var(--ease)}
+.cv-tools button{border:0;background:var(--surface);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;cursor:pointer}.cv-tools button:hover{background:#EEF6CF}.cv-tools span{font-size:20px}.cv-tools small{font-size:11px}
+.cv-cmp{display:flex;align-items:flex-end;gap:8px;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));flex:none}
+.cv-cmp textarea{flex:1;resize:none;border:0;background:var(--surface);border-radius:20px;padding:10px 14px;font:inherit;font-size:15px;line-height:1.4;max-height:120px;box-shadow:inset 0 0 0 1px var(--line)}
+.cv-plus{width:38px;height:38px;border-radius:50%;border:0;background:var(--surface);font-size:24px;line-height:1;cursor:pointer;flex:none;transition:transform .2s;box-shadow:inset 0 0 0 1px var(--line)}.cv-plus.on{transform:rotate(45deg);background:#D2FF00}
+.cv-send{width:40px;height:40px;border-radius:50%;border:0;background:#111312;cursor:pointer;flex:none;display:grid;place-items:center}
+.cv-send i{width:0;height:0;border-left:13px solid #D2FF00;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px}
+.cv-over{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;z-index:3}
+.cv-sh{background:var(--surface);width:100%;max-height:85%;overflow:auto;border-radius:20px 20px 0 0;padding:14px;animation:chUp .22s var(--ease)}
+.cv-shh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cv-shh b{font-size:16px}
+.cv-x{border:0;background:var(--paper);width:30px;height:30px;border-radius:50%;cursor:pointer}
+.cv-q{border:0;background:var(--paper);border-radius:999px;padding:9px 14px;font:inherit}
+.cv-pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.cv-pl{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--fg2);margin-top:4px}
+.cv-pi{border:0;background:var(--paper);border-radius:12px;padding:5px;display:flex;flex-direction:column;gap:1px;text-align:left;font:inherit;cursor:pointer}.cv-pi:hover{box-shadow:0 0 0 2px #9BC400}
+.cv-pi img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}.cv-pi b{font-size:10.5px;word-break:break-all}.cv-pi small{font-size:10.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cv-pi em{font-style:normal;font-size:11px;font-weight:800;color:var(--leaf-2)}
+.ch-pop{position:fixed;right:20px;bottom:96px;z-index:2147482500;display:flex;align-items:center;gap:12px;background:#111312;color:#fff;border:0;border-radius:18px;padding:12px 16px 12px 12px;max-width:340px;box-shadow:0 18px 40px -12px rgba(0,0,0,.5);cursor:pointer;font:inherit;text-align:left;animation:chPop .35s var(--ease)}
+@keyframes chPop{from{opacity:0;transform:translateX(30px)}}
+.ch-pop span{display:flex;flex-direction:column;min-width:0}.ch-pop small{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ch-pop i{font-style:normal;color:#D2FF00;font-size:12px;font-weight:700;white-space:nowrap}
+.cp{display:grid;grid-template-columns:340px minmax(0,1fr);gap:0;height:calc(100dvh - 150px);min-height:480px;background:var(--surface);border-radius:24px;overflow:hidden;border:1px solid var(--line)}
+.cp-l{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line)}.cp-h{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 10px}.cp-h h2{margin:0;font-size:24px}
+.cp-r{display:flex;flex-direction:column;min-height:0;min-width:0}.cp-r.none{display:grid;place-items:center;background:var(--bg,#F4F4F1)}
+.cp-ch{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.cp-back{display:none;font-size:30px;text-decoration:none;color:inherit;width:28px}
+html.popup #nav,html.popup .tabbar,html.popup footer,html.popup #chDock{display:none!important}
+html.popup #chatsPage.page-top{padding:0!important;max-width:none}html.popup .cp{height:100dvh;border-radius:0;border:0}
+@media (max-width:899px){
+  #chDock{right:14px;bottom:calc(84px + env(safe-area-inset-bottom,0px))}.ch-fab{width:52px;height:52px}
+  #chatsPage.page-top{padding-left:0;padding-right:0}
+  .cp{grid-template-columns:minmax(0,1fr);height:calc(100dvh - 140px);border-radius:0;border-left:0;border-right:0}
+  .cp.has .cp-l{display:none}.cp:not(.has) .cp-r{display:none}.cp-back{display:block}
+  body[data-page="chats"] .tabbar{display:none}body[data-page="chats"] #chatsPage .cp.has{position:fixed;inset:0;height:100dvh;z-index:70;border:0;padding-top:env(safe-area-inset-top,0px)}
+  .ch-pop{right:12px;left:12px;bottom:calc(150px + env(safe-area-inset-bottom,0px));max-width:none}
+}
+/* ---- 滑滑看 ---- */
+.reel-tab{background:#111312!important;color:#D2FF00!important;border-radius:999px}
+.reel-promo{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;margin:28px 0;padding:16px 22px 16px 16px;border-radius:28px;background:#111312;color:#fff;text-decoration:none;position:relative;overflow:hidden}
+.reel-promo::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 0% 50%,rgba(210,255,0,.18),transparent)}
+.rp-ph{position:relative;width:150px;height:110px}
+.rp-ph img{position:absolute;width:70px;height:100px;object-fit:cover;border-radius:12px;left:calc(var(--i)*20px);top:5px;transform:rotate(calc((var(--i) - 2)*5deg));box-shadow:0 8px 20px rgba(0,0,0,.4);animation:rpF 5s ease-in-out infinite;animation-delay:calc(var(--i)*-1s)}
+@keyframes rpF{50%{transform:translateY(-6px) rotate(calc((var(--i) - 2)*5deg))}}
+.rp-tx h3{margin:6px 0 4px;font-size:clamp(18px,2.4vw,26px)}.rp-tx p{margin:0;opacity:.7;font-size:13.5px}
+.rp-go{width:54px;height:54px;border-radius:50%;background:#D2FF00;color:#111;display:grid;place-items:center;font-size:20px;position:relative;animation:hkPulse 1.8s ease-in-out infinite}
+@media (max-width:640px){.reel-promo{grid-template-columns:auto 1fr;padding:12px}.rp-ph{width:96px;height:90px}.rp-ph img{width:52px;height:78px;left:calc(var(--i)*11px)}.rp-go{display:none}.rp-tx p{display:none}}
+html.fd-on,html.fd-on body{overflow:hidden}
+html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:none!important}
+#feedPage{position:fixed;inset:0;z-index:30;background:#000}
+.fd{position:absolute;inset:0;color:#fff}
+.fd-list{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none}.fd-list::-webkit-scrollbar{display:none}
+.fd-it{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;display:flex;justify-content:center;background:#000}
+.fd-sen{height:2px}
+.fd-bg{position:absolute;inset:-40px;background:center/cover;filter:blur(40px) brightness(.45);transform:scale(1.1)}
+.fd-tr{position:relative;width:min(100%,calc(100dvh*9/16));height:100%;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.fd-tr::-webkit-scrollbar{display:none}
+.fd-sl{flex:none;width:100%;height:100%;scroll-snap-align:center;display:grid;place-items:center;overflow:hidden}
+.fd-im,.fd-v{width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.fd-it.act .fd-im.kb{animation:fdKb 9s ease-out both}@keyframes fdKb{from{transform:scale(1.12)}to{transform:scale(1)}}
+.fd-grad{position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(transparent,rgba(0,0,0,.82));pointer-events:none;width:min(100%,calc(100dvh*9/16));left:50%;transform:translateX(-50%)}
+.fd-dots{position:absolute;top:calc(64px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:2}.fd-dots i{width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}.fd-dots i.on{background:#fff}
+.fd-info{position:absolute;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));width:min(100%,calc(100dvh*9/16));transform:translateX(-50%);padding:0 84px 0 18px;display:flex;flex-direction:column;gap:6px;z-index:2;pointer-events:none}
+.fd-info>*{pointer-events:auto}
+.fd-it.act .fd-info>*{animation:fdUp .5s var(--ease) both}.fd-it.act .fd-info>*:nth-child(2){animation-delay:.05s}.fd-it.act .fd-info>*:nth-child(3){animation-delay:.1s}.fd-it.act .fd-info>*:nth-child(4){animation-delay:.15s}.fd-it.act .fd-info>*:nth-child(n+5){animation-delay:.2s}
+@keyframes fdUp{from{opacity:0;transform:translateY(16px)}}
+.fd-shop{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:14px;align-self:flex-start}.fd-vb{background:#D2FF00;color:#111;border-radius:50%;width:16px;height:16px;display:grid;place-items:center;font-size:10px;font-weight:900}
+.fd-fol{border:1.5px solid #fff;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;cursor:pointer}.fd-fol.on{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.7)}
+.fd-tags{display:flex;gap:6px;flex-wrap:wrap}.fd-kind,.fd-tag{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.16);backdrop-filter:blur(8px)}.fd-kind{background:#D2FF00;color:#111}.fd-tag.live{background:#FF4D3D}
+.fd-info h3{margin:2px 0 0;font-size:24px;line-height:1.15;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.fd-code{font-size:12px;opacity:.75}.fd-memo{margin:0;font-size:13px;opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fd-buy{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:6px}.fd-buy small{display:block;font-size:11px;opacity:.7}.fd-buy b{font-size:24px;letter-spacing:-.02em}
+.fd-live{display:block;font-size:12px;color:#D2FF00}
+.fd-cta{flex:none;box-shadow:0 8px 24px -6px rgba(210,255,0,.6)}
+.fd-rail{position:absolute;right:max(10px,calc(50% - min(50%,calc(100dvh*9/32)) + 10px));bottom:calc(150px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px;z-index:3}
+.fd-rb{border:0;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:inherit;text-decoration:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.fd-rb small{font-size:11px;font-weight:700}
+.fd-rb>i{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);display:grid;place-items:center;position:relative;transition:transform .2s}.fd-rb:active>i{transform:scale(.85)}
+.fd-heart::before{content:"♡";font-style:normal;font-size:26px;line-height:1}.fd-rb.on .fd-heart{background:#FF4D6D}.fd-rb.on .fd-heart::before{content:"♥";animation:fdPop .35s var(--ease)}
+@keyframes fdPop{50%{transform:scale(1.4)}}
+.fd-ic::before{font-style:normal;font-size:20px}.fd-ic.chat::before{content:"💬"}.fd-ic.hist::before{content:"📜"}.fd-ic.share::before{content:"↗";font-weight:800}.fd-ic.more::before{content:"⋯";font-size:24px}
+.fd-big{position:absolute;left:50%;top:45%;width:120px;height:120px;margin:-60px 0 0 -60px;pointer-events:none;opacity:0;z-index:4}.fd-big::before{content:"♥";font-style:normal;font-size:120px;color:#FF4D6D;display:block;line-height:1;text-align:center;filter:drop-shadow(0 6px 20px rgba(0,0,0,.4))}
+.fd-big.go{animation:fdBig .9s var(--ease)}@keyframes fdBig{0%{opacity:0;transform:scale(.3)}25%{opacity:1;transform:scale(1.15)}60%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.2) translateY(-40px)}}
+.fd-top{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;background:linear-gradient(rgba(0,0,0,.55),transparent);pointer-events:none}.fd-top>*{pointer-events:auto}
+.fd-x{color:#fff;text-decoration:none;font-size:34px;line-height:1;width:34px}
+.fd-tabs{flex:1;display:flex;justify-content:center;gap:4px;overflow-x:auto;scrollbar-width:none}.fd-tabs button{border:0;background:none;color:rgba(255,255,255,.65);font:inherit;font-weight:700;font-size:14.5px;padding:6px 10px;cursor:pointer;white-space:nowrap;position:relative}.fd-tabs button[aria-pressed="true"]{color:#fff}.fd-tabs button[aria-pressed="true"]::after{content:"";position:absolute;left:30%;right:30%;bottom:0;height:2.5px;border-radius:2px;background:#D2FF00}
+.fd-snd{border:0;background:rgba(255,255,255,.14);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px}
+.fd-hint{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);z-index:6;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:999px;font-size:13px;pointer-events:none;animation:fdHint 1.4s ease-in-out infinite;transition:opacity .5s}.fd-hint.gone{opacity:0}
+@keyframes fdHint{50%{transform:translate(-50%,-10px)}}
+.fd-card .fd-sc{position:relative;z-index:2;width:min(100% - 32px,440px);align-self:center;background:rgba(17,19,18,.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.fd-card h3{margin:0;font-size:26px}.fd-card p{margin:0;opacity:.8;line-height:1.6}
+.fd-sch{display:flex;gap:14px;align-items:center}.fd-sch small{opacity:.7}
+.fd-sg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.fd-sg a{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:3/4;color:#fff;text-decoration:none}.fd-sg img{width:100%;height:100%;object-fit:cover}.fd-sg small{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:800;text-shadow:0 1px 4px #000}
+.fd-rimg{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px}.fd-pz{font-weight:700;opacity:1!important}
+.fd-card .btn.soft{background:rgba(255,255,255,.14);color:#fff}
+@media (min-width:900px){.fd-info{padding-right:20px}.fd-rail{right:calc(50% - min(50vw,calc(100dvh*9/32)) - 80px);bottom:120px}.fd-x{font-size:28px}}
 </style>
 
 </head>
@@ -2345,6 +2504,7 @@ a.lm-n:hover,button.lm-n:hover{background:#E9ECE4;transform:translateX(2px)}
   <div class="right">
     <button class="ib" type="button" id="navSearch" aria-label="搜尋"><svg class="i"><use href="#i-search"/></svg></button>
     <button class="ib" type="button" id="navFav" aria-label="收藏"><svg class="i"><use href="#i-heart"/></svg><span class="badge" id="favBadge" hidden>0</span></button>
+    <a class="ib" href="#/chats" id="navChat" aria-label="聊天"><i class="ch-bi lg"></i><span class="badge ch-badge" hidden>0</span></a>
     <button class="ib" type="button" id="navBell" aria-label="通知"><svg class="i"><use href="#i-bell"/></svg><span class="badge" id="bellBadge" hidden>0</span></button>
     <button class="ib" type="button" id="navCart" aria-label="購物車"><svg class="i"><use href="#i-bag"/></svg><span class="badge" id="cartBadge" hidden>0</span></button>
     <button class="ib" type="button" id="navMe" aria-label="帳號"><svg class="i"><use href="#i-user"/></svg></button>
@@ -2487,6 +2647,8 @@ a.lm-n:hover,button.lm-n:hover{background:#E9ECE4;transform:translateX(2px)}
   <section class="sec wrap page-top" id="seller"><div id="sellerBody"></div></section>
   </div>
   <div class="page" id="pgGuide" hidden><section class="sec wrap page-top" id="guidePage"></section></div>
+  <div class="page" id="pgChats" hidden><section class="sec wrap page-top" id="chatsPage"></section></div>
+  <div class="page" id="pgFeed" hidden><section id="feedPage"></section></div>
   <div class="page" id="pgClaim" hidden><section class="sec wrap page-top" id="claimPage"></section></div>
   <div class="page" id="pgHistory" hidden><section class="sec wrap page-top" id="historyPage"></section></div>
   <div class="page" id="pgGroup" hidden><section class="sec wrap page-top" id="groupPage"></section></div>
@@ -2584,6 +2746,7 @@ var PAGE='home';
 for (const m of ['replaceChildren','append']){ const o=Element.prototype[m]; Element.prototype[m]=function(...a){ return o.apply(this, a.filter(x=>x!=null&&x!==false)); }; }
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const PREVIEW=new URLSearchParams(location.search).has('pv'), PV_HASH=location.hash;
+if (new URLSearchParams(location.search).has('popup')) document.documentElement.classList.add('popup');
 const $ = s => document.querySelector(s);
 const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
 const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
@@ -3311,7 +3474,7 @@ function renderSeller(force){
       s.bio?h('p',{class:'sp-bio',text:s.bio}):null),
     h('div',{class:'sf-nums'}, ...[[String(forSale.length),'在售'],[String(mineAll.length),'登錄植株'],[String(followers(uid)),'追蹤者'],[rt.n?rt.avg.toFixed(1)+'★':'—','評分'],[String(sold.length),'已售出']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
     h('div',{class:'sp-btns'}, uid!==S.me?followBtn(uid,'pri'):h('button',{class:'btn ink sm',type:'button',onclick:()=>{ S.admTab='shop'; S.shopTab='design'; openAdmin(); },text:'裝修賣場'}),
-      shopContact(uid)?h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(s.line||s.contact),text:'聯絡賣家'}):null,
+      chatBtn(uid,null,'soft sm'), shopContact(uid)?h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(s.line||s.contact),text:'LINE'}):null,
       h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(location.href.split('#')[0]+'#/seller/'+uid),text:'分享'})));
   const tabs=h('nav',{class:'sf-tabs'}, ...TABS.map(([k,l,n])=>h('button',{type:'button','aria-current':String(T===k),onclick:()=>{ S.sellerTab=k; renderSeller(true); document.querySelector('.sf-tabs')?.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'start'}); }}, l, n!=null?h('small',{text:String(n)}):null)));
   // ---- sections ----
@@ -3645,6 +3808,7 @@ function storeHome(body){
   const fixed=avail.filter(p=>!isAuc(p)&&p.price);
   const add=x=>x&&body.append(x);
   add(categoryGrid());
+  { const R=pub().filter(p=>p.status!=='sold').sort(()=>Math.random()-.5).slice(0,5); if(R.length) add(h('a',{class:'reel-promo',href:'#/feed'}, h('div',{class:'rp-ph'}, ...R.map((p,i)=>h('img',{src:cover(p),alt:'',style:'--i:'+i,loading:'lazy'}))), h('div',{class:'rp-tx'}, h('span',{class:'tr-k mono'}, h('i'), 'REELS · 滑滑看'), h('h3',{text:'一直往上滑，看不完的植物'}), h('p',{text:'影片、新品、競標、賣家一次滑完，雙擊收藏、直接聊聊。'})), h('span',{class:'rp-go',text:'▶'}))); }
   add(coverflow({kicker:'LIVE AUCTION',title:'限時競標',sub:'左右滑動或點兩側卡片切換，倒數結束時最高出價者得標',items:liveL,dark:true,more:more('全部競標','#/store/auction')})||techRow({kicker:'LIVE AUCTION',title:'限時競標',sub:'倒數結束時最高出價者得標',items:liveL,card:aucCard,dark:true,big:true,bg:'LIVE AUCTION',more:more('全部競標','#/store/auction')}));
   add(vwall({}));
   const rc=recommend(); add(techRow({kicker:rc.personal?'FOR YOU':'TRENDING',title:rc.personal?'為你推薦':'熱門推薦',sub:rc.personal?'依你追蹤的賣家與收藏的品種':'收藏或追蹤賣家後，這裡會更懂你',items:rc.list}));
@@ -3857,7 +4021,7 @@ function catHead(g){ const t=TAX_BY.get(g), ps=pub().filter(p=>spKey(p)===g&&p.s
 
 function renderStoreTabs(){
   const T=S.storeTab||'home', box=$('#storeTabs');
-  box.replaceChildren(...STORE_TABS.map(([k,zh,en])=>h('a',{href:'#/store'+(k==='home'?'':'/'+k),class:T===k?'on':'','aria-current':T===k?'page':null}, h('small',{class:'mono',text:en}), zh)));
+  box.replaceChildren(...STORE_TABS.map(([k,zh,en])=>h('a',{href:'#/store'+(k==='home'?'':'/'+k),class:T===k?'on':'','aria-current':T===k?'page':null}, h('small',{class:'mono',text:en}), zh)), h('a',{href:'#/feed',class:'reel-tab'}, h('small',{class:'mono',text:'REELS'}), '滑滑看'));
   const sub={home:'競標、直購與溫室，一次逛完',auction:'倒數結束時最高出價者得標',buy:'標價直購，賣家確認後私訊付款',sellers:'認證溫室，每一株都可追溯',search:'搜尋與篩選',cat:'分類瀏覽'}[T];
   $('#storeSub').textContent=sub;
 }
@@ -4167,7 +4331,7 @@ function bankCard(bk){ if(!bk) return h('p',{class:'hint',text:'賣家還沒提�
 function orderCard(o){
   const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), rv=mySocial().reviews?.[o.id], d=o.deal, st=o.status;
   const c=h('div',{class:'ocard'},
-    h('div',{class:'row',style:'justify-content:space-between'}, shopChip(o.shop,true), h('span',{class:'tag '+(st==='cancelled'||st==='pending'?'grey':'lime'),text:OST[st]})),
+    h('div',{class:'row',style:'justify-content:space-between'}, shopChip(o.shop,true), h('div',{class:'row',style:'gap:8px'}, chatBtn(o.shop,{pid:o.items?.[0]},'soft sm'), h('span',{class:'tag '+(st==='cancelled'||st==='pending'?'grey':'lime'),text:OST[st]}))),
     st!=='cancelled'?stepBar(st):null,
     h('div',{class:'oitems'}, ...items.map(p=>h('button',{type:'button',class:'oi',onclick:()=>openPlant(p.id)}, h('img',{src:p.thumb||'m/p1.jpg',alt:''}), h('span',{class:'mono',text:p.code})))),
     h('div',{class:'row',style:'justify-content:space-between'}, h('span',{class:'hint',text:fmtDate(tsLocal(o.at))+(o.src==='offer'?' · 議價成交':'')+(o.note?' · '+o.note:'')}), h('b',{text:money(o.total)})));
@@ -4271,6 +4435,7 @@ async function boot(){
     const sub=(col,field)=>db.collection(col).where(field,'==',S.me).onSnapshot(sn=>{ const M=col==='offers'?S.offers:S.deals; for(const [k,v] of M) if(v[field]===S.me) M.delete(k); sn.docs.forEach(d=>{ const v=d.data(); if(v[field]===S.me) M.set(d.id,{id:d.id,...v}); }); renderAll(); },()=>{});
     sub('offers','buyer'); sub('offers','seller'); sub('deals','buyer'); sub('deals','seller');
     db.doc(`data/users/${S.me}/bank`).onSnapshot(d=>{ S.bank=d.exists?d.data():null; },()=>{});
+    chatBoot(db);
   }
   if (S.me) db.doc(`data/users/${S.me}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); }, ()=>{});
   setTimeout(()=>{ if(!S.ready){ S.ready=true; renderAll(); } }, 4000);
@@ -4278,7 +4443,7 @@ async function boot(){
 }
 
 /* ---------- router ---------- */
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide'];
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed'];
 function go(hash){ if(location.hash===hash) route(); else location.hash=hash; }
 function route(){
   if (PREVIEW&&!/^#\/seller\//.test(location.hash||'')) history.replaceState(null,'',PV_HASH);
@@ -4303,6 +4468,8 @@ function route(){
   const histChanged=pg==='history'&&arg!==S.histP; if(histChanged){ S.histP=arg; S.histEdit=null; S.histNew=false; }
   if (pg!=='history'&&PAGE==='history') leaveHistory();
   if (pg!=='plant'&&PAGE==='plant') leavePlant();
+  if (pg!=='chats'&&PAGE==='chats') leaveChats();
+  if (pg!=='feed'&&PAGE==='feed') leaveFeed();
   const plantChanged=pg==='plant'&&arg!==S.pageP;
   const changed=pg!==PAGE||(pg==='seller')||tabChanged||plantChanged||groupChanged||histChanged;
   const apply=()=>{
@@ -4314,7 +4481,10 @@ function route(){
     if (pg==='group') renderGroup(true);
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
+    $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; chatBadge();
     if (pg==='guide') renderGuide(arg);
+    if (pg==='chats') renderChats(arg);
+    if (pg==='feed') renderFeed();
     if (pg==='plant'&&(plantChanged||!$('#dInfo'))) buildPlantPage(arg);
     if (pg==='shop') renderShop(true);
     if (pg==='raffle'){ renderRafflePage(); if(arg) openRaffle(arg); else if(dlg.open&&S.openR) dlg.close(); }
@@ -4385,7 +4555,7 @@ function renderGroup(force){
       h('div',{class:'gp-left'}, stage, cap, strip),
       h('div',{class:'gp-right'},
         h('span',{class:'tr-k mono'}, h('i'), 'GROUP · '+M.length+' PLANTS'), h('h1',{class:'gp-title',text:G.name||short(r0.species)}),
-        h('div',{class:'gp-sub'}, shopChip(shop,true), h('span',{text:[kinds,short(r0.species)].filter(Boolean).join(' · ')})),
+        h('div',{class:'gp-sub'}, shopChip(shop,true), h('span',{text:[kinds,short(r0.species)].filter(Boolean).join(' · ')}), chatBtn(shop,{pid:S.gSel||r0.id},'soft sm','聊聊')),
         (Mo||Da||r0.cross)?h('div',{class:'gp-par'}, h('span',{text:'親本'}), Mo?h('a',{class:'mono',href:'#/plant/'+Mo.id,text:Mo.code}):momCode(r0)?h('span',{class:'mono',text:momCode(r0)}):null, (Mo||momCode(r0))&&(Da||dadCode(r0))?h('i',{text:'×'}):null, Da?h('a',{class:'mono',href:'#/plant/'+Da.id,text:Da.code}):dadCode(r0)?h('span',{class:'mono',text:dadCode(r0)}):null, r0.cross?h('small',{text:r0.cross}):null):null,
         G.desc?h('p',{class:'gp-desc',text:G.desc}):null,
         h('div',{class:'gp-stats'}, ...[[String(av.length),'株可選'],[range,'單株價格'],[String(M.length-av.length),'已售出']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
@@ -4713,7 +4883,7 @@ function histBtn(p,cls,label){ return h('a',{class:'btn '+(cls||'soft')+' hbtn',
 function leaveHistory(){ if(S.histUnsub){ S.histUnsub(); S.histUnsub=null; } S.histFor=null; S.histDocs=null; histSig=''; }
 let histSig='', histIO=null;
 const HK={par:['🧬','親本來源'],rec:['📷','紀錄'],note:['✍️','事件'],reg:['🏷','登錄'],kid:['🌱','繁殖'],own:['🤝','所有權'],sale:['🛒','上架']};
-{ const _sm=HTMLDialogElement.prototype.showModal; HTMLDialogElement.prototype.showModal=function(){ this._openAt=performance.now(); return _sm.apply(this,arguments); }; }
+{ const _sm=HTMLDialogElement.prototype.showModal; HTMLDialogElement.prototype.showModal=function(){ this._openAt=performance.now(); const r=_sm.apply(this,arguments); try{ placeDock(); }catch(e){} return r; }; document.addEventListener('close',()=>setTimeout(()=>{ try{ placeDock(); }catch(e){} }),true); }
 function lightbox(list,i){
   document.querySelectorAll('.lb').forEach(x=>x._close?x._close():x.remove());
   let k=Math.max(0,i|0); const stage=h('div',{class:'lb-s'}), cnt=h('span',{class:'lb-n mono'});
@@ -5017,7 +5187,7 @@ function refreshDetail(first){
     else if (p.status!=='available') act=h('span',{class:'tag grey',style:'font-size:14px;padding:8px 14px',text:STATUS[p.status]||''});
     else if (po) act=h('span',{class:'tag lime',style:'font-size:14px;padding:8px 14px',text:'已下單 · 等待賣家確認'});
     else if (p.price) act=h('div',{class:'row'}, inCart?h('button',{class:'btn soft lg',type:'button',onclick:openCart,text:'已在購物車 →'}):h('button',{class:'btn soft lg',type:'button',onclick:()=>addCart(id),text:'加入購物車'}), h('button',{class:'btn pri lg',type:'button',onclick:()=>addCart(id,true),text:'立即購買'}));
-    else act=c?h('button',{class:'btn pri lg',type:'button',onclick:()=>copyText(s?.line||s?.contact),text:'聯絡賣家'}):h('span',{class:'hint',text:'價格請在問與答詢問'});
+    else act=h('div',{class:'row'}, chatBtn(p.shop,{pid:id},'pri lg','聊聊問價格'), c?h('button',{class:'btn soft lg',type:'button',onclick:()=>copyText(s?.line||s?.contact),text:'LINE'}):null);
     deal.replaceChildren(h('div',{class:'deal'}, h('div',{class:'lbl',text:p.price?'直購價':'價格'}), h('div',{class:'bp',text:p.price?money(p.price):'洽詢'}), h('div',{style:'margin-top:14px'}, act),
       p.status==='available'&&p.price&&!own?h('p',{class:'hint',style:'margin-top:10px',text:'下單不需要先付款。賣家確認後，訂單頁會顯示匯款帳號，匯款後填寫後五碼即可。'}):null));
   }
@@ -5033,7 +5203,7 @@ function refreshDetail(first){
     $('#dBid').append(ob); }
   const rt=rating(p.shop), n=pub().filter(x=>x.shop===p.shop&&x.status!=='sold').length;
   $('#dSeller').replaceChildren(h('div',{class:'sellercard'}, avatar(p.shop,48), h('div',{style:'min-width:0'}, h('div',{class:'row',style:'gap:6px'}, h('b',{text:shopName(p.shop)}), vBadge(p.shop)), h('div',{class:'hint',text:(rt.n?'★ '+rt.avg.toFixed(1)+' · '+rt.n+' 則評價':'新賣家')+' · '+n+' 株在售'})),
-    h('div',{class:'row',style:'margin-left:auto'}, !own?followBtn(p.shop):null, h('a',{class:'btn soft sm',href:'#/seller/'+p.shop,text:'看賣場'}))),
+    h('div',{class:'row',style:'margin-left:auto;flex-wrap:wrap;justify-content:flex-end'}, !own?followBtn(p.shop):null, !own?chatBtn(p.shop,{pid:id}):null, h('a',{class:'btn soft sm',href:'#/seller/'+p.shop,text:'看賣場'}))),
     s?.ship?h('details',{class:'ship'}, h('summary',{text:'運送與付款'}), h('p',{text:s.ship})):null);
   const g=genusOf(p.species), spec=[['編號',h('span',{class:'mono',text:p.code})],['分類（屬）',h('span',{}, h('i',{text:g||'—'}), genusZh(g)?' '+genusZh(g):'')],['種名',normSp(p.species).slice(g.length).trim()||'—'],['品系',p.cultivar||'—'],['類型',kindLabel(p)],
     ['母本',M?h('a',{href:'#/plant/'+M.id,class:'mono',text:M.code}):momCode(p)||'—'],['父本',D?h('a',{href:'#/plant/'+D.id,class:'mono',text:D.code}):dadCode(p)||'—'],['備註',p.cross||'—'],['葉片數',p.leaves!=null?p.leaves+' 片':'—'],
@@ -5789,6 +5959,277 @@ async function uploadMediaFile(f,onP){
   if (/^image\//.test(f.type)){ const blob=await encode(await loadImage(f),1920,0.84); return {type:'image',url:await uploadBlob(blob,onP)}; }
   throw new Error('請選照片或影片');
 }
+/* ================= 即時聊天（買家 ↔ 賣家）================= */
+const POPUP=new URLSearchParams(location.search).has('popup');
+S.chats=new Map(); S.chatMsgs=new Map();
+const CH={subs:new Map(), views:new Set(), wins:[], listOpen:false, ctx:{}, q:'', lastSeen:new Map(), booted:false};
+const chatId=(a,b)=>[a,b].sort().join('~');
+const chatOther=c=>String(c.id||c).split('~').find(u=>u!==S.me)||S.me;
+const chatName=u=>shopOf(u)?.name||nameOf(u)||'會員';
+const chatUnread=c=>!!c?.last&&c.last.from!==S.me&&(c.last.at||0)>((c.read||{})[S.me]||0);
+const chatUnreadN=()=>[...S.chats.values()].filter(chatUnread).length;
+const hhmm=t=>{ const d=new Date(t); return p2(d.getHours())+':'+p2(d.getMinutes()); };
+const chatWhen=t=>{ if(!t) return ''; const d=new Date(t), n=new Date(); if(d.toDateString()===n.toDateString()) return hhmm(t); const y=new Date(n-864e5); if(d.toDateString()===y.toDateString()) return '昨天'; return (d.getMonth()+1)+'/'+d.getDate(); };
+function chatAv(u,sz){ const s=shopOf(u); if(s?.avatar) return h('img',{class:'ch-av',src:s.avatar,alt:'',style:`width:${sz}px;height:${sz}px`}); const n=chatName(u); return h('span',{class:'ch-av',style:`width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.42)}px;--hue:${[...u].reduce((a,c)=>a+c.charCodeAt(0),0)%360}`,text:(n||'V').slice(0,1)}); }
+const CH_PREV={text:m=>m.text,img:()=>'📷 照片',vid:()=>'🎬 影片',prod:m=>'🌿 商品 '+(m.code||''),offer:m=>'🤝 議價 '+money(m.amt),ask:m=>'✅ '+(m.q||'請確認'),pay:()=>'💳 匯款資訊',ship:m=>'📦 已出貨 '+(m.carrier||''),sys:m=>m.text};
+const chatPreview=m=>String((CH_PREV[m.t]||CH_PREV.text)(m)||'').slice(0,80);
+const isDesk=()=>innerWidth>=900&&!POPUP;
+
+/* ---- 資料 ---- */
+function chatBoot(db){ if(CH.booted||!S.me) return; CH.booted=true;
+  db.collection('chats').where('members','array-contains',S.me).onSnapshot(sn=>{ const prev=new Map([...S.chats].map(([k,v])=>[k,v.last?.at||0])); S.chats.clear();
+    sn.docs.forEach(d=>{ const v=d.data(); if((v.members||[]).includes(S.me)) S.chats.set(d.id,{id:d.id,...v}); });
+    resolveNames([...S.chats.keys()].map(chatOther)); if(CH.ready) chatNotify(prev); CH.ready=true; chatRefresh(); },()=>{});
+  chatDock(); }
+function chatSub(cid){ const x=CH.subs.get(cid); if(x){ x.n++; return; }
+  const un=S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).onSnapshot(sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); },()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); });
+  CH.subs.set(cid,{un,n:1}); }
+function chatUnsub(cid){ const x=CH.subs.get(cid); if(!x) return; if(--x.n<=0){ try{ x.un(); }catch(e){} CH.subs.delete(cid); } }
+async function chatSend(cid,msg){ if(needLogin()) return false; const at=Date.now(), m={...msg,from:S.me,at}, last={t:msg.t,text:chatPreview(m),from:S.me,at};
+  const c=S.chats.get(cid);
+  try{
+    if(!c){ const doc={members:cid.split('~'),createdAt:at,updatedAt:at,last,read:{[S.me]:at}}; await S.db.doc('chats/'+cid).set(doc); S.chats.set(cid,{id:cid,...doc}); }
+    else { const read={...(c.read||{}),[S.me]:at}; await S.db.doc('chats/'+cid).update({updatedAt:at,last,read}); Object.assign(c,{updatedAt:at,last,read}); }
+    await S.db.collection('chats/'+cid+'/messages').doc().set(m); return true;
+  }catch(e){ toast('訊息沒送出：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); return false; } }
+async function chatRespond(cid,m,resp,note){ try{ await S.db.doc('chats/'+cid+'/messages/'+m.id).update({resp,respAt:Date.now(),respBy:S.me}); m.resp=resp; if(note) await chatSend(cid,{t:'sys',text:note}); chatRefresh(cid); }catch(e){ toast('操作失敗'); } }
+function chatMarkRead(cid){ const c=S.chats.get(cid); if(!c||!chatUnread(c)||document.hidden) return; const read={...(c.read||{}),[S.me]:Date.now()}; c.read=read; S.db.doc('chats/'+cid).update({read}).catch(()=>{}); chatRefresh(); }
+function chatVisible(cid){ return [...CH.views].some(v=>v.cid===cid&&v.el.isConnected&&!v.el.closest('.cw.min')); }
+function chatNotify(prev){ for(const c of S.chats.values()){ const at=c.last?.at||0; if(at>(prev.get(c.id)||0)&&c.last.from!==S.me){ if(chatVisible(c.id)&&!document.hidden){ chatMarkRead(c.id); continue; } chatPop(c); } } }
+function chatPop(c){ const u=chatOther(c); document.querySelectorAll('.ch-pop').forEach(x=>x.remove());
+  const el=h('button',{type:'button',class:'ch-pop',onclick:()=>{ el.remove(); openChat(u); }}, chatAv(u,40), h('span',{}, h('b',{text:chatName(u)}), h('small',{text:c.last.text||''})), h('i',{text:'回覆 →'}));
+  (topLayer()||document.body).append(el); setTimeout(()=>el.remove(),6000);
+  try{ if(document.hidden&&'Notification' in window&&Notification.permission==='granted') new Notification('VEIN · '+chatName(u),{body:c.last.text||'',icon:'/favicon.svg',tag:c.id}); }catch(e){} }
+function topLayer(){ const L=[...document.querySelectorAll('dialog[open]')].sort((a,b)=>(a._openAt||0)-(b._openAt||0)); return L[L.length-1]||null; }
+function chatRefresh(cid){ CH.views.forEach(v=>{ if(!v.el.isConnected){ CH.views.delete(v); return; } if(!cid||v.cid===cid||v.list) v.render(); }); chatBadge();
+  const n=chatUnreadN(); const t=document.title.replace(/^\(\d+\) /,''); document.title=n?'('+n+') '+t:t; }
+
+/* ---- 對外入口 ---- */
+function chatBtn(u,ctx,cls,label){ if(!u||u===S.me) return null; return h('button',{class:'btn '+(cls||'soft sm')+' ch-btn',type:'button',onclick:e=>{ e.stopPropagation(); openChat(u,ctx); }}, h('i',{class:'ch-bi'}), label||'聊聊'); }
+function openChat(u,ctx){ if(needLogin()) return; if(u===S.me){ toast('這是你自己'); return; } const cid=chatId(S.me,u); if(ctx) CH.ctx[cid]=ctx; resolveNames([u]);
+  if (isDesk()){ chatOpenWin(cid); return; }
+  try{ if(dlg.open) dlg.close(); if(sheet.open) sheet.close(); if(adm.open) adm.close(); }catch(e){}
+  go('#/chats/'+encodeURIComponent(cid)); }
+function chatPopout(cid){ const w=window.open(location.pathname+'?popup=1#/chats/'+encodeURIComponent(cid||''),'vein-chat','width=440,height=720'); if(!w) go('#/chats/'+encodeURIComponent(cid||'')); }
+
+/* ---- 對話內容 ---- */
+const QUICK_BUY=['還有嗎？','可以議價嗎？','可以面交嗎？','怎麼寄送？','可以看更多照片嗎？','謝謝！'];
+const QUICK_SELL=['還有喔！','已經幫你保留','今天會寄出','收到款項了，謝謝！','有問題隨時問我'];
+const CARRIERS=['7-11 交貨便','全家店到店','黑貓宅急便','郵局','面交','其他'];
+function chatConv(cid,opt={}){
+  const other=chatOther(cid); chatSub(cid);
+  const box=h('div',{class:'cv'+(opt.page?' page':'')}), ms=h('div',{class:'cv-ms'}), over=h('div',{class:'cv-over',hidden:true});
+  let atBottom=true, lastN=-1; ms.addEventListener('scroll',()=>{ atBottom=ms.scrollHeight-ms.scrollTop-ms.clientHeight<60; if(atBottom) chatMarkRead(cid); });
+  const ta=h('textarea',{rows:1,placeholder:'輸入訊息…',maxlength:1000,'aria-label':'訊息'});
+  const grow=()=>{ ta.style.height='auto'; ta.style.height=Math.min(120,ta.scrollHeight)+'px'; };
+  const send=async()=>{ const t=ta.value.trim(); if(!t) return; ta.value=''; grow(); await chatSend(cid,{t:'text',text:t}); };
+  ta.addEventListener('input',grow); ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); send(); } });
+  ta.addEventListener('focus',()=>chatMarkRead(cid));
+  const fileIn=h('input',{type:'file',accept:'image/*,video/mp4,video/quicktime,video/webm',multiple:true,class:'vh'});
+  fileIn.addEventListener('change',async()=>{ const fs=[...fileIn.files]; fileIn.value=''; for(const f of fs){ const t=toastStay('上傳中…'); try{ const md=await uploadMediaFile(f,b=>t.set('上傳中 '+Math.round(b/f.size*100)+'%')); t.done(); await chatSend(cid,md.type==='video'?{t:'vid',url:md.url,poster:md.poster||null}:{t:'img',url:md.url}); }catch(e){ t.done(); toast('上傳失敗：'+(e?.message||'請稍後再試')); } } });
+  const plantsOf=u=>all().filter(p=>p.shop===u&&listed(p)&&!p.private&&!p.blocked&&!p.hidden&&p.status!=='sold').sort((a,b)=>toMs(b.listedAt||b.createdAt)-toMs(a.listedAt||a.createdAt));
+  const sheetOpen=(title,body)=>{ over.replaceChildren(h('div',{class:'cv-sh'}, h('div',{class:'cv-shh'}, h('b',{text:title}), h('button',{type:'button',class:'cv-x','aria-label':'關閉',onclick:closeOver,text:'✕'})), body)); over.hidden=false; };
+  const closeOver=()=>{ over.hidden=true; over.replaceChildren(); };
+  const picker=(title,lists,onPick)=>{ const q=h('input',{placeholder:'搜尋編號或品種',class:'cv-q'}); const grid=h('div',{class:'cv-pg'});
+    const draw=()=>{ const k=q.value.trim().toLowerCase(); grid.replaceChildren(...lists.flatMap(([lab,L])=>{ L=L.filter(p=>!k||[p.code,p.species,p.cultivar,memoOf(p)].join(' ').toLowerCase().includes(k)); return L.length?[h('div',{class:'cv-pl',text:lab+' · '+L.length}), ...L.slice(0,60).map(p=>h('button',{type:'button',class:'cv-pi',onclick:()=>{ closeOver(); onPick(p); }}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('b',{class:'mono',text:p.code}), h('small',{text:short(p.species)}), h('em',{text:priceLabel(p).main})))]:[]; })); if(!grid.children.length) grid.append(h('p',{class:'hint',text:'沒有可以選的上架商品。'})); };
+    q.addEventListener('input',draw); draw(); sheetOpen(title,h('div',{class:'form',style:'gap:10px'}, q, grid)); setTimeout(()=>q.focus(),50); };
+  const offerForm=p=>{ const amt=h('input',{type:'number',min:1,step:1,required:true,placeholder:'例如 3000',value:p.price?Math.round(p.price*0.9/100)*100:''}), msg=h('input',{maxlength:120,placeholder:'想跟賣家說的話（選填）'});
+    sheetOpen('向賣家議價',h('form',{class:'form',style:'gap:10px',onsubmit:async e=>{ e.preventDefault(); const v=Number(amt.value); if(!(v>0)) return; if(needPhone&&needPhone()) return;
+        try{ const ref=S.db.collection('offers').doc(); await ref.set({buyer:S.me,seller:p.shop,pid:p.id,code:p.code,amt:v,msg:msg.value.trim(),status:'open',at:Date.now()}); closeOver(); await chatSend(cid,{t:'offer',oid:ref.id,pid:p.id,code:p.code,amt:v,msg:msg.value.trim()}); }catch(ex){ toast('送出失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }},
+      prodMini(p), field('你的出價 NT$',amt), field('留言',msg), h('p',{class:'hint',text:'賣家同意後會自動成立訂單。'}), h('button',{class:'btn pri',type:'submit',text:'送出議價'}))); };
+  const askForm=(preset)=>{ const q=h('input',{maxlength:120,required:true,value:preset?.q||'',placeholder:'例如：這株幫你保留到週五可以嗎？'}), o1=h('input',{maxlength:16,value:preset?.o?.[0]||'確認'}), o2=h('input',{maxlength:16,value:preset?.o?.[1]||'取消'}), o3=h('input',{maxlength:16,value:preset?.o?.[2]||'',placeholder:'第三個選項（選填）'});
+    let pid=preset?.pid||null; const pv0=h('div',{}); const drawP=()=>pv0.replaceChildren(pid&&S.plants.get(pid)?prodMini(S.plants.get(pid)):h('button',{type:'button',class:'btn soft sm',onclick:()=>picker('附上商品',[['我的',plantsOf(S.me)],['對方的',plantsOf(other)]],p=>{ askForm({q:q.value,o:[o1.value,o2.value,o3.value],pid:p.id}); }),text:'＋ 附上商品（選填）'})); drawP();
+    sheetOpen('請對方確認',h('form',{class:'form',style:'gap:10px',onsubmit:async e=>{ e.preventDefault(); const opts=[o1.value,o2.value,o3.value].map(x=>x.trim()).filter(Boolean); if(!q.value.trim()||!opts.length) return; closeOver(); const p=pid&&S.plants.get(pid); await chatSend(cid,{t:'ask',q:q.value.trim(),opts,pid:pid||null,code:p?.code||null}); }},
+      field('要對方確認什麼',q), h('div',{class:'two'}, field('選項 1',o1), field('選項 2',o2)), field('選項 3',o3), pv0, h('button',{class:'btn pri',type:'submit',text:'送出'}))); };
+  const meetForm=()=>{ const dt=h('input',{type:'datetime-local',required:true}), pl=h('input',{maxlength:60,required:true,placeholder:'例如：台北車站 M8 出口'});
+    sheetOpen('約面交',h('form',{class:'form',style:'gap:10px',onsubmit:async e=>{ e.preventDefault(); const d=new Date(dt.value); if(isNaN(d)) return; closeOver(); await chatSend(cid,{t:'ask',kind:'meet',q:'面交：'+(d.getMonth()+1)+'/'+d.getDate()+'（'+'日一二三四五六'[d.getDay()]+'）'+hhmm(d.getTime())+' · '+pl.value.trim(),opts:['可以','想改時間']}); }},
+      field('時間',dt), field('地點',pl), h('button',{class:'btn pri',type:'submit',text:'送出邀請'}))); };
+  const payForm=()=>{ if(!S.bank?.account){ toast('先到「商店管理 → 賣場設定」填匯款帳號'); return; } const amt=h('input',{type:'number',min:0,placeholder:'應付金額（選填）'}), note=h('input',{maxlength:80,placeholder:'例如：含運費 NT$ 100'});
+    sheetOpen('傳送匯款資訊',h('form',{class:'form',style:'gap:10px',onsubmit:async e=>{ e.preventDefault(); closeOver(); await chatSend(cid,{t:'pay',bank:{bankName:S.bank.bankName||'',bankCode:S.bank.bankCode||'',account:S.bank.account||'',holder:S.bank.holder||''},amt:Number(amt.value)||null,note:note.value.trim()}); }},
+      bankCard(S.bank), field('金額',amt), field('備註',note), h('p',{class:'hint',text:'只有你和對方看得到這則訊息。'}), h('button',{class:'btn pri',type:'submit',text:'傳送'}))); };
+  const shipForm=()=>{ const cr=h('select',{}, ...CARRIERS.map(x=>h('option',{value:x,text:x}))), no=h('input',{maxlength:40,placeholder:'物流單號（選填）'}), note=h('input',{maxlength:80,placeholder:'例如：已用保溫箱包好'});
+    sheetOpen('出貨通知',h('form',{class:'form',style:'gap:10px',onsubmit:async e=>{ e.preventDefault(); closeOver(); await chatSend(cid,{t:'ship',carrier:cr.value,no:no.value.trim(),note:note.value.trim()}); }},
+      field('物流',cr), field('單號',no), field('備註',note), h('button',{class:'btn pri',type:'submit',text:'通知對方'}))); };
+  const mine=hasShop();
+  const tools=[['📷','照片／影片',()=>fileIn.click()],['🌿','商品卡',()=>picker('傳送商品卡',[['我的',plantsOf(S.me)],['對方的',plantsOf(other)]],p=>chatSend(cid,{t:'prod',pid:p.id,code:p.code}))],
+    ...(plantsOf(other).length?[['🤝','議價',()=>picker('要議價哪一株？',[['對方的',plantsOf(other).filter(p=>!isAuc(p))]],offerForm)]]:[]),
+    ['✅','請對方確認',()=>askForm()],['📅','約面交',meetForm],
+    ...(mine?[['💳','匯款資訊',payForm],['📦','出貨通知',shipForm]]:[])];
+  const plus=h('button',{type:'button',class:'cv-plus','aria-label':'更多功能',onclick:()=>{ const open=tb.hidden; tb.hidden=!open; plus.classList.toggle('on',open); }},'+');
+  const tb=h('div',{class:'cv-tools',hidden:true}, ...tools.map(([i,l,fn])=>h('button',{type:'button',onclick:()=>{ tb.hidden=true; plus.classList.remove('on'); fn(); }}, h('span',{text:i}), h('small',{text:l}))));
+  const quick=h('div',{class:'cv-quick'});
+  const drawQuick=()=>{ const ctx=CH.ctx[cid], p=ctx?.pid&&S.plants.get(ctx.pid), sentP=p&&(S.chatMsgs.get(cid)||[]).some(m=>m.t==='prod'&&m.pid===p.id);
+    quick.replaceChildren(...(p&&!sentP?[h('button',{type:'button',class:'q prod',onclick:()=>chatSend(cid,{t:'prod',pid:p.id,code:p.code})}, h('img',{src:cover(p),alt:''}), '附上 '+p.code)]:[]), ...(mine&&!plantsOf(other).length?QUICK_SELL:QUICK_BUY).map(t=>h('button',{type:'button',class:'q',onclick:()=>chatSend(cid,{t:'text',text:t}),text:t}))); };
+  const composer=h('div',{class:'cv-cmp'}, plus, ta, h('button',{type:'button',class:'cv-send','aria-label':'送出',onclick:send}, h('i')), fileIn);
+  box.append(ms, quick, tb, composer, over);
+  // ---- 訊息 ----
+  const actBtn=(l,fn,cls)=>h('button',{type:'button',class:'btn sm '+(cls||'soft'),onclick:async e=>{ e.currentTarget.disabled=true; try{ await fn(); }finally{ if(e.currentTarget) e.currentTarget.disabled=false; } },text:l});
+  const card=(m,kids)=>h('div',{class:'cm-card'}, ...kids);
+  const msgBody=m=>{ const meS=m.from===S.me, p=m.pid&&S.plants.get(m.pid);
+    switch(m.t){
+      case 'img': return h('button',{type:'button',class:'cm-img',onclick:()=>lightbox([{type:'image',url:m.url}],0)}, h('img',{src:m.url,alt:'',loading:'lazy'}));
+      case 'vid': return h('div',{class:'cm-img'}, h('video',{src:m.url,poster:m.poster||null,controls:true,playsinline:true,preload:'metadata'}));
+      case 'prod': { if(!p) return h('div',{class:'cm-bub',text:'🌿 商品 '+(m.code||'')+'（已下架）'}); const sale=onSale(p), canCart=sale&&!isAuc(p)&&p.price&&p.shop!==S.me;
+        return card(m,[prodMini(p), h('div',{class:'cm-acts'}, actBtn('看商品',()=>openPlant(p.id)), canCart?actBtn(cartIds().includes(p.id)?'已在購物車':'加入購物車',()=>addCart(p.id),'pri'):null, sale&&p.shop!==S.me&&!isAuc(p)?actBtn('議價',()=>offerForm(p)):null, histBtn?h('a',{class:'btn soft sm',href:'#/history/'+encodeURIComponent(p.id),text:'履歷'}):null)]); }
+      case 'offer': { const o=S.offers.get(m.oid)||{status:'open'}, st=o.status, seller=o.seller||(p&&p.shop);
+        const lab={open:['wait','等待賣家回覆'],accepted:['ok','已成交 · 訂單已成立'],rejected:['no','賣家婉拒了'],withdrawn:['no','已撤回']}[st]||['wait',st];
+        return card(m,[h('div',{class:'cm-ct'}, h('span',{text:'🤝 議價'}), h('em',{class:'cm-st '+lab[0],text:lab[1]})), p?prodMini(p):h('b',{class:'mono',text:m.code}), h('div',{class:'cm-amt'}, h('small',{text:'出價'}), h('b',{text:money(m.amt)}), p?.price?h('s',{text:money(p.price)}):null), m.msg?h('p',{class:'cm-note',text:m.msg}):null, o.reply?h('p',{class:'cm-note',text:'賣家：'+o.reply}):null,
+          st==='open'&&seller===S.me?h('div',{class:'cm-acts'}, actBtn('同意成交',async()=>{ if(await acceptOffer({...o,id:m.oid},'')) chatSend(cid,{t:'sys',text:'✅ 賣家同意 '+money(m.amt)+' 成交，訂單已成立'}); },'pri'), actBtn('婉拒',async()=>{ if(await rejectOffer({...o,id:m.oid},'')) chatSend(cid,{t:'sys',text:'賣家婉拒了這次議價'}); })):null,
+          st==='open'&&o.buyer===S.me?h('div',{class:'cm-acts'}, actBtn('撤回',async()=>{ try{ await S.db.doc('offers/'+m.oid).update({status:'withdrawn',decidedAt:Date.now()}); chatSend(cid,{t:'sys',text:'買家撤回了議價'}); }catch(e){ toast('操作失敗'); } })):null,
+          st==='accepted'&&o.buyer===S.me?h('div',{class:'cm-acts'}, actBtn('看訂單',()=>openMe('orders'),'pri')):null]); }
+      case 'ask': return card(m,[h('div',{class:'cm-ct'}, h('span',{text:m.kind==='meet'?'📅 面交邀請':'✅ 請確認'})), h('p',{class:'cm-q',text:m.q}), p?prodMini(p):null,
+          m.resp?h('div',{class:'cm-done',text:(m.respBy===S.me?'你':chatName(m.respBy))+'選了「'+m.resp.v+'」'}):!meS?h('div',{class:'cm-acts'}, ...(m.opts||[]).map((o,i)=>actBtn(o,()=>chatRespond(cid,m,{v:o},'回覆：'+o),i?'soft':'pri'))):h('div',{class:'cm-done wait',text:'等待對方回覆'})]);
+      case 'pay': { const last5=h('input',{inputmode:'numeric',maxlength:5,placeholder:'帳號後五碼',class:'cm-in'});
+        return card(m,[h('div',{class:'cm-ct'}, h('span',{text:'💳 匯款資訊'}), m.amt?h('b',{text:money(m.amt)}):null), bankCard(m.bank), m.note?h('p',{class:'cm-note',text:m.note}):null,
+          m.resp?h('div',{class:'cm-done',text:'已匯款 · 後五碼 '+(m.resp.last5||'—')}):!meS?h('div',{class:'cm-acts'}, last5, actBtn('我已匯款',()=>{ const v=last5.value.trim(); if(!/^\d{3,5}$/.test(v)){ toast('請填帳號後五碼'); return; } return chatRespond(cid,m,{v:'paid',last5:v},'💸 已匯款，後五碼 '+v); },'pri')):h('div',{class:'cm-done wait',text:'等待對方匯款'})]); }
+      case 'ship': return card(m,[h('div',{class:'cm-ct'}, h('span',{text:'📦 已出貨'})), h('div',{class:'cm-ship'}, h('b',{text:m.carrier}), m.no?h('button',{type:'button',class:'mono cm-no',onclick:()=>copyText(m.no),text:m.no+' ⧉'}):null), m.note?h('p',{class:'cm-note',text:m.note}):null,
+          m.resp?h('div',{class:'cm-done',text:'✓ 已確認收到'}):!meS?h('div',{class:'cm-acts'}, actBtn('收到了 ✓',()=>chatRespond(cid,m,{v:'got'},'📬 已收到，謝謝！'),'pri')):h('div',{class:'cm-done wait',text:'等待對方確認收貨'})]);
+      default: return h('div',{class:'cm-bub',text:m.text||''});
+    } };
+  const render=()=>{ const L=S.chatMsgs.get(cid);
+    if (!L){ ms.replaceChildren(h('div',{class:'cv-empty'}, h('i',{class:'lb-spin',style:'position:static'}))); drawQuick(); return; }
+    const keepB=atBottom||lastN<0, oldH=ms.scrollHeight, oldT=ms.scrollTop;
+    const c=S.chats.get(cid), oRead=(c?.read||{})[other]||0; let lastDay='', lastFrom=null, lastAt=0; const out=[];
+    if (!L.length) out.push(h('div',{class:'cv-empty'}, chatAv(other,64), h('b',{text:chatName(other)}), h('p',{class:'hint',text:'打聲招呼吧！可以按 ＋ 傳商品卡、議價、約面交。'})));
+    const myLast=[...L].reverse().find(m=>m.from===S.me&&m.t!=='sys');
+    L.forEach(m=>{ const d=new Date(m.at).toDateString(); if(d!==lastDay){ out.push(h('div',{class:'cm-day',text:chatWhen(m.at)===hhmm(m.at)?'今天':new Date(m.at).toLocaleDateString('zh-TW',{month:'long',day:'numeric',weekday:'short'})})); lastDay=d; lastFrom=null; }
+      if (m.t==='sys'){ out.push(h('div',{class:'cm-sys',text:m.text})); lastFrom=null; return; }
+      const meS=m.from===S.me, cont=lastFrom===m.from&&m.at-lastAt<5*60e3; lastFrom=m.from; lastAt=m.at;
+      out.push(h('div',{class:'cm'+(meS?' me':'')+(cont?' cont':'')+(['prod','offer','ask','pay','ship'].includes(m.t)?' wide':'')}, !meS?(cont?h('span',{class:'cm-sp'}):chatAv(other,28)):null, h('div',{class:'cm-b'}, msgBody(m), h('span',{class:'cm-t',text:hhmm(m.at)+(m===myLast&&oRead>=m.at?' · 已讀':'')})))); });
+    ms.replaceChildren(...out); drawQuick();
+    if (keepB) ms.scrollTop=ms.scrollHeight; else ms.scrollTop=oldT+(L.length!==lastN?0:0);
+    lastN=L.length; if(atBottom) chatMarkRead(cid); };
+  const view={cid,el:box,render}; CH.views.add(view); render(); setTimeout(()=>{ ms.scrollTop=ms.scrollHeight; if(!opt.noFocus&&isDesk()) ta.focus(); },30);
+  box.__destroy=()=>{ CH.views.delete(view); chatUnsub(cid); };
+  return box;
+}
+function prodMini(p){ const st=saleState(p); return h('a',{class:'cm-prod',href:'#/plant/'+encodeURIComponent(p.id),onclick:e=>{ e.preventDefault(); openPlant(p.id); }}, h('img',{src:cover(p),alt:''}), h('span',{}, h('b',{class:'mono',text:p.code}), h('small',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('em',{class:onSale(p)?'':'dim',text:onSale(p)?priceLabel(p).main:st[1].split(' · ')[0]}))); }
+function toastStay(msg){ const t=h('div',{class:'toast',text:msg}); document.body.append(t); return {set:x=>t.textContent=x,done:()=>t.remove()}; }
+
+/* ---- 聊天列表 ---- */
+function chatList(onPick,cur){ const box=h('div',{class:'chl-l'}); const q=h('input',{class:'chl-q',placeholder:'搜尋對話',value:CH.q||''});
+  const body=h('div',{class:'chl-rows'});
+  const draw=()=>{ const k=q.value.trim().toLowerCase(); CH.q=q.value; const L=[...S.chats.values()].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).filter(c=>!k||chatName(chatOther(c)).toLowerCase().includes(k)||(c.last?.text||'').toLowerCase().includes(k));
+    body.replaceChildren(...(L.length?L.map(c=>{ const u=chatOther(c), un=chatUnread(c); return h('button',{type:'button',class:'chl-r'+(un?' un':'')+(cur&&cur()===c.id?' on':''),onclick:()=>onPick(c.id)}, h('span',{class:'chl-avw'}, chatAv(u,46), shopOf(u)?h('i',{class:'chl-shop',title:'賣家',text:'🏪'}):null), h('span',{class:'chl-tx'}, h('b',{text:chatName(u)}), h('small',{text:(c.last?.from===S.me?'你：':'')+(c.last?.text||'')})), h('span',{class:'chl-m'}, h('small',{text:chatWhen(c.last?.at||c.updatedAt)}), un?h('i',{class:'chl-dot'}):null)); }):[h('div',{class:'chl-empty'}, h('div',{class:'chl-ei',text:'💬'}), h('b',{text:'還沒有對話'}), h('p',{text:'在植物頁、賣場或群組按「聊聊」就能跟賣家即時聊天。'}))])); };
+  q.addEventListener('input',draw); box.append(q,body); draw(); const view={list:true,el:box,render:draw}; CH.views.add(view); return box; }
+
+/* ---- 右下角浮動（電腦：像 FB 一樣開小視窗） ---- */
+function chatDock(){ if(PREVIEW||POPUP) return; let d=$('#chDock'); if(!d){ d=h('div',{id:'chDock'}); document.body.append(d); }
+  const fab=h('button',{type:'button',class:'ch-fab','aria-label':'聊天',onclick:()=>{ if(!isDesk()){ go('#/chats'); return; } CH.listOpen=!CH.listOpen; drawDock(); }}, h('i',{class:'ch-fi'}), h('span',{class:'ch-badge',hidden:true}));
+  const wins=h('div',{class:'ch-wins'}), panel=h('div',{class:'ch-panel',hidden:true});
+  d.replaceChildren(wins,panel,fab); CH.dock={d,fab,wins,panel}; drawDock(); }
+function chatBadge(){ const b=CH.dock?.fab.querySelector('.ch-badge'); if(!b) return; const n=chatUnreadN(); b.hidden=!n; b.textContent=n>9?'9+':String(n); CH.dock.d.hidden=!S.me||PAGE==='chats'||PAGE==='feed'; $('#navChat .ch-badge')&&($('#navChat .ch-badge').hidden=!n,$('#navChat .ch-badge').textContent=n>9?'9+':String(n)); }
+function drawDock(){ const D=CH.dock; if(!D) return; D.panel.hidden=!CH.listOpen; D.fab.classList.toggle('on',CH.listOpen);
+  if (CH.listOpen&&!D.panel.firstChild){ D.panel.append(h('div',{class:'ch-ph'}, h('b',{text:'聊天'}), h('div',{class:'row',style:'gap:4px'}, h('button',{type:'button',class:'ch-ib',title:'另開視窗',onclick:()=>chatPopout(''),text:'↗'}), h('a',{class:'ch-ib',href:'#/chats',title:'全螢幕',onclick:()=>{ CH.listOpen=false; drawDock(); },text:'⤢'}), h('button',{type:'button',class:'ch-ib',onclick:()=>{ CH.listOpen=false; drawDock(); },text:'✕'}))), chatList(cid=>{ CH.listOpen=false; drawDock(); chatOpenWin(cid); }));
+    if('Notification' in window&&Notification.permission==='default') D.panel.append(h('button',{type:'button',class:'ch-perm',onclick:e=>{ Notification.requestPermission().then(()=>e.target.remove()); },text:'🔔 開啟桌面通知，不在這頁也收得到訊息'})); }
+  if (!CH.listOpen&&D.panel.firstChild){ D.panel.querySelectorAll('.chl-l').forEach(x=>CH.views.forEach(v=>v.el===x&&CH.views.delete(v))); D.panel.replaceChildren(); }
+  chatBadge(); }
+function chatOpenWin(cid){ const D=CH.dock; if(!D) return; let w=CH.wins.find(x=>x.cid===cid);
+  if (w){ w.el.classList.remove('min'); w.el.querySelector('textarea')?.focus(); chatMarkRead(cid); return; }
+  const max=innerWidth>1500?3:innerWidth>1150?2:1; while(CH.wins.length>=max) chatCloseWin(CH.wins[0].cid);
+  const u=chatOther(cid), conv=chatConv(cid);
+  const el=h('div',{class:'cw'}, h('div',{class:'cw-h',onclick:e=>{ if(e.target.closest('button,a')) return; el.classList.toggle('min'); if(!el.classList.contains('min')) chatMarkRead(cid); }},
+      chatAv(u,32), h('span',{class:'cw-n'}, h('b',{text:chatName(u)}), h('small',{text:shopOf(u)?'賣家 · 點名字看賣場':'會員'})),
+      shopOf(u)?h('a',{class:'ch-ib',href:'#/seller/'+u,title:'看賣場',text:'🏪'}):null, h('button',{type:'button',class:'ch-ib',title:'另開視窗',onclick:()=>{ chatCloseWin(cid); chatPopout(cid); },text:'↗'}), h('button',{type:'button',class:'ch-ib',title:'縮小',onclick:()=>el.classList.toggle('min'),text:'–'}), h('button',{type:'button',class:'ch-ib',title:'關閉',onclick:()=>chatCloseWin(cid),text:'✕'})), conv);
+  w={cid,el,conv}; CH.wins.push(w); D.wins.append(el); chatMarkRead(cid); }
+function chatCloseWin(cid){ const i=CH.wins.findIndex(x=>x.cid===cid); if(i<0) return; const w=CH.wins[i]; w.conv.__destroy?.(); w.el.remove(); CH.wins.splice(i,1); }
+// 有開著的視窗（後台、商品對話框）時，把聊天搬到最上層，才點得到
+function placeDock(){ const d=$('#chDock'); if(!d) return; const t=topLayer()||document.body; if(d.parentElement!==t) t.append(d); }
+
+/* ---- 聊天頁（手機、另開視窗） ---- */
+let chatPageConv=null;
+function leaveChats(){ chatPageConv?.__destroy?.(); chatPageConv=null; }
+function renderChats(arg){ const box=$('#chatsPage'); if(!S.me){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'登入後就能跟賣家聊天'}), h('button',{class:'btn pri',type:'button',onclick:openLogin,text:'登入'}))); return; }
+  leaveChats(); const cid=arg&&arg.split('~').includes(S.me)?arg:null;
+  const left=h('aside',{class:'cp-l'}, h('div',{class:'cp-h'}, h('h2',{text:'聊天'}), !POPUP&&innerWidth>=900?h('button',{type:'button',class:'ch-ib',title:'另開視窗',onclick:()=>chatPopout(cid||''),text:'↗'}):null), chatList(id=>go('#/chats/'+encodeURIComponent(id)),()=>cid));
+  let right;
+  if (cid){ const u=chatOther(cid); resolveNames([u]); chatPageConv=chatConv(cid,{page:true,noFocus:!isDesk()});
+    right=h('section',{class:'cp-r'}, h('div',{class:'cp-ch'}, h('a',{class:'cp-back',href:'#/chats','aria-label':'返回',text:'‹'}), chatAv(u,38), h('span',{class:'cw-n'}, h('b',{text:chatName(u)}), h('small',{text:shopOf(u)?'賣家':'會員'})), shopOf(u)?h('a',{class:'btn soft sm',href:'#/seller/'+u,text:'看賣場'}):null), chatPageConv); }
+  else right=h('section',{class:'cp-r none'}, h('div',{class:'chl-empty'}, h('div',{class:'chl-ei',text:'💬'}), h('b',{text:'選一個對話'}), h('p',{text:'訊息會即時同步，電腦和手機都看得到。'})));
+  box.replaceChildren(h('div',{class:'cp'+(cid?' has':'')}, left, right)); }
+
+/* ================= 滑滑看（像 IG Reels 一樣一直往上滑） ================= */
+const FD={pool:[],i:0,el:null,io:null,sentinel:null,muted:true,mode:'for',seen:new Set(),loop:0};
+function fdShuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fdBuild(){ // 混合：商品、群組、競標、賣家、抽獎，追蹤的與新的優先
+  const fol=new Set(mySocial().follows||[]), favSp=new Set((S.prefs.favs||[]).map(i=>S.plants.get(i)).filter(Boolean).map(spKey)), wk=Date.now()-7*864e5;
+  let ps=pub().filter(p=>p.status!=='sold'&&!p.blocked);
+  if (FD.mode==='follow') ps=ps.filter(p=>fol.has(p.shop));
+  if (FD.mode==='live') ps=ps.filter(live);
+  if (FD.mode==='new') ps=ps.filter(p=>toMs(p.listedAt||p.createdAt)>wk*0+Date.now()-14*864e5);
+  const sc=p=>(fol.has(p.shop)?3:0)+(favSp.has(spKey(p))?2:0)+(live(p)?2:0)+(toMs(p.createdAt)>wk?1.5:0)+(vidOf(p)?1.5:0)+((p.media||[]).length>2?.5:0)+Math.random()*3.5;
+  const items=ps.map(p=>({k:p.__g?'grp':'plant',p,s:sc(p)}));
+  if (FD.mode==='for'){
+    shopList().filter(u=>u!==S.me).forEach(u=>items.push({k:'shop',u,s:(fol.has(u)?0:2)+Math.random()*3}));
+    pubRaffles().filter(r=>rState(r)==='open').forEach(r=>items.push({k:'raffle',r,s:2+Math.random()*3}));
+  }
+  items.sort((a,b)=>b.s-a.s);
+  // 不要連續兩個同賣家
+  const out=[]; const rest=[...items]; while(rest.length){ const last=out[out.length-1]; const sh=x=>x.p?.shop||x.u||x.r?.shop; let j=rest.findIndex(x=>!last||sh(x)!==sh(last)); if(j<0) j=0; out.push(rest.splice(j,1)[0]); }
+  return out; }
+function fdMedia(p){ const M=(p.media||[]).filter(m=>m&&m.url); const c=cover(p); if(!M.length) return [{type:'image',url:c}]; return M.slice(0,8); }
+function fdItem(it){
+  if (it.k==='shop') return fdShop(it.u); if (it.k==='raffle') return fdRaffle(it.r);
+  const p=it.p, g=!!p.__g, M=g&&p.gcover?[p.gcover]:fdMedia(p), L=live(p), fav=(S.prefs.favs||[]).includes(g?p.members?.[0]?.id:p.id);
+  const track=h('div',{class:'fd-tr'}, ...M.map((m,i)=>h('div',{class:'fd-sl'}, m.type==='video'?h('video',{class:'fd-v','data-src':m.url,poster:m.poster||cover(p),muted:true,playsinline:true,loop:true,preload:'none'}):h('img',{class:'fd-im'+(i===0?' kb':''),src:i<2?m.url:null,'data-src':m.url,alt:'',loading:i?'lazy':'eager',draggable:'false'}))));
+  const dots=M.length>1?h('div',{class:'fd-dots'}, ...M.map((_,i)=>h('i',{class:i?'':'on'}))):null;
+  track.addEventListener('scroll',()=>{ const k=Math.round(track.scrollLeft/track.clientWidth); dots?.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===k)); const sl=track.children[k]; const im=sl?.querySelector('img[data-src]'); if(im&&!im.getAttribute('src')) im.src=im.dataset.src; const nx=track.children[k+1]?.querySelector('img[data-src]'); if(nx&&!nx.getAttribute('src')) nx.src=nx.dataset.src; track.querySelectorAll('video').forEach((v,j)=>{ if(v.closest('.fd-sl')===sl) fdPlay(v); else v.pause(); }); },{passive:true});
+  const favBtn=h('button',{type:'button',class:'fd-rb'+(fav?' on':''),'aria-label':'收藏',onclick:e=>{ e.stopPropagation(); doFav(); }}, h('i',{class:'fd-heart'}), h('small',{text:fav?'已收藏':'收藏'}));
+  const doFav=(only)=>{ if(needLogin()) return; const id=g?p.members?.[0]?.id:p.id; if(!id) return; const on=(S.prefs.favs||[]).includes(id); if(only&&on) return; toggleFav(id); favBtn.classList.toggle('on',!on); favBtn.querySelector('small').textContent=!on?'已收藏':'收藏'; };
+  const st=L?h('span',{class:'fd-live mono','data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())}):null;
+  const cta=g?h('a',{class:'btn lime fd-cta',href:'#/group/'+encodeURIComponent(p.gkey),text:'挑編號 · '+(p.avail||0)+' 株 →'}):L?h('button',{class:'btn lime fd-cta',type:'button',onclick:()=>openPlant(p.id),text:'去出價 →'}):p.price&&p.shop!==S.me?h('button',{class:'btn lime fd-cta',type:'button',onclick:()=>addCart(p.id),text:'加入購物車'}):h('button',{class:'btn lime fd-cta',type:'button',onclick:()=>openPlant(p.id),text:'看這株 →'});
+  const info=h('div',{class:'fd-info'},
+    h('a',{class:'fd-shop',href:'#/seller/'+p.shop}, chatAv(p.shop,34), h('b',{text:shopName(p.shop)}), isVerified(p.shop)?h('span',{class:'fd-vb',text:'✓'}):null, p.shop!==S.me?h('span',{class:'fd-fol'+(following(p.shop)?' on':''),onclick:e=>{ e.preventDefault(); e.stopPropagation(); toggleFollow(p.shop); e.currentTarget.classList.toggle('on'); e.currentTarget.textContent=e.currentTarget.classList.contains('on')?'已追蹤':'追蹤'; },text:following(p.shop)?'已追蹤':'追蹤'}):null),
+    h('div',{class:'fd-tags'}, h('span',{class:'fd-kind',text:g?'群組 · '+(p.members?.length||0)+' 株':kindLabel(p)}), L?h('span',{class:'fd-tag live',text:'● 競標中'}):null, toMs(p.createdAt)>Date.now()-7*864e5?h('span',{class:'fd-tag',text:'NEW'}):null, ...tagsOf(p).slice(0,2).map(t=>h('span',{class:'fd-tag',text:'#'+t}))),
+    h('h3',{text:g?(p.G?.name||short(p.species)):(short(p.species)+(p.cultivar?' '+p.cultivar:''))}),
+    h('div',{class:'fd-code mono',text:g?(p.members?.[0]?.code+' → '+p.members?.[p.members.length-1]?.code):p.code}),
+    memoOf(p)?h('p',{class:'fd-memo',text:memoOf(p)}):null,
+    h('div',{class:'fd-buy'}, h('div',{}, h('small',{text:L?'目前出價':g?'單株價格':priceLabel(p).sub}), h('b',{text:g?(p.pmin!=null?money(p.pmin)+(p.pmax>p.pmin?' 起':''):'洽詢'):priceLabel(p).main}), st), cta));
+  const rail=h('div',{class:'fd-rail'}, favBtn,
+    p.shop!==S.me?h('button',{type:'button',class:'fd-rb',onclick:e=>{ e.stopPropagation(); openChat(p.shop,{pid:g?p.members?.[0]?.id:p.id}); }}, h('i',{class:'fd-ic chat'}), h('small',{text:'聊聊'})):null,
+    !g?h('a',{class:'fd-rb',href:'#/history/'+encodeURIComponent(p.id)}, h('i',{class:'fd-ic hist'}), h('small',{text:'履歷'})):null,
+    h('button',{type:'button',class:'fd-rb',onclick:e=>{ e.stopPropagation(); openShare(g?p.members?.[0]||p:p); }}, h('i',{class:'fd-ic share'}), h('small',{text:'分享'})),
+    h('button',{type:'button',class:'fd-rb',onclick:e=>{ e.stopPropagation(); g?go('#/group/'+encodeURIComponent(p.gkey)):openPlant(p.id); }}, h('i',{class:'fd-ic more'}), h('small',{text:'詳情'})));
+  const heart=h('i',{class:'fd-big'});
+  const el=h('article',{class:'fd-it'}, h('div',{class:'fd-bg',style:`background-image:url("${cover(p)}")`}), track, dots, h('div',{class:'fd-grad'}), info, rail, heart);
+  let lastTap=0; track.addEventListener('click',e=>{ const n=Date.now(); if(n-lastTap<320){ doFav(true); heart.classList.remove('go'); void heart.offsetWidth; heart.classList.add('go'); lastTap=0; } else lastTap=n; });
+  return el; }
+function fdShop(u){ const s=shopOf(u)||{}, ps=pub().filter(p=>p.shop===u&&p.status!=='sold').slice(0,6), rt=rating(u);
+  return h('article',{class:'fd-it fd-card'}, h('div',{class:'fd-bg',style:ps[0]?`background-image:url("${cover(ps[0])}")`:''}),
+    h('div',{class:'fd-sc'}, h('span',{class:'tr-k mono'}, h('i'), 'GREENHOUSE'), h('div',{class:'fd-sch'}, chatAv(u,72), h('div',{}, h('h3',{text:s.name||'賣家'}), h('small',{text:[s.location,isVerified(u)?'✓ 認證賣家':'',rt.n?'★ '+rt.avg.toFixed(1):''].filter(Boolean).join(' · ')}))), s.bio?h('p',{text:s.bio}):null,
+      h('div',{class:'fd-sg'}, ...ps.map(p=>h('a',{href:'#/plant/'+encodeURIComponent(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('small',{text:priceLabel(p).main})))),
+      h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, u!==S.me?followBtn(u,'lime'):null, h('a',{class:'btn soft',href:'#/seller/'+u,text:'逛賣場 →'}), chatBtn(u,null,'soft'))));
+}
+function fdRaffle(r){ const img=rImg(r);
+  return h('article',{class:'fd-it fd-card raffle'}, h('div',{class:'fd-bg',style:`background-image:url("${img}")`}),
+    h('div',{class:'fd-sc'}, h('span',{class:'tr-k mono'}, h('i'), 'RAFFLE · 免費抽'), h('h3',{class:'fd-rt',text:r.title||'抽獎'}), h('img',{class:'fd-rimg',src:img,alt:''}), r.prize?h('p',{class:'fd-pz',text:'🎁 '+r.prize}):null, h('p',{text:shopName(r.shop)+' · 剩 '+fmtLeft(r.endsAtMs-Date.now())}), h('button',{class:'btn lime',type:'button',onclick:()=>{ go('#/raffle/'+encodeURIComponent(rKey(r))); },text:'立即參加 →'})));
+}
+function fdPlay(v){ if(!v.getAttribute('src')&&v.dataset.src) v.src=v.dataset.src; v.muted=FD.muted; const pr=v.play(); if(pr&&pr.catch) pr.catch(()=>{ v.muted=true; v.play().catch(()=>{}); }); }
+function fdMore(n=6){ if(!FD.el) return; for(let k=0;k<n;k++){ if(FD.i>=FD.pool.length){ const nx=fdBuild(); if(!nx.length) break; FD.loop++; FD.pool.push(...nx); } const el=fdItem(FD.pool[FD.i++]); FD.list.insertBefore(el,FD.sentinel); FD.io.observe(el); } }
+function leaveFeed(){ if(FD.el){ FD.el.querySelectorAll('video').forEach(v=>v.pause()); } document.documentElement.classList.remove('fd-on'); removeEventListener('keydown',fdKey); }
+function fdKey(e){ if(PAGE!=='feed'||e.target.closest('input,textarea,dialog')) return; if(['ArrowDown','j','PageDown',' '].includes(e.key)){ e.preventDefault(); FD.list.scrollBy({top:FD.list.clientHeight,behavior:'smooth'}); } if(['ArrowUp','k','PageUp'].includes(e.key)){ e.preventDefault(); FD.list.scrollBy({top:-FD.list.clientHeight,behavior:'smooth'}); } if(e.key==='Escape') history.length>1?history.back():go('#/store'); }
+function renderFeed(){ const box=$('#feedPage'); document.documentElement.classList.add('fd-on'); addEventListener('keydown',fdKey);
+  if (FD.el&&box.contains(FD.el)&&FD.built===FD.mode){ const cur=[...FD.list.children].find(x=>{ const r=x.getBoundingClientRect(); return r.top>=-10&&r.top<innerHeight/2; }); cur?.querySelectorAll('video').forEach(fdPlay); return; }
+  FD.pool=fdBuild(); FD.i=0; FD.loop=0; FD.act=0; FD.built=FD.mode;
+  const list=h('div',{class:'fd-list'}), sentinel=h('div',{class:'fd-sen'}); list.append(sentinel);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ const el=e.target; if(el===sentinel){ if(e.isIntersecting&&list.clientHeight>0&&list.children.length-1-(FD.act||0)<6) fdMore(4); return; }
+    const vs=el.querySelectorAll('video'); if(!list.clientHeight||!el.clientHeight) return;
+    if (e.intersectionRatio>.6){ el.classList.add('act'); const sl=el.querySelector('.fd-tr'); const k=sl?Math.round(sl.scrollLeft/(sl.clientWidth||1)):0; const v=sl?.children[k]?.querySelector('video'); if(v) fdPlay(v);
+      const nx=el.nextElementSibling; nx?.querySelectorAll('img[data-src]').forEach((im,i)=>{ if(i<2&&!im.getAttribute('src')) im.src=im.dataset.src; }); nx?.querySelector('video')?.setAttribute('preload','metadata');
+      const idx=[...list.children].indexOf(el); FD.act=idx; if(FD.list.children.length-idx<5) fdMore(4); }
+    else { el.classList.remove('act'); vs.forEach(v=>v.pause()); } }),{root:list,threshold:[0,.6]});
+  io.observe(sentinel);
+  const tabs=h('div',{class:'fd-tabs'}, ...[['for','為你推薦'],['follow','追蹤中'],['live','競標'],['new','新上架']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(FD.mode===k),onclick:()=>{ if(k==='follow'&&!S.me){ openLogin(); return; } FD.mode=k; renderFeed(); },text:l})));
+  const snd=h('button',{type:'button',class:'fd-snd','aria-label':'聲音',onclick:()=>{ FD.muted=!FD.muted; snd.textContent=FD.muted?'🔇':'🔊'; list.querySelectorAll('.fd-it.act video').forEach(v=>{ v.muted=FD.muted; }); },text:FD.muted?'🔇':'🔊'});
+  const top=h('div',{class:'fd-top'}, h('a',{class:'fd-x',href:'#/store','aria-label':'離開',text:'‹'}), tabs, snd);
+  FD.el=h('div',{class:'fd'}, top, list, h('div',{class:'fd-hint',text:'往上滑看下一株'}));
+  FD.list=list; FD.sentinel=sentinel; FD.io&&FD.io.disconnect(); FD.io=io;
+  box.replaceChildren(FD.el); fdMore(5);
+  const kick=(n=0)=>{ if(!list.isConnected||n>300) return; if(!list.clientHeight){ requestAnimationFrame(()=>kick(n+1)); return; } [...list.children].forEach(x=>{ io.unobserve(x); io.observe(x); }); }; kick();
+  if (FD.pool.length===0) list.prepend(h('div',{class:'fd-it fd-card'}, h('div',{class:'fd-sc'}, h('h3',{text:FD.mode==='follow'?'追蹤的賣家還沒有上架':'目前沒有東西'}), h('p',{text:'先去商店逛逛，追蹤喜歡的賣家。'}), h('a',{class:'btn lime',href:'#/store',text:'回商店'}))));
+  setTimeout(()=>FD.el?.querySelector('.fd-hint')?.classList.add('gone'),3500);
+}
+
 /* ================= 賣場互動元件（認證賣家）================= */
 const scId=()=>'b'+Math.random().toString(36).slice(2,9);
 const safeLink=u=>{ u=String(u||'').trim(); return /^#\//.test(u)||/^https:\/\//i.test(u)?u:''; };
@@ -6135,7 +6576,7 @@ function admOrders(m){
     let shipF=null;
     if (o.status==='preparing'){ const car=h('input',{maxlength:30,placeholder:'物流（例如 黑貓、7-11 交貨便）'}), tr=h('input',{maxlength:40,placeholder:'物流單號（選填）'});
       shipF=h('form',{class:'row shipf',onsubmit:e=>{ e.preventDefault(); run(async()=>{ await setOrder(o,'shipped',{shippedAt:Date.now()}); if(d) await S.db.doc('deals/'+S.me+'_'+o.id).update({ship:{carrier:car.value.trim(),tracking:tr.value.trim(),at:Date.now()}}); },'已標記出貨'); }}, car, tr, h('button',{class:'btn ink sm',type:'submit',text:'出貨'})); }
-    return h('div',{class:'panel',style:'margin:0'}, h('div',{class:'row',style:'justify-content:space-between'}, h('div',{}, h('b',{text:nameOf(o.buyer)}), h('div',{class:'hint',text:fmtDate(tsLocal(o.at))+' · 訂單 '+o.id+(o.src==='offer'?' · 議價成交':'')+' · '+(o.payMethod==='other'?'其他付款':'匯款')})), h('span',{class:'tag '+(o.status==='pending'||o.status==='cancelled'?'grey':'lime'),text:OST[o.status]})),
+    return h('div',{class:'panel',style:'margin:0'}, h('div',{class:'row',style:'justify-content:space-between'}, h('div',{}, h('div',{class:'row',style:'gap:8px'}, h('b',{text:nameOf(o.buyer)}), chatBtn(o.buyer,{pid:o.items?.[0]},'soft sm')), h('div',{class:'hint',text:fmtDate(tsLocal(o.at))+' · 訂單 '+o.id+(o.src==='offer'?' · 議價成交':'')+' · '+(o.payMethod==='other'?'其他付款':'匯款')})), h('span',{class:'tag '+(o.status==='pending'||o.status==='cancelled'?'grey':'lime'),text:OST[o.status]})),
       o.status!=='cancelled'?stepBar(o.status):null,
       h('div',{class:'oitems',style:'margin-top:10px'}, ...items.map(p=>h('div',{class:'oi'}, h('img',{src:p.thumb||'m/p1.jpg',alt:''}), h('span',{class:'mono',text:p.code+(p.price?' · '+money(p.price):'')})))),
       o.note?h('p',{style:'margin-top:8px',text:'備註：'+o.note}):null,
@@ -6145,6 +6586,15 @@ function admOrders(m){
       soldElse?h('p',{class:'err',text:'訂單中有商品已售給別人，請婉拒或聯絡買家。'}):null, shipF,
       h('div',{class:'row',style:'justify-content:space-between;margin-top:10px'}, h('b',{style:'font-size:20px',text:money(o.total)}), h('div',{class:'row'}, ...act))); })));
 }
+async function acceptOffer(o,replyText){ const p=S.plants.get(o.pid); if(!p){ toast('找不到這株植株'); return false; } if(p.status==='sold'){ toast('這株已經售出'); return false; }
+  try{ const oid='off-'+o.id, ord={id:oid,buyer:o.buyer,items:[p.id],total:o.amt,note:'議價成交'+(o.msg?'：'+o.msg:''),at:Date.now(),payMethod:'transfer',src:'offer',shop:S.me};
+    await S.db.doc(`shops/${S.me}/orders/${oid}`).set({buyer:o.buyer,items:[p.id],total:o.amt,note:ord.note,at:ord.at,payMethod:'transfer',src:'offer',status:'confirmed',updatedAt:Date.now()});
+    await S.db.doc(pPath(p)).update({status:'sold',buyer:o.buyer,soldPrice:o.amt});
+    await ensureDeal(ord);
+    await S.db.doc('offers/'+o.id).update({status:'accepted',decidedAt:Date.now(),reply:replyText||'',orderId:oid});
+    for (const x of offersIn().filter(x=>x.id!==o.id&&x.pid===o.pid&&x.status==='open')) await S.db.doc('offers/'+x.id).update({status:'rejected',decidedAt:Date.now(),reply:'這株已經售出'});
+    toast('已同意，訂單已成立'); return true; }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); return false; } }
+async function rejectOffer(o,replyText){ try{ await S.db.doc('offers/'+o.id).update({status:'rejected',decidedAt:Date.now(),reply:replyText||''}); toast('已婉拒'); return true; }catch(e){ toast('操作失敗'); return false; } }
 /* ---- 議價 ---- */
 function admOffers(m){
   const all0=offersIn(); resolveNames(all0.map(o=>o.buyer));
@@ -6154,17 +6604,10 @@ function admOffers(m){
   if (!list.length){ m.append(h('div',{class:'empty'}, h('h3',{text:T==='open'?'目前沒有新的議價':'還沒有紀錄'}))); return; }
   m.append(h('div',{class:'list'}, ...list.map(o=>{ const p=S.plants.get(o.pid);
     const reply=h('input',{maxlength:120,placeholder:'回覆買家（選填）'});
-    const accept=async()=>{ if(!p){ toast('找不到這株植株'); return; } if(p.status==='sold'){ toast('這株已經售出'); return; }
-      try{ const oid='off-'+o.id, ord={id:oid,buyer:o.buyer,items:[p.id],total:o.amt,note:'議價成交'+(o.msg?'：'+o.msg:''),at:Date.now(),payMethod:'transfer',src:'offer',shop:S.me};
-        await S.db.doc(`shops/${S.me}/orders/${oid}`).set({buyer:o.buyer,items:[p.id],total:o.amt,note:ord.note,at:ord.at,payMethod:'transfer',src:'offer',status:'confirmed',updatedAt:Date.now()});
-        await S.db.doc(pPath(p)).update({status:'sold',buyer:o.buyer,soldPrice:o.amt});
-        await ensureDeal(ord);
-        await S.db.doc('offers/'+o.id).update({status:'accepted',decidedAt:Date.now(),reply:reply.value.trim(),orderId:oid});
-        for (const x of offersIn().filter(x=>x.id!==o.id&&x.pid===o.pid&&x.status==='open')) await S.db.doc('offers/'+x.id).update({status:'rejected',decidedAt:Date.now(),reply:'這株已經售出'});
-        toast('已同意，訂單已成立'); S.admTab='orders'; S.admSub='pay'; renderAdmin(true); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } };
-    const reject=async()=>{ try{ await S.db.doc('offers/'+o.id).update({status:'rejected',decidedAt:Date.now(),reply:reply.value.trim()}); toast('已婉拒'); renderAdmin(true); }catch(e){ toast('操作失敗'); } };
+    const accept=async()=>{ if(await acceptOffer(o,reply.value.trim())){ S.admTab='orders'; S.admSub='pay'; renderAdmin(true); } };
+    const reject=async()=>{ if(await rejectOffer(o,reply.value.trim())) renderAdmin(true); };
     return h('div',{class:'panel',style:'margin:0'}, h('div',{class:'row',style:'gap:12px'}, p?.thumb?h('img',{src:p.thumb,alt:'',style:'width:64px;height:64px;border-radius:12px;object-fit:cover'}):null,
-      h('div',{style:'min-width:0;flex:1'}, h('b',{text:(p?p.code+' · '+short(p.species):o.code)}), h('div',{class:'hint',text:nameOf(o.buyer)+' · '+ago(o.at)+(p?' · '+(listed(p)?(p.price?'標價 '+money(p.price):'洽詢'):'只展示，未標價'):'')})),
+      h('div',{style:'min-width:0;flex:1'}, h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('b',{text:(p?p.code+' · '+short(p.species):o.code)}), chatBtn(o.buyer,{pid:o.pid},'soft sm')), h('div',{class:'hint',text:nameOf(o.buyer)+' · '+ago(o.at)+(p?' · '+(listed(p)?(p.price?'標價 '+money(p.price):'洽詢'):'只展示，未標價'):'')})),
       h('div',{style:'text-align:right'}, h('b',{style:'font-size:22px',text:money(o.amt)}), h('div',{class:'hint',text:{open:'待回覆',accepted:'已成交',rejected:'已婉拒',withdrawn:'買家撤回'}[o.status]}))),
       o.msg?h('p',{style:'margin-top:8px',text:'買家留言：'+o.msg}):null, o.reply&&o.status!=='open'?h('p',{class:'hint',text:'你的回覆：'+o.reply}):null,
       o.status==='open'?h('div',{class:'row',style:'margin-top:10px;gap:8px;flex-wrap:wrap'}, reply, h('button',{class:'btn pri sm',type:'button',onclick:accept,text:'同意（成立訂單）'}), h('button',{class:'btn soft sm',type:'button',onclick:reject,text:'婉拒'})):null); })));
