@@ -1933,6 +1933,10 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
 .cl-q{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--leaf-soft);font-weight:700}
 .cl-note{margin-top:12px;font-size:15px;color:var(--fg2)}
 @media (max-width:720px){.cl-card{grid-template-columns:1fr}.cl-img{min-height:260px}}
+
+.btn.volt{background:#D2FF00;color:#050605;font-weight:800}.btn.volt:hover{filter:brightness(.95)}
+.sh-lead{background:#050605;color:#D2FF00;border-radius:12px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-bottom:12px}
+.sh-prev{box-shadow:0 0 0 3px #D2FF00,0 20px 40px -20px rgba(0,0,0,.5)}
 </style>
 
 </head>
@@ -3519,7 +3523,7 @@ function transferForm(p,after){
   const to=h('input',{maxlength:60,placeholder:'對方的會員 ID（請對方在「我的」複製給你）'}), note=h('input',{maxlength:100,placeholder:'備註（選填，例如：私下交易、贈送）'}), err=h('div',{class:'err'});
   const f=h('form',{class:'form xfer',onsubmit:async e=>{ e.preventDefault(); err.textContent=''; const id=to.value.trim(); if(!id){ err.textContent='請填對方的會員 ID'; return; } if(id===ownerOf(p)){ err.textContent='對方已經是目前所有者'; return; }
       try{ const pr=await S.db.doc('profiles/'+id).get(); if(!pr.exists){ err.textContent='找不到這個會員 ID'; return; } if(!confirm('確定把 '+p.code+' 的所有權轉移給「'+(pr.data().name||id)+'」嗎？')) return;
-        await transferOwner(p,id,'transfer',note.value.trim()); toast('已轉移所有權'); after&&after(); }catch(ex){ err.textContent='轉移失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } }},
+        const nt=note.value.trim(); await transferOwner(p,id,'transfer',nt); toast('已轉移所有權'); after&&after(); openDoneShare(p,id,pr.data().name||'',nt); }catch(ex){ err.textContent='轉移失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } }},
     h('b',{text:'轉移所有權'}), h('p',{class:'hint',text:'私下交易、贈送或代管時使用。轉移後會記錄在這株的所有權履歷，無法撤回；'+LOCK_KEYS+'也會鎖定不能再改。'}), linkBox, h('details',{class:'xl-id'}, h('summary',{text:'或直接輸入對方的會員 ID'}), h('div',{class:'two'}, to, note), err, h('div',{}, h('button',{class:'btn ink sm',type:'submit',text:'轉移'}))));
   return f;
 }
@@ -3954,59 +3958,92 @@ function shareText(p){ const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)),
   const par=[M?M.code:mX?(mX.name||mX.code):momCode(p),D?D.code:dX?(dX.name||dX.code):dadCode(p)].filter(Boolean);
   const pl=onSale(p)?priceLabel(p):null;
   return ['🌱 '+short(p.species)+(p.cultivar?' '+p.cultivar:''),'編號 '+p.code+' · '+kindLabel(p), memoOf(p)?'備註：'+memoOf(p):'', par.length?(p.kind==='pup'?'分株自 ':'親本 ')+par.join(' × '):'', pl?(pl.sub+' '+pl.main+(live(p)?'（競標中）':'')):'', (p.photoCount||0)+' 筆成長紀錄 · '+shopName(p.shop), '', '看照片與完整履歷 👉 '+plantUrl(p)].filter((x,i,a)=>x!==''||i===a.length-2).join('\n'); }
-async function shareImage(p){
-  const W=1080,H=1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+/* 分享圖：植物照片滿版當背景，螢光綠（volt）× 黑配色 */
+const VOLT='#D2FF00';
+async function shareImage(p,o={}){
+  const kind=o.kind||'plant', W=1080,H=1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
   try{ await document.fonts?.ready; }catch(e){}
   const F='"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,Menlo,monospace';
   const src=(p.media||[]).find(m=>m.type!=='video')?.url||cover(p);
-  let im=await loadImg(src,!sameOrigin(src)); let photo=!!im;
-  g.fillStyle='#0C0E0D'; g.fillRect(0,0,W,H);
-  const PH=930;
-  if (im){ const r=Math.max(W/im.width,PH/im.height), w=im.width*r, hh=im.height*r; g.save(); g.beginPath(); g.rect(0,0,W,PH); g.clip(); g.drawImage(im,(W-w)/2,(PH-hh)/2,w,hh); g.restore(); }
-  else { const gr=g.createLinearGradient(0,0,W,PH); gr.addColorStop(0,'#1F5C42'); gr.addColorStop(1,'#0C0E0D'); g.fillStyle=gr; g.fillRect(0,0,W,PH); g.strokeStyle='rgba(212,242,90,.35)'; g.lineWidth=6; g.beginPath(); g.moveTo(540,170); g.bezierCurveTo(860,280,840,700,540,800); g.bezierCurveTo(240,700,220,280,540,170); g.stroke(); g.beginPath(); g.moveTo(540,190); g.lineTo(540,790); g.stroke(); }
-  const fade=g.createLinearGradient(0,PH-420,0,PH+10); fade.addColorStop(0,'rgba(12,14,13,0)'); fade.addColorStop(1,'rgba(12,14,13,1)'); g.fillStyle=fade; g.fillRect(0,PH-420,W,430);
-  const top=g.createLinearGradient(0,0,0,200); top.addColorStop(0,'rgba(0,0,0,.55)'); top.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=top; g.fillRect(0,0,W,200);
-  const pill=(x,y,txt,bg,fg,size)=>{ g.font='700 '+size+'px '+F; const tw=g.measureText(txt).width, ph=size*1.75; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,tw+size*1.4,ph,ph/2); g.fill(); g.fillStyle=fg; g.textBaseline='middle'; g.fillText(txt,x+size*.7,y+ph/2+1); return tw+size*1.4; };
-  g.fillStyle='#D4F25A'; g.beginPath(); g.arc(78,84,14,0,7); g.fill(); g.fillStyle='#0C0E0D'; g.beginPath(); g.arc(78,84,6,0,7); g.fill();
-  g.fillStyle='#fff'; g.font='800 44px '+F; g.textBaseline='middle'; g.fillText('V E I N',106,86);
-  let px=W-60; const tags=[[kindLabel(p),'#D4F25A','#111'],...(onSale(p)?[[live(p)?'競標中':'在售','#FF6A3D','#fff']]:[])]; tags.reverse().forEach(([t,b,c])=>{ g.font='700 30px '+F; const w=g.measureText(t).width+42; px-=w; pill(px,58,t,b,c,30); px-=14; });
-  const wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; for(const ch of String(txt)){ if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line); else if(out.length===maxLines&&line&&out.join('').length<String(txt).length){ let l=out[maxLines-1]; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[maxLines-1]=l+'…'; } return out; };
-  let y=PH-150; const name=short(p.species)+(p.cultivar?' '+p.cultivar:''), nl=wrap(name.replace(/^./,c=>c.toUpperCase()),W-120,'800 78px '+F,2);
-  y-= (nl.length-1)*86; g.fillStyle='#fff'; g.textBaseline='alphabetic'; g.font='800 78px '+F; nl.forEach((l,i)=>g.fillText(l,60,y+i*86)); y+=(nl.length-1)*86+62;
-  g.font='600 40px '+MONO; g.fillStyle='#D4F25A'; g.fillText(p.code,60,y); y+=64;
-  const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)), mX=momExt(p), dX=dadExt(p);
-  const par=[M?M.code:mX?(mX.name||mX.code):momCode(p),D?D.code:dX?(dX.name||dX.code):dadCode(p)].filter(Boolean);
-  const lines=[memoOf(p)?['備註',memoOf(p)]:null, par.length?[p.kind==='pup'?'分株自':'親本',par.join('  ×  ')]:null].filter(Boolean);
-  lines.forEach(([k,v])=>{ g.font='700 26px '+F; const kw=g.measureText(k).width+26; g.fillStyle='rgba(212,242,90,.16)'; g.beginPath(); g.roundRect(60,y-34,kw,44,10); g.fill(); g.fillStyle='#D4F25A'; g.fillText(k,73,y-3); g.fillStyle='rgba(255,255,255,.82)'; const t=wrap(v,W-120-kw-24-250,'500 32px '+F,1)[0]||''; g.font='500 32px '+F; g.fillText(t,60+kw+18,y); y+=58; });
-  // 底部資訊＋QR
-  const QS=220, qx=W-60-QS, qy=H-60-QS;
-  const pl=onSale(p)?priceLabel(p):null; let by=H-190;
-  if (pl){ g.fillStyle='rgba(255,255,255,.6)'; g.font='500 28px '+F; g.fillText(pl.sub,60,by-56); g.fillStyle='#fff'; g.font='800 64px '+F; g.fillText(pl.main,60,by+8); by+=58; }
-  const days=p.createdAt?Math.max(0,Math.round((Date.now()-toMs(p.createdAt))/864e5)):0;
-  g.fillStyle='rgba(255,255,255,.72)'; g.font='500 30px '+F; g.fillText((p.photoCount||0)+' 筆成長紀錄 · 已追蹤 '+days+' 天',60,by+10);
-  g.fillStyle='rgba(255,255,255,.5)'; g.font='500 28px '+F; g.fillText(shopName(p.shop)+' · '+location.host,60,by+58);
-  const Q=await loadQR();
-  if (Q){ try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=16, cell=(QS-pad*2)/n; g.fillStyle='#fff'; g.beginPath(); g.roundRect(qx,qy,QS,QS,22); g.fill(); g.fillStyle='#0C0E0D'; for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) g.fillRect(qx+pad+c*cell,qy+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); g.fillStyle='rgba(255,255,255,.6)'; g.font='600 22px '+F; g.textAlign='center'; g.fillText('掃描看履歷',qx+QS/2,qy-14); g.textAlign='left'; }catch(e){} }
+  const im=await loadImg(src,!sameOrigin(src)), photo=!!im;
+  // 背景：照片滿版
+  g.fillStyle='#050605'; g.fillRect(0,0,W,H);
+  if (im){ const r=Math.max(W/im.width,H/im.height), w=im.width*r, hh=im.height*r; g.drawImage(im,(W-w)/2,(H-hh)/2,w,hh); }
+  else { const gr=g.createLinearGradient(0,0,W,H); gr.addColorStop(0,'#16301f'); gr.addColorStop(1,'#050605'); g.fillStyle=gr; g.fillRect(0,0,W,H); g.strokeStyle='rgba(210,255,0,.28)'; g.lineWidth=7; g.beginPath(); g.moveTo(540,150); g.bezierCurveTo(880,270,860,720,540,830); g.bezierCurveTo(220,720,200,270,540,150); g.stroke(); g.beginPath(); g.moveTo(540,170); g.lineTo(540,820); g.stroke(); }
+  const t1=g.createLinearGradient(0,0,0,300); t1.addColorStop(0,'rgba(0,0,0,.7)'); t1.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=t1; g.fillRect(0,0,W,300);
+  const t2=g.createLinearGradient(0,H*.36,0,H); t2.addColorStop(0,'rgba(5,6,5,0)'); t2.addColorStop(.42,'rgba(5,6,5,.82)'); t2.addColorStop(1,'rgba(5,6,5,.97)'); g.fillStyle=t2; g.fillRect(0,H*.36,W,H*.64);
+  // 螢光綠斜線條紋（右上角）
+  g.save(); g.translate(W-10,-30); g.rotate(Math.PI/5); g.fillStyle=VOLT; [0,34,62].forEach((x,i)=>{ g.globalAlpha=[.95,.55,.3][i]; g.fillRect(x,0,[22,12,6][i],420); }); g.restore(); g.globalAlpha=1;
+  // 左側螢光直線
+  g.fillStyle=VOLT; g.fillRect(0,H-560,12,460);
+  const pill=(x,y,txt,bg,fg,size,right)=>{ g.font='800 '+size+'px '+F; const tw=g.measureText(txt).width, pw=tw+size*1.3, ph=size*1.8; const X=right?x-pw:x; g.fillStyle=bg; g.beginPath(); g.roundRect(X,y,pw,ph,ph/2); g.fill(); g.fillStyle=fg; g.textBaseline='middle'; g.textAlign='left'; g.fillText(txt,X+size*.65,y+ph/2+1); g.textBaseline='alphabetic'; return pw; };
+  // 品牌
+  g.fillStyle=VOLT; g.beginPath(); g.arc(80,86,15,0,7); g.fill(); g.fillStyle='#050605'; g.beginPath(); g.arc(80,86,6,0,7); g.fill();
+  g.fillStyle='#fff'; g.font='900 46px '+F; g.textBaseline='middle'; g.fillText('V E I N',110,88); g.textBaseline='alphabetic';
+  const wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; const T=String(txt); for(const ch of T){ if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line); if(out.join('').length<T.length){ let l=out[out.length-1]; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[out.length-1]=l+'…'; } return out; };
+  const name=(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,c=>c.toUpperCase());
+  const QS=232, qx=W-64-QS, qy=H-64-QS;
+  const drawQR=async(url,cap)=>{ const Q=await loadQR(); if(!Q) return; try{ const q=Q(0,'M'); q.addData(url); q.make(); const n=q.getModuleCount(), pad=20, cell=(QS-pad*2)/n; g.fillStyle=VOLT; g.beginPath(); g.roundRect(qx,qy,QS,QS,26); g.fill(); g.fillStyle='#050605'; for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) g.fillRect(qx+pad+c*cell,qy+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); g.fillStyle=VOLT; g.font='800 22px '+F; g.textAlign='center'; g.fillText(cap,qx+QS/2,qy-16); g.textAlign='left'; }catch(e){} };
+  if (kind==='plant'){
+    let px=W-64; const tags=[[kindLabel(p),VOLT,'#050605'],...(onSale(p)?[[live(p)?'競標中':'在售','#fff','#050605']]:[])];
+    tags.reverse().forEach(([t,bg,fg])=>{ px-=pill(px,60,t,bg,fg,30,true)+12; });
+    let y=H-(onSale(p)?640:560); g.font='800 26px '+MONO; g.fillStyle=VOLT; g.fillText('PLANT FILE · 植物履歷',52,y); y+=24;
+    const nl=wrap(name,W-120,'italic 900 92px '+F,2); if(nl.length>1) y-=98; g.fillStyle='#fff'; g.font='italic 900 92px '+F; nl.forEach(l=>{ y+=98; g.fillText(l,48,y); }); y+=62;
+    g.font='700 44px '+MONO; g.fillStyle=VOLT; g.fillText(p.code,52,y); y+=58;
+    const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)), mX=momExt(p), dX=dadExt(p);
+    const par=[M?M.code:mX?(mX.name||mX.code):momCode(p),D?D.code:dX?(dX.name||dX.code):dadCode(p)].filter(Boolean);
+    [memoOf(p)?['備註',memoOf(p)]:null,par.length?[p.kind==='pup'?'分株自':'親本',par.join(' × ')]:null].filter(Boolean).forEach(([k,v])=>{ g.font='800 26px '+F; const kw=g.measureText(k).width+26; g.fillStyle=VOLT; g.beginPath(); g.roundRect(52,y-32,kw,42,8); g.fill(); g.fillStyle='#050605'; g.fillText(k,65,y-2); const t=wrap(v,W-52-kw-24-QS-90,'600 31px '+F,1)[0]||''; g.fillStyle='rgba(255,255,255,.88)'; g.font='600 31px '+F; g.fillText(t,52+kw+16,y); y+=54; });
+    const pl=onSale(p)?priceLabel(p):null, days=p.createdAt?Math.max(0,Math.round((Date.now()-toMs(p.createdAt))/864e5)):0;
+    g.fillStyle='rgba(255,255,255,.55)'; g.font='600 26px '+F; g.fillText(shopName(p.shop)+' · '+location.host,52,H-66);
+    g.fillStyle='rgba(255,255,255,.82)'; g.font='600 30px '+F; g.fillText((p.photoCount||0)+' 筆成長紀錄 · 已追蹤 '+days+' 天',52,H-112);
+    if (pl){ g.fillStyle=VOLT; g.font='italic 900 76px '+F; g.fillText(pl.main,48,H-166); g.fillStyle='rgba(255,255,255,.6)'; g.font='600 26px '+F; g.fillText(pl.sub,52,H-246); }
+    await drawQR(plantUrl(p),'掃描看履歷');
+  } else {
+    const done=kind==='done';
+    pill(W-64,60,'OWNERSHIP TRANSFER',VOLT,'#050605',26,true);
+    let y=H-640;
+    g.save(); g.translate(40,y-40); g.rotate(-0.06); g.fillStyle=VOLT; g.fillRect(0,0,done?640:560,132); g.fillStyle='#050605'; g.font='italic 900 104px '+F; g.fillText(done?'已轉移給你':'轉移給你',26,104); g.restore();
+    y+=150;
+    g.font='800 30px '+F; const fromN=o.from||'', toN=o.to||'你';
+    const chip=(x,lbl,val)=>{ g.font='800 22px '+MONO; g.fillStyle=VOLT; g.fillText(lbl,x,y-40); g.font='800 40px '+F; g.fillStyle='#fff'; const t=wrap(val,330,'800 40px '+F,1)[0]; g.fillText(t,x,y); return g.measureText(t).width; };
+    const w1=chip(52,'FROM',fromN); g.fillStyle=VOLT; g.font='900 48px '+F; g.fillText('→',52+Math.max(w1,90)+28,y); chip(52+Math.max(w1,90)+100,'TO',toN);
+    y+=36; g.fillStyle='rgba(210,255,0,.35)'; g.fillRect(52,y,W-104-QS-40,3); y+=78;
+    const nl=wrap(name,W-120-QS-40,'italic 900 70px '+F,2); g.fillStyle='#fff'; g.font='italic 900 70px '+F; nl.forEach((l,i)=>{ g.fillText(l,48,y+i*76); }); y+=(nl.length-1)*76+58;
+    g.font='700 40px '+MONO; g.fillStyle=VOLT; g.fillText(p.code,52,y); y+=50;
+    if (memoOf(p)){ g.fillStyle='rgba(255,255,255,.8)'; g.font='600 28px '+F; g.fillText(wrap(memoOf(p),W-120-QS-40,'600 28px '+F,1)[0],52,y); y+=44; }
+    if (o.note){ g.fillStyle='rgba(255,255,255,.7)'; g.font='italic 600 28px '+F; g.fillText('「'+wrap(o.note,W-160-QS-40,'italic 600 28px '+F,1)[0]+'」',52,y); }
+    g.fillStyle='rgba(255,255,255,.6)'; g.font='600 26px '+F; g.fillText(done?'打開連結看完整履歷與所有權紀錄':'打開連結、登入後按「接受」完成轉移 · 7 天內有效',52,H-70);
+    await drawQR(o.url,done?'掃描看履歷':'掃描接受轉移');
+  }
   const blob=await new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.9); }catch(e){ res(null); } });
   return {blob,photo};
 }
-async function openShare(p){
-  const txt=h('textarea',{class:'sh-txt',rows:7}); txt.value=shareText(p);
+// 共用分享視窗：預覽圖＋可編輯文字，按鈕把圖片和文字一起分享出去
+async function shareDialog(o){
+  const txt=h('textarea',{class:'sh-txt',rows:7}); txt.value=o.text;
   const prev=h('div',{class:'sh-prev'}, h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
-  const btns=h('div',{class:'sh-btns'}); const note=h('p',{class:'hint sh-note'});
-  openDialog('轉發這株', h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, h('label',{class:'field'}, h('span',{text:'轉發文字（可以改）'}), txt), btns, note)), false);
-  const {blob,photo}=await shareImage(p); if(!prev.isConnected) return;
-  const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],p.code+'.jpg',{type:'image/jpeg'}):null;
-  prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',text:'分享圖產生失敗，可以先轉發文字與連結。'}));
-  if (!photo) note.textContent='分享圖暫時放不進植物照片（照片儲存空間尚未開放跨網域讀取），先用圖示代替；文字和連結不受影響。';
+  const btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'});
+  openDialog(o.title, h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, o.lead?h('div',{class:'sh-lead'}, o.lead):null, h('label',{class:'field'}, h('span',{text:'要一起傳出去的文字（可以改）'}), txt), btns, note)), false);
+  const {blob,photo}=await o.image(); if(!prev.isConnected) return;
+  const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],o.file+'.jpg',{type:'image/jpeg'}):null;
+  prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',style:'color:#fff',text:'分享圖產生失敗，可以先傳文字與連結。'}));
+  if (!photo) note.textContent='分享圖暫時放不進植物照片，先用圖示代替；文字和連結不受影響。';
   const canFile=file&&navigator.canShare&&navigator.canShare({files:[file]});
+  const copyAll=async()=>{ try{ if(blob&&window.ClipboardItem&&navigator.clipboard?.write){ const png=await new Promise(r=>{ const c=document.createElement('canvas'), i=new Image(); i.onload=()=>{ c.width=i.width; c.height=i.height; c.getContext('2d').drawImage(i,0,0); c.toBlob(r,'image/png'); }; i.onerror=()=>r(null); i.src=url; }); if(png){ await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([txt.value],{type:'text/plain'}),'image/png':png})]); toast('已複製圖片＋文字，貼到聊天室就好'); return; } } }catch(e){} copyText(txt.value); };
   btns.replaceChildren(
-    navigator.share?h('button',{class:'btn pri lg',type:'button',onclick:async()=>{ try{ if(canFile) await navigator.share({files:[file],text:txt.value}); else await navigator.share({title:p.code,text:txt.value}); }catch(e){} }},canFile?'📤 轉發圖片＋文字':'📤 轉發'):null,
-    h('a',{class:'btn line',href:'https://line.me/R/share?text='+encodeURIComponent(txt.value),target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'),
-    h('button',{class:'btn soft',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
-    url?h('a',{class:'btn soft',href:url,download:p.code+'.jpg',text:'下載圖片'}):null,
-    h('button',{class:'btn soft',type:'button',onclick:()=>copyText(plantUrl(p)),text:'複製連結'}));
+    navigator.share?h('button',{class:'btn volt lg',type:'button',onclick:async()=>{ try{ if(canFile) await navigator.share({files:[file],text:txt.value}); else await navigator.share({text:txt.value}); }catch(e){} }},canFile?'📤 分享圖片＋文字':'📤 分享'):null,
+    h('button',{class:'btn ink',type:'button',onclick:copyAll,text:'複製文字＋連結'}),
+    h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'),
+    url?h('a',{class:'btn soft',href:url,download:o.file+'.jpg',text:'下載圖片'}):null);
+  if (!canFile) note.textContent=(note.textContent?note.textContent+' ':'')+'這個瀏覽器不能一次分享圖片＋文字：請先「下載圖片」，再「複製文字＋連結」一起貼上。';
 }
+function openShare(p){ return shareDialog({title:'轉發這株',text:shareText(p),file:p.code,image:()=>shareImage(p)}); }
+function xferText(p,x){ const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
+  return '🌱 '+from+' 要把「'+nm+'」（編號 '+p.code+'）的所有權轉移給你'+(x.note?'\n「'+x.note+'」':'')+'\n\n打開連結、登入後按「接受」就完成轉移（7 天內有效，只能用一次）👇\n'+claimUrl(x.id); }
+function openXferShare(p,x){ const from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
+  return shareDialog({title:'傳送轉移連結',lead:'把圖片和文字一起傳給對方，對方打開連結按「接受」就完成轉移。',text:xferText(p,x),file:p.code+'-transfer',image:()=>shareImage(p,{kind:'xfer',from,to:'你',note:x.note,url:claimUrl(x.id)})}); }
+function openDoneShare(p,toUid,toName,note){ const from=S.me&&shopOf(S.me)?shopName(S.me):(S.meInfo?.name||nameOf(S.me)), nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), url=siteUrl()+'#/history/'+encodeURIComponent(p.id);
+  return shareDialog({title:'通知對方',lead:'已經轉移完成，把這張圖和文字傳給「'+(toName||'對方')+'」讓他知道。',text:'🎉 '+from+' 已經將「'+nm+'」（編號 '+p.code+'）的所有權轉移給你了！'+(note?'\n「'+note+'」':'')+'\n\n看完整履歷與所有權紀錄 👇\n'+url,file:p.code+'-transferred',image:()=>shareImage(p,{kind:'done',from,to:toName||'你',note,url})}); }
 function shareBtn(p,cls,label){ return h('button',{class:'btn '+(cls||'soft')+' shbtn',type:'button',onclick:e=>{ e.stopPropagation(); openShare(p); }}, h('i',{class:'shbtn-i',text:'↗'}), label||'轉發'); }
 
 /* ---------- 所有權轉移連結：對方打開、按接受就轉過去 ---------- */
@@ -4019,12 +4056,12 @@ function xferLinkBox(p,after){
   const draw=async()=>{ let mine=[]; try{ const q=await S.db.collection('xfers').where('from','==',S.me).get(); mine=q.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.pid===p.id&&x.status==='open'&&x.expiresAt>Date.now()); }catch(e){}
     box.replaceChildren(h('div',{class:'xl-h'}, h('b',{text:'🔗 轉移連結'}), h('span',{class:'hint',text:'把連結傳給對方，對方登入後按「接受」，所有權就會轉過去。7 天內有效，只能用一次。'})),
       ...mine.map(x=>{ const u=claimUrl(x.id); return h('div',{class:'xl-it'}, h('div',{class:'xl-u mono',text:u}), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'},
-        h('button',{class:'btn pri sm',type:'button',onclick:()=>copyText(u),text:'複製連結'}), navigator.share?h('button',{class:'btn soft sm',type:'button',onclick:()=>navigator.share({text:'VEIN 植物所有權轉移：'+p.code+'\n打開連結、登入後按「接受」就完成轉移 👉 '+u}).catch(()=>{}),text:'傳送…'}):null,
-        h('a',{class:'btn line sm',href:'https://line.me/R/share?text='+encodeURIComponent('VEIN 植物所有權轉移：'+p.code+'\n打開連結、登入後按「接受」就完成轉移 👉 '+u),target:'_blank',rel:'noopener',text:'LINE'}),
+        h('button',{class:'btn volt sm',type:'button',onclick:()=>openXferShare(p,x),text:'📤 傳送圖片＋文字'}), h('button',{class:'btn ink sm',type:'button',onclick:()=>copyText(xferText(p,x)),text:'複製文字＋連結'}),
+        h('a',{class:'btn line sm',href:'https://line.me/R/share?text='+encodeURIComponent(xferText(p,x)),target:'_blank',rel:'noopener',text:'LINE'}),
         h('span',{class:'hint',text:'到期 '+fmtDate(tsLocal(x.expiresAt))}),
         h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ try{ await S.db.doc('xfers/'+x.id).update({status:'cancelled'}); toast('已取消這個連結'); draw(); }catch(e){ toast('取消失敗'); } },text:'取消連結'}))); }),
       h('div',{class:'xl-new'}, note, h('button',{class:'btn ink sm',type:'button',onclick:async e=>{ const b=e.currentTarget; b.disabled=true; err.textContent=''; const t=newToken();
-        try{ await S.db.doc('xfers/'+t).set({pid:p.id,shop:p.shop,code:p.code,from:S.me,note:note.value.trim(),status:'open',at:Date.now(),expiresAt:Date.now()+7*864e5}); note.value=''; toast('已產生轉移連結'); await draw(); box.querySelector('.xl-it:last-of-type .btn.pri')?.click(); }
+        try{ await S.db.doc('xfers/'+t).set({pid:p.id,shop:p.shop,code:p.code,from:S.me,note:note.value.trim(),status:'open',at:Date.now(),expiresAt:Date.now()+7*864e5}); const xd={id:t,pid:p.id,shop:p.shop,code:p.code,from:S.me,note:note.value.trim()}; note.value=''; toast('已產生轉移連結'); await draw(); openXferShare(p,xd); }
         catch(ex){ b.disabled=false; err.textContent='產生失敗：'+(ex?.code==='invalid_argument'?'只有目前所有者可以產生':'請稍後再試'); } },text:mine.length?'再產生一個':'產生轉移連結'})), err); };
   draw(); return box;
 }
