@@ -40,6 +40,16 @@ jobs:
           echo "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           npx --yes firebase-tools@14 deploy --only firestore,storage --non-interactive
+      # 讓網站可以讀取照片來產生分享圖（照片本來就是公開的，只開放讀取）
+      - name: Storage CORS (main)
+        if: github.event_name == 'push'
+        continue-on-error: true
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" --quiet
+          gcloud storage buckets update gs://vein-48ec8.firebasestorage.app --cors-file=storage-cors.json --quiet
       # 設定好 Gmail 密碼與權限後，在 GitHub → Settings → Variables 新增 DEPLOY_FUNCTIONS = true 才會部署
       - name: Email notifications / Cloud Functions (main)
         if: github.event_name == 'push' && vars.DEPLOY_FUNCTIONS == 'true'

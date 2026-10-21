@@ -36,6 +36,13 @@ service cloud.firestore {
         || request.resource.data.get('blocked', false) == (resource == null ? false : resource.data.get('blocked', false));
     }
     function seller(uid) { return isMe(uid) && notBanned() && phoneOK(); }
+    // 轉移過所有權的植株：血統資料（品種、父母本、外部親本、編號、登錄時間）鎖定，成長紀錄只能新增不能改刪
+    function ownDoc(pid) { return /databases/$(database)/documents/owners/$(pid); }
+    function locked(pid) { return exists(ownDoc(pid)) && get(ownDoc(pid)).data.get('log', []).size() > 0; }
+    function lineageSame() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['code', 'kind', 'species', 'momId', 'momCode', 'dadId', 'dadCode', 'parentId', 'parentCode', 'momExt', 'dadExt', 'createdAt']);
+    }
 
     // 網站設定、賣家審核、管理員名單、封禁名單、主頁素材／文字／自訂區塊（media、text、blocks、verified 認證賣家名單 只有擁有者能改）
     match /site/{docId} {
@@ -74,11 +81,14 @@ service cloud.firestore {
     }
     match /shops/{uid}/plants/{pid} {
       allow read: if true;
-      allow write: if (seller(uid) && blockedUnchanged()) || isAdmin();
+      allow create: if (seller(uid) && blockedUnchanged()) || isAdmin();
+      allow update: if (seller(uid) && blockedUnchanged() && (!locked(pid) || lineageSame())) || isAdmin();
+      allow delete: if (seller(uid) && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/plants/{pid}/photos/{photoId} {
       allow read: if true;
-      allow write: if seller(uid) || isAdmin();
+      allow create: if seller(uid) || isAdmin();
+      allow update, delete: if (seller(uid) && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/raffles/{rid} {
       allow read: if true;
@@ -114,8 +124,34 @@ service cloud.firestore {
         && request.resource.data.seller == resource.data.seller && request.resource.data.buyer == resource.data.buyer;
     }
 
-    // 所有權履歷：任何人可讀；目前所有者可以轉移；買家憑已出貨／完成的訂單取得所有權
+    // 所有權轉移連結：知道連結（隨機代碼）的人才讀得到；目前所有者建立、取消；對方接受後標記完成
+    match /xfers/{token} {
+      function curOwner(shop, p) { return exists(ownDoc(p)) ? get(ownDoc(p)).data.current : shop; }
+      allow get: if true;
+      allow list: if signedIn() && resource.data.from == request.auth.uid;
+      allow create: if signedIn() && notBanned() && token.size() >= 20
+        && request.resource.data.from == request.auth.uid && request.resource.data.status == 'open'
+        && exists(/databases/$(database)/documents/shops/$(request.resource.data.shop)/plants/$(request.resource.data.pid))
+        && curOwner(request.resource.data.shop, request.resource.data.pid) == request.auth.uid
+        && request.resource.data.expiresAt <= request.time.toMillis() + 8 * 86400000;
+      allow update: if signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'to', 'doneAt'])
+        && resource.data.status == 'open'
+        && ((request.auth.uid == resource.data.from && request.resource.data.status == 'cancelled')
+          || (request.resource.data.status == 'done' && request.resource.data.to == request.auth.uid
+            && get(ownDoc(resource.data.pid)).data.current == request.auth.uid));
+      allow delete: if isAdmin();
+    }
+
+    // 所有權履歷：任何人可讀；目前所有者可以轉移；買家憑已出貨／完成的訂單、或憑轉移連結取得所有權
     match /owners/{pid} {
+      function xf() { return get(/databases/$(database)/documents/xfers/$(request.resource.data.xfer)).data; }
+      function xferOk(cur) {
+        return ('xfer' in request.resource.data)
+          && exists(/databases/$(database)/documents/xfers/$(request.resource.data.xfer))
+          && xf().pid == pid && xf().shop == request.resource.data.shop && xf().status == 'open' && xf().from == cur
+          && xf().expiresAt > request.time.toMillis()
+          && request.resource.data.current == request.auth.uid && request.auth.uid != cur;
+      }
       function ordOf(c) { return get(/databases/$(database)/documents/shops/$(c.shop)/orders/$(c.oid)).data; }
       function claimOk() {
         return ('claim' in request.resource.data)
@@ -129,10 +165,12 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/shops/$(request.resource.data.shop)/plants/$(pid))
         && (request.auth.uid == request.resource.data.shop
           || (claimOk() && request.resource.data.claim.shop == request.resource.data.shop)
+          || xferOk(request.resource.data.shop)
           || isAdmin());
       allow update: if signedIn() && notBanned() && request.resource.data.shop == resource.data.shop
         && (request.auth.uid == resource.data.current
           || (claimOk() && request.resource.data.claim.shop == resource.data.current)
+          || xferOk(resource.data.current)
           || isAdmin());
       allow delete: if isAdmin();
     }

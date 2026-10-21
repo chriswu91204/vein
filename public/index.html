@@ -1901,6 +1901,38 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .pw-memo{opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hk-memo,.gp-memo,.ln-memo{color:var(--fg2)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .ln-memo{color:rgba(255,255,255,.55)!important;font-size:11px}
+
+/* 轉發 */
+.shbtn{display:inline-flex;align-items:center;gap:6px}.shbtn-i{font-style:normal;font-weight:800}
+.btn.line{background:#06C755;color:#fff;text-decoration:none}
+.sh{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.sh-prev{border-radius:18px;overflow:hidden;background:#0C0E0D;aspect-ratio:4/5;display:grid;place-items:center}.sh-prev img{width:100%;height:100%;object-fit:cover;display:block;animation:gpIn .5s var(--ease)}
+.sh-load{color:#fff;display:flex;flex-direction:column;align-items:center;gap:12px;font-size:14px}.sh-load i{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:#D4F25A;animation:hkSpin .9s linear infinite}
+.sh-txt{width:100%;font:inherit;font-size:14px;line-height:1.6;resize:vertical}
+.sh-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.sh-btns .btn.lg{flex:1 1 100%;justify-content:center}
+.sh-note{margin-top:10px}
+@media (max-width:720px){.sh{grid-template-columns:1fr}.sh-prev{max-width:340px;margin:0 auto;width:100%}}
+/* 轉移連結 */
+.xl{background:var(--paper);border-radius:16px;padding:14px;margin:10px 0;display:flex;flex-direction:column;gap:10px}
+.xl-h{display:flex;flex-direction:column;gap:2px}
+.xl-it{background:var(--surface);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;animation:gpIn .4s var(--ease)}
+.xl-u{font-size:12.5px;word-break:break-all;color:var(--leaf-2)}
+.xl-new{display:flex;gap:8px;flex-wrap:wrap}.xl-new input{flex:1 1 220px}
+.xl-id summary{cursor:pointer;font-size:13.5px;color:var(--fg2);margin:4px 0 8px}
+.lockban{display:flex;flex-direction:column;gap:2px;background:#111;color:#fff;border-radius:14px;padding:12px 14px;font-size:13.5px}.lockban b{color:#D4F25A}
+fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:inherit}fieldset.lin[disabled]{opacity:.55}
+.lockchip{display:inline-flex;margin-top:10px;font-size:12.5px;font-weight:600;background:#111;color:#D4F25A;border-radius:999px;padding:5px 12px}
+/* 接受轉移頁 */
+.cl{max-width:880px;margin:0 auto}
+.cl-card{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);background:var(--surface);border-radius:30px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.4);animation:gpIn .6s var(--ease)}
+.cl-img{position:relative;min-height:360px;background:#0d100e}.cl-m{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cl-img .tag{position:absolute;left:14px;top:14px}
+.cl-b{padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;gap:6px}.cl-b h1{font-size:clamp(26px,4vw,40px);line-height:1.1;margin:6px 0 2px;text-transform:capitalize}.cl-code{color:var(--leaf-2);font-size:16px}
+.cl-flow{display:flex;align-items:center;gap:16px;margin-top:18px;background:var(--paper);border-radius:18px;padding:14px}
+.cl-flow>div{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;text-align:center}.cl-flow small{color:var(--fg2);font-size:12px}
+.cl-ar{font-style:normal;font-size:28px;color:var(--leaf-2);animation:htArrow 1.4s ease-in-out infinite}
+.cl-q{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--leaf-soft);font-weight:700}
+.cl-note{margin-top:12px;font-size:15px;color:var(--fg2)}
+@media (max-width:720px){.cl-card{grid-template-columns:1fr}.cl-img{min-height:260px}}
 </style>
 
 </head>
@@ -2070,6 +2102,7 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
   <div class="page" id="pgSeller" hidden>
   <section class="sec wrap page-top" id="seller"><div id="sellerBody"></div></section>
   </div>
+  <div class="page" id="pgClaim" hidden><section class="sec wrap page-top" id="claimPage"></section></div>
   <div class="page" id="pgHistory" hidden><section class="sec wrap page-top" id="historyPage"></section></div>
   <div class="page" id="pgGroup" hidden><section class="sec wrap page-top" id="groupPage"></section></div>
   <div class="page" id="pgPlant" hidden><section class="sec wrap page-top plantpage" id="plantPage"></section></div>
@@ -3482,11 +3515,12 @@ function ownerTimeline(p){
 }
 function transferForm(p,after){
   if (!S.me||(ownerOf(p)!==S.me&&!S.admin)) return null;
+  const linkBox=xferLinkBox(p,after);
   const to=h('input',{maxlength:60,placeholder:'對方的會員 ID（請對方在「我的」複製給你）'}), note=h('input',{maxlength:100,placeholder:'備註（選填，例如：私下交易、贈送）'}), err=h('div',{class:'err'});
   const f=h('form',{class:'form xfer',onsubmit:async e=>{ e.preventDefault(); err.textContent=''; const id=to.value.trim(); if(!id){ err.textContent='請填對方的會員 ID'; return; } if(id===ownerOf(p)){ err.textContent='對方已經是目前所有者'; return; }
       try{ const pr=await S.db.doc('profiles/'+id).get(); if(!pr.exists){ err.textContent='找不到這個會員 ID'; return; } if(!confirm('確定把 '+p.code+' 的所有權轉移給「'+(pr.data().name||id)+'」嗎？')) return;
         await transferOwner(p,id,'transfer',note.value.trim()); toast('已轉移所有權'); after&&after(); }catch(ex){ err.textContent='轉移失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } }},
-    h('b',{text:'轉移所有權'}), h('p',{class:'hint',text:'私下交易、贈送或代管時使用。轉移後會記錄在這株的所有權履歷，無法撤回。'}), h('div',{class:'two'}, to, note), err, h('div',{}, h('button',{class:'btn ink sm',type:'submit',text:'轉移'})));
+    h('b',{text:'轉移所有權'}), h('p',{class:'hint',text:'私下交易、贈送或代管時使用。轉移後會記錄在這株的所有權履歷，無法撤回；'+LOCK_KEYS+'也會鎖定不能再改。'}), linkBox, h('details',{class:'xl-id'}, h('summary',{text:'或直接輸入對方的會員 ID'}), h('div',{class:'two'}, to, note), err, h('div',{}, h('button',{class:'btn ink sm',type:'submit',text:'轉移'}))));
   return f;
 }
 // 訂單完成後自動移轉所有權：賣家端（自己是目前所有者）或買家端（憑訂單）
@@ -3801,7 +3835,7 @@ async function boot(){
 }
 
 /* ---------- router ---------- */
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history'];
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim'];
 function go(hash){ if(location.hash===hash) route(); else location.hash=hash; }
 function route(){
   const hs=location.hash||'#/';
@@ -3815,6 +3849,7 @@ function route(){
   if (pg==='shop'||pg==='store'){ if(pg==='shop') history.replaceState(null,'','#/store'); let t=pg==='shop'?'home':(['auction','buy','sellers','search'].includes(arg)?arg:'home'); if(pg==='store'&&arg.startsWith('c/')){ t='cat'; const g=arg.slice(2).toLowerCase(); tabChanged=g!==S.storeCat; S.storeCat=g; } tabChanged=tabChanged||t!==S.storeTab; S.storeTab=t; pg='shop'; }
   if (pg==='seller'&&arg!==S.sellerId){ S.sellerId=arg; S.sellerTab='home'; S.sfF=null; }
   const groupChanged=pg==='group'&&arg!==S.groupKey; if(groupChanged){ S.groupKey=arg; S.gSel=null; S.gF=null; }
+  if (pg==='claim'&&arg!==S.claimTok){ S.claimTok=arg; S.claimDoc=undefined; }
   const histChanged=pg==='history'&&arg!==S.histP; if(histChanged){ S.histP=arg; S.histEdit=null; S.histNew=false; }
   if (pg!=='history'&&PAGE==='history') leaveHistory();
   if (pg!=='plant'&&PAGE==='plant') leavePlant();
@@ -3822,12 +3857,13 @@ function route(){
   const changed=pg!==PAGE||(pg==='seller')||tabChanged||plantChanged||groupChanged||histChanged;
   const apply=()=>{
     PAGE=pg; document.body.dataset.page=pg;
-    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history';
+    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim';
     if (pg==='home'&&window.__hsSize) __hsSize();
     if (pg==='verify'&&arg){ $('#vcode').value=arg; renderVerify(arg); }
     if (pg==='seller') renderSeller(true);
     if (pg==='group') renderGroup(true);
     if (pg==='history') renderHistory(true);
+    if (pg==='claim') renderClaim();
     if (pg==='plant'&&(plantChanged||!$('#dInfo'))) buildPlantPage(arg);
     if (pg==='shop') renderShop(true);
     if (pg==='raffle'){ renderRafflePage(); if(arg) openRaffle(arg); else if(dlg.open&&S.openR) dlg.close(); }
@@ -3907,6 +3943,116 @@ function renderGroup(force){
   const s0=S.plants.get(S.gSel); pick(s0&&s0.grp===gid?s0:null,false);
 }
 
+/* ---------- 轉發：產生好看的分享圖＋文字 ---------- */
+const siteUrl=()=>location.origin+location.pathname.replace(/index\.html$/,'');
+const plantUrl=p=>siteUrl()+'#/plant/'+encodeURIComponent(p.id);
+let qrP=null;
+function loadQR(){ if(window.qrcode) return Promise.resolve(window.qrcode); if(!qrP) qrP=new Promise(res=>{ const sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; sc.onload=()=>res(window.qrcode||null); sc.onerror=()=>{ qrP=null; res(null); }; document.head.append(sc); }); return qrP; }
+function loadImg(src,cors){ return new Promise(res=>{ if(!src) return res(null); const im=new Image(); if(cors) im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; setTimeout(()=>res(null),9000); }); }
+const sameOrigin=u=>{ try{ return new URL(u,location.href).origin===location.origin||/^data:|^blob:/.test(u); }catch(e){ return false; } };
+function shareText(p){ const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)), mX=momExt(p), dX=dadExt(p);
+  const par=[M?M.code:mX?(mX.name||mX.code):momCode(p),D?D.code:dX?(dX.name||dX.code):dadCode(p)].filter(Boolean);
+  const pl=onSale(p)?priceLabel(p):null;
+  return ['🌱 '+short(p.species)+(p.cultivar?' '+p.cultivar:''),'編號 '+p.code+' · '+kindLabel(p), memoOf(p)?'備註：'+memoOf(p):'', par.length?(p.kind==='pup'?'分株自 ':'親本 ')+par.join(' × '):'', pl?(pl.sub+' '+pl.main+(live(p)?'（競標中）':'')):'', (p.photoCount||0)+' 筆成長紀錄 · '+shopName(p.shop), '', '看照片與完整履歷 👉 '+plantUrl(p)].filter((x,i,a)=>x!==''||i===a.length-2).join('\n'); }
+async function shareImage(p){
+  const W=1080,H=1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  try{ await document.fonts?.ready; }catch(e){}
+  const F='"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,Menlo,monospace';
+  const src=(p.media||[]).find(m=>m.type!=='video')?.url||cover(p);
+  let im=await loadImg(src,!sameOrigin(src)); let photo=!!im;
+  g.fillStyle='#0C0E0D'; g.fillRect(0,0,W,H);
+  const PH=930;
+  if (im){ const r=Math.max(W/im.width,PH/im.height), w=im.width*r, hh=im.height*r; g.save(); g.beginPath(); g.rect(0,0,W,PH); g.clip(); g.drawImage(im,(W-w)/2,(PH-hh)/2,w,hh); g.restore(); }
+  else { const gr=g.createLinearGradient(0,0,W,PH); gr.addColorStop(0,'#1F5C42'); gr.addColorStop(1,'#0C0E0D'); g.fillStyle=gr; g.fillRect(0,0,W,PH); g.strokeStyle='rgba(212,242,90,.35)'; g.lineWidth=6; g.beginPath(); g.moveTo(540,170); g.bezierCurveTo(860,280,840,700,540,800); g.bezierCurveTo(240,700,220,280,540,170); g.stroke(); g.beginPath(); g.moveTo(540,190); g.lineTo(540,790); g.stroke(); }
+  const fade=g.createLinearGradient(0,PH-420,0,PH+10); fade.addColorStop(0,'rgba(12,14,13,0)'); fade.addColorStop(1,'rgba(12,14,13,1)'); g.fillStyle=fade; g.fillRect(0,PH-420,W,430);
+  const top=g.createLinearGradient(0,0,0,200); top.addColorStop(0,'rgba(0,0,0,.55)'); top.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=top; g.fillRect(0,0,W,200);
+  const pill=(x,y,txt,bg,fg,size)=>{ g.font='700 '+size+'px '+F; const tw=g.measureText(txt).width, ph=size*1.75; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,tw+size*1.4,ph,ph/2); g.fill(); g.fillStyle=fg; g.textBaseline='middle'; g.fillText(txt,x+size*.7,y+ph/2+1); return tw+size*1.4; };
+  g.fillStyle='#D4F25A'; g.beginPath(); g.arc(78,84,14,0,7); g.fill(); g.fillStyle='#0C0E0D'; g.beginPath(); g.arc(78,84,6,0,7); g.fill();
+  g.fillStyle='#fff'; g.font='800 44px '+F; g.textBaseline='middle'; g.fillText('V E I N',106,86);
+  let px=W-60; const tags=[[kindLabel(p),'#D4F25A','#111'],...(onSale(p)?[[live(p)?'競標中':'在售','#FF6A3D','#fff']]:[])]; tags.reverse().forEach(([t,b,c])=>{ g.font='700 30px '+F; const w=g.measureText(t).width+42; px-=w; pill(px,58,t,b,c,30); px-=14; });
+  const wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; for(const ch of String(txt)){ if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line); else if(out.length===maxLines&&line&&out.join('').length<String(txt).length){ let l=out[maxLines-1]; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[maxLines-1]=l+'…'; } return out; };
+  let y=PH-150; const name=short(p.species)+(p.cultivar?' '+p.cultivar:''), nl=wrap(name.replace(/^./,c=>c.toUpperCase()),W-120,'800 78px '+F,2);
+  y-= (nl.length-1)*86; g.fillStyle='#fff'; g.textBaseline='alphabetic'; g.font='800 78px '+F; nl.forEach((l,i)=>g.fillText(l,60,y+i*86)); y+=(nl.length-1)*86+62;
+  g.font='600 40px '+MONO; g.fillStyle='#D4F25A'; g.fillText(p.code,60,y); y+=64;
+  const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)), mX=momExt(p), dX=dadExt(p);
+  const par=[M?M.code:mX?(mX.name||mX.code):momCode(p),D?D.code:dX?(dX.name||dX.code):dadCode(p)].filter(Boolean);
+  const lines=[memoOf(p)?['備註',memoOf(p)]:null, par.length?[p.kind==='pup'?'分株自':'親本',par.join('  ×  ')]:null].filter(Boolean);
+  lines.forEach(([k,v])=>{ g.font='700 26px '+F; const kw=g.measureText(k).width+26; g.fillStyle='rgba(212,242,90,.16)'; g.beginPath(); g.roundRect(60,y-34,kw,44,10); g.fill(); g.fillStyle='#D4F25A'; g.fillText(k,73,y-3); g.fillStyle='rgba(255,255,255,.82)'; const t=wrap(v,W-120-kw-24-250,'500 32px '+F,1)[0]||''; g.font='500 32px '+F; g.fillText(t,60+kw+18,y); y+=58; });
+  // 底部資訊＋QR
+  const QS=220, qx=W-60-QS, qy=H-60-QS;
+  const pl=onSale(p)?priceLabel(p):null; let by=H-190;
+  if (pl){ g.fillStyle='rgba(255,255,255,.6)'; g.font='500 28px '+F; g.fillText(pl.sub,60,by-56); g.fillStyle='#fff'; g.font='800 64px '+F; g.fillText(pl.main,60,by+8); by+=58; }
+  const days=p.createdAt?Math.max(0,Math.round((Date.now()-toMs(p.createdAt))/864e5)):0;
+  g.fillStyle='rgba(255,255,255,.72)'; g.font='500 30px '+F; g.fillText((p.photoCount||0)+' 筆成長紀錄 · 已追蹤 '+days+' 天',60,by+10);
+  g.fillStyle='rgba(255,255,255,.5)'; g.font='500 28px '+F; g.fillText(shopName(p.shop)+' · '+location.host,60,by+58);
+  const Q=await loadQR();
+  if (Q){ try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=16, cell=(QS-pad*2)/n; g.fillStyle='#fff'; g.beginPath(); g.roundRect(qx,qy,QS,QS,22); g.fill(); g.fillStyle='#0C0E0D'; for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) g.fillRect(qx+pad+c*cell,qy+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); g.fillStyle='rgba(255,255,255,.6)'; g.font='600 22px '+F; g.textAlign='center'; g.fillText('掃描看履歷',qx+QS/2,qy-14); g.textAlign='left'; }catch(e){} }
+  const blob=await new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.9); }catch(e){ res(null); } });
+  return {blob,photo};
+}
+async function openShare(p){
+  const txt=h('textarea',{class:'sh-txt',rows:7}); txt.value=shareText(p);
+  const prev=h('div',{class:'sh-prev'}, h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
+  const btns=h('div',{class:'sh-btns'}); const note=h('p',{class:'hint sh-note'});
+  openDialog('轉發這株', h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, h('label',{class:'field'}, h('span',{text:'轉發文字（可以改）'}), txt), btns, note)), false);
+  const {blob,photo}=await shareImage(p); if(!prev.isConnected) return;
+  const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],p.code+'.jpg',{type:'image/jpeg'}):null;
+  prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',text:'分享圖產生失敗，可以先轉發文字與連結。'}));
+  if (!photo) note.textContent='分享圖暫時放不進植物照片（照片儲存空間尚未開放跨網域讀取），先用圖示代替；文字和連結不受影響。';
+  const canFile=file&&navigator.canShare&&navigator.canShare({files:[file]});
+  btns.replaceChildren(
+    navigator.share?h('button',{class:'btn pri lg',type:'button',onclick:async()=>{ try{ if(canFile) await navigator.share({files:[file],text:txt.value}); else await navigator.share({title:p.code,text:txt.value}); }catch(e){} }},canFile?'📤 轉發圖片＋文字':'📤 轉發'):null,
+    h('a',{class:'btn line',href:'https://line.me/R/share?text='+encodeURIComponent(txt.value),target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'),
+    h('button',{class:'btn soft',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
+    url?h('a',{class:'btn soft',href:url,download:p.code+'.jpg',text:'下載圖片'}):null,
+    h('button',{class:'btn soft',type:'button',onclick:()=>copyText(plantUrl(p)),text:'複製連結'}));
+}
+function shareBtn(p,cls,label){ return h('button',{class:'btn '+(cls||'soft')+' shbtn',type:'button',onclick:e=>{ e.stopPropagation(); openShare(p); }}, h('i',{class:'shbtn-i',text:'↗'}), label||'轉發'); }
+
+/* ---------- 所有權轉移連結：對方打開、按接受就轉過去 ---------- */
+const isLocked=p=>!!p&&((S.owners.get(p.id)?.log||[]).length>0);
+const LOCK_KEYS='品種、父母本、外部親本、編號與登錄時間';
+function newToken(){ const a=new Uint8Array(18); crypto.getRandomValues(a); return btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+const claimUrl=t=>siteUrl()+'#/claim/'+t;
+function xferLinkBox(p,after){
+  const box=h('div',{class:'xl'}), note=h('input',{maxlength:80,placeholder:'給對方的話（選填），例如：感謝購買！'}), err=h('div',{class:'err'});
+  const draw=async()=>{ let mine=[]; try{ const q=await S.db.collection('xfers').where('from','==',S.me).get(); mine=q.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.pid===p.id&&x.status==='open'&&x.expiresAt>Date.now()); }catch(e){}
+    box.replaceChildren(h('div',{class:'xl-h'}, h('b',{text:'🔗 轉移連結'}), h('span',{class:'hint',text:'把連結傳給對方，對方登入後按「接受」，所有權就會轉過去。7 天內有效，只能用一次。'})),
+      ...mine.map(x=>{ const u=claimUrl(x.id); return h('div',{class:'xl-it'}, h('div',{class:'xl-u mono',text:u}), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'},
+        h('button',{class:'btn pri sm',type:'button',onclick:()=>copyText(u),text:'複製連結'}), navigator.share?h('button',{class:'btn soft sm',type:'button',onclick:()=>navigator.share({text:'VEIN 植物所有權轉移：'+p.code+'\n打開連結、登入後按「接受」就完成轉移 👉 '+u}).catch(()=>{}),text:'傳送…'}):null,
+        h('a',{class:'btn line sm',href:'https://line.me/R/share?text='+encodeURIComponent('VEIN 植物所有權轉移：'+p.code+'\n打開連結、登入後按「接受」就完成轉移 👉 '+u),target:'_blank',rel:'noopener',text:'LINE'}),
+        h('span',{class:'hint',text:'到期 '+fmtDate(tsLocal(x.expiresAt))}),
+        h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ try{ await S.db.doc('xfers/'+x.id).update({status:'cancelled'}); toast('已取消這個連結'); draw(); }catch(e){ toast('取消失敗'); } },text:'取消連結'}))); }),
+      h('div',{class:'xl-new'}, note, h('button',{class:'btn ink sm',type:'button',onclick:async e=>{ const b=e.currentTarget; b.disabled=true; err.textContent=''; const t=newToken();
+        try{ await S.db.doc('xfers/'+t).set({pid:p.id,shop:p.shop,code:p.code,from:S.me,note:note.value.trim(),status:'open',at:Date.now(),expiresAt:Date.now()+7*864e5}); note.value=''; toast('已產生轉移連結'); await draw(); box.querySelector('.xl-it:last-of-type .btn.pri')?.click(); }
+        catch(ex){ b.disabled=false; err.textContent='產生失敗：'+(ex?.code==='invalid_argument'?'只有目前所有者可以產生':'請稍後再試'); } },text:mine.length?'再產生一個':'產生轉移連結'})), err); };
+  draw(); return box;
+}
+async function renderClaim(){
+  const box=$('#claimPage'), t=S.claimTok;
+  if (!t){ box.replaceChildren(); return; }
+  if (S.claimDoc===undefined){ box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取轉移連結中…'})); S.claimDoc=null; try{ const d=await S.db.doc('xfers/'+t).get(); S.claimDoc=d.exists?{id:t,...d.data()}:false; }catch(e){ S.claimDoc=false; } }
+  const x=S.claimDoc; if(x===null) return;
+  if (!x){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'找不到這個轉移連結'}), h('p',{text:'連結可能打錯了，請向對方再要一次。'}))); return; }
+  const p=S.plants.get(x.pid), cur=p?ownerOf(p):null; resolveNames([x.from]);
+  const st=x.status!=='open'?(x.status==='done'?'這個連結已經使用過了':'這個連結已被取消'):x.expiresAt<Date.now()?'這個連結已過期':cur&&cur!==x.from?'這株的所有者已經換人，連結失效':null;
+  const err=h('div',{class:'err'});
+  const accept=async b=>{ if(needLogin()) return; if(S.me===x.from){ err.textContent='這是你自己產生的連結，請傳給對方。'; return; } b.disabled=true; b.textContent='轉移中…';
+    try{ const d=S.owners.get(p.id), log=[...(d?.log||[]),{from:x.from,to:S.me,at:Date.now(),via:'link',note:x.note||'',ref:null}];
+      await S.db.doc('owners/'+p.id).set({shop:p.shop,pid:p.id,code:p.code,current:S.me,log,xfer:x.id}); S.owners.set(p.id,{shop:p.shop,pid:p.id,code:p.code,current:S.me,log,xfer:x.id});
+      await S.db.doc('xfers/'+x.id).update({status:'done',to:S.me,doneAt:Date.now()}).catch(()=>{});
+      S.claimDoc={...x,status:'done',to:S.me}; toast('🎉 已經是你的了！'); go('#/history/'+encodeURIComponent(p.id)); }
+    catch(ex){ b.disabled=false; b.textContent='接受轉移'; err.textContent='轉移失敗：'+(ex?.code==='invalid_argument'?'連結已失效或沒有權限':'請稍後再試'); } };
+  box.replaceChildren(h('div',{class:'cl'},
+    h('div',{class:'cl-card'}, p?h('div',{class:'cl-img'}, pv(p,'cl-m'), h('span',{class:'tag lime',text:kindLabel(p)})):null,
+      h('div',{class:'cl-b'}, h('span',{class:'tr-k mono'}, h('i'), 'OWNERSHIP TRANSFER'), h('h1',{text:p?short(p.species)+(p.cultivar?' '+p.cultivar:''):x.code}), h('div',{class:'mono cl-code',text:x.code}),
+        p?memoEl(p):null,
+        h('div',{class:'cl-flow'}, h('div',{}, avatar(x.from,40), h('b',{text:shopOf(x.from)?shopName(x.from):nameOf(x.from)}), h('small',{text:'目前所有者'})), h('i',{class:'cl-ar',text:'→'}), h('div',{}, S.me?avatar(S.me,40):h('span',{class:'cl-q',text:'?'}), h('b',{text:S.me?'你':'登入後的你'}), h('small',{text:'新所有者'}))),
+        x.note?h('p',{class:'cl-note',text:'「'+x.note+'」'}):null,
+        st?h('div',{class:'notice',style:'margin-top:16px',text:st}):h('div',{}, h('p',{class:'hint',style:'margin-top:16px',text:'接受後，這株的所有權履歷會記下這次轉移，你會成為目前所有者；'+LOCK_KEYS+'會鎖定，任何人都不能再修改。'}),
+          h('div',{class:'row',style:'gap:10px;margin-top:14px;flex-wrap:wrap'}, S.me?h('button',{class:'btn pri lg',type:'button',onclick:e=>accept(e.currentTarget),text:'接受轉移'}):h('button',{class:'btn pri lg',type:'button',onclick:()=>openLogin(),text:'登入後接受'}), p?h('a',{class:'btn soft lg',href:'#/history/'+encodeURIComponent(p.id),text:'先看履歷'}):null), err)))));
+}
+
 /* ---------- 履歷頁：大時間軸，一路往下看這株發生過什麼事 ---------- */
 const STAGE_PRESETS=[...new Set([...STAGES_SEED,...STAGES_PUP,...STAGES_MOM,'長根','換盆','換介質','開花','授粉','結果','採種','施肥','病蟲害處理','移到新環境','出貨前','定期紀錄'])].filter(x=>x!=='其他');
 function stageList(){ let dl=document.getElementById('stageDL'); if(!dl){ dl=h('datalist',{id:'stageDL'}, ...STAGE_PRESETS.map(x=>h('option',{value:x}))); document.body.append(dl); } return 'stageDL'; }
@@ -3981,7 +4127,7 @@ function renderHistory(force){
         h('div',{class:'ht-txt'}, h('span',{class:'ht-k',text:HK[e.k][1]}), h('h3',{text:e.title}), e.note?h('p',{text:e.note}):null,
           e.k==='reg'&&(e.par.length||e.parTxt||e.ext.length)?h('div',{class:'ht-kids sm'}, ...e.par.map(histKid), ...e.ext.map(([x,r])=>histExt(x,r)), e.parTxt?h('span',{class:'hint',text:e.parTxt+'（未在 VEIN 登錄）'}):null):null,
           e.own?h('div',{class:'ht-own'}, h('b',{text:who(e.own.from)}), h('i',{text:'→'}), h('b',{text:who(e.own.to)}), e.own.note?h('small',{text:e.own.note}):null):null,
-          e.docs?h('div',{class:'ht-meta'}, e.exif?h('span',{class:'src exif',text:'EXIF 原始拍攝時間'}):e.manual?h('span',{class:'src',text:'賣家填寫的時間'}):e.media?.length?h('span',{class:'src',text:'檔案時間'}):null, h('span',{text:'登錄於 '+fmtDate(e.docs[0].registeredAt)}), own&&!editing?h('button',{type:'button',class:'ht-ed',onclick:()=>{ S.histEdit=ek; renderHistory(true); },text:'✎ 編輯'}):null):null,
+          e.docs?h('div',{class:'ht-meta'}, e.exif?h('span',{class:'src exif',text:'EXIF 原始拍攝時間'}):e.manual?h('span',{class:'src',text:'賣家填寫的時間'}):e.media?.length?h('span',{class:'src',text:'檔案時間'}):null, h('span',{text:'登錄於 '+fmtDate(e.docs[0].registeredAt)}), own&&!editing&&!isLocked(p)?h('button',{type:'button',class:'ht-ed',onclick:()=>{ S.histEdit=ek; renderHistory(true); },text:'✎ 編輯'}):null):null,
           editing?editBox(e):null),
         media(e),
         e.kids?h('div',{class:'ht-kids'}, ...e.kids.slice(0,12).map(histKid), e.kids.length>12?h('a',{class:'hk more',href:'#/plant/'+encodeURIComponent(id)}, h('span',{class:'hk-t'}, h('b',{text:'+'+(e.kids.length-12)}), h('small',{text:'看全部後代'}))):null):null)));
@@ -4008,7 +4154,7 @@ function renderHistory(force){
     h('header',{class:'ht-hero'}, h('div',{class:'ht-bg',style:`background-image:url("${cover(p)}")`}),
       h('div',{class:'ht-hc'}, h('span',{class:'tr-k mono'}, h('i'), 'PLANT HISTORY'), h('h1',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('div',{class:'mono ht-code',text:p.code}),
         h('div',{class:'ht-stats'}, ...[[days+' 天','已追蹤'],[nRec+' 個','時間點'],[nKid+' 株','後代'],[nSale+' 株','後代在售']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
-        h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:16px'}, h('a',{class:'btn lime',href:'#/plant/'+encodeURIComponent(id),text:'看植物頁'}), h('a',{class:'btn soft',href:'#/verify/'+encodeURIComponent(p.code),text:'查驗編號'}),
+        h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:16px'}, h('a',{class:'btn lime',href:'#/plant/'+encodeURIComponent(id),text:'看植物頁'}), h('a',{class:'btn soft',href:'#/verify/'+encodeURIComponent(p.code),text:'查驗編號'}), shareBtn(p,'soft'),
           h('div',{class:'segs ht-ord'}, ...[['old','最早在上'],['new','最新在上']].map(([k,l])=>h('button',{type:'button','aria-pressed':String((S.histOrder||'old')===k),onclick:()=>{ S.histOrder=k; renderHistory(true); },text:l}))),
           own&&p.shop===S.me&&!S.histNew?h('button',{class:'btn pri',type:'button',onclick:()=>{ S.histNew=true; renderHistory(true); requestAnimationFrame(()=>$('.ht-new')?.scrollIntoView({behavior:'smooth',block:'center'})); },text:'＋ 新增時間點'}):null)),
       h('img',{class:'ht-hi',src:cover(p),alt:''})),
@@ -4126,7 +4272,8 @@ function refreshDetail(first){
     h('h1',{class:'pp-name',text:short(p.species)}),
     p.cultivar?h('div',{class:'pp-cv',text:p.cultivar}):null,
     h('div',{class:'pp-sci'}, h('i',{text:normSp(p.species)}), spCn(p.species)?h('span',{text:'　'+spCn(p.species)}):null),
-    h('div',{class:'pp-code'}, h('span',{class:'mono',text:p.code}), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(p.code),text:'複製'}), h('a',{class:'btn soft sm',href:'#/verify/'+encodeURIComponent(p.code),text:'查驗'}), histBtn(p,'ink sm','履歷')),
+    h('div',{class:'pp-code'}, h('span',{class:'mono',text:p.code}), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(p.code),text:'複製'}), h('a',{class:'btn soft sm',href:'#/verify/'+encodeURIComponent(p.code),text:'查驗'}), histBtn(p,'ink sm','履歷'), shareBtn(p,'lime sm')),
+    isLocked(p)?h('div',{class:'lockchip',title:LOCK_KEYS+'已鎖定'}, '🔒 已轉手 · 血統資料已鎖定，不能竄改'):null,
     p.grp&&groupMeta(p.shop,p.grp)?h('a',{class:'pp-grp',href:'#/group/'+encodeURIComponent(p.shop+'~'+p.grp)}, h('span',{class:'gt-badge'}, h('i'), '群組'), h('b',{text:groupMeta(p.shop,p.grp).name||'同一批'}), h('small',{text:'同一批還有 '+Math.max(0,groupMembers(p.shop+'~'+p.grp).length-1)+' 株可以挑 →'})):null,
     (M||D||momCode(p)||dadCode(p)||momExt(p)||dadExt(p))?h('div',{class:'pp-par'}, parChip(M,momCode(p),p.kind==='pup'?'分株自母株':'母本 ♀',momExt(p)), (D||dadCode(p)||dadExt(p))?h('em',{text:'×'}):null, parChip(D,dadCode(p),'父本 ♂',dadExt(p))):null,
     h('div',{class:'pp-facts'}, ...[[p.leaves!=null?p.leaves+' 片':'—','葉片數'],[(p.photoCount||0)+' 筆','成長紀錄'],[days!=null?days+' 天':'—','登錄至今'],[fmtDay(p.lastPhotoAt)||'—','最新紀錄']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
@@ -4948,7 +5095,7 @@ function admEditor(m, id){
   const p=S.plants.get(id); if(!p||p.shop!==S.me){ S.admEdit=null; return admPlants(m); }
   const sale=saleFields(p);
   m.append(h('div',{class:'top'}, h('div',{}, h('button',{class:'bf-lk',type:'button',style:'margin-bottom:6px',onclick:()=>{ S.admEdit=null; renderAdmin(true); }}, S.admTab==='reg'?'← 植物管理':'← 商品管理'), h('h2',{class:'mono',style:'font-weight:500',text:p.code}), h('div',{class:'row',style:'gap:6px;margin-top:6px'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p))),
-    h('div',{class:'row'}, h('button',{class:'btn soft',type:'button',onclick:()=>{ adm.close(); openPlant(p.id); },text:'前台預覽'}), h('button',{class:'btn ink',type:'button',onclick:()=>openHistory(p.id),text:'履歷頁'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; S.admEdit=null; S.newPreset={kind:'pup',momId:p.id}; renderAdmin(true); },text:'＋ 分出側芽'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; S.admEdit=null; S.newPreset={kind:'seedling',momId:p.id}; renderAdmin(true); },text:'＋ 以這株當母本登錄實生苗'}))));
+    h('div',{class:'row'}, h('button',{class:'btn soft',type:'button',onclick:()=>{ adm.close(); openPlant(p.id); },text:'前台預覽'}), h('button',{class:'btn ink',type:'button',onclick:()=>openHistory(p.id),text:'履歷頁'}), shareBtn(p,'lime'), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; S.admEdit=null; S.newPreset={kind:'pup',momId:p.id}; renderAdmin(true); },text:'＋ 分出側芽'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; S.admEdit=null; S.newPreset={kind:'seedling',momId:p.id}; renderAdmin(true); },text:'＋ 以這株當母本登錄實生苗'}))));
   const picker=mediaPicker();
   const rec=h('form',{class:'form'}, fieldBox('照片或影片（選填，可多選，影片 10 秒內；不放照片就是純文字事件）', picker.el), h('div',{class:'two'}, field('階段／事件標題（可自訂）', h('input',{'data-r':'stage',maxlength:40,list:stageList(),placeholder:'例如：換盆、開花、第一片真葉',value:stagesFor(p.kind)[1]||''})), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
     field('說明（選填）', h('input',{'data-r':'note',maxlength:300,placeholder:'例如：根長約 3 公分'})), h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'加入履歷'}), h('button',{class:'btn soft',type:'button',onclick:()=>openHistory(p.id),text:'看履歷頁 →'})));
@@ -4962,14 +5109,17 @@ function admEditor(m, id){
   const g0=genusOf(p.species), tgE=tagInput(tagsOf(p)), spE=combo({items:taxaItems,value:TAX_BY.get(g0.toLowerCase())?.sci||g0,allowCustom:true,placeholder:'屬',searchPh:'搜尋學名或中文'}), epE=h('input',{maxlength:80,value:[normSp(p.species).slice(g0.length).trim(),p.cultivar].filter(Boolean).join(' '),placeholder:'種名／品種名'});
   const momE=parentPicker({value:momId(p)||momCode(p),self:p.id,external:p.kind!=='pup'||!!p.momExt}), dadE=parentPicker({value:dadId(p)||dadCode(p),self:p.id});
   const momXE=extParent(p.kind==='pup'?'母株':'母本',momExt(p)), dadXE=extParent('父本',dadExt(p));
+  const LK=isLocked(p); if(LK){ spE.lock(true); }
   const ed=h('form',{class:'form'},
-    h('div',{class:'two'}, fieldBox('分類（屬）', spE.el), field('種名／品種名', epE)),
+    LK?h('div',{class:'lockban'}, h('b',{text:'🔒 已轉移過所有權'}), h('span',{text:LOCK_KEYS+'已鎖定，任何人都不能再修改，避免被竄改。備註、說明、標籤、葉片數還可以改。'})):null,
+    h('fieldset',{class:'lin',disabled:LK}, h('div',{class:'two'}, fieldBox('分類（屬）', spE.el), field('種名／品種名', epE))),
     field('備註（顯示在縮圖上）', h('input',{'data-e':'cross',maxlength:80,value:p.cross||'',placeholder:'例如：Red Queen 2.0 × 銀色襯裙、斑葉、已發根'})),
-    h('div',{class:'two'}, h('div',{class:'field'}, h('span',{text:p.kind==='pup'?'母株':'母本 ♀'}), momE.el), p.kind!=='pup'?h('div',{class:'field'}, h('span',{text:'父本 ♂'}), dadE.el):h('div')), h('div',{class:'xps'}, momXE.el, p.kind!=='pup'?dadXE.el:null),
+    h('fieldset',{class:'lin',disabled:LK}, h('div',{class:'two'}, h('div',{class:'field'}, h('span',{text:p.kind==='pup'?'母株':'母本 ♀'}), momE.el), p.kind!=='pup'?h('div',{class:'field'}, h('span',{text:'父本 ♂'}), dadE.el):h('div')), h('div',{class:'xps'}, momXE.el, p.kind!=='pup'?dadXE.el:null)),
     h('div',{class:'two'}, field('葉片數', h('input',{type:'number',min:0,max:99,'data-e':'leaves',value:p.leaves??''})), h('label',{class:'row',style:'font-size:14px;align-self:end;padding-bottom:12px'}, h('input',{type:'checkbox',class:'sw','data-e':'pub',checked:!p.hidden}), '在商店展示（關掉後血統與查驗仍看得到）')),
     fieldBox('標籤', tgE.el),
     field('說明', h('textarea',{'data-e':'notes',maxlength:600}, p.notes||'')), h('div',{class:'err'}), h('div',{}, h('button',{class:'btn pri',type:'submit',text:'儲存植物資料'})));
   ed.addEventListener('submit',async e=>{ e.preventDefault(); const err=ed.querySelector('.err'); const v=k=>ed.querySelector(`[data-e="${k}"]`).value; const mo=momE.get(), da=p.kind!=='pup'?dadE.get():null;
+    if (isLocked(p)){ await updatePlant(p.id,{tags:tgE.get(),cross:v('cross').trim(),leaves:v('leaves')?Number(v('leaves')):null,notes:v('notes').trim(),hidden:!ed.querySelector('[data-e=pub]').checked},'已儲存（品種與父母本已鎖定）'); renderAdmin(true); return; }
     if (p.kind==='pup'&&mo&&!mo.id&&!momXE.on()){ err.textContent='側芽的母株要選已經登錄的植株；不在 VEIN 上的請打開「母株不在 VEIN 上」。'; return; } if(mo?.id===p.id||da?.id===p.id){ err.textContent='父母本不能是自己。'; return; }
     if (momXE.busy()||dadXE.busy()){ err.textContent='親本的照片還在上傳，請稍候。'; return; }
     const mX=mo?.id?null:momXE.get(), dX=da?.id?null:dadXE.get(), mL=mo?.code||(mX?(mX.code||mX.name):null), dL=da?.code||(dX?(dX.code||dX.name):null);
@@ -5423,7 +5573,7 @@ function photoPicker(){
 let rq=0;
 const typing=el=>!!el&&el.contains(document.activeElement)&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
 function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; renderNav(); renderShop(); renderBell(); socialProof(); if(lastV) renderVerify(lastV);
-  if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='history') renderHistory(); if (PAGE==='raffle') renderRafflePage(); renderWall();
+  if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='history') renderHistory(); if (PAGE==='claim') renderClaim(); if (PAGE==='raffle') renderRafflePage(); renderWall();
   if (PAGE==='plant'){ if(S.pendingPlant&&S.plants.has(S.pendingPlant)) buildPlantPage(S.pendingPlant); else refreshDetail(false); }
   if (S.pendingR&&S.raffles.has(S.pendingR)) openRaffle(S.pendingR);
   if (sheet.open&&!typing(sheet)) renderMe();
