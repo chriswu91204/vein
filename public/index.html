@@ -5461,7 +5461,7 @@ function admGroups(m){
 /* ---- 賣場裝修（認證賣家） ---- */
 const ACCENTS=['#D4F25A','#2E7D5B','#E8C9D2','#F2B84B','#7CC4E8','#B79CF2','#FF7A59','#111312'];
 async function uploadMediaFile(f,onP){
-  if (/^video\//.test(f.type)){ if(f.size>60*1024*1024) throw new Error('影片超過 60MB，請先剪短或壓縮'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
+  if (/^video\//.test(f.type)){ try{ const cv=await compatVideo(f); f=cv.file; }catch(e){ hevcHelp(); throw new Error(HEVC_MSG); } if(f.size>60*1024*1024) throw new Error('影片超過 60MB，請先剪短或壓縮'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
   if (/^image\//.test(f.type)){ const blob=await encode(await loadImage(f),1920,0.84); return {type:'image',url:await uploadBlob(blob,onP)}; }
   throw new Error('請選照片或影片');
 }
@@ -6022,14 +6022,48 @@ const MAX_VID_SEC=10.5;
 function videoDuration(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.preload='metadata'; v.muted=true; v.onloadedmetadata=()=>{ URL.revokeObjectURL(u); res(v.duration||0); }; v.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; v.src=u; setTimeout(()=>rej(new Error('decode')),12000); }); }
 const HEVC_MSG='這支影片的格式這個瀏覽器讀不了（多半是 iPhone 的 HEVC 格式）';
 let hevcWarned=0;
-function hevcHelp(){ if(Date.now()-hevcWarned<5000) return; hevcWarned=Date.now(); const body=h('div',{class:'hevc'}, h('p',{text:'iPhone 預設錄的是 HEVC（高效率）格式，電腦上的 Chrome、Edge 多半讀不了，所以會卡在「處理影片中」然後顯示錯誤。'}),
-    h('ol',{}, h('li',{}, h('b',{text:'最快：'}), '用 iPhone 的 Safari 打開 VEIN 上傳這支影片（Safari 讀得了）。'), h('li',{}, h('b',{text:'以後都不會遇到：'}), 'iPhone「設定 › 相機 › 格式」改成「最相容」，之後錄的影片就是 MP4（H.264）。'), h('li',{}, h('b',{text:'已經錄好的：'}), '用 iPhone「照片」分享 → 「儲存到檔案」時選「最相容」，或用剪輯 App 匯出成 MP4，再上傳。')),
+function hevcHelp(){ if(Date.now()-hevcWarned<5000) return; hevcWarned=Date.now(); const body=h('div',{class:'hevc'}, h('p',{text:'iPhone 錄的是 HEVC（高效率）格式。電腦上的 Chrome、Edge 多半讀不了這種影片，所以沒辦法在這台電腦轉檔上傳。'}),
+    h('ol',{}, h('li',{}, h('b',{text:'最簡單：'}), '直接用 iPhone 打開 VEIN（Safari 或 Chrome 都可以）上傳。網站會自動把影片轉成大家都能播的格式，大約要等影片播放一次的時間。'), h('li',{}, h('b',{text:'一定要用電腦：'}), '先在 iPhone 用「照片」或剪輯 App 把影片匯出成 MP4（H.264），或 AirDrop 到 Mac 用 Safari 上傳。')),
     h('p',{class:'hint',text:'影片限 10 秒內、60MB 以內。照片不受影響。'}));
   openDialog('影片格式不支援', body, true); }
+/* iPhone HEVC 影片：在能播放的瀏覽器（iPhone Safari 等）先轉成 H.264 MP4（或 WebM）再上傳，所有人都能播 */
+async function isHEVC(file){ try{ const n=Math.min(file.size,1<<20), a=new Uint8Array(await file.slice(0,n).arrayBuffer()), b=file.size>n?new Uint8Array(await file.slice(file.size-n).arrayBuffer()):new Uint8Array(0);
+  const has=(u,t)=>{ outer: for(let i=0;i<u.length-4;i++){ for(let j=0;j<4;j++) if(u[i+j]!==t.charCodeAt(j)) continue outer; return true; } return false; };
+  return has(a,'hvc1')||has(a,'hev1')||has(b,'hvc1')||has(b,'hev1'); }catch(e){ return false; } }
+function recMime(){ if(!window.MediaRecorder) return null; for(const m of ['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']) if(MediaRecorder.isTypeSupported(m)) return m; return null; }
+async function transcodeVideo(file,onP,maxSec=MAX_VID_SEC){
+  const mime=recMime(); if(!mime) throw new Error('norec');
+  const url=URL.createObjectURL(file), v=document.createElement('video'); v.muted=true; v.defaultMuted=true; v.setAttribute('muted',''); v.playsInline=true; v.setAttribute('playsinline',''); v.preload='auto'; v.src=url;
+  try{
+    await new Promise((res,rej)=>{ v.onloadeddata=res; v.onerror=()=>rej(new Error('decode')); setTimeout(()=>rej(new Error('decode')),15000); });
+    if (!v.videoWidth) throw new Error('decode');
+    const k=Math.min(1,1280/Math.max(v.videoWidth,v.videoHeight)), W=Math.round(v.videoWidth*k/2)*2, H=Math.round(v.videoHeight*k/2)*2;
+    const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+    const stream=cv.captureStream(30), rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:4500000}), chunks=[];
+    rec.ondataavailable=e=>{ if(e.data&&e.data.size) chunks.push(e.data); };
+    const done=new Promise(r=>{ rec.onstop=r; });
+    const dur=Math.min(v.duration||maxSec,maxSec); let stopped=false;
+    const stop=()=>{ if(stopped) return; stopped=true; try{ v.pause(); }catch(e){} setTimeout(()=>{ try{ rec.stop(); }catch(e){} },120); };
+    const draw=()=>{ if(stopped) return; g.drawImage(v,0,0,W,H); onP&&onP(Math.min(99,Math.round(v.currentTime/dur*100))); if(v.currentTime>=dur-0.02||v.ended) return stop(); v.requestVideoFrameCallback?v.requestVideoFrameCallback(draw):requestAnimationFrame(draw); };
+    g.drawImage(v,0,0,W,H); rec.start(250); v.onended=stop;
+    await v.play(); draw();
+    setTimeout(stop,(dur+3)*1000);
+    await done;
+    const type=mime.split(';')[0], blob=new Blob(chunks,{type}); if(blob.size<2000) throw new Error('empty');
+    return {file:new File([blob],file.name.replace(/\.[^.]+$/,'')+(type==='video/mp4'?'.mp4':'.webm'),{type,lastModified:file.lastModified||Date.now()}),dur};
+  } finally { URL.revokeObjectURL(url); }
+}
+async function compatVideo(file,onStage){
+  if (!(await isHEVC(file))) return {file};
+  onStage&&onStage('iPhone HEVC 影片，轉檔中…');
+  try{ const r=await transcodeVideo(file,p=>onStage&&onStage('轉檔中 '+p+'%（播放一次的時間）')); return r; }
+  catch(e){ if(e.message==='decode'){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; } return {file}; }
+}
 async function prepareMedia(file,onStage){
   if (/^video\//.test(file.type)){
     let dur; try{ dur=await videoDuration(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
     if (dur>MAX_VID_SEC){ const x=new Error('影片超過 10 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短'); x.vein='msg'; throw x; }
+    const cv=await compatVideo(file,onStage); if(cv.file!==file){ file=cv.file; if(cv.dur) dur=cv.dur; }
     if (file.size>60*1024*1024){ const x=new Error('影片超過 60MB'); x.vein='msg'; throw x; }
     onStage&&onStage('處理影片中…');
     let poster; try{ poster=await videoPoster(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
