@@ -1977,6 +1977,47 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
 .tv-stctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
 .tv-kb{border:0;border-radius:999px;padding:4px 11px;font:inherit;font-size:12.5px;font-weight:600;background:var(--paper);color:var(--fg2);cursor:pointer}
 .tv-kb.on{background:#111;color:#D2FF00}.tv-kb.sale{background:#D2FF00;color:#111}
+
+/* 展示櫃 v2：資訊常駐、篩選、快速操作 */
+.pw{grid-auto-rows:clamp(150px,14vw,215px)}
+.pw-filter{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+.pw-filter button{border:0;border-radius:999px;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:600;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.pw-filter button:hover{transform:translateY(-2px)}.pw-filter button[aria-pressed=true]{background:#D2FF00;color:#111}
+.sf .pw-filter button{background:var(--surface);color:var(--fg2)}.sf-show .pw-filter button{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)}.sf-show .pw-filter button[aria-pressed=true]{background:#D2FF00;color:#111}
+.pw-i{transition:opacity .45s var(--ease),transform .45s var(--ease),filter .45s}
+.pw.in .pw-i.pw-out{opacity:.12!important;transform:scale(.94)!important;filter:grayscale(1);pointer-events:none}
+.pw-sh{opacity:.8;background:linear-gradient(rgba(0,0,0,.25),transparent 30%,transparent 40%,rgba(0,0,0,.85))}
+.pw-cap{transform:none;gap:3px;bottom:14px}
+.pw-cap b{font-size:16px}.pw-i.big .pw-cap b{font-size:clamp(20px,2.2vw,28px)}
+.pw-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}.pw-tags span{font-size:11px;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);border-radius:999px;padding:1px 8px}
+.pw-meta{display:flex;gap:10px;font-size:11.5px;opacity:.7}
+.pw-act{display:flex;gap:6px;flex-wrap:wrap;max-height:0;opacity:0;overflow:hidden;transition:max-height .4s var(--ease),opacity .3s,margin .3s}
+.pw-i:hover .pw-act,.pw-i:focus-within .pw-act{max-height:60px;opacity:1;margin-top:6px}
+.pw-ab{border:0;border-radius:999px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.92);color:#111;cursor:pointer;transition:transform .2s}.pw-ab:hover{transform:translateY(-2px)}.pw-ab.buy{background:#D2FF00}
+.pw-go{display:none}
+.pw-price{position:absolute;right:12px;bottom:auto;top:44px;z-index:3;background:#D2FF00;color:#111;border-radius:14px;padding:6px 12px;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;transform:rotate(3deg);box-shadow:0 8px 18px -8px rgba(0,0,0,.6);transition:transform .35s var(--ease)}
+.pw-price small{font-size:10.5px;font-weight:700;opacity:.7}.pw-price b{font-size:17px;font-weight:900;letter-spacing:-.01em}.pw-price i{font-style:normal;font-size:11px;font-weight:700;color:#C21}
+.pw-price.off{background:rgba(17,19,18,.75);color:#fff;backdrop-filter:blur(6px)}.pw-price.off small{opacity:.6}
+.pw-i:hover .pw-price{transform:rotate(-2deg) scale(1.08)}
+.pw-i.big .pw-price b{font-size:24px}
+.pw-kind{background:rgba(255,255,255,.88);color:#111}
+.pw-i .fav{position:absolute;right:12px;top:10px;z-index:4;transform:scale(.85)}
+.pw-i .pw-price{top:56px}
+@media (max-width:820px){.pw{grid-auto-rows:52vw}.pw-act{display:none}.pw-tags,.pw-meta{display:none}.pw-price{top:46px;padding:4px 9px}.pw-price b{font-size:14px}.pw-i:not(.big) .pw-memo{display:none}}
+/* 商品卡快速看按鈕 */
+.tile .qv-btn{position:absolute;left:50%;bottom:14px;z-index:3;transform:translate(-50%,12px);opacity:0;border:0;border-radius:999px;padding:8px 16px;font:inherit;font-size:13px;font-weight:700;background:rgba(255,255,255,.95);color:#111;cursor:pointer;box-shadow:0 8px 18px -8px rgba(0,0,0,.5);transition:opacity .3s,transform .3s var(--ease)}
+.tile:hover .qv-btn,.tile:focus-within .qv-btn{opacity:1;transform:translate(-50%,0)}
+@media (hover:none){.tile .qv-btn{display:none}}
+/* 快速看視窗 */
+.qv{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:24px;align-items:start}
+.qv-st{position:relative;aspect-ratio:4/5;border-radius:20px;overflow:hidden;background:#0d100e}.qv-m{width:100%;height:100%;object-fit:cover;display:block;animation:gpIn .4s var(--ease)}
+.qv-a{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.85);font-size:22px;cursor:pointer}.qv-a.l{left:10px}.qv-a.r{right:10px}
+.qv-dots{display:flex;justify-content:center;gap:5px;margin-top:10px}.qv-dots i{width:7px;height:7px;border-radius:50%;background:var(--line,#ddd)}.qv-dots i.on{background:var(--leaf-2);width:18px;border-radius:5px}
+.qv-n{font-size:clamp(24px,3vw,34px);line-height:1.15;margin:10px 0 4px;text-transform:capitalize}.qv-c{color:var(--leaf-2);margin-bottom:6px}
+.qv-par{display:flex;gap:8px;align-items:baseline;margin-top:8px;font-size:14px}.qv-par span{color:var(--fg2)}
+.qv-kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;background:var(--paper);border-radius:14px;padding:10px}.qv-kv div{display:flex;flex-direction:column}.qv-kv span{font-size:11.5px;color:var(--fg2)}
+.qv-p{margin-top:14px;display:flex;flex-direction:column}.qv-p small{color:var(--fg2);font-size:12px}.qv-p b{font-size:28px;font-weight:800}
+@media (max-width:720px){.qv{grid-template-columns:1fr}.qv-st{aspect-ratio:1}}
 </style>
 
 </head>
@@ -2750,7 +2791,7 @@ function tile(p){
   const ti=h('div',{class:'ti'+(multi?' mc':'')}, h('img',{class:'a',src:first||'m/p1.jpg',alt:'',loading:'lazy',draggable:'false'}), V?autoVid(V,'pv'):null, two&&!multi&&!V?h('img',{class:'b',src:p.thumb,alt:'',loading:'lazy',draggable:'false'}):null,
       multi?h('div',{class:'mc-d'}, ...MD.map((_,k)=>h('i',{class:k?'':'on'}))):null, V?h('span',{class:'mc-v',text:'● 影片'}):null,
       h('div',{class:'bd'}, L?h('span',{class:'tag live',text:'LIVE'}):null, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), p.status==='sold'?h('span',{class:'tag grey',text:'已售出'}):p.status==='reserved'?h('span',{class:'tag grey',text:'已預訂'}):null),
-      favBtn(p.id));
+      favBtn(p.id), h('button',{type:'button',class:'qv-btn',onclick:e=>{ e.stopPropagation(); quickView(p); },text:'👁 快速看'}));
   if (multi) mcBind(ti,MD);
   return activate(h('article',{class:'tile','aria-label':p.code+' '+(p.species||'')}, ti,
     h('div',{class:'tm'}, shopChip(p.shop), kick, h('div',{class:'nm',text:short(p.species)}), h('div',{class:'sb',text:[spCn(p.species),p.cultivar,p.code].filter(Boolean).join(' · ')}), memoEl(p), tagsOf(p).length?h('div',{class:'ttags'}, ...tagsOf(p).slice(0,3).map(t=>h('span',{text:'#'+t}))):null,
@@ -2873,18 +2914,44 @@ const SF_SECTIONS=[['spotlight','焦點植物',true],['showcase','展示櫃（�
 let pwTimer=0;
 function photoWall(items){
   clearInterval(pwTimer);
-  const pat=['big','','tall','','wide','','','tall','','big','wide',''], few={1:['big'],2:['big','big'],3:['big','tall','tall']}[items.length];
-  const tiles=items.map((it,i)=>{ const p=it.p, sz=few?few[i]:pat[i%pat.length];
+  const pat=['big','','tall','','wide','','','tall','','big','wide',''], few={1:['big wide'],2:['big','big'],3:['big','tall','tall']}[items.length];
+  const tiles=items.map((it,i)=>{ const p=it.p, sz=few?few[i]:pat[i%pat.length], sale=onSale(p), pl=priceLabel(p), tg=tagsOf(p).slice(0,3), canBuy=sale&&!isAuc(p)&&p.price&&p.status==='available'&&p.shop!==S.me;
+    it.f={hot:!!it.hot,mom:!!it.mom||(p.kind||'mother')==='mother',sale,vid:!!vidOf(p)};
     const c=activate(h('figure',{class:'pw-i'+(sz?' '+sz:''),style:'--i:'+i}, h('div',{class:'pw-mw'}, pv(p,'pw-m')), h('div',{class:'pw-gl'}), h('div',{class:'pw-sh'}),
-      h('div',{class:'pw-bd'}, it.hot?h('span',{class:'pw-hot',text:'🔥 熱推'}):null, it.mom?h('span',{class:'pw-mom',text:(p.kind||'mother')==='mother'?'母本':'收藏'}):null, onSale(p)?h('span',{class:'pw-sale',text:live(p)?'競標中':'在售'}):null, vidOf(p)?h('span',{class:'pw-v',text:'● 影片'}):null),
-      h('figcaption',{class:'pw-cap'}, h('span',{class:'mono',text:p.code}), h('b',{text:short(p.species)+(p.cultivar?' · '+p.cultivar:'')}), memoOf(p)?h('small',{class:'pw-memo',text:memoOf(p)}):null, h('small',{text:onSale(p)?priceLabel(p).sub+' '+priceLabel(p).main:(p.photoCount||0)+' 筆成長紀錄'}), h('i',{class:'pw-go',text:'看這株 →'}))), ()=>openPlant(p.id));
+      h('div',{class:'pw-bd'}, it.hot?h('span',{class:'pw-hot',text:'🔥 熱推'}):null, it.mom?h('span',{class:'pw-mom',text:(p.kind||'mother')==='mother'?'母本':'收藏'}):null, it.mom&&(p.kind||'mother')==='mother'?null:h('span',{class:'pw-kind',text:kindLabel(p)}), vidOf(p)?h('span',{class:'pw-v',text:'● 影片'}):null),
+      h('div',{class:'pw-price'+(sale?'':' off')}, h('small',{text:sale?pl.sub:'狀態'}), h('b',{text:sale?pl.main:saleState(p)[1].split(' · ')[0]}), live(p)?h('i',{class:'mono','data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())}):null),
+      h('figcaption',{class:'pw-cap'}, h('span',{class:'mono',text:p.code}), h('b',{text:short(p.species)+(p.cultivar?' · '+p.cultivar:'')}), memoOf(p)?h('small',{class:'pw-memo',text:memoOf(p)}):null,
+        tg.length?h('div',{class:'pw-tags'}, ...tg.map(t=>h('span',{text:'#'+t}))):null,
+        h('div',{class:'pw-meta'}, h('span',{text:(p.photoCount||0)+' 筆紀錄'}), p.leaves!=null?h('span',{text:p.leaves+' 片葉'}):null),
+        h('div',{class:'pw-act'}, h('button',{type:'button',class:'pw-ab',onclick:e=>{ e.stopPropagation(); quickView(p); },text:'👁 快速看'}), canBuy?h('button',{type:'button',class:'pw-ab buy',onclick:e=>{ e.stopPropagation(); addCart(p.id); },text:'＋ 購物車'}):null, live(p)?h('button',{type:'button',class:'pw-ab buy',onclick:e=>{ e.stopPropagation(); openPlant(p.id); },text:'去出價'}):null, h('button',{type:'button',class:'pw-ab',onclick:e=>{ e.stopPropagation(); openHistory(p.id); },text:'履歷'}))),
+      favBtn(p.id)), ()=>openPlant(p.id));
     c.addEventListener('pointermove',e=>{ if(REDUCE||e.pointerType!=='mouse') return; const r=c.getBoundingClientRect(), x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height; c.style.setProperty('--ry',(x-.5)*9+'deg'); c.style.setProperty('--rx',(.5-y)*7+'deg'); c.style.setProperty('--gx',x*100+'%'); c.style.setProperty('--gy',y*100+'%'); });
     c.addEventListener('pointerleave',()=>{ c.style.setProperty('--rx','0deg'); c.style.setProperty('--ry','0deg'); });
-    return c; });
+    c._it=it; return c; });
   const wall=h('div',{class:'pw'}, ...tiles);
-  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ wall.classList.add('in'); io.disconnect(); } }),{threshold:.08}); REDUCE?wall.classList.add('in'):io.observe(wall);
-  let k=-1; if(!REDUCE&&tiles.length>1) pwTimer=setInterval(()=>{ if(!wall.isConnected){ clearInterval(pwTimer); return; } if(document.hidden||wall.matches(':hover')) return; tiles.forEach(t=>t.classList.remove('lit')); k=(k+1)%tiles.length; tiles[k].classList.add('lit'); },3200);
-  return wall;
+  // 篩選：全部／熱推／母本／在售／有影片
+  const opts=[['all','全部',()=>true],['hot','🔥 熱推',f=>f.hot],['mom','母本',f=>f.mom],['sale','在售',f=>f.sale],['vid','● 影片',f=>f.vid]].filter(([k,,fn])=>k==='all'||items.some(it=>fn(it.f)));
+  const bar=opts.length>2?h('div',{class:'pw-filter'}, ...opts.map(([k,l,fn],j)=>h('button',{type:'button','aria-pressed':String(j===0),onclick:e=>{ bar.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); tiles.forEach(t=>{ const on=fn(t._it.f); t.classList.toggle('pw-out',!on); }); },text:l+' '+items.filter(it=>fn(it.f)).length}))):null;
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ wall.classList.add('in'); io.disconnect(); } }),{threshold:.05}); REDUCE?wall.classList.add('in'):io.observe(wall);
+  let k=-1; if(!REDUCE&&tiles.length>1) pwTimer=setInterval(()=>{ if(!wall.isConnected){ clearInterval(pwTimer); return; } if(document.hidden||wall.matches(':hover')) return; tiles.forEach(t=>t.classList.remove('lit')); const vis=tiles.filter(t=>!t.classList.contains('pw-out')); if(!vis.length) return; k=(k+1)%vis.length; vis[k].classList.add('lit'); },3200);
+  return h('div',{}, bar, wall);
+}
+/* 快速看：不離開頁面就能看照片、價格、標籤，直接加購物車 */
+function quickView(p){
+  const M=mediaList(p); let k=0; const stage=h('div',{class:'qv-st'}), dots=h('div',{class:'qv-dots'});
+  const show=()=>{ const m=M[k]; stage.replaceChildren(m.type==='video'?autoVid(m,'qv-m'):h('img',{class:'qv-m',src:m.url,alt:''}), M.length>1?h('button',{type:'button',class:'qv-a l',onclick:()=>{ k=(k-1+M.length)%M.length; show(); },text:'‹'}):null, M.length>1?h('button',{type:'button',class:'qv-a r',onclick:()=>{ k=(k+1)%M.length; show(); },text:'›'}):null); dots.replaceChildren(...M.map((_,j)=>h('i',{class:j===k?'on':''}))); };
+  const pl=priceLabel(p), sale=onSale(p), canBuy=sale&&!isAuc(p)&&p.price&&p.status==='available'&&p.shop!==S.me, Mo=S.plants.get(momId(p)), Da=S.plants.get(dadId(p));
+  const par=[Mo?Mo.code:parLbl(p,'m'),Da?Da.code:parLbl(p,'d')].filter(Boolean);
+  openDialog('快速看', h('div',{class:'qv'}, h('div',{class:'qv-l'}, stage, dots),
+    h('div',{class:'qv-r'}, h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), isLocked(p)?h('span',{class:'tag',text:'🔒 已轉手'}):null),
+      h('h2',{class:'qv-n',text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('div',{class:'mono qv-c',text:p.code}), memoEl(p),
+      par.length?h('div',{class:'qv-par'}, h('span',{text:p.kind==='pup'?'分株自':'親本'}), h('b',{class:'mono',text:par.join(' × ')})):null,
+      tagsOf(p).length?h('div',{class:'ptags'}, ...tagsOf(p).map(t=>h('span',{class:'tg',text:'#'+t}))):null,
+      h('div',{class:'qv-kv'}, ...[['葉片數',p.leaves!=null?p.leaves+' 片':'—'],['成長紀錄',(p.photoCount||0)+' 筆'],['最新紀錄',fmtDay(p.lastPhotoAt)||'—']].map(([a,b])=>h('div',{}, h('span',{text:a}), h('b',{text:b})))),
+      h('div',{class:'qv-p'}, h('small',{text:sale?pl.sub:'販售狀態'}), h('b',{text:sale?pl.main:saleState(p)[1]}), live(p)?h('span',{class:'mono hint','data-ends':String(p.endsAtMs),text:'剩 '+fmtLeft(p.endsAtMs-Date.now())}):null),
+      h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:14px'}, canBuy?h('button',{class:'btn pri',type:'button',onclick:()=>{ dlg.close(); addCart(p.id,true); },text:'立即購買'}):null, canBuy?h('button',{class:'btn soft',type:'button',onclick:()=>addCart(p.id),text:'加入購物車'}):null,
+        h('button',{class:'btn '+(canBuy?'ghost':'pri'),type:'button',onclick:()=>openPlant(p.id),text:live(p)?'去出價 →':'看植物頁 →'}), h('button',{class:'btn soft',type:'button',onclick:()=>openHistory(p.id),text:'履歷'}), shareBtn(p,'soft')))), false);
+  show();
 }
 let sfTimer=0, sfSig='';
 function sfMedia(m,cls){ if(!m?.url) return null; return m.type==='video'?autoVid(m,cls):h('img',{class:cls,src:m.url,alt:'',loading:'lazy'}); }
