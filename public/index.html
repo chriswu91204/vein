@@ -2018,6 +2018,16 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
 .qv-kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;background:var(--paper);border-radius:14px;padding:10px}.qv-kv div{display:flex;flex-direction:column}.qv-kv span{font-size:11.5px;color:var(--fg2)}
 .qv-p{margin-top:14px;display:flex;flex-direction:column}.qv-p small{color:var(--fg2);font-size:12px}.qv-p b{font-size:28px;font-weight:800}
 @media (max-width:720px){.qv{grid-template-columns:1fr}.qv-st{aspect-ratio:1}}
+
+/* 群組卡在橫向輪播裡不要被跑馬燈撐寬 */
+.tr-card,.gtile{min-width:0}.gt-codes{contain:inline-size;max-width:100%}
+.tv-fam{flex:none;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;background:var(--paper);border-radius:999px;padding:6px 10px;cursor:pointer;color:var(--fg2)}
+.tv-fam.on{background:#D2FF00;color:#111}
+.tv-groups{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;background:var(--surface);border-radius:16px;padding:10px 12px}
+.tv-gc{display:flex;align-items:center;gap:8px;background:var(--paper);border-radius:12px;padding:6px 10px;cursor:pointer;font-size:13px}
+.tv-gc img{width:30px;height:30px;border-radius:8px;object-fit:cover}.tv-gc span{display:flex;flex-direction:column;line-height:1.2}.tv-gc small{color:var(--fg2);font-size:11px}
+.tv-gc.on{box-shadow:0 0 0 2px var(--leaf-2);background:var(--leaf-soft)}
+@media (max-width:820px){.tv-fam span{display:none}}
 </style>
 
 </head>
@@ -4791,12 +4801,14 @@ function admReg(m){
     F.path=F.path.filter(id=>byId.has(id));
     const drill=p=>{ F.path=[...F.path,p.id]; renderAdmin(true); $('#admMain')?.scrollTo?.(0,0); document.getElementById('admin')?.scrollTo?.({top:0}); };
     const selAll=(L,on)=>{ L.forEach(p=>on?sel.add(p.id):sel.delete(p.id)); renderAdmin(true); };
+    const descL=p=>{ const out=[], st=[p], seen=new Set([p.id]); while(st.length){ for(const c of kidMap.get(st.pop().id)||[]){ if(seen.has(c.id)) continue; seen.add(c.id); out.push(c); st.push(c); } } return out; };
     const row=p=>{ const ks=kidMap.get(p.id)||[], dk=dadMap.get(p.id)||[], np=ks.filter(k=>k.kind==='pup').length, ns=ks.length-np, all=descN(p);
       const kidsTxt=[np?np+' 側芽':'',ns?ns+' 實生苗':'',dk.length?dk.length+' 當父本':''].filter(Boolean).join(' · ');
       const r=h('div',{class:'tv-row'+(sel.has(p.id)?' sel':'')+(ks.length||dk.length?' has':'')}, h('span',{class:'rg-rck'}, pick(p)),
         p.thumb?h('img',{class:'tv-img',src:p.thumb,alt:'',loading:'lazy'}):h('span',{class:'tv-img rg-noimg',text:'🌱'}),
         h('div',{class:'rg-rm'}, h('div',{class:'tv-t'}, h('b',{class:'rg-rn',text:p.cultivar||short(p.species)||'未命名'}), h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.hidden?h('span',{class:'tag',text:'不展示'}):null, isLocked(p)?h('span',{class:'tag',text:'🔒'}):null),
           h('div',{class:'rg-rc mono',text:p.code}), memoEl(p,'sm'), h('div',{class:'rg-rx',text:(p.photoCount||0)+' 筆紀錄'+(p.lastPhotoAt?' · '+fmtDay(p.lastPhotoAt):'')})),
+        ks.length?(()=>{ const fam=[p,...descL(p)], on=fam.every(x=>sel.has(x.id)); return h('label',{class:'tv-fam'+(on?' on':''),title:'勾選這株和牠所有的側芽、實生苗',onclick:e=>e.stopPropagation()}, h('input',{type:'checkbox',checked:on,onchange:e=>selAll(fam,e.target.checked)}), h('span',{text:'連同後代 '+(fam.length-1)})); })():null,
         (ks.length||dk.length)?h('button',{type:'button',class:'tv-kids',onclick:e=>{ e.stopPropagation(); drill(p); }}, h('b',{text:String(all+dk.length)}), h('span',{text:kidsTxt}), h('i',{text:'›'})):null,
         h('button',{type:'button',class:'btn soft sm tv-m',onclick:e=>{ e.stopPropagation(); openE(p); },text:'管理'}));
       r.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; (ks.length||dk.length)?drill(p):openE(p); }); return r; };
@@ -4828,7 +4840,9 @@ function admReg(m){
       roots.forEach(p=>{ const k=stackKey(p); if(!k){ items.push(p); return; } if(!stacks.has(k)){ stacks.set(k,[]); items.push(k); } stacks.get(k).push(p); });
       const out=items.map(x=>typeof x==='string'?(stacks.get(x).length>1?stackRow(x,stacks.get(x)):row(stacks.get(x)[0])):row(x));
       const nSt=[...stacks.values()].filter(L=>L.length>1).length;
-      return h('div',{}, h('div',{class:'tv-crumb'}, h('b',{text:'母本與源頭'}), h('span',{class:'hint',text:roots.length+' 株'+(nSt?'（'+nSt+' 疊）':'')+' · 有後代的點進去看；父母本不在 VEIN 上的同一批會疊在這裡（共 '+all0.length+' 株）'})), h('div',{class:'tv-list'}, ...out));
+      const gEnt=Object.entries(shopOf(S.me)?.groups||{}).map(([gid,G])=>({gid,G,L:all0.filter(p=>p.grp===gid)})).filter(x=>x.L.length);
+      const gStrip=gEnt.length?h('div',{class:'tv-groups'}, h('b',{text:'販售群組'}), ...gEnt.map(x=>{ const on=x.L.every(p=>sel.has(p.id)); return h('label',{class:'tv-gc'+(on?' on':'')}, h('input',{type:'checkbox',checked:on,onchange:e=>selAll(x.L,e.target.checked)}), x.G.cover?.url?h('img',{src:x.G.cover.type==='video'?(x.G.cover.poster||''):x.G.cover.url,alt:''}):null, h('span',{}, h('b',{text:x.G.name||'群組'}), h('small',{text:x.L.length+' 株'}))); })):null;
+      return h('div',{}, gStrip, h('div',{class:'tv-crumb'}, h('b',{text:'母本與源頭'}), h('span',{class:'hint',text:roots.length+' 株'+(nSt?'（'+nSt+' 疊）':'')+' · 有後代的點進去看；父母本不在 VEIN 上的同一批會疊在這裡（共 '+all0.length+' 株）'})), h('div',{class:'tv-list'}, ...out));
     }
     const cur=byId.get(F.path[F.path.length-1]), ks=kidMap.get(cur.id)||[], dk=dadMap.get(cur.id)||[];
     const crumb=h('div',{class:'tv-crumb'}, h('button',{type:'button',class:'bf-lk',onclick:()=>{ F.path=[]; renderAdmin(true); },text:'← 母本與源頭'}), ...F.path.map((id,i)=>{ const x=byId.get(id); return [h('span',{class:'hint',text:'›'}), i<F.path.length-1?h('button',{type:'button',class:'bf-lk mono',onclick:()=>{ F.path=F.path.slice(0,i+1); renderAdmin(true); },text:x.code}):h('b',{class:'mono',text:x.code})]; }).flat());
@@ -4843,7 +4857,8 @@ function admReg(m){
   const bulk=h('div',{class:'rg-bulk',hidden:!sel.size}, h('span',{}, '已選 ', selN, ' 株'),
     h('button',{class:'btn pri sm',type:'button',onclick:()=>{ S.listSel=new Set([...sel].filter(id=>{ const p=S.plants.get(id); return p&&!listed(p)&&p.status!=='sold'; })); S.admTab='list'; renderAdmin(true); },text:'上架販售'}),
     h('button',{class:'btn ink sm',type:'button',onclick:()=>printLabels([...sel].map(id=>S.plants.get(id)),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'列印標籤'}),
-    h('button',{class:'btn soft sm',type:'button',onclick:()=>downloadCSV([...sel].map(id=>S.plants.get(id))),text:'下載 CSV'}),
+    h('button',{class:'btn volt sm',type:'button',onclick:()=>downloadXLSX([...sel].map(id=>S.plants.get(id))),text:'下載 Excel 標籤'}),
+    h('button',{class:'btn soft sm',type:'button',onclick:()=>downloadCSV([...sel].map(id=>S.plants.get(id))),text:'CSV'}),
     h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.grpNew=new Set(sel); S.admTab='groups'; renderAdmin(true); },text:'做成群組'}),
     h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); if(ps.length<2){ toast('至少選 2 株才能疊在一起'); return; } const sid=ps.sort(codeSort)[0].id; let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:sid}); p.stack=sid; n++; }catch(x){} } toast('已把 '+n+' 株疊在一起'); sel.clear(); renderAdmin(true); },text:'疊在一起'}),
     h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:'x:'+p.id}); p.stack='x:'+p.id; n++; }catch(x){} } toast('已把 '+n+' 株從疊裡拿出來'); sel.clear(); renderAdmin(true); },text:'取消堆疊'}),
@@ -5126,7 +5141,7 @@ function admBatch(m){
 function batchResult(m,R){
   const list=()=>R.ids.map(id=>S.plants.get(id)).filter(Boolean);
   m.append(admTop('批量登錄完成'), h('div',{class:'panel',style:'max-width:720px'}, h('div',{class:'bc',style:'font-size:22px',text:R.first+(R.n>1?'  →  '+R.last:'')}), h('p',{class:'hint',text:'共 '+R.n+' 株'+(R.noPhoto?'；'+R.noPhoto+' 株沒有照片，先不公開，補照片後到植物管理打開。':'。')}),
-    h('div',{class:'row',style:'margin-top:14px;flex-wrap:wrap;gap:8px'}, h('button',{class:'btn pri',type:'button',onclick:()=>downloadCSV(list()),text:'下載 CSV（BarTender／Excel）'}), h('button',{class:'btn ink',type:'button',onclick:()=>printLabels(list(),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'直接列印標籤'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; S.admTab='labels'; S.labelSel=new Set(R.ids); renderAdmin(true); },text:'標籤列印設定'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; S.admTab='reg'; renderAdmin(true); },text:'到植物管理'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; renderAdmin(true); },text:'再建一批'}),
+    h('div',{class:'row',style:'margin-top:14px;flex-wrap:wrap;gap:8px'}, h('button',{class:'btn volt',type:'button',onclick:()=>downloadXLSX(list()),text:'下載 Excel 標籤檔'}), h('button',{class:'btn pri',type:'button',onclick:()=>downloadCSV(list()),text:'CSV（BarTender）'}), h('button',{class:'btn ink',type:'button',onclick:()=>printLabels(list(),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'直接列印標籤'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; S.admTab='labels'; S.labelSel=new Set(R.ids); renderAdmin(true); },text:'標籤列印設定'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; S.admTab='reg'; renderAdmin(true); },text:'到植物管理'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; renderAdmin(true); },text:'再建一批'}),
       R.gid?h('button',{class:'btn lime',type:'button',onclick:()=>{ S.batchDone=null; openPlant('g:'+S.me+'~'+R.gid); },text:'看群組頁 →'}):null)));
 }
 /* ---- 批量拍照相機：畫面上顯示目前編號，拍完直接換下一株，不用離開相機 ---- */
@@ -5260,11 +5275,24 @@ function admDesign(m){
 /* ---- 標籤：CSV 與列印 ---- */
 const verifyUrl=c=>location.origin+'/#/verify/'+encodeURIComponent(c);
 function serialOf(code){ const x=String(code||'').match(/^[A-Z]{2}-[A-Z0-9]{2,4}-(\d{5})/); return x?+x[1]:''; }
+const LABEL_HEAD=['流水號','編號','屬','種名','中文','品系','類型','備註','母本編號','父本編號','側芽序','群組','售價','狀態','查驗網址','賣場','賣家代碼'];
+function labelRows(list){ return list.map(p=>{ const g=genusOf(normSp(p.species)), pup=(p.code||'').match(/-S(\d+)$/), G=p.grp&&groupMeta(p.shop,p.grp);
+  return [serialOf(p.code),p.code,g,normSp(p.species).slice(g.length).trim(),genusZh(g),p.cultivar||'',kindLabel(p),memoOf(p),parLbl(p,'m'),parLbl(p,'d'),pup?+pup[1]:'',G?.name||'',isAuc(p)?(p.startPrice??''):(p.price??''),STATUS[p.status]||'',verifyUrl(p.code),shopName(p.shop),shopCode(p.shop)]; }); }
+let xlsxP=null;
+function loadXLSX(){ if(window.XLSX) return Promise.resolve(window.XLSX); if(!xlsxP) xlsxP=new Promise(res=>{ const sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; sc.onload=()=>res(window.XLSX||null); sc.onerror=()=>{ xlsxP=null; res(null); }; document.head.append(sc); }); return xlsxP; }
+async function downloadXLSX(list,name){
+  list=[...new Set(list.filter(Boolean))].sort(codeSort); if(!list.length){ toast('沒有選到植株'); return; }
+  const X=await loadXLSX(); if(!X){ toast('Excel 元件載入失敗，改下載 CSV（Excel 一樣打得開）'); return downloadCSV(list); }
+  const rows=labelRows(list);
+  const ws=X.utils.aoa_to_sheet([LABEL_HEAD,...rows]);
+  ws['!cols']=LABEL_HEAD.map((h0,i)=>({wch:[8,20,12,18,8,14,8,24,18,18,7,20,9,8,44,12,9][i]||12}));
+  ws['!autofilter']={ref:X.utils.encode_range({s:{r:0,c:0},e:{r:rows.length,c:LABEL_HEAD.length-1}})};
+  const wb=X.utils.book_new(); X.utils.book_append_sheet(wb,ws,'標籤');
+  X.writeFile(wb,(name||'vein-labels-'+new Date().toISOString().slice(0,10))+'.xlsx'); toast('已下載 '+list.length+' 株的 Excel 標籤檔');
+}
 function downloadCSV(list){
   list=list.filter(Boolean); if(!list.length){ toast('沒有選到植株'); return; }
-  const head=['流水號','編號','屬','種名','中文','品系','類型','母本編號','父本編號','側芽序','售價','狀態','查驗網址','賣場','賣家代碼'];
-  const rows=list.map(p=>{ const g=genusOf(normSp(p.species)), pup=(p.code||'').match(/-S(\d+)$/);
-    return [serialOf(p.code),p.code,g,normSp(p.species).slice(g.length).trim(),genusZh(g),p.cultivar||'',kindLabel(p),momCode(p),dadCode(p),pup?+pup[1]:'',isAuc(p)?(p.startPrice??''):(p.price??''),STATUS[p.status]||'',verifyUrl(p.code),shopName(p.shop),shopCode(p.shop)]; });
+  const head=LABEL_HEAD, rows=labelRows(list);
   const esc=v=>{ v=String(v??''); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
   const csv='﻿'+[head,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
   const a=h('a',{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),download:'vein-labels-'+new Date().toISOString().slice(0,10)+'.csv'}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
@@ -5305,7 +5333,7 @@ function admLabels(m){
   const rows=list.map(p=>{ const c=h('input',{type:'checkbox',checked:sel.has(p.id),onchange:e=>{ e.target.checked?sel.add(p.id):sel.delete(p.id); count.textContent=String(sel.size); }}); return h('tr',{}, h('td',{}, c), h('td',{}, p.thumb?h('img',{src:p.thumb,alt:''}):null), h('td',{class:'mono',text:p.code}), h('td',{text:short(p.species)}), h('td',{text:kindLabel(p)}), h('td',{text:STATUS[p.status]||''})); });
   m.append(admTop('標籤列印'),
     h('div',{class:'panel'}, h('div',{class:'row',style:'flex-wrap:wrap;gap:16px;align-items:end'}, field('標籤尺寸', size), qrL, spL, prL),
-      h('div',{class:'row',style:'margin-top:14px;flex-wrap:wrap;gap:8px'}, h('span',{class:'hint'}, '已選 ', count, ' 株'), h('button',{class:'btn pri',type:'button',onclick:()=>printLabels(picked(),{size:size.value,qr:qrC.checked,sp:spC2.checked,price:prC.checked}),text:'列印標籤'}), h('button',{class:'btn ink',type:'button',onclick:()=>downloadCSV(picked()),text:'下載 CSV（BarTender／Excel）'})),
+      h('div',{class:'row',style:'margin-top:14px;flex-wrap:wrap;gap:8px'}, h('span',{class:'hint'}, '已選 ', count, ' 株'), h('button',{class:'btn pri',type:'button',onclick:()=>printLabels(picked(),{size:size.value,qr:qrC.checked,sp:spC2.checked,price:prC.checked}),text:'列印標籤'}), h('button',{class:'btn volt',type:'button',onclick:()=>downloadXLSX(picked()),text:'下載 Excel 標籤檔'}), h('button',{class:'btn ink',type:'button',onclick:()=>downloadCSV(picked()),text:'CSV（BarTender）'})),
       h('p',{class:'hint',style:'margin-top:10px',text:'用 BarTender：資料來源選這份 CSV，把「編號」放文字、「查驗網址」放 QR code，就能整批連號列印。也可以不匯出，直接按「列印標籤」用瀏覽器印到標籤機。'})),
     h('div',{class:'row',style:'flex-wrap:wrap;gap:8px;margin:14px 0'}, h('label',{class:'search',style:'max-width:320px'}, svg('i-search'), search), quick('全選',()=>list), quick('最近一批',()=>list.filter(p=>(S.lastBatch||[]).includes(p.id))), quick('未售出',()=>list.filter(p=>p.status!=='sold')), quick('母株',()=>list.filter(p=>p.kind==='mother')), quick('清除',()=>[])),
     list.length?h('div',{class:'tblwrap'}, h('table',{class:'tbl'}, h('thead',{}, h('tr',{}, ...['','','編號','品種','類型','狀態'].map(t=>h('th',{text:t})))), h('tbody',{}, ...rows))):h('div',{class:'empty'}, h('h3',{text:'還沒有植株'})));
