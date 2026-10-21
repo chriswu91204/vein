@@ -1869,6 +1869,28 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .hk-tag.x{background:#111}.hk-q{display:grid;place-items:center;width:100%;height:100%;font-size:30px;color:var(--fg3)}
 .k-par .ht-node span{background:#EDE3FA}
 .xps{display:flex;flex-direction:column;gap:8px;margin-top:4px}.xps .xp{margin-top:0}
+
+/* 批量拍照相機 */
+.bt-cam{flex:1 1 100%;justify-content:center}
+.cam{position:fixed;inset:0;z-index:10000;background:#000;color:#fff;overflow:hidden;touch-action:manipulation}
+.cam-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam-guide{position:absolute;left:12%;right:12%;top:22%;bottom:30%;border-radius:22px;pointer-events:none;background:linear-gradient(#fff,#fff) 0 0/28px 3px no-repeat,linear-gradient(#fff,#fff) 0 0/3px 28px no-repeat,linear-gradient(#fff,#fff) 100% 0/28px 3px no-repeat,linear-gradient(#fff,#fff) 100% 0/3px 28px no-repeat,linear-gradient(#fff,#fff) 0 100%/28px 3px no-repeat,linear-gradient(#fff,#fff) 0 100%/3px 28px no-repeat,linear-gradient(#fff,#fff) 100% 100%/28px 3px no-repeat,linear-gradient(#fff,#fff) 100% 100%/3px 28px no-repeat;opacity:.7}
+.cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}.cam-flash.go{animation:camF .35s ease-out}@keyframes camF{0%{opacity:.85}100%{opacity:0}}
+.cam-top{position:absolute;left:0;right:0;top:0;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 26px;display:flex;align-items:flex-start;gap:12px;background:linear-gradient(rgba(0,0,0,.75),transparent)}
+.cam-lbl{flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}.cam-lbl small{font-size:12px;opacity:.75}
+.cam-code{font-size:clamp(24px,7vw,40px);font-weight:700;letter-spacing:.02em;color:#D4F25A;background:rgba(0,0,0,.45);border-radius:14px;padding:4px 14px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.cam-code.pop{animation:camPop .45s cubic-bezier(.3,1.6,.5,1)}@keyframes camPop{from{transform:scale(.7);opacity:.3}}
+.cam-sub{font-size:13px;opacity:.9}
+.cam-ic{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:18px;flex:none;cursor:pointer}.cam-ic.on{background:#D4F25A;color:#111}
+.cam-bot{position:absolute;left:0;right:0;bottom:0;padding:30px 14px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:12px;background:linear-gradient(transparent,rgba(0,0,0,.8) 35%)}
+.cam-th{display:flex;gap:6px;min-height:48px}
+.cam-t{position:relative;width:48px;height:48px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);animation:camPop .4s}.cam-t img{width:100%;height:100%;object-fit:cover}.cam-t i{position:absolute;right:2px;bottom:1px;font-style:normal;font-size:11px;background:rgba(0,0,0,.55);border-radius:5px;padding:0 4px}.cam-t.err{outline:2px solid #FF6A3D}
+.cam-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;width:100%;max-width:520px}
+.cam-shut{width:78px;height:78px;border-radius:50%;border:4px solid #fff;background:transparent;padding:5px;cursor:pointer}.cam-shut i{display:block;width:100%;height:100%;border-radius:50%;background:#fff;transition:transform .12s}.cam-shut:active i{transform:scale(.86)}
+.cam-nav{border:0;border-radius:999px;padding:12px 14px;font:inherit;font-weight:600;font-size:14px;background:rgba(255,255,255,.18);color:#fff;cursor:pointer}.cam-nav.pri{background:#D4F25A;color:#111}.cam-nav:disabled{opacity:.35}
+.cam-row .cam-nav:first-child{justify-self:start}.cam-row .cam-nav:last-child{justify-self:end}
+.cam-auto{display:flex;align-items:center;gap:8px;font-size:13px;opacity:.9}
+.cam-done{border:0;background:none;color:#fff;text-decoration:underline;font:inherit;font-size:14px;cursor:pointer;opacity:.85}
 </style>
 
 </head>
@@ -4707,7 +4729,8 @@ function admBatch(m){
       h('div',{class:'two'}, field('第一筆紀錄的階段', stageSel), startF),
       fieldBox('標籤', tg.el),
       h('div',{class:'bt-pub'}, h('label',{class:'row',style:'font-size:14px'}, show, '公開這些植株的檔案（沒照片的會先不公開）'), h('label',{class:'row',style:'font-size:14px'}, listSw, '建立後直接上架販售'), h('label',{class:'row',style:'font-size:14px'}, grpSw, h('span',{}, h('b',{text:'做成群組販售'}), h('span',{class:'hint',text:'　商店只顯示一張群組卡，買家進去挑編號'}))), grpBox, saleBox));
-  const adders=h('div',{class:'bt-add'},
+  const camBtn=h('button',{class:'btn ink lg bt-cam',type:'button',onclick:()=>{ if(!B.cards.length) addCard(false); if(!codeFor(0)){ toast(B.mode==='cont'?'先選要接續的那一批':'先選好母株或分類，編號出來後再開相機'); return; } batchCamera({cards:()=>B.cards,addCard,codeFor,redraw}); }},'📷 連續拍照（一株拍完直接拍下一株）');
+  const adders=h('div',{class:'bt-add'}, camBtn,
     h('button',{class:'btn pri lg bt-plus',type:'button',onclick:()=>addCard(true),text:'＋ 增加編號並加照片'}),
     h('button',{class:'btn soft',type:'button',onclick:()=>addCard(false),text:'＋ 只加編號'}),
     h('button',{class:'btn soft',type:'button',onclick:()=>{ for(let i=0;i<10;i++) addCard(false); },text:'＋10'}));
@@ -4726,6 +4749,41 @@ function batchResult(m,R){
   m.append(admTop('批量登錄完成'), h('div',{class:'panel',style:'max-width:720px'}, h('div',{class:'bc',style:'font-size:22px',text:R.first+(R.n>1?'  →  '+R.last:'')}), h('p',{class:'hint',text:'共 '+R.n+' 株'+(R.noPhoto?'；'+R.noPhoto+' 株沒有照片，先不公開，補照片後到植物管理打開。':'。')}),
     h('div',{class:'row',style:'margin-top:14px;flex-wrap:wrap;gap:8px'}, h('button',{class:'btn pri',type:'button',onclick:()=>downloadCSV(list()),text:'下載 CSV（BarTender／Excel）'}), h('button',{class:'btn ink',type:'button',onclick:()=>printLabels(list(),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'直接列印標籤'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; S.admTab='labels'; S.labelSel=new Set(R.ids); renderAdmin(true); },text:'標籤列印設定'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; S.admTab='reg'; renderAdmin(true); },text:'到植物管理'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.batchDone=null; renderAdmin(true); },text:'再建一批'}),
       R.gid?h('button',{class:'btn lime',type:'button',onclick:()=>{ S.batchDone=null; openPlant('g:'+S.me+'~'+R.gid); },text:'看群組頁 →'}):null)));
+}
+/* ---- 批量拍照相機：畫面上顯示目前編號，拍完直接換下一株，不用離開相機 ---- */
+async function batchCamera(ctx){
+  if (!navigator.mediaDevices?.getUserMedia){ toast('這個瀏覽器不能直接開相機，請用「＋ 增加編號並加照片」'); return; }
+  let stream=null, idx=Math.max(0,ctx.cards().findIndex(c=>!c.picker.count())); if(idx<0||!ctx.cards().length){ if(!ctx.cards().length) ctx.addCard(false); idx=ctx.cards().length-1; }
+  let auto=lsGet('vein.camAuto',false), torch=false;
+  const v=h('video',{class:'cam-v',autoplay:true,muted:true,playsinline:true}); v.muted=true; v.setAttribute('playsinline','');
+  const codeEl=h('div',{class:'cam-code mono'}), sub=h('div',{class:'cam-sub'}), thumbs=h('div',{class:'cam-th'}), flash=h('div',{class:'cam-flash'});
+  const autoSw=h('input',{type:'checkbox',class:'sw',checked:auto,onchange:e=>{ auto=e.target.checked; lsSet('vein.camAuto',auto); }});
+  const torchBtn=h('button',{type:'button',class:'cam-ic',hidden:true,'aria-label':'手電筒',onclick:async()=>{ const t=stream?.getVideoTracks()[0]; if(!t) return; torch=!torch; try{ await t.applyConstraints({advanced:[{torch}]}); torchBtn.classList.toggle('on',torch); }catch(e){ torch=false; } },text:'🔦'});
+  const made=new Set();
+  const close=()=>{ stream?.getTracks().forEach(t=>t.stop()); ov.remove(); document.removeEventListener('keydown',key);
+    const cs=ctx.cards(); while(cs.length>1&&made.has(cs[cs.length-1])&&!cs[cs.length-1].picker.count()){ cs.pop().el.remove(); } idx=Math.min(idx,cs.length-1); ctx.redraw(); const c=ctx.cards()[idx]; c?.el.scrollIntoView({block:'center'}); };
+  const cur=()=>ctx.cards()[idx];
+  const paint=()=>{ const cs=ctx.cards(), c=cur(); if(!c) return; ctx.redraw(); codeEl.textContent=c.codeEl.textContent; codeEl.classList.remove('pop'); void codeEl.offsetWidth; codeEl.classList.add('pop');
+    const n=c.picker.count(); sub.textContent='第 '+(idx+1)+' 株 / 共 '+cs.length+' 株 · 這株已拍 '+n+' 張';
+    thumbs.replaceChildren(...c.picker.items().slice(-6).map(it=>h('span',{class:'cam-t'+(it.err?' err':'')}, it.prev||it.prep?.preview?h('img',{src:it.prep?.preview||it.prev,alt:''}):null, h('i',{text:it.err?'!':it.prep?'✓':'…'}))));
+    prevB.disabled=idx===0; nextB.textContent=idx<cs.length-1?'下一株 →':'＋ 下一株 →'; };
+  const go=d=>{ const cs=ctx.cards(); if(d>0&&idx>=cs.length-1){ made.add(ctx.addCard(false)); } idx=Math.max(0,Math.min(ctx.cards().length-1,idx+d)); paint(); };
+  const shoot=()=>{ if(!v.videoWidth) return; const c=cur(); if(!c) return; const cv=document.createElement('canvas'), W=v.videoWidth, H=v.videoHeight, k=Math.min(1,3000/Math.max(W,H)); cv.width=Math.round(W*k); cv.height=Math.round(H*k); cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);
+    flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go'); if(navigator.vibrate) navigator.vibrate(30);
+    const code=c.codeEl.textContent, n=c.picker.count()+1;
+    cv.toBlob(b=>{ if(!b) return; const file=new File([b],code+'-'+String(n).padStart(2,'0')+'.jpg',{type:'image/jpeg',lastModified:Date.now()}); c.picker.add([file]); paint(); if(auto) setTimeout(()=>go(1),350); },'image/jpeg',.92); };
+  const prevB=h('button',{type:'button',class:'cam-nav',onclick:()=>go(-1),text:'← 上一株'}), nextB=h('button',{type:'button',class:'cam-nav pri',onclick:()=>go(1)});
+  const shutter=h('button',{type:'button',class:'cam-shut','aria-label':'拍照',onclick:shoot}, h('i'));
+  const key=e=>{ if(e.key==='Escape') close(); if(e.key===' '||e.key==='Enter'){ e.preventDefault(); shoot(); } if(e.key==='ArrowRight') go(1); if(e.key==='ArrowLeft') go(-1); };
+  const ov=h('div',{class:'cam'}, v, h('div',{class:'cam-guide'}), flash,
+    h('div',{class:'cam-top'}, h('button',{type:'button',class:'cam-ic',onclick:close,'aria-label':'完成',text:'✕'}), h('div',{class:'cam-lbl'}, h('small',{text:'現在拍的是'}), codeEl, sub), torchBtn),
+    h('div',{class:'cam-bot'}, thumbs, h('div',{class:'cam-row'}, prevB, shutter, nextB), h('label',{class:'cam-auto'}, autoSw, '拍一張就自動換下一株'), h('button',{type:'button',class:'cam-done',onclick:close,text:'完成，回到清單'})));
+  (adm.open?adm:document.body).append(ov); document.addEventListener('keydown',key); paint();
+  try{ stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:3840},height:{ideal:2160}}}); }
+  catch(e){ try{ stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false}); }catch(e2){ close(); toast(e2?.name==='NotAllowedError'?'沒有相機權限：請在瀏覽器設定允許這個網站使用相機':'無法開啟相機'); return; } }
+  v.srcObject=stream; v.play().catch(()=>{});
+  try{ const cap=stream.getVideoTracks()[0].getCapabilities?.(); if(cap&&cap.torch) torchBtn.hidden=false; }catch(e){}
+  const tick=setInterval(()=>{ if(!ov.isConnected){ clearInterval(tick); return; } paint(); },1200);
 }
 /* ---- 群組販售 ---- */
 function confirmTwice(b,msg){ if(b.dataset.armed) return true; b.dataset.armed='1'; const t=b.textContent; b.textContent=msg; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent=t; } },4000); return false; }
@@ -5324,10 +5382,10 @@ function mediaPicker(o={}){
   const draw=()=>{ grid.replaceChildren(...items.map((it,i)=>h('div',{class:'mp-it'+(it.err?' err':'')}, it.prep?.preview||it.prev?h('img',{src:it.prep?.preview||it.prev,alt:''}):h('span',{class:'mp-ph'}), it.isVid?h('span',{class:'mp-v',text:'▶ '+(it.prep?.dur?it.prep.dur.toFixed(0)+'s':'影片')}):null, i===0?h('span',{class:'mp-c',text:'封面'}):null,
       h('span',{class:'mp-s',text:it.err||it.st||''}),
       h('div',{class:'mp-ctl'}, i?h('button',{type:'button','aria-label':'往前',onclick:e=>{ e.preventDefault(); [items[i-1],items[i]]=[items[i],items[i-1]]; draw(); },text:'←'}):null, h('button',{type:'button','aria-label':'移除',onclick:e=>{ e.preventDefault(); items.splice(i,1); draw(); },text:'✕'}))))); st.textContent=items.length?items.filter(x=>x.prep).length+' / '+items.length+' 已上傳':''; };
-  inp.addEventListener('change',()=>{ const fs=[...inp.files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})); inp.value='';
-    fs.slice(0,o.max||12).forEach(f=>{ const it={file:f,isVid:/^video\//.test(f.type),st:'等待中'}; items.push(it); busy++;
-      prepareMedia(f,(m,prev)=>{ it.st=m; if(prev) it.prev=prev; draw(); }).then(r=>{ it.prep=r; it.st='✓'; }).catch(e=>{ it.err=e?.vein==='msg'?e.message:e?.vein==='upload'?'上傳失敗':'無法讀取'; }).finally(()=>{ busy--; draw(); }); }); draw(); });
-  return {el:h('div',{class:'mp'}, zone, grid, st), get:()=>items.filter(x=>x.prep&&!x.err).map(x=>x.prep), busy:()=>busy>0, clear:()=>{ items.length=0; draw(); }};
+  const addFiles=fs=>{ fs.slice(0,Math.max(0,(o.max||12)-items.length)).forEach(f=>{ const it={file:f,isVid:/^video\//.test(f.type),st:'等待中'}; items.push(it); busy++;
+      prepareMedia(f,(m,prev)=>{ it.st=m; if(prev) it.prev=prev; draw(); o.onChange&&o.onChange(); }).then(r=>{ it.prep=r; it.st='✓'; }).catch(e=>{ it.err=e?.vein==='msg'?e.message:e?.vein==='upload'?'上傳失敗':'無法讀取'; }).finally(()=>{ busy--; draw(); o.onChange&&o.onChange(); }); }); draw(); };
+  inp.addEventListener('change',()=>{ const fs=[...inp.files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})); inp.value=''; addFiles(fs); });
+  return {el:h('div',{class:'mp'}, zone, grid, st), get:()=>items.filter(x=>x.prep&&!x.err).map(x=>x.prep), busy:()=>busy>0, clear:()=>{ items.length=0; draw(); }, add:fs=>addFiles(fs), count:()=>items.length, items:()=>items};
 }
 const mediaOf=list=>list.slice(0,12).map(ph=>ph.video?{type:'video',url:ph.full.asset,poster:ph.thumb}:{type:'image',url:ph.thumb});
 const isVidRec=d=>!!(d?.video||d?.full?.video);
