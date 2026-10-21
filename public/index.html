@@ -2095,6 +2095,7 @@ fieldset.lin{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction
 .gd-card .gd-ic{margin-top:-34px;position:relative;box-shadow:0 0 0 4px var(--surface)}
 .gd-card .gd-th + .gd-ic{margin-top:-34px}.gd-card > .gd-ic:first-child{margin-top:0}
 #dlg .gd-img img{max-height:300px}
+.hevc p{line-height:1.7}.hevc ol{margin:12px 0 12px 18px;display:flex;flex-direction:column;gap:8px;line-height:1.65}
 </style>
 
 </head>
@@ -5460,7 +5461,7 @@ function admGroups(m){
 /* ---- 賣場裝修（認證賣家） ---- */
 const ACCENTS=['#D4F25A','#2E7D5B','#E8C9D2','#F2B84B','#7CC4E8','#B79CF2','#FF7A59','#111312'];
 async function uploadMediaFile(f,onP){
-  if (/^video\//.test(f.type)){ if(f.size>60*1024*1024) throw new Error('影片超過 60MB，請先剪短或壓縮'); let poster; try{ poster=await videoPoster(f); }catch(e){ throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
+  if (/^video\//.test(f.type)){ if(f.size>60*1024*1024) throw new Error('影片超過 60MB，請先剪短或壓縮'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
   if (/^image\//.test(f.type)){ const blob=await encode(await loadImage(f),1920,0.84); return {type:'image',url:await uploadBlob(blob,onP)}; }
   throw new Error('請選照片或影片');
 }
@@ -5868,7 +5869,7 @@ async function uploadSlot(slot,f,st){
   if (/^video\//.test(f.type)){
     if (f.size>100*1024*1024) throw new Error('影片超過 100MB，請先剪短或壓縮');
     st('檢查影片格式…');
-    let poster; try{ poster=await videoPoster(f); }catch(e){ throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式）。請轉成 MP4（H.264）再上傳'); }
+    let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式）。請轉成 MP4（H.264）再上傳'); }
     const pUrl=await uploadSiteBlob(poster);
     const url=await uploadSiteBlob(f,b=>st('上傳中 '+Math.round(b/f.size*100)+'%'));
     ent={type:'video',url,poster:pUrl,name:f.name,at:Date.now()};
@@ -6019,13 +6020,20 @@ async function preparePhoto(file,onStage){
 /* ---------- 多照片＋10 秒影片 ---------- */
 const MAX_VID_SEC=10.5;
 function videoDuration(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.preload='metadata'; v.muted=true; v.onloadedmetadata=()=>{ URL.revokeObjectURL(u); res(v.duration||0); }; v.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; v.src=u; setTimeout(()=>rej(new Error('decode')),12000); }); }
+const HEVC_MSG='這支影片的格式這個瀏覽器讀不了（多半是 iPhone 的 HEVC 格式）';
+let hevcWarned=0;
+function hevcHelp(){ if(Date.now()-hevcWarned<5000) return; hevcWarned=Date.now(); const body=h('div',{class:'hevc'}, h('p',{text:'iPhone 預設錄的是 HEVC（高效率）格式，電腦上的 Chrome、Edge 多半讀不了，所以會卡在「處理影片中」然後顯示錯誤。'}),
+    h('ol',{}, h('li',{}, h('b',{text:'最快：'}), '用 iPhone 的 Safari 打開 VEIN 上傳這支影片（Safari 讀得了）。'), h('li',{}, h('b',{text:'以後都不會遇到：'}), 'iPhone「設定 › 相機 › 格式」改成「最相容」，之後錄的影片就是 MP4（H.264）。'), h('li',{}, h('b',{text:'已經錄好的：'}), '用 iPhone「照片」分享 → 「儲存到檔案」時選「最相容」，或用剪輯 App 匯出成 MP4，再上傳。')),
+    h('p',{class:'hint',text:'影片限 10 秒內、60MB 以內。照片不受影響。'}));
+  openDialog('影片格式不支援', body, true); }
 async function prepareMedia(file,onStage){
   if (/^video\//.test(file.type)){
-    let dur; try{ dur=await videoDuration(file); }catch(e){ const x=new Error('影片無法讀取（iPhone 請在「設定 › 相機 › 格式」選「最相容」）'); x.vein='msg'; throw x; }
+    let dur; try{ dur=await videoDuration(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
     if (dur>MAX_VID_SEC){ const x=new Error('影片超過 10 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短'); x.vein='msg'; throw x; }
     if (file.size>60*1024*1024){ const x=new Error('影片超過 60MB'); x.vein='msg'; throw x; }
     onStage&&onStage('處理影片中…');
-    const poster=await videoPoster(file); const preview=URL.createObjectURL(poster);
+    let poster; try{ poster=await videoPoster(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
+    const preview=URL.createObjectURL(poster);
     const thumb=await uploadBlob(poster); const url=await uploadBlob(file,b=>onStage&&onStage('上傳中 '+Math.round(b/file.size*100)+'%',preview));
     return {video:true,takenAt:tsLocal(file.lastModified||Date.now()),takenSource:'file',thumb,full:{asset:url,video:true,poster:thumb},preview,dur};
   }
@@ -6040,7 +6048,7 @@ function mediaPicker(o={}){
       h('span',{class:'mp-s',text:it.err||it.st||''}),
       h('div',{class:'mp-ctl'}, i?h('button',{type:'button','aria-label':'往前',onclick:e=>{ e.preventDefault(); [items[i-1],items[i]]=[items[i],items[i-1]]; draw(); },text:'←'}):null, h('button',{type:'button','aria-label':'移除',onclick:e=>{ e.preventDefault(); items.splice(i,1); draw(); },text:'✕'}))))); st.textContent=items.length?items.filter(x=>x.prep).length+' / '+items.length+' 已上傳':''; };
   const addFiles=fs=>{ fs.slice(0,Math.max(0,(o.max||12)-items.length)).forEach(f=>{ const it={file:f,isVid:/^video\//.test(f.type),st:'等待中'}; items.push(it); busy++;
-      prepareMedia(f,(m,prev)=>{ it.st=m; if(prev) it.prev=prev; draw(); o.onChange&&o.onChange(); }).then(r=>{ it.prep=r; it.st='✓'; }).catch(e=>{ it.err=e?.vein==='msg'?e.message:e?.vein==='upload'?'上傳失敗':'無法讀取'; }).finally(()=>{ busy--; draw(); o.onChange&&o.onChange(); }); }); draw(); };
+      prepareMedia(f,(m,prev)=>{ it.st=m; if(prev) it.prev=prev; draw(); o.onChange&&o.onChange(); }).then(r=>{ it.prep=r; it.st='✓'; }).catch(e=>{ it.err=e?.hevc?'格式讀不了':e?.vein==='msg'?e.message:e?.vein==='upload'?'上傳失敗':'無法讀取'; if(e?.hevc) hevcHelp(); else if(e?.vein==='msg') toast(e.message); }).finally(()=>{ busy--; draw(); o.onChange&&o.onChange(); }); }); draw(); };
   inp.addEventListener('change',()=>{ const fs=[...inp.files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})); inp.value=''; addFiles(fs); });
   return {el:h('div',{class:'mp'}, zone, grid, st), get:()=>items.filter(x=>x.prep&&!x.err).map(x=>x.prep), busy:()=>busy>0, clear:()=>{ items.length=0; draw(); }, add:fs=>addFiles(fs), count:()=>items.length, items:()=>items};
 }
