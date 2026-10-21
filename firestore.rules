@@ -93,6 +93,27 @@ service cloud.firestore {
       allow write: if seller(uid) || isAdmin();
     }
 
+    // 議價：只有買賣雙方（與管理員）看得到；買家建立，賣家同意／婉拒，買家可撤回
+    match /offers/{id} {
+      function party() { return signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid); }
+      function same() { return request.resource.data.buyer == resource.data.buyer && request.resource.data.seller == resource.data.seller
+        && request.resource.data.amt == resource.data.amt && request.resource.data.pid == resource.data.pid; }
+      allow read: if party() || isAdmin();
+      allow create: if signedIn() && notBanned() && request.resource.data.buyer == request.auth.uid
+        && request.resource.data.seller != request.auth.uid && request.resource.data.status == 'open';
+      allow update: if signedIn() && same() && (
+        (request.auth.uid == resource.data.seller && resource.data.status == 'open' && request.resource.data.status in ['accepted', 'rejected'])
+        || (request.auth.uid == resource.data.buyer && resource.data.status == 'open' && request.resource.data.status == 'withdrawn'));
+      allow delete: if isAdmin();
+    }
+    // 交易私密資料（匯款帳號、匯款後五碼、物流、收貨）：只有該筆訂單的買賣雙方看得到
+    match /deals/{id} {
+      allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid) || isAdmin();
+      allow create: if signedIn() && request.resource.data.seller == request.auth.uid && id.matches(request.auth.uid + '_.*');
+      allow update: if signedIn() && (request.auth.uid == resource.data.seller || request.auth.uid == resource.data.buyer)
+        && request.resource.data.seller == resource.data.seller && request.resource.data.buyer == resource.data.buyer;
+    }
+
     // 私人資料（收藏、購物車）：只有本人看得到
     match /data/users/{uid}/{rest=**} {
       allow read, write: if isMe(uid);
