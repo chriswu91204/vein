@@ -4089,20 +4089,27 @@ function xferLinkBox(p,after){
   draw(); return box;
 }
 async function renderClaim(){
+  if (S.claimBusy) return;
   const box=$('#claimPage'), t=S.claimTok;
   if (!t){ box.replaceChildren(); return; }
-  if (S.claimDoc===undefined){ box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取轉移連結中…'})); S.claimDoc=null; try{ const d=await S.db.doc('xfers/'+t).get(); S.claimDoc=d.exists?{id:t,...d.data()}:false; }catch(e){ S.claimDoc=false; } }
+  // 資料庫還沒連上（直接打開連結時）先等，連上後 renderAll 會再呼叫一次
+  if (!S.db){ box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取轉移連結中…'})); return; }
+  if (S.claimDoc===undefined||S.claimDoc==='err'){ box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取轉移連結中…'})); S.claimDoc=null;
+    let got='err'; for(let i=0;i<3&&got==='err';i++){ try{ const d=await S.db.doc('xfers/'+t).get(); got=d.exists?{id:t,...d.data()}:false; }catch(e){ await new Promise(r=>setTimeout(r,800)); } }
+    if (S.claimTok!==t) return; S.claimDoc=got; }
   const x=S.claimDoc; if(x===null) return;
+  if (x==='err'){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'暫時讀不到這個轉移連結'}), h('p',{text:'可能是網路不穩，請再試一次。'}), h('button',{class:'btn pri',type:'button',onclick:()=>renderClaim(),text:'重新讀取'}))); return; }
+  if (x&&!S.plants.get(x.pid)&&!S.ready){ box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取植物資料中…'})); return; }
   if (!x){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'找不到這個轉移連結'}), h('p',{text:'連結可能打錯了，請向對方再要一次。'}))); return; }
   const p=S.plants.get(x.pid), cur=p?ownerOf(p):null; resolveNames([x.from]);
   const st=x.status!=='open'?(x.status==='done'?'這個連結已經使用過了':'這個連結已被取消'):x.expiresAt<Date.now()?'這個連結已過期':cur&&cur!==x.from?'這株的所有者已經換人，連結失效':null;
   const err=h('div',{class:'err'});
-  const accept=async b=>{ if(needLogin()) return; if(S.me===x.from){ err.textContent='這是你自己產生的連結，請傳給對方。'; return; } b.disabled=true; b.textContent='轉移中…';
+  const accept=async b=>{ if(needLogin()) return; if(S.me===x.from){ err.textContent='這是你自己產生的連結，請傳給對方。'; return; } b.disabled=true; b.textContent='轉移中…'; S.claimBusy=true;
     try{ const d=S.owners.get(p.id), log=[...(d?.log||[]),{from:x.from,to:S.me,at:Date.now(),via:'link',note:x.note||'',ref:null}];
       await S.db.doc('owners/'+p.id).set({shop:p.shop,pid:p.id,code:p.code,current:S.me,log,xfer:x.id}); S.owners.set(p.id,{shop:p.shop,pid:p.id,code:p.code,current:S.me,log,xfer:x.id});
       await S.db.doc('xfers/'+x.id).update({status:'done',to:S.me,doneAt:Date.now()}).catch(()=>{});
-      S.claimDoc={...x,status:'done',to:S.me}; toast('🎉 已經是你的了！'); go('#/history/'+encodeURIComponent(p.id)); }
-    catch(ex){ b.disabled=false; b.textContent='接受轉移'; err.textContent='轉移失敗：'+(ex?.code==='invalid_argument'?'連結已失效或沒有權限':'請稍後再試'); } };
+      S.claimDoc={...x,status:'done',to:S.me}; S.claimBusy=false; toast('🎉 已經是你的了！'); go('#/history/'+encodeURIComponent(p.id)); }
+    catch(ex){ S.claimBusy=false; b.disabled=false; b.textContent='接受轉移'; err.textContent='轉移失敗：'+(ex?.code==='invalid_argument'?'連結已失效或沒有權限':'請稍後再試'); } };
   box.replaceChildren(h('div',{class:'cl'},
     h('div',{class:'cl-card'}, p?h('div',{class:'cl-img'}, pv(p,'cl-m'), h('span',{class:'tag lime',text:kindLabel(p)})):null,
       h('div',{class:'cl-b'}, h('span',{class:'tr-k mono'}, h('i'), 'OWNERSHIP TRANSFER'), h('h1',{text:p?short(p.species)+(p.cultivar?' '+p.cultivar:''):x.code}), h('div',{class:'mono cl-code',text:x.code}),
