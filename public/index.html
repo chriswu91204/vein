@@ -2313,6 +2313,10 @@ a.lm-n:hover,button.lm-n:hover{background:#E9ECE4;transform:translateX(2px)}
 .priv-p.on{box-shadow:0 0 0 2px #111312}
 .tag.priv{background:#111312;color:#D2FF00}
 .ln.priv,.hk.priv{cursor:default;opacity:.85}
+
+.iab{align-items:center;text-align:center}.iab h3{font-size:22px;margin:4px 0 0}.iab p{margin:0}
+.iab-ic{align-self:center;width:64px;height:64px;border-radius:20px;background:#111312;color:#D2FF00;display:grid;place-items:center;font-size:30px;font-weight:800}
+.iab-st{display:flex;flex-direction:column;gap:8px;width:100%;text-align:left}.iab-st>div{display:flex;gap:10px;align-items:center;background:var(--paper);border-radius:14px;padding:12px}.iab-st b{width:26px;height:26px;border-radius:50%;background:#D2FF00;display:grid;place-items:center;font-size:13px;flex:none}
 </style>
 
 </head>
@@ -4110,7 +4114,20 @@ $('#tabMe').addEventListener('click',e=>{ e.preventDefault(); openMe(); });
 $('#navFav').addEventListener('click',()=>openMe('favs'));
 document.querySelectorAll('[data-me]').forEach(b=>b.addEventListener('click',()=>b.dataset.me==='sell'?openApply():openMe(b.dataset.me)));
 $('#finalLine').addEventListener('click',()=>{ const c=S.site.line||S.site.contact; if(c) copyText(c); else toast('聯絡方式即將公布'); });
+// LINE／FB／IG 等 App 內建瀏覽器：Google 不允許在裡面登入，要換到手機的瀏覽器
+const INAPP=/\bLine\//i.test(navigator.userAgent)?'line':/FBAN|FBAV|FB_IAB|Instagram|Messenger|MicroMessenger|Threads|BytedanceWebview|musical_ly|; wv\)/i.test(navigator.userAgent)?'other':null;
+const extUrl=()=>location.origin+location.pathname+'?openExternalBrowser=1'+location.hash;
+if (/openExternalBrowser=/.test(location.search)) history.replaceState(history.state,'',location.pathname+location.hash);
+function openExternal(){ if(INAPP==='line'){ location.href=extUrl(); return; } copyText(location.origin+location.pathname+location.hash); }
+function inAppLogin(){
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  openDialog('請用瀏覽器開啟', h('div',{class:'form iab'}, h('div',{class:'iab-ic',text:'↗'}), h('h3',{text:INAPP==='line'?'LINE 裡沒辦法用 Google 登入':'這個 App 裡沒辦法用 Google 登入'}),
+    h('p',{class:'hint',text:'Google 為了安全，不允許在 App 內建的瀏覽器登入。換到'+(ios?' Safari':' Chrome')+' 開啟同一頁，登入一次之後就會一直保持登入。'}),
+    INAPP==='line'?h('button',{class:'btn pri lg',type:'button',onclick:openExternal,text:'用'+(ios?' Safari':'瀏覽器')+'開啟這一頁'}):h('div',{class:'iab-st'}, h('div',{}, h('b',{text:'1'}), h('span',{text:'點右上角 ⋯ 或 ⋮'})), h('div',{}, h('b',{text:'2'}), h('span',{text:'選「用瀏覽器開啟」或「在 '+(ios?'Safari':'Chrome')+' 中開啟」'}))),
+    INAPP==='line'?null:h('button',{class:'btn soft',type:'button',onclick:()=>copyText(location.origin+location.pathname+location.hash),text:'或複製網址，貼到瀏覽器'})), true);
+}
 function openLogin(){
+  if (INAPP){ inAppLogin(); return; }
   openDialog('登入', h('div',{class:'form'}, h('h3',{style:'font-size:30px;font-weight:600',text:'登入 VEIN'}),
     h('p',{style:'color:var(--fg2)',text:'瀏覽與查驗不需要登入；收藏、下單、出價、抽獎與提問需要登入。'}),
     h('div',{class:'row'}, h('button',{class:'btn pri lg',type:'button',onclick:async e=>{ e.currentTarget.disabled=true; try{ await window.__veinAuth.signIn(); }catch(x){ e.currentTarget.disabled=false; toast('登入沒有完成，請再試一次'); } },text:'使用 Google 登入'})),
