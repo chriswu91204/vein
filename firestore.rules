@@ -114,6 +114,29 @@ service cloud.firestore {
         && request.resource.data.seller == resource.data.seller && request.resource.data.buyer == resource.data.buyer;
     }
 
+    // 所有權履歷：任何人可讀；目前所有者可以轉移；買家憑已出貨／完成的訂單取得所有權
+    match /owners/{pid} {
+      function ordOf(c) { return get(/databases/$(database)/documents/shops/$(c.shop)/orders/$(c.oid)).data; }
+      function claimOk() {
+        return ('claim' in request.resource.data)
+          && ordOf(request.resource.data.claim).buyer == request.auth.uid
+          && ordOf(request.resource.data.claim).items.hasAny([pid])
+          && ordOf(request.resource.data.claim).status in ['shipped', 'done']
+          && request.resource.data.current == request.auth.uid;
+      }
+      allow read: if true;
+      allow create: if signedIn() && notBanned()
+        && exists(/databases/$(database)/documents/shops/$(request.resource.data.shop)/plants/$(pid))
+        && (request.auth.uid == request.resource.data.shop
+          || (claimOk() && request.resource.data.claim.shop == request.resource.data.shop)
+          || isAdmin());
+      allow update: if signedIn() && notBanned() && request.resource.data.shop == resource.data.shop
+        && (request.auth.uid == resource.data.current
+          || (claimOk() && request.resource.data.claim.shop == resource.data.current)
+          || isAdmin());
+      allow delete: if isAdmin();
+    }
+
     // 私人資料（收藏、購物車）：只有本人看得到
     match /data/users/{uid}/{rest=**} {
       allow read, write: if isMe(uid);
