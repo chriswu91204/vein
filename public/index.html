@@ -3507,7 +3507,7 @@ async function transferOwner(p,to,via,note,claim){
   const doc={shop:p.shop,pid:p.id,code:p.code,current:to,log}; if(claim) doc.claim=claim;
   await S.db.doc('owners/'+p.id).set(doc); S.owners.set(p.id,doc);
 }
-const OWN_VIA={register:'登錄',order:'交易完成',transfer:'轉移'};
+const OWN_VIA={register:'登錄',order:'交易完成',transfer:'直接轉移',link:'轉移連結'};
 function ownerTimeline(p){
   const L=ownerLog(p); const ids=new Set(L.flatMap(x=>[x.from,x.to]).filter(Boolean)); resolveNames([...ids]);
   const who=u=>u===p.shop?shopName(u)+'（賣場）':u===S.me?'你':nameOf(u);
@@ -4104,7 +4104,7 @@ function renderHistory(force){
   const kb=new Map(); kids.forEach(k=>{ const key=(k.batch||(k.grp?'g'+k.grp:fmtDay(k.createdAt)))+'|'+(k.kind||'')+'|'+(momId(k)===id?'m':'d'); if(!kb.has(key)) kb.set(key,[]); kb.get(key).push(k); });
   kb.forEach(L=>{ L.sort(codeSort); const k0=L[0], asDad=momId(k0)!==id, other=asDad?S.plants.get(momId(k0)):S.plants.get(dadId(k0));
     ev.push({t:Math.min(...L.map(k=>toMs(k.createdAt)||born)),k:'kid',title:(k0.kind==='pup'?'分出側芽 ':'實生苗 ')+L.length+' 株',note:k0.kind==='pup'?'從這株分出的側芽，各自有編號與履歷。':(asDad?'這株當父本':'這株當母本')+(other?'，與 '+other.code+' 雜交':(asDad?momCode(k0):dadCode(k0))?'，與 '+(asDad?momCode(k0):dadCode(k0))+' 雜交':'')+'。',kids:L}); });
-  ownerLog(p).filter(x=>x.via!=='register').forEach(x=>ev.push({t:x.at,k:'own',title:x.via==='order'?'交易完成 · 所有權轉移':'所有權轉移',own:x}));
+  ownerLog(p).filter(x=>x.via!=='register').forEach(x=>ev.push({t:x.at,k:'own',title:x.via==='order'?'交易完成 · 所有權轉移':x.via==='link'?'所有權轉移 · 對方接受轉移連結':'所有權轉移',note:fmtDate(tsLocal(x.at))+' · 方式：'+(OWN_VIA[x.via]||x.via),own:x}));
   if (p.listedAt&&listed(p)) ev.push({t:p.listedAt,k:'sale',title:'上架販售',note:saleState(p)[1]});
   ev.sort((a,b)=>a.t-b.t||(a.k==='reg'?-1:0)); const newest=S.histOrder==='new'; if(newest) ev.reverse();
   const ids=new Set(ev.filter(e=>e.own).flatMap(e=>[e.own.from,e.own.to])); resolveNames([...ids].filter(Boolean));
