@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>VEIN · 有編號、有紀錄的花燭側芽</title>
-<meta name="description" content="VEIN 花燭側芽市集：每一株都有編號、成長照片與原始拍攝時間，可追溯到母株。競標、直購、抽獎。">
+<title>VEIN · 給所有植物玩家的溯源市集</title>
+<meta name="description" content="VEIN 是給所有植物玩家的溯源市集：每一株都有編號、成長照片與原始拍攝時間，可追溯到父母本。免費開店、免費建立植物履歷，競標、直購、議價、抽獎。">
 <meta property="og:title" content="VEIN · Every leaf, traced.">
-<meta property="og:description" content="有編號、有紀錄的花燭側芽市集。">
+<meta property="og:description" content="給所有植物玩家的溯源市集。每一株都有編號與履歷。">
 <meta property="og:image" content="https://vein-48ec8.web.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -293,7 +293,7 @@ body[data-tone="dark"] .link{color:var(--sprout)}
 .final .row{justify-content:center;margin-top:24px}
 
 footer{padding-block:48px 30px;font-size:13px;color:var(--fg2)}
-footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:24px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:24px;padding-bottom:28px;border-bottom:1px solid var(--line)}
 footer h5{margin:0 0 10px;font-size:13px;color:var(--fg)}
 footer a,footer button{display:block;text-decoration:none;padding:3px 0;color:var(--fg2);background:none;border:0;cursor:pointer;font-size:13px;text-align:left}
 footer a:hover,footer button:hover{color:var(--fg)}
@@ -2479,6 +2479,54 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .ht-vph{display:block;background:#1b1e1c}
 .ti video.hv,.gt-f video.hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}.ti video.hv.ready,.gt-f video.hv.ready{opacity:1}
 .sm-sen{display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;color:var(--fg2);font-size:13px}
+
+/* ---- 平台化 ---- */
+.nav nav a.nav-sell{background:#111312;color:#D2FF00;font-weight:700}.nav nav a.nav-sell:hover{background:#2a2e2b}
+.nav nav a.nav-sell[hidden]{display:none}
+.fdr-b{display:inline-flex;align-items:center;gap:4px;background:#EEF6CF;color:#2E5B10;border:1px solid #cfe58b;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;white-space:nowrap}.fdr-b.sm{font-size:10.5px;padding:1px 7px}
+.fdr-note{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#EEF6CF!important;margin-bottom:14px}
+.fs{margin:28px 0;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:clamp(18px,3vw,30px)}
+.fs-h{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}.fs-h h3{margin:6px 0 4px;font-size:clamp(20px,2.6vw,28px)}.fs-h p{margin:0}
+.fs-c{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:180px}.fs-c b{font-size:30px;letter-spacing:-.02em}.fs-c small{color:var(--fg2);font-size:12px}
+.fs-bar{display:block;width:180px;height:8px;border-radius:4px;background:var(--paper);overflow:hidden}.fs-bar em{display:block;height:100%;background:linear-gradient(90deg,#9BC400,#D2FF00);border-radius:4px;animation:fsGrow 1.4s var(--ease) both}
+@keyframes fsGrow{from{width:0!important}}
+.fs-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.fs-s{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px 10px;border-radius:18px;border:1.5px dashed var(--line);background:none;text-decoration:none;color:var(--fg2);font:inherit;cursor:pointer;transition:transform .2s,border-color .2s}
+.fs-s:hover{transform:translateY(-3px);border-color:#9BC400;color:var(--fg)}.fs-s b{font-size:12.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fs-s small{font-size:11px;color:var(--fg3)}
+.fs-s.on{border-style:solid;border-color:transparent;background:var(--paper);color:var(--fg)}
+.fs-q{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--paper);font-size:22px;color:var(--fg3)}
+.fs-s:not(.on):first-of-type .fs-q,.fs-s.on+.fs-s:not(.on) .fs-q{background:#D2FF00;color:#111;animation:hkPulse 1.8s ease-in-out infinite}
+.cm-strip{margin:20px auto 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(20px,4vw,48px);align-items:center}
+.cs-n{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--line);border-radius:24px;overflow:hidden;border:1px solid var(--line)}
+.cs-n>div{background:var(--surface);padding:22px 14px;display:flex;flex-direction:column;gap:4px}.cs-n b{font-size:clamp(26px,3.4vw,40px);letter-spacing:-.03em}.cs-n span{font-size:12.5px;color:var(--fg2)}
+.cs-a p{margin:0 0 14px;font-size:16px;line-height:1.6}
+@media (max-width:860px){.cm-strip{grid-template-columns:1fr}.cs-n{grid-template-columns:1fr 1fr}}
+.sl-hero{display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:center;padding:20px 0 10px}
+.sl-ht h1{font-size:clamp(40px,7vw,84px);line-height:1;letter-spacing:-.04em;margin:12px 0 16px}.sl-ht h1 em{font-style:normal;color:#9BC400}
+.sl-ht p{font-size:clamp(15px,1.6vw,18px);color:var(--fg2);line-height:1.7;max-width:36em;margin:0 0 22px}
+.sl-mini{display:flex;gap:20px;margin-top:18px;color:var(--fg2);font-size:14px;flex-wrap:wrap}.sl-mini b{color:var(--fg);font-size:18px}
+.sl-art{position:relative;aspect-ratio:1;max-width:440px;justify-self:center;width:100%;border-radius:40px;background:radial-gradient(circle at 30% 30%,#2E5B3F,#111312 70%);overflow:hidden}
+.sl-art i{position:absolute;font-style:normal;font-size:clamp(34px,5vw,56px);left:calc(12% + var(--i)*17%);top:calc(10% + (var(--i)*37%) - (var(--i)*var(--i)*7%));animation:slFloat 6s ease-in-out infinite;animation-delay:calc(var(--i)*-1.1s);filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
+@keyframes slFloat{50%{transform:translateY(-14px) rotate(8deg)}}
+.sl-card{position:absolute;left:8%;right:8%;bottom:8%;background:rgba(255,255,255,.95);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:2px;box-shadow:0 20px 40px -10px rgba(0,0,0,.5)}.sl-card span{font-size:12px;color:var(--leaf-2)}.sl-card b{font-size:18px}.sl-card small{color:var(--fg2)}
+.sl-sec{margin:56px 0}
+.sl-f{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.sl-fi{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:6px;transition:transform .25s var(--ease),box-shadow .25s}.sl-fi:hover{transform:translateY(-4px);box-shadow:0 18px 36px -20px rgba(0,0,0,.35)}
+.sl-fi span{font-size:30px}.sl-fi b{font-size:17px}.sl-fi p{margin:0;color:var(--fg2);line-height:1.65;font-size:14px}
+.sl-st{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:s}
+.sl-st li{background:#111312;color:#fff;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:6px;position:relative}.sl-st em{font-style:normal;width:36px;height:36px;border-radius:50%;background:#D2FF00;color:#111;display:grid;place-items:center;font-weight:900;margin-bottom:6px}.sl-st b{font-size:18px}.sl-st p{margin:0;opacity:.72;font-size:14px;line-height:1.6}
+.sl-ev{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.sl-ev>div{background:var(--paper);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:6px}.sl-ev span{font-size:28px}.sl-ev b{font-size:17px}.sl-ev p{margin:0;color:var(--fg2);font-size:14px;line-height:1.6}
+.sl-end{display:flex;flex-direction:column;align-items:center;text-align:center;background:#111312;color:#fff;border-radius:36px;padding:clamp(32px,6vw,70px) 20px;margin:56px 0 20px}.sl-end h2{font-size:clamp(26px,4.4vw,48px);margin:0 0 8px;letter-spacing:-.02em}.sl-end>p{opacity:.7;margin:0 0 22px}.sl-end .hint{color:rgba(255,255,255,.6)}.sl-end a{color:#D2FF00}
+@media (max-width:760px){.sl-hero{grid-template-columns:1fr}.sl-art{max-width:300px}.sl-st,.sl-ev{grid-template-columns:1fr}}
+.ab-hero{padding:24px 0 10px;max-width:900px}.ab-hero h1{font-size:clamp(38px,6.5vw,76px);line-height:1;letter-spacing:-.04em;margin:12px 0 16px}.ab-hero h1 em{font-style:normal;color:#9BC400}
+.ab-lead{font-size:clamp(16px,1.8vw,21px);line-height:1.7;color:var(--fg2);margin:0}
+.ab-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:40px 0}.ab-3>div{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:22px}.ab-3 em{font-style:normal;color:#9BC400;font-weight:800}.ab-3 h3{margin:8px 0 6px;font-size:19px}.ab-3 p{margin:0;color:var(--fg2);line-height:1.7;font-size:14.5px}
+.ab-n{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border-radius:24px;overflow:hidden;margin:0 0 40px}.ab-n>div{background:#111312;color:#fff;padding:26px 18px;display:flex;flex-direction:column}.ab-n b{font-size:clamp(28px,4vw,46px);color:#D2FF00}.ab-n span{opacity:.7;font-size:13px}
+.ab-sec{max-width:760px;margin:0 0 36px}.ab-sec h2{font-size:24px;margin:0 0 10px}.ab-sec p{color:var(--fg2);line-height:1.8;margin:0 0 14px;font-size:15.5px}
+@media (max-width:760px){.ab-3{grid-template-columns:1fr}.ab-n>div{padding:18px 10px}}
+.ru-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:30px}
+.ru-s{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:22px}.ru-s h2{font-size:19px;margin:0 0 10px}.ru-s ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}.ru-s li{color:var(--fg2);line-height:1.65;font-size:14.5px}
+.home-sell{margin-left:2px}
 </style>
 
 </head>
@@ -2503,6 +2551,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
     <a href="#/store" data-pg="shop">植物商店</a>
     <a href="#/raffle" data-pg="raffle">抽獎</a>
     <a href="#/verify" data-pg="verify">溯源查驗</a>
+    <a href="#/sell" data-pg="sell" class="nav-sell" id="navSell">免費開店</a>
   </nav>
   <div class="right">
     <button class="ib" type="button" id="navSearch" aria-label="搜尋"><svg class="i"><use href="#i-search"/></svg></button>
@@ -2529,8 +2578,8 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
     <div class="hpin">
       <div class="htext" id="htext">
                 <h1><span class="mask"><span>Every leaf,</span></span><span class="mask"><span><span class="serif">traced.</span></span></span></h1>
-        <p>有編號、有紀錄的花燭側芽</p>
-        <div class="ctas"><a class="btn pri lg" href="#/store">逛植物商店</a><a class="link" href="#/verify">查驗編號</a></div>
+        <p>給所有植物玩家的溯源市集</p>
+        <div class="ctas"><a class="btn pri lg" href="#/store">逛植物商店</a><a class="btn soft lg home-sell" href="#/sell">免費開店</a><a class="link" href="#/verify">查驗編號</a></div>
       </div>
       <div class="hside" id="hsL"><video data-src="darkred" muted loop playsinline preload="none"></video></div>
       <div class="hside" id="hsR"><video data-src="silver-hand" muted loop playsinline preload="none"></video></div>
@@ -2548,6 +2597,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
         <p id="stmt">冒芽、長根、上盆，每一步都拍照存證。買的不只是一株植物，是它的<em>來歷</em>。</p>
   </section>
 
+  <div id="homeCommunity"></div>
   <div class="cslot" data-pos="after-stmt"></div>
   <!-- COLLECTION: pinned horizontal gallery -->
   <section class="hs bleed" id="collection">
@@ -2652,6 +2702,9 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
   <div class="page" id="pgGuide" hidden><section class="sec wrap page-top" id="guidePage"></section></div>
   <div class="page" id="pgChats" hidden><section class="sec wrap page-top" id="chatsPage"></section></div>
   <div class="page" id="pgFeed" hidden><section id="feedPage"></section></div>
+  <div class="page" id="pgSell" hidden><section class="sec wrap page-top" id="sellPage"></section></div>
+  <div class="page" id="pgAbout" hidden><section class="sec wrap page-top" id="aboutPage"></section></div>
+  <div class="page" id="pgRules" hidden><section class="sec wrap page-top" id="rulesPage"></section></div>
   <div class="page" id="pgClaim" hidden><section class="sec wrap page-top" id="claimPage"></section></div>
   <div class="page" id="pgHistory" hidden><section class="sec wrap page-top" id="historyPage"></section></div>
   <div class="page" id="pgGroup" hidden><section class="sec wrap page-top" id="groupPage"></section></div>
@@ -2722,7 +2775,8 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 
   <footer class="wrap">
     <div class="cols">
-      <div><div class="brand" style="margin-bottom:10px"><i></i>VEIN</div><p id="footAbout" style="max-width:26em">有編號、有紀錄的花燭側芽。</p></div>
+      <div><div class="brand" style="margin-bottom:10px"><i></i>VEIN</div><p id="footAbout" style="max-width:26em">給所有植物玩家的溯源市集。每一株都有編號與履歷。</p></div>
+      <div><h5>平台</h5><a href="#/about">關於 VEIN</a><a href="#/sell">開店招募</a><a href="#/rules">交易保障與規範</a><a href="#/guide">新手教學中心</a></div>
       <div><h5>植物商店</h5><a href="#/store">商店主頁</a><a href="#/store/auction">競標</a><a href="#/store/buy">直購</a><a href="#/store/sellers">商家</a><a href="#/raffle">抽獎</a></div>
       <div><h5>溯源</h5><a href="#/verify">怎麼運作</a><a href="#/verify">查驗編號</a><h5 style="margin-top:14px">教學</h5><a href="#/guide">新手教學中心</a><a href="#/guide/new">植物上架</a><a href="#/guide/trace">溯源查驗</a></div>
       <div><h5>帳號</h5><button type="button" data-me="orders">我的訂單</button><button type="button" data-me="favs">我的收藏</button><button type="button" data-me="raffles">我的抽獎</button><button type="button" data-me="sell">成為賣家</button></div>
@@ -2941,7 +2995,7 @@ function tSet(el,mode,v){ if(!el) return; if(mode==='first'){ let n=[...el.child
 TEXT_FIELDS.forEach(f=>{ const m=f[4]; if(m==='ribbon') TEXT_DEF[f[0]]=window.__homeText.RIB_DEF.join('\n'); else if(m==='stmt') TEXT_DEF[f[0]]=window.__homeText.STMT_DEF; else TEXT_DEF[f[0]]=tGet(tEl(f),m.startsWith('wall:')?'text':m); });
 function applyText(next){
   if (next){ TEXT=next; try{ localStorage.setItem('vein.text',JSON.stringify(next)); }catch(e){} }
-  TEXT_FIELDS.forEach(f=>{ const k=f[0], m=f[4], v=(TEXT[k]??'')!==''?TEXT[k]:TEXT_DEF[k];
+  TEXT_FIELDS.forEach(f=>{ const k=f[0], m=f[4]; let v=(TEXT[k]??'')!==''?TEXT[k]:TEXT_DEF[k]; if(k==='hero.sub'&&v==='有編號、有紀錄的花燭側芽') v=TEXT_DEF[k];
     if (m==='ribbon') window.__homeText.buildRibbon(String(v).split('\n').map(x=>x.trim()));
     else if (m==='stmt') window.__homeText.buildStmt(v);
     else { const el=tEl(f), mm=m.startsWith('wall:')?'text':m; if(tGet(el,mm)!==v) tSet(el,mm,v); } });
@@ -3451,7 +3505,7 @@ function showcaseCase(p,i){ const kids=all().filter(k=>momId(k)===p.id||dadId(k)
 function renderSeller(force){
   const uid=S.sellerId, box=$('#sellerBody'), s=shopOf(uid);
   if (!s||!(approved(uid)||uid===S.me||S.admin)){ sfSig=''; box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:S.ready?'找不到這個賣家':'載入中…'}), h('a',{class:'btn soft',href:'#/store',text:'回到商店'}))); return; }
-  const V=isVerified(uid), st=V?((PREVIEW&&S.previewStore&&uid===S.me)?S.previewStore:(s.store||{})):{};
+  const V=proOf(uid), VB=isVerified(uid), st=V?((PREVIEW&&S.previewStore&&uid===S.me)?S.previewStore:(s.store||{})):{};
   const mineAll=all().filter(p=>p.shop===uid&&!privFor(p)&&(!p.hidden||uid===S.me)), forSale=mineAll.filter(p=>listed(p)&&p.status!=='sold'), sold=mineAll.filter(p=>listed(p)&&p.status==='sold');
   const rs=[...S.raffles.values()].filter(r=>r.shop===uid&&!r.hidden), rv=reviewsFor(uid), rt=rating(uid);
   const sig=JSON.stringify([uid,s,V,S.sellerTab,S.spView,S.sfF,mineAll.map(p=>p.id+p.status+(p.price||'')+(topBid(p.id)?.amt||'')+listed(p)+cover(p)),rs.length,rv.length,followers(uid),following(uid)]);
@@ -3479,7 +3533,7 @@ function renderSeller(force){
   const prof=h('div',{class:'sf-prof'},
     h('span',{class:'ring big'+(forSale.length?' fresh':'')}, avatar(uid,112)),
     h('div',{class:'sf-pi'},
-      h('div',{class:'row',style:'gap:10px;flex-wrap:wrap'}, h('h1',{text:s.name}), V?h('span',{class:'vbadge lg',text:'✓ 認證賣家'}):null, !approved(uid)?h('span',{class:'tag grey',text:'審核中'}):null),
+      h('div',{class:'row',style:'gap:10px;flex-wrap:wrap'}, h('h1',{text:s.name}), VB?h('span',{class:'vbadge lg',text:'✓ 認證賣家'}):null, founderBadge(uid), !approved(uid)?h('span',{class:'tag grey',text:'審核中'}):null),
       h('div',{class:'hint',text:[s.location,'加入於 '+fmtDay(tsLocal(s.createdAt||Date.now())),'賣家代碼 '+shopCode(uid)].filter(Boolean).join(' · ')}),
       s.bio?h('p',{class:'sp-bio',text:s.bio}):null),
     h('div',{class:'sf-nums'}, ...[[String(forSale.length),'在售'],[String(mineAll.length),'登錄植株'],[String(followers(uid)),'追蹤者'],[rt.n?rt.avg.toFixed(1)+'★':'—','評分'],[String(sold.length),'已售出']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
@@ -3809,7 +3863,7 @@ function shopCTA(compact){ if(isSeller()||PREVIEW) return null; const guest=!S.m
   const perks=[['🧬','每株自動產生血統履歷'],['🏷','一鍵印 QR 標籤'],['⚡','競標、直購、抽獎都能開'],['📦','批量上架實生苗與側芽']];
   return h('section',{class:'open-cta'+(compact?' sm':'')}, h('div',{class:'oc-tx'}, h('span',{class:'tr-k mono'}, h('i'), 'OPEN YOUR GREENHOUSE'), h('h3',{text:guest?'你也有好植物？免費在 VEIN 開一間溫室':'把你的溫室搬上 VEIN'}), h('p',{text:'免上架費，登錄時就幫你做好血統與成長紀錄，買家看得到也信得過。'}),
     compact?null:h('div',{class:'oc-pk'}, ...perks.map(([i,t])=>h('span',{}, h('i',{text:i}), t))),
-    h('div',{class:'row',style:'gap:10px;flex-wrap:wrap;margin-top:16px'}, h('button',{class:'btn lime',type:'button',onclick:go,text:guest?'登入後開店 →':'免費開店 →'}), h('a',{class:'btn soft',href:'#/guide/start',text:'看 5 分鐘開賣教學'}))),
+    h('div',{class:'row',style:'gap:10px;flex-wrap:wrap;margin-top:16px'}, h('button',{class:'btn lime',type:'button',onclick:go,text:guest?'登入後開店 →':'免費開店 →'}), h('a',{class:'btn soft',href:'#/sell',text:'看開店說明'}))),
     h('div',{class:'oc-art','aria-hidden':'true'}, ...[0,1,2].map(i=>h('i',{style:'--i:'+i}))));
 }
 function storeHome(body){
@@ -3866,6 +3920,7 @@ let spotTimer=0;
 function storeSellers(body){
   const ids=shopList(), wk=Date.now()-30*864e5;
   body.append(band('GREENHOUSES','sellers'), statStrip([[String(ids.length),'家認證溫室'],[String(pub().filter(p=>p.status!=='sold').length),'株在售'],[String(ids.reduce((n,u)=>n+followers(u),0)),'次追蹤'],[String(ids.reduce((n,u)=>n+rating(u).n,0)),'則評價']]));
+  body.append(founderSlots(12));
   const oc=shopCTA(true); if(oc) body.append(oc);
   if (!ids.length){ body.append(h('div',{class:'empty'}, h('h3',{text:'還沒有賣家'}), h('p',{text:'成為第一間在 VEIN 開店的溫室吧！'}))); return; }
   // 聚光燈輪播（大）
@@ -4280,7 +4335,8 @@ function renderNav(){
   const b=$('#navMe'); b.replaceChildren(S.meInfo?.id&&S.meInfo.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:''}):svg('i-user'));
   const n=(S.prefs.favs||[]).length; $('#favBadge').hidden=!n; $('#favBadge').textContent=String(n);
   const c=cart().length; $('#cartBadge').hidden=!c; $('#cartBadge').textContent=String(c);
-  const sc=storeContact(); $('#footContact').textContent=sc?'聯絡我們：'+sc:''; if (S.site.about) $('#footAbout').textContent=S.site.about;
+  const ns=$('#navSell'); if(ns) ns.hidden=isSeller();
+  const sc=storeContact(); $('#footContact').textContent=sc?'聯絡我們：'+sc:''; if (S.site.about&&!/花燭側芽。?$/.test(S.site.about)) $('#footAbout').textContent=S.site.about;
 }
 $('#navMe').addEventListener('click',()=>openMe());
 $('#navCart').addEventListener('click',()=>openCart());
@@ -4422,6 +4478,7 @@ function plantSub(u){ const fullNow=u===S.me||S.admin; const st={full:fullNow,cu
       if (fullNow) for(const [k,p] of S.plants) if(p.shop===u&&!now.has(k)) S.plants.delete(k);
       sn.docs.forEach(d=>S.plants.set(d.id,{id:d.id,...d.data(),shop:u})); st.live=now;
       if (!fullNow){ if(sn.size<PLANT_PAGE) st.full=true; else if(!st.cursor){ const last=sn.docs[sn.docs.length-1]?.data()?.createdAt; st.cursor=last||null; } }
+      if (u===S.me&&fullNow&&shopOf(S.me)&&Number(shopOf(S.me).nPlants)!==sn.size&&!sn.metadata?.hasPendingWrites){ const n=sn.size; clearTimeout(st.np); st.np=setTimeout(()=>{ S.db.doc('shops/'+S.me).update({nPlants:n}).catch(()=>{}); },3000); }
       S.ready=true; renderAll(); if(!st.first){ st.first=true; if(!st.full&&(S.wantAll||S.wantShop===u)) plantMore(u,true).then(()=>renderAll()); } },()=>{}); }
 async function plantMore(u,all){ const st=PL.get(u); if(!st||st.full||st.busy||!S.db) return 0; st.busy=true;
   try{ let q=S.db.collection('shops/'+u+'/plants');
@@ -4482,7 +4539,7 @@ async function boot(){
 }
 
 /* ---------- router ---------- */
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed'];
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed','sell','about','rules'];
 function go(hash){ if(location.hash===hash) route(); else location.hash=hash; }
 function route(){
   if (PREVIEW&&!/^#\/seller\//.test(location.hash||'')) history.replaceState(null,'',PV_HASH);
@@ -4515,12 +4572,14 @@ function route(){
     PAGE=pg; document.body.dataset.page=pg;
     $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim'; $('#pgGuide').hidden=pg!=='guide';
     if (pg==='home'&&window.__hsSize) __hsSize();
+    if (pg==='home') renderCommunity();
     if (pg==='verify'&&arg){ $('#vcode').value=arg; renderVerify(arg); }
     if (pg==='seller') renderSeller(true);
     if (pg==='group') renderGroup(true);
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
-    $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; chatBadge();
+    $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
+    if (pg==='sell') renderSell(); if (pg==='about') renderAbout(); if (pg==='rules') renderRules();
     if (['plant','history','verify','group','claim'].includes(pg)||(pg==='shop'&&['search','cat'].includes(S.storeTab))){ S.wantAll=true; ensurePlants(); }
     if (pg==='seller'&&S.sellerId){ S.wantShop=S.sellerId; ensurePlants(S.sellerId); }
     if (pg==='guide') renderGuide(arg);
@@ -6000,6 +6059,77 @@ async function uploadMediaFile(f,onP){
   if (/^image\//.test(f.type)){ const im=await loadImage(f), blob=await encode(im,1920,0.84); const url=await uploadBlob(blob,onP); let thumb=null; try{ thumb=await uploadBlob(await encode(im,640,0.75)); }catch(e){} return {type:'image',url,thumb}; }
   throw new Error('請選照片或影片');
 }
+/* ================= 平台化：創始溫室、開店招募、關於、規範 ================= */
+const FOUNDER_N=30, FOUNDER_DAYS=180;
+let fdrCache=null, fdrSig='';
+function founders(){ const L=[...S.shops.keys()].filter(approved); const sig=L.join()+'|'+L.map(u=>shopOf(u)?.createdAt||0).join();
+  if (sig!==fdrSig){ fdrSig=sig; fdrCache=new Map(L.sort((a,b)=>(shopOf(a)?.createdAt||0)-(shopOf(b)?.createdAt||0)).slice(0,FOUNDER_N).map((u,i)=>[u,i+1])); } return fdrCache; }
+const founderRank=u=>founders().get(u)||0;
+const founderActive=u=>!!founderRank(u)&&Date.now()<(shopOf(u)?.createdAt||Date.now())+FOUNDER_DAYS*864e5;
+// 進階功能（賣場設計工具、模板、互動元件）：認證賣家，或創始溫室前半年
+const proOf=u=>isVerified(u)||founderActive(u);
+const founderBadge=(u,sm)=>founderRank(u)?h('span',{class:'fdr-b'+(sm?' sm':''),title:'VEIN 第 '+founderRank(u)+' 間進駐的溫室'}, '🌱 創始溫室 #'+founderRank(u)):null;
+function platStats(){ const shops=[...S.shops.keys()].filter(approved); const nP=shops.reduce((n,u)=>n+(Number(shopOf(u)?.nPlants)||all().filter(p=>p.shop===u).length),0);
+  return {shops:shops.length,plants:nP,players:Math.max(S.socialAll?.size||0,shops.length),left:Math.max(0,FOUNDER_N-shops.length)}; }
+const goOpenShop=()=>{ if(!S.me){ openLogin(); return; } if(isSeller()){ openAdmin(); return; } openApply(); };
+const goRegister=()=>{ if(!S.me){ openLogin(); return; } openPlants('new'); };
+function founderSlots(max){ const F=[...founders().entries()], st=platStats(), n=Math.min(max||12,FOUNDER_N);
+  const filled=F.slice(0,n).map(([u,r])=>h('a',{class:'fs-s on',href:'#/seller/'+u,title:shopName(u)}, avatar(u,52), h('b',{text:shopName(u)}), h('small',{text:'#'+r})));
+  const empty=Array.from({length:Math.max(0,n-filled.length)},(_,i)=>h('button',{type:'button',class:'fs-s',onclick:()=>go('#/sell')}, h('span',{class:'fs-q',text:'＋'}), h('b',{text:i===0?'你的溫室':'空位'}), h('small',{text:'#'+(filled.length+i+1)})));
+  return h('div',{class:'fs'}, h('div',{class:'fs-h'}, h('div',{}, h('span',{class:'tr-k mono'}, h('i'), 'FOUNDING GREENHOUSES'), h('h3',{text:'創始溫室招募中'}), h('p',{class:'hint',text:'VEIN 剛起步，前 '+FOUNDER_N+' 間進駐的溫室享有創始徽章與半年免費進階功能。'})),
+      h('div',{class:'fs-c'}, h('b',{text:st.shops+' / '+FOUNDER_N}), h('small',{text:'已進駐'}), h('i',{class:'fs-bar'}, h('em',{style:'width:'+Math.min(100,st.shops/FOUNDER_N*100)+'%'})))),
+    h('div',{class:'fs-g'}, ...filled, ...empty), !isSeller()?h('div',{class:'row',style:'gap:10px;flex-wrap:wrap;margin-top:14px'}, h('button',{class:'btn lime',type:'button',onclick:goOpenShop,text:'搶一個創始名額 →'}), h('a',{class:'btn soft',href:'#/sell',text:'看開店說明'})):null); }
+function communityStrip(){ const st=platStats();
+  return h('section',{class:'cm-strip wrap'}, h('div',{class:'cs-n'}, ...[[st.plants,'株植物有完整履歷'],[st.shops,'間溫室進駐'],[st.players,'位植物玩家加入'],[st.left,'個創始溫室名額']].map(([v,l])=>h('div',{}, h('b',{text:Number(v).toLocaleString()}), h('span',{text:l})))),
+    h('div',{class:'cs-a'}, h('p',{text:'VEIN 是給所有植物玩家的溯源市集。不只能買賣，也能免費幫自己的收藏建立履歷。'}), h('div',{class:'row',style:'gap:10px;flex-wrap:wrap'}, h('button',{class:'btn pri',type:'button',onclick:goRegister,text:'免費幫我的植物建履歷'}), !isSeller()?h('a',{class:'btn soft',href:'#/sell',text:'我要開店'}):null))); }
+
+/* ---- 開店招募頁 ---- */
+let platSig='';
+function platRerender(){ const st=platStats(), sig=JSON.stringify([st,isSeller(),!!S.me]); if(sig===platSig) return; platSig=sig; const y=scrollY; renderSell(); scrollTo(0,y); }
+function renderCommunity(){ const b=$('#homeCommunity'); if(!b) return; const st=platStats(), sig=JSON.stringify([st,isSeller(),!!S.me]); if(b.dataset.sig===sig) return; b.dataset.sig=sig; b.replaceChildren(communityStrip()); }
+function renderSell(){ const box=$('#sellPage'), st=platStats();
+  const feat=[['🧬','血統與履歷自動產生','登錄時選父母本，系統自動接上家族；每張照片保留原始拍攝時間，買家看得到也信得過。'],['🏷','QR 標籤一鍵印','每株一個編號，標籤掃了就是履歷頁；支援標籤機、A4 貼紙、Excel 匯出。'],['📦','批量上架實生苗與側芽','同一批父母本只填一次，連拍、按「＋增加編號」就好；做成群組讓買家自己挑編號。'],['⚡','競標、直購、議價、抽獎','四種賣法都內建，議價同意自動成立訂單，抽獎到點公開開獎。'],['💬','即時聊天','買家直接傳商品卡、議價、約面交；你可以傳匯款資訊與出貨通知。'],['🎨','賣場設計工具','拖拉元件、6 種模板、即時預覽，打造自己的溫室門面（創始溫室前半年免費）。']];
+  const steps=[['登入','用 Google 帳號登入（平台要求時會請你驗證手機）。'],['填賣場資料','賣場名稱、地區、LINE，一分鐘填完送出申請。'],['登錄第一株','拍照、選品種、填父母本，編號自動產生；審核通過後就會公開。']];
+  const faq=[['要錢嗎？','目前開店與上架都免費，平台不抽成。'],['錢怎麼收？','買家直接匯款或用你提供的方式付款給你，VEIN 不經手金流。匯款帳號只有該筆交易的買賣雙方看得到。'],['只能賣花燭嗎？','不是。VEIN 是給所有植物玩家的溯源市集，觀葉、多肉、鹿角蕨、塊根……只要能編號、能拍照紀錄都可以。'],['我已經在其他平台賣了，可以一起用嗎？','可以。你可以把 VEIN 的履歷頁或 QR 標籤附在其他平台的商品裡，讓買家查得到來歷。'],['送出後多久可以賣？','送出申請後就能先登錄、上架；平台審核通過後商品自動公開。'],['創始溫室是什麼？','前 '+FOUNDER_N+' 間進駐的溫室：永久的「創始溫室」編號徽章，加上進駐後半年免費使用賣場設計工具、模板與互動元件。']];
+  box.replaceChildren(h('div',{class:'sl'},
+    h('section',{class:'sl-hero'}, h('div',{class:'sl-ht'}, h('span',{class:'tr-k mono'}, h('i'), 'SELL ON VEIN'), h('h1',{}, '把你的溫室', h('br'), '搬上 ', h('em',{text:'VEIN'})), h('p',{text:'VEIN 是給所有植物玩家的溯源市集。免上架費、不抽成，每一株植物都有自己的編號、照片與血統。'}),
+        h('div',{class:'row',style:'gap:10px;flex-wrap:wrap'}, isSeller()?h('button',{class:'btn lime lg',type:'button',onclick:()=>openAdmin(),text:'進入商店管理 →'}):h('button',{class:'btn lime lg',type:'button',onclick:goOpenShop,text:S.me?'免費開店 →':'登入後免費開店 →'}), h('a',{class:'btn soft lg',href:'#/guide/start',text:'5 分鐘開賣教學'})),
+        h('div',{class:'sl-mini'}, h('span',{}, h('b',{text:String(st.shops)}), ' 間溫室已進駐'), h('span',{}, h('b',{text:String(st.left)}), ' 個創始名額'))),
+      h('div',{class:'sl-art','aria-hidden':'true'}, ...['🌿','🪴','🌵','🌱','🍃'].map((e,i)=>h('i',{style:'--i:'+i,text:e})), h('div',{class:'sl-card'}, h('span',{class:'mono',text:'AN-VEN-00012-S01'}), h('b',{text:'編號，跟著植株走'}), h('small',{text:'母本 ♀ × 父本 ♂ · 12 筆成長紀錄'})))),
+    founderSlots(FOUNDER_N>12?15:FOUNDER_N),
+    h('section',{class:'sl-sec'}, secHead('WHY VEIN','賣家為什麼選 VEIN','你專心種植物，紀錄、標籤、溯源交給我們'), h('div',{class:'sl-f'}, ...feat.map(([i,t,d],k)=>scReveal(h('div',{class:'sl-fi',style:'transition-delay:'+k*60+'ms'}, h('span',{text:i}), h('b',{text:t}), h('p',{text:d})))))),
+    h('section',{class:'sl-sec'}, secHead('HOW IT WORKS','三步驟開店'), h('ol',{class:'sl-st'}, ...steps.map(([t,d],k)=>h('li',{}, h('em',{text:String(k+1)}), h('b',{text:t}), h('p',{text:d}))))),
+    h('section',{class:'sl-sec'}, secHead('FOR EVERYONE','不賣也可以用','收藏家、玩家也能免費用 VEIN 管理自己的植物'), h('div',{class:'sl-ev'}, ...[['🔍','買家','買之前先查編號、看母本與成長紀錄，買到的是有來歷的植株。'],['📒','收藏家','免費登錄自己的收藏，照片自動按時間排好，轉手時一鍵轉移所有權。'],['🏡','溫室與賣家','開店、上架、標籤、聊天、訂單一個地方搞定。']].map(([i,t,d])=>h('div',{}, h('span',{text:i}), h('b',{text:t}), h('p',{text:d})))), h('div',{class:'row',style:'gap:10px;margin-top:16px;flex-wrap:wrap'}, h('button',{class:'btn pri',type:'button',onclick:goRegister,text:'免費幫我的植物建履歷'}))),
+    h('section',{class:'sl-sec'}, secHead('FAQ','常見問題'), h('div',{class:'sc-fq'}, ...faq.map(([q,a],i)=>h('details',{open:i<1}, h('summary',{}, h('span',{text:q}), h('i',{text:'+'})), h('p',{text:a}))))),
+    h('section',{class:'sl-end'}, h('h2',{text:'第 '+(st.shops+1)+' 間溫室，可以是你。'}), h('p',{text:'名額有限，創始徽章永久保留。'}), isSeller()?h('button',{class:'btn lime lg',type:'button',onclick:()=>openAdmin(),text:'進入商店管理 →'}):h('button',{class:'btn lime lg',type:'button',onclick:goOpenShop,text:'免費開店 →'}), h('p',{class:'hint',style:'margin-top:14px'}, '開店前想先了解規範？ ', h('a',{href:'#/rules',text:'交易保障與規範'}), '・', h('a',{href:'#/about',text:'關於 VEIN'})))));
+}
+
+/* ---- 關於 VEIN ---- */
+function renderAbout(){ const box=$('#aboutPage'), st=platStats(), sc=storeContact();
+  box.replaceChildren(h('div',{class:'ab'},
+    h('section',{class:'ab-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'ABOUT VEIN'), h('h1',{}, 'Every leaf, ', h('em',{text:'traced.'})), h('p',{class:'ab-lead',text:'VEIN 是給所有植物玩家的溯源市集。我們相信一株植物的價值，不只在它現在的樣子，也在它從哪裡來、怎麼長大。'})),
+    h('section',{class:'ab-3'}, ...[['01','編號跟著植株走','每一株都有唯一編號，側芽接在母株後面、實生苗連回父母本，一路查得到家族。'],['02','紀錄不能事後改','照片保留原始拍攝時間；登錄後編號與紀錄不能修改，轉手後血統資料會鎖定。'],['03','平台，不是賣家','VEIN 提供工具與規範，商品由各個獨立溫室與玩家販售，交易直接在買賣雙方之間進行。']].map(([n,t,d])=>scReveal(h('div',{}, h('em',{class:'mono',text:n}), h('h3',{text:t}), h('p',{text:d}))))),
+    h('section',{class:'ab-n'}, ...[[st.plants,'株植物有履歷'],[st.shops,'間溫室進駐'],[st.players,'位玩家加入']].map(([v,l])=>h('div',{}, h('b',{text:Number(v).toLocaleString()}), h('span',{text:l})))),
+    h('section',{class:'ab-sec'}, h('h2',{text:'誰在用 VEIN'}), h('p',{text:'買家用它查來歷、比較血統；收藏家用它免費管理自己的植物、轉手時轉移所有權；溫室與賣家用它上架、印標籤、跟買家聊天與成立訂單。VEIN 不限定植物種類，從花燭、蔓綠絨、鹿角蕨到多肉與塊根，只要能編號、能紀錄，都歡迎。'})),
+    h('section',{class:'ab-sec'}, h('h2',{text:'我們剛起步'}), h('p',{text:'VEIN 正在招募第一批創始溫室。如果你有一間溫室、一個陽台，或只是一盆很寶貝的植物，都歡迎一起把紀錄留下來。'}), h('div',{class:'row',style:'gap:10px;flex-wrap:wrap'}, h('a',{class:'btn lime',href:'#/sell',text:'開店招募 →'}), h('button',{class:'btn soft',type:'button',onclick:goRegister,text:'免費建立履歷'}), h('a',{class:'btn soft',href:'#/rules',text:'交易保障與規範'}))),
+    h('section',{class:'ab-sec'}, h('h2',{text:'聯絡我們'}), h('p',{text:sc?'有任何問題、合作或檢舉，歡迎聯絡平台：'+sc:'有任何問題、合作或檢舉，歡迎透過網站內的聊天或頁尾聯絡方式與平台聯繫。'}))));
+}
+
+/* ---- 交易保障與規範 ---- */
+function renderRules(){ const box=$('#rulesPage');
+  const sec=(t,items)=>h('section',{class:'ru-s'}, h('h2',{text:t}), h('ul',{}, ...items.map(x=>h('li',{text:x}))));
+  box.replaceChildren(h('div',{class:'ru'},
+    h('section',{class:'ab-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'TRUST & RULES'), h('h1',{text:'交易保障與規範'}), h('p',{class:'ab-lead',text:'VEIN 是平台，商品由各個獨立賣家販售。以下是平台提供的保障機制，以及買賣雙方都需要遵守的規範。'})),
+    h('div',{class:'ru-g'},
+      sec('🔒 平台提供的保障',['賣家需經平台審核才能公開商品；認證賣家另有標章。','每株植物有唯一編號，照片保留原始拍攝時間，登錄後編號與紀錄不能修改或刪除。','所有權轉移會寫進履歷；轉手後品種與父母本等血統資料會鎖定，避免事後竄改。','匯款帳號、匯款後五碼、物流資訊與聊天內容，只有該筆交易的買賣雙方看得到。','任何人都能用編號查驗一株植物的履歷與目前所有者。']),
+      sec('🛒 交易流程',['直購：加入購物車送出訂單 → 賣家確認 → 依賣家提供的方式付款 → 賣家出貨 → 買家確認收貨並評價。','議價：買家出價，賣家同意後自動成立訂單；同一株的其他議價會自動婉拒。','競標：倒數結束時最高出價者得標，賣家會與得標者聯絡付款與出貨。','抽獎：免費參加，到點公開開獎。','VEIN 不經手金流，付款直接在買賣雙方之間進行，請保留匯款與對話紀錄。']),
+      sec('✅ 賣家需要遵守',['照片與影片必須是該株植物本身，不可盜用他人照片。','品種、父母本、側芽或實生苗等資訊要如實填寫；不確定時請在備註說明。','不可販售法律禁止或需檢疫許可而未取得的植物。','收款後應在約定時間內出貨，並在聊天或訂單中提供出貨資訊。']),
+      sec('🙋 買家需要遵守',['下單或得標後請在約定時間內付款。','出價與議價視為購買意願，請勿惡意出價。','收到植物有問題時，請先拍照並透過聊天與賣家聯絡。']),
+      sec('⚖️ 爭議與檢舉',['交易爭議請先與對方溝通，並保留聊天與付款紀錄。','無法解決時可聯絡平台協助；平台可視情況下架商品、隱藏內容或停權帳號。','發現盜圖、假資料或可疑賣家，歡迎向平台檢舉。'])),
+    h('p',{class:'hint',style:'margin-top:28px',text:'本規範會隨平台發展更新。使用 VEIN 即表示同意遵守最新版本。'}),
+    h('div',{class:'row',style:'gap:10px;flex-wrap:wrap;margin-top:12px'}, h('a',{class:'btn soft',href:'#/about',text:'關於 VEIN'}), h('a',{class:'btn lime',href:'#/sell',text:'開店招募'}))));
+}
+
 /* ================= 即時聊天（買家 ↔ 賣家）================= */
 const POPUP=new URLSearchParams(location.search).has('popup');
 S.chats=new Map(); S.chatMsgs=new Map();
@@ -6357,13 +6487,14 @@ if (PREVIEW){ document.documentElement.classList.add('pv');
 
 function admDesign(m){
   if (!isVerified(S.me)&&S.isOwner&&hasShop()){ setVerified(S.me,true).then(()=>{ m.replaceChildren(); admShop(m); }); m.append(h('p',{class:'hint',text:'開通中…'})); return; }
-  const V=isVerified(S.me)||S.admin;
+  const V=proOf(S.me)||S.admin;
   if (!V){ m.append(h('div',{class:'panel lockp'}, h('div',{class:'lock-i',text:'🔒'}), h('h3',{text:'賣場設計工具是認證（高級）賣家專屬功能'}), h('p',{class:'hint',text:'一般賣家的賣場使用標準版面。成為認證賣家後可以使用：'}),
     h('div',{class:'lock-l'}, ...[['拖拉式版面設計','把區塊拖上拖下排順序，右邊即時預覽電腦版與手機版'],['6 種版面模板','經典溫室、極簡藝廊、拍賣主打、新品發表、家族血統、社群口碑'],['13 種互動元件','公告跑馬燈、倒數計時、數據動畫、評價牆、常見問題、圖文、影片橫幅、分類磚…'],['橫幅輪播與背景','最多 6 張照片或影片，整頁背景照片或影片'],['焦點、熱門與展示櫃','主打一株、精選推薦、母本收藏不賣也能展示'],['主題色','自訂賣場配色']].map(([t,d])=>h('div',{}, h('b',{text:t}), h('span',{text:d})))),
-    h('p',{class:'hint',style:'margin-top:12px',text:'想申請認證，請透過頁尾的聯絡方式與平台聯繫。'}))); return; }
+    h('p',{class:'hint',style:'margin-top:12px',text:'前 '+FOUNDER_N+' 間進駐的創始溫室，進駐後半年免費使用。想申請認證，請透過頁尾的聯絡方式與平台聯繫。'}))); return; }
   const sh=shopOf(S.me)||{}, D=S.design||(S.design=JSON.parse(JSON.stringify(sh.store||{})));
   D.banners=D.banners||[]; D.hot=D.hot||[]; D.showcase=D.showcase||[]; D.sections=normSections(D.sections);
   if (!S.dzTab) S.dzTab='blocks';
+  if (!isVerified(S.me)&&founderActive(S.me)) m.append(h('div',{class:'panel fdr-note'}, h('b',{text:'🌱 創始溫室 #'+founderRank(S.me)+' 免費使用中'}), h('span',{class:'hint',text:'到 '+fmtDay(tsLocal((shopOf(S.me)?.createdAt||Date.now())+FOUNDER_DAYS*864e5))+' 為止。'})));
   const flag=h('span',{class:'hint'}), err=h('div',{class:'err'});
   const mineL=mine().filter(p=>listed(p)&&p.status!=='sold'), mineR=mine();
   const linkOpts=[['','不連結'],['#/seller/'+S.me,'賣場首頁'],...mineL.map(p=>['#/plant/'+p.id,'商品：'+p.code+' '+short(p.species)]),['#/raffle','抽獎頁'],['#/store','植物商店']];
@@ -6779,7 +6910,7 @@ function admSite(m){
   const f=h('form',{class:'form',style:'max-width:640px'},
     field('平台 LINE ID（頁尾「聯絡我們」）', h('input',{'data-s':'line',maxlength:60,value:s.line||'',placeholder:'例如 @vein'})),
     field('其他聯絡方式（選填）', h('input',{'data-s':'contact',maxlength:120,value:s.contact||''})),
-    field('頁尾介紹', h('textarea',{'data-s':'about',maxlength:300}, s.about||'有編號、有紀錄的花燭側芽。')),
+    field('頁尾介紹', h('textarea',{'data-s':'about',maxlength:300}, s.about||'給所有植物玩家的溯源市集。每一株都有編號與履歷。')),
     h('label',{class:'row',style:'font-size:14.5px;align-items:flex-start;gap:10px'}, h('input',{type:'checkbox',class:'sw','data-s':'requirePhone',checked:!!s.requirePhone}), h('span',{}, h('b',{text:'要求手機驗證'}), h('br'), h('span',{class:'hint',text:'開啟後，出價、下單、報名抽獎與開店前都要先驗證手機。開啟前請先在 Firebase → Authentication → 登入方式 啟用「電話」。'}))),
     h('div',{class:'err'}), h('div',{}, h('button',{class:'btn pri',type:'submit',text:'儲存'})));
   f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); try{ await S.db.doc('site/info').set({...S.site,line:v('line'),contact:v('contact'),about:v('about'),requirePhone:f.querySelector('[data-s=requirePhone]').checked}); toast('網站設定已儲存'); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } });
@@ -7078,6 +7209,7 @@ function photoPicker(){
 let rq=0;
 const typing=el=>!!el&&el.contains(document.activeElement)&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
 function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; renderNav(); renderShop(); renderBell(); socialProof(); if(lastV) renderVerify(lastV);
+  if (PAGE==='sell'&&!typing($('#sellPage'))) platRerender(); if (PAGE==='home') renderCommunity();
   if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='history') renderHistory(); if (PAGE==='claim') renderClaim(); if (PAGE==='raffle') renderRafflePage(); renderWall();
   if (PAGE==='plant'){ if(S.pendingPlant&&S.plants.has(S.pendingPlant)) buildPlantPage(S.pendingPlant); else refreshDetail(false); }
   if (S.pendingR&&S.raffles.has(S.pendingR)) openRaffle(S.pendingR);
