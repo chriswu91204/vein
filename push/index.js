@@ -3,6 +3,7 @@
 const { onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onMessagePublished } = require('firebase-functions/v2/pubsub');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
@@ -83,4 +84,29 @@ exports.budgetGuard = onMessagePublished({ topic: 'billing-alerts', maxInstances
     const owner = await admin.auth().getUserByEmail('chriswu91204@gmail.com').catch(() => null);
     if (owner) await push(owner.uid, '🚨 VEIN 已自動開啟緊急模式', `本月費用 ${Math.round(cost)} 已超過預算 ${Math.round(budget)}`, '/#admin/guard', 'budget').catch(() => {});
   }
+});
+
+// LINE 驗證：會員用 LINE 授權 → 伺服器拿授權碼跟 LINE 換身分 → 寫入 verif/{uid}（只有伺服器能寫，前台與資料庫規則都看這份）
+// 同一個 LINE 只能綁一個 VEIN 帳號（lineIds/{LINE 使用者編號}，任何人都讀不到）
+const LINE_ID = process.env.LINE_CHANNEL_ID || '2012159791';
+exports.lineVerify = onCall({ maxInstances: 3, timeoutSeconds: 20 }, async (req) => {
+  const uid = req.auth?.uid; if (!uid) throw new HttpsError('unauthenticated', '請先登入');
+  const code = String(req.data?.code || ''), redirect = String(req.data?.redirectUri || '');
+  if (!code || code.length > 200 || !/^https:\/\/vein-48ec8\.(web\.app|firebaseapp\.com)\/line-callback$/.test(redirect)) throw new HttpsError('invalid-argument', '資料不完整');
+  const secret = process.env.LINE_CHANNEL_SECRET; if (!secret) throw new HttpsError('failed-precondition', 'LINE 驗證還沒設定好');
+  const tr = await fetch('https://api.line.me/oauth2/v2.1/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: LINE_ID, client_secret: secret }) });
+  const tk = await tr.json().catch(() => ({}));
+  if (!tr.ok || !tk.id_token) { logger.warn('line token fail', { status: tr.status, err: tk.error }); throw new HttpsError('permission-denied', 'LINE 授權失敗，請再試一次'); }
+  const vr = await fetch('https://api.line.me/oauth2/v2.1/verify', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ id_token: tk.id_token, client_id: LINE_ID }) });
+  const id = await vr.json().catch(() => ({}));
+  if (!vr.ok || !id.sub) throw new HttpsError('permission-denied', 'LINE 身分確認失敗');
+  const ref = db.doc('lineIds/' + id.sub);
+  await db.runTransaction(async t => {
+    const cur = await t.get(ref);
+    if (cur.exists && cur.data().uid !== uid) throw new HttpsError('already-exists', '這個 LINE 已經綁定另一個 VEIN 帳號');
+    t.set(ref, { uid, at: Date.now() });
+    t.set(db.doc('verif/' + uid), { line: true, lineName: String(id.name || '').slice(0, 40), at: Date.now() }, { merge: true });
+  });
+  return { ok: true, name: id.name || '' };
 });

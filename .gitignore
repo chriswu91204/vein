@@ -2,3 +2,5 @@
 node_modules/
 .firebase/
 *-debug.log
+push/.env
+functions/.env

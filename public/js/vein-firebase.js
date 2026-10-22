@@ -36,6 +36,12 @@ async function start() {
   // 等第一次登入狀態回報
   const u = await new Promise(res => { const off = onAuthStateChanged(auth, x => { off(); res(x); }); });
 
+  // 呼叫伺服器程式（LINE 驗證等）
+  window.__veinCall = async (name, data) => {
+    const F = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js');
+    const r = await F.httpsCallable(F.getFunctions(app, 'asia-east1'), name)(data);
+    return r.data;
+  };
   window.__veinAuth = {
     async signIn() {
       const p = new GoogleAuthProvider();

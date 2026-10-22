@@ -2821,6 +2821,23 @@ button.pm-pv i{font-style:normal;font-size:12px;color:var(--fg3,#9A9F96);opacity
 .ql{display:flex;flex-direction:column;gap:14px}.ql-p{display:flex;gap:12px;align-items:center;background:#F5F6F2;border-radius:14px;padding:10px}
 .ql-p img,.ql-p>span{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:#E8EBE3;font-size:24px}.ql-p b{display:block;font-size:15px}.ql-p small{color:var(--fg2)}
 /* ---- 安全 ---- */
+.eg{background:#F4F7F1;border:1px solid #DCE6D6;border-radius:14px;padding:12px 14px;margin-top:10px;font-size:13.5px}
+.eg-h{display:block;margin-bottom:6px}.eg ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.eg li{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start}.eg-t{display:flex;gap:4px 10px;flex-wrap:wrap;align-items:baseline;min-width:0}.eg-t small{flex-basis:100%}.eg li i{font-style:normal;width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;background:#E3E7DF;font-size:11px;font-weight:900;flex:none}
+.eg li i{margin-top:1px}.eg li.ok i{background:#06C755;color:#fff}.eg li.no i{background:#F4D6D2;color:#B42318}.eg li small{color:var(--fg2)}.eg-n{margin:8px 0 0;color:#B42318;font-size:12.5px}
+.eg-ed{border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#FBFBF9;margin-top:12px}
+.eg-ed h4{margin:0;font-size:15px}.eg-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.eg-r>span{font-size:13px;color:var(--fg2);min-width:64px}
+.eg-r.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.eg-r.two label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--fg2)}
+.eg-dt{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.eg-dt i{font-style:normal;color:var(--fg2);font-size:13px}.eg-dt input{max-width:160px}
+.eg-q{display:flex;gap:6px;flex-wrap:wrap}.eg-q .chip{font-size:12px;padding:5px 10px}
+.eg-sw{display:flex;gap:10px;align-items:flex-start;cursor:pointer}.eg-sw b{display:block;font-size:14px}.eg-sw small{color:var(--fg2);font-size:12.5px}
+.eg-sub{margin-left:8px;padding:10px 12px;border-left:3px solid #D7E8CF;display:flex;flex-direction:column;gap:10px}
+.eg-sum{margin:2px 0 0;background:#EEF9F1;border-radius:10px;padding:9px 12px;font-size:13.5px}
+.vmark{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#06C755;color:#fff;font-size:9.5px;font-weight:900;margin-left:4px;vertical-align:1px}
+.lv{display:flex;flex-direction:column;gap:14px}.lv-hero{display:flex;gap:12px;align-items:center}.lv-ic{font-size:34px}.lv-hero b{display:block;font-size:17px}.lv-hero small{color:var(--fg2)}
+.lv-pts{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--fg2);line-height:1.55}
+.lv-btn{background:#06C755!important;color:#fff!important;font-size:16px;padding:14px 18px;border-radius:14px;justify-content:center;width:100%}.lv-btn b{background:#fff;color:#06C755;border-radius:6px;padding:2px 6px;font-size:12px;margin-right:4px}
+.lv-note{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:10px;background:#EEF9F1;border-radius:12px;padding:9px 12px;font-size:13.5px}.lv-note b{color:#06A64A}
 .lock-scr{position:fixed;inset:0;z-index:2147483000;background:#111312;color:#EDEFEA;display:grid;place-items:center;padding:24px;text-align:center}
 .lock-scr>div{max-width:360px}.lock-scr i{display:block;width:56px;height:56px;margin:0 auto 18px;border-radius:15px;background:#1F5C42;position:relative}.lock-scr i:after{content:"";position:absolute;inset:20px;border-radius:50%;background:#D7FF3A}
 .lock-scr h1{font-size:20px;margin:0 0 8px}.lock-scr p{color:#A9B0A6;margin:0 0 18px}
@@ -3532,7 +3549,7 @@ const mine=()=>all().filter(p=>p.shop===S.me);
 const pPath=p=>`shops/${p.shop}/plants/${p.id}`;
 const isAuc=p=>p.mode==='auction'&&p.endsAtMs;
 const live=p=>isAuc(p)&&Date.now()<p.endsAtMs&&p.status!=='sold';
-function bidsFor(id){ const p=S.plants.get(id); const end=p?.endsAtMs||Infinity; const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[id]; if(b&&typeof b.amt==='number'&&b.at<=end) out.push({uid,amt:b.amt,at:b.at}); } return out.sort((a,b)=>b.amt-a.amt||a.at-b.at); }
+function bidsFor(id){ const p=S.plants.get(id); const end=p?.endsAtMs||Infinity; const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[id]; if(b&&typeof b.amt==='number'&&b.at<=end&&(!hasElig(p)||eligCheck(uid,p).ok)) out.push({uid,amt:b.amt,at:b.at}); } return out.sort((a,b)=>b.amt-a.amt||a.at-b.at); }
 const topBid=id=>bidsFor(id)[0]||null;
 const minBid=p=>{ const t=topBid(p.id); return t?t.amt+(p.step||100):(p.startPrice||0); };
 const ansKey=(uid,qid)=>uid+'~'+qid;
@@ -3571,7 +3588,7 @@ const stars=v=>'★★★★★'.slice(0,Math.round(v))+'☆☆☆☆☆'.slice(
 const rKey=r=>r.shop+'~'+r.id;
 function rState(r){ const n=Date.now(); if(r.drawn) return 'drawn'; if(n<r.startsAtMs) return 'soon'; if(n<r.endsAtMs) return 'open'; return 'ended'; }
 function entrants(r){ const k=rKey(r), out=[]; for(const [uid,doc] of S.social){ const at=doc.raffles?.[k]; if(at&&at<=r.endsAtMs) out.push({uid,at}); } return out.sort((a,b)=>a.at-b.at); }
-function eligible(uid,r){ if(!uid||uid===r.shop) return false; if(r.mode!=='buyers') return true; return purchasesOf(uid).some(o=>r.shop===house()||o.shop===r.shop); }
+function eligible(uid,r){ if(!uid||uid===r.shop) return false; return eligCheck(uid,r).ok; }
 const pubRaffles=()=>[...S.raffles.values()].filter(r=>approved(r.shop)&&!r.hidden&&!r.blocked);
 const rImg=r=>r.img||S.plants.get(r.plantId)?.thumb||'m/p5.jpg';
 
@@ -3661,7 +3678,7 @@ function tile(p){
 }
 function raffleCard(r){ const st=rState(r), n=entrants(r).length, joined=!!mySocial().raffles?.[rKey(r)], win=r.drawn&&(r.drawn.winners||[]).includes(S.me);
   return activate(h('article',{class:'rc st-'+st},
-    h('div',{class:'ri'}, h('img',{src:rImg(r),alt:'',loading:'lazy'}), h('div',{class:'bd'}, h('span',{class:'tag '+(r.mode==='buyers'?'dark':'lime'),text:r.mode==='buyers'?'買家限定':'公開抽獎'}), st==='open'?h('span',{class:'tag live',text:'進行中'}):null)),
+    h('div',{class:'ri'}, h('img',{src:rImg(r),alt:'',loading:'lazy'}), h('div',{class:'bd'}, h('span',{class:'tag '+(eligConds(r).length?'dark':'lime'),text:eligConds(r).length?'🛡 限定資格':'公開抽獎'}), st==='open'?h('span',{class:'tag live',text:'進行中'}):null)),
     h('div',{class:'rt'}, shopChip(r.shop), h('h3',{text:r.title}), h('p',{class:'pz',text:r.prize}),
       h('div',{class:'rf'}, h('span',{class:'mono'}, ...(st==='open'?['剩 ',h('span',{'data-ends':String(r.endsAtMs),text:fmtLeft(r.endsAtMs-Date.now())})]:st==='soon'?['開始 '+fmtDate(tsLocal(r.startsAtMs))]:st==='ended'?['等待開獎']:['已開獎'])), h('span',{text:n+' 人參加'})),
       win?h('span',{class:'tag lime',text:'🎉 你中獎了'}):joined?h('span',{class:'tag grey',text:'已參加'}):null)), ()=>go('#/raffle/'+rKey(r))); }
@@ -4602,18 +4619,18 @@ function renderRaffleDetail(first){
     if (st!=='open') return null;
     if (joined) return h('div',{class:'row'}, h('span',{class:'tag lime',style:'font-size:14px;padding:8px 14px',text:'✓ 已參加'}), h('button',{class:'link',type:'button',onclick:()=>leaveRaffle(r),text:'取消參加'}));
     if (!S.me) return h('button',{class:'btn pri lg',type:'button',onclick:openLogin,text:'登入後參加'});
-    if (!el) return h('div',{}, h('button',{class:'btn soft lg',type:'button',disabled:true,text:'需要購買紀錄'}), h('a',{class:'link',href:'#/seller/'+r.shop,style:'margin-left:14px',text:'逛逛 '+shopName(r.shop)+' →'}));
+    if (!el){ const f=eligCheck(S.me,r).fails[0]; return h('div',{}, f?.k==='v'?h('button',{class:'btn lime lg',type:'button',onclick:()=>openVerify('raffle'),text:'🛡 先驗證身分再參加'}):h('button',{class:'btn soft lg',type:'button',disabled:true,text:'目前不符合參加資格'}), h('a',{class:'link',href:'#/seller/'+r.shop,style:'margin-left:14px',text:'逛逛 '+shopName(r.shop)+' →'})); }
     return h('button',{class:'btn lime lg',type:'button',onclick:()=>joinRaffle(r),text:'參加抽獎'}); })();
-  const elig=r.mode==='buyers'?(r.shop===house()?'限曾在 VEIN 完成購買的會員。':'限曾在「'+shopName(r.shop)+'」完成購買的會員。'):'所有登入的會員都能參加。';
+  const elig=eligText(r)+(eligConds(r).length?'':'都能參加')+'。';
   box.replaceChildren(h('div',{class:'rdet'},
-    h('div',{class:'rimg'}, h('img',{src:rImg(r),alt:''}), h('div',{class:'bd'}, h('span',{class:'tag '+(r.mode==='buyers'?'dark':'lime'),text:r.mode==='buyers'?'買家限定':'公開抽獎'}))),
+    h('div',{class:'rimg'}, h('img',{src:rImg(r),alt:''}), h('div',{class:'bd'}, h('span',{class:'tag '+(eligConds(r).length?'dark':'lime'),text:eligConds(r).length?'🛡 限定資格':'公開抽獎'}))),
     h('div',{style:'min-width:0'},
       shopChip(r.shop,true), h('h2',{class:'rtitle',text:r.title}), h('p',{class:'rprize',text:'獎品：'+r.prize}),
       r.plantId&&S.plants.get(r.plantId)?h('button',{class:'link',type:'button',onclick:()=>openPlant(r.plantId),text:'看獎品植株 '+S.plants.get(r.plantId).code+' →'}):null,
       h('div',{class:'rclock'}, h('div',{}, h('span',{text:st==='open'?'截止倒數':st==='soon'?'開始倒數':st==='ended'?'已截止':'開獎時間'}),
         h('b',{class:'mono','data-ends':st==='open'?String(r.endsAtMs):st==='soon'?String(r.startsAtMs):null,text:st==='open'?fmtLeft(r.endsAtMs-Date.now()):st==='soon'?fmtLeft(r.startsAtMs-Date.now()):st==='ended'?'等待開獎':fmtDate(tsLocal(r.drawn.at))})),
         h('div',{}, h('span',{text:'參加人數'}), h('b',{text:String(r.drawn?.entrants??es.length)})), h('div',{}, h('span',{text:'名額'}), h('b',{text:String(r.winnersN||1)}))),
-      h('div',{class:'relig'+(r.mode==='buyers'?' buyers':'')}, h('b',{text:'參加資格'}), h('span',{text:elig}), S.me&&r.mode==='buyers'&&r.shop!==S.me?h('span',{class:el?'okk':'nok',text:el?'✓ 你符合資格':'✗ 目前沒有購買紀錄'}):null),
+      eligConds(r).length?eligBox(r,'參加'):h('div',{class:'relig'}, h('b',{text:'參加資格'}), h('span',{text:elig})),
       h('div',{class:'ract'}, action),
       r.drawn?h('div',{class:'win',id:'winBox'}, h('div',{class:'row',style:'justify-content:space-between'}, h('b',{text:'得獎名單'}), h('button',{class:'link',type:'button',onclick:()=>playDraw(r),text:'重播開獎'})),
         h('div',{class:'wnames',id:'wNames'}, ...(w.length?w.map(u=>h('span',{class:'wn'+(u===S.me?' me':''),text:u===S.me?'🎉 你':nameOf(u)})):[h('span',{class:'hint',text:'沒有符合資格的參加者。'})])),
@@ -4632,7 +4649,7 @@ function playDraw(r){
     roll.firstChild.textContent=names[i++%names.length]; t=setTimeout(step, 40+e*e*220); };
   step();
 }
-async function joinRaffle(r){ if(needLogin()||needPhone()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(!eligible(S.me,r)){ toast('這場限有購買紀錄的會員參加'); return; } try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
+async function joinRaffle(r){ if(needLogin()||needPhone()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(eligBlock(r,'raffle')) return; try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
 async function leaveRaffle(r){ const x={...mySocial().raffles}; delete x[rKey(r)]; try{ await saveSocial({raffles:x}); toast('已取消參加'); }catch(e){} }
 
 /* ---------- verify ---------- */
@@ -4707,7 +4724,7 @@ function renderMe(){
   const fol=(mySocial().follows||[]).filter(u=>shopOf(u));
   box.append(h('div',{class:'row',style:'gap:14px;margin-bottom:18px'}, S.meInfo?.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:'',style:'width:52px;height:52px;border-radius:50%'}):null, h('div',{}, h('b',{style:'font-size:20px;display:block',text:S.meInfo?.name||'VEIN 會員'}), h('span',{class:'hint',text:purchasesOf(S.me).length?'已購買 '+purchasesOf(S.me).length+' 筆 · 符合買家限定抽獎':'會員'}), window.__veinAuth&&phoneReq()?(S.meInfo?.phoneVerified?h('span',{class:'tag lime',style:'margin-left:8px',text:'✓ 手機已驗證'}):h('button',{class:'link',type:'button',style:'margin-left:8px;font-size:13px',onclick:()=>{ sheet.close(); openPhone(); },text:'驗證手機 →'})):null)),
     h('div',{class:'htabs scroll',role:'tablist'}, ...[['orders','訂單',ords.length],['mine','我的植物',all().filter(p=>ownerOf(p)===S.me&&p.shop!==S.me).length],['offers','議價',myOffers().length],['favs','收藏',favs.length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['follows','追蹤',fol.length],['qs','提問',qs.length]].map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(S.meTab===k),onclick:()=>{ S.meTab=k; renderMe(); }}, l, n?h('span',{class:'n',text:String(n)}):null))));
-  box.insertBefore(h('div',{class:'me-app'}, pushBtn('btn soft sm'), !isStandalone()?h('button',{class:'btn soft sm',type:'button',onclick:()=>openInstall(),text:'📲 加到主畫面'}):null), box.children[1]||null);
+  box.insertBefore(h('div',{class:'me-app'}, h('button',{class:'btn sm '+(memberOK(S.me)?'soft on':'soft'),type:'button',onclick:()=>openVerify(),text:memberOK(S.me)?'🛡 已驗證身分':'🛡 驗證身分（免費）'}), pushBtn('btn soft sm'), !isStandalone()?h('button',{class:'btn soft sm',type:'button',onclick:()=>openInstall(),text:'📲 加到主畫面'}):null), box.children[1]||null);
   { const MB=memberBadges(S.me); box.insertBefore(h('div',{class:'me-bdg'}, ...MB.map(b=>h('span',{class:'bdg t-'+(b.ok?'silver':'bronze')+(b.ok?'':' off'),title:b.ok?b.n:b.n+'（'+b.prog[0]+' / '+b.prog[1]+'）'}, h('i',{text:b.ic}), h('b',{text:b.n+(b.ok?'':' '+b.prog[0]+'/'+b.prog[1])})))), box.children[1]||null); }
   const T=S.meTab, empty=(a,b)=>box.append(h('div',{class:'empty'}, h('h3',{text:a}), h('p',{text:b})));
   if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else box.append(h('div',{class:'list'}, ...ords.map(orderCard))); }
@@ -4847,6 +4864,8 @@ async function boot(){
   S.db=db; S.user=user; S.assets=assets;
   if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write'); }
   S.booted=true; renderNav(); setTimeout(()=>{ try{ installNudge(); }catch(e){} },1500); setTimeout(()=>{ try{ guardBoot(); }catch(e){} },2500);
+  if (db) db.collection('verif').onSnapshot(sn=>{ S.mv.clear(); sn.docs.forEach(d=>S.mv.set(d.id,d.data())); renderAll(); }, ()=>{});
+  if (db) setTimeout(()=>{ try{ lineCallback(); }catch(e){} },300);
   if (db&&S.admin) db.collection('abuse').onSnapshot(sn=>{ S.abuseN=sn.docs.filter(d=>d.id!=='_budget').length; if(adm.open) renderAdmNav(); }, ()=>{});
   if (!db){ S.failed=true; renderAll(); return; }
   db.collection('shops').onSnapshot(sn=>{ S.shopsReady=true; S.shops.clear(); sn.docs.forEach(d=>S.shops.set(d.id,d.data())); checkReady(); }, ()=>{ S.failed=true; renderAll(); });
@@ -5884,13 +5903,14 @@ function refreshDetail(first){
       h('div',{class:'row',style:'margin-top:14px'}, h('div',{}, h('div',{class:'lbl',text:t?(L?'目前最高':'得標價'):'起標價'}), h('div',{class:'bp',text:money(t?t.amt:p.startPrice)})),
         h('div',{style:'text-align:right'}, h('div',{class:'lbl',text:L?'剩餘時間':'結束於'}), h('div',{class:'cd','data-ends':L?String(p.endsAtMs):null,text:L?fmtLeft(p.endsAtMs-Date.now()):fmtDate(tsLocal(p.endsAtMs))}))),
       t?h('div',{class:'lbl',style:'margin-top:8px',text:(L?'領先：':'得標：')+(t.uid===S.me?'你':nameOf(t.uid))}):null,
-      bs.length?h('div',{class:'bids'}, ...bs.slice(0,10).map(b=>h('div',{}, h('span',{text:b.uid===S.me?'你':nameOf(b.uid)}), h('span',{class:'mono',text:money(b.amt)+' · '+ago(b.at)})))):h('div',{class:'lbl',style:'margin-top:8px',text:'還沒有人出價'})));
+      bs.length?h('div',{class:'bids'}, ...bs.slice(0,10).map(b=>h('div',{}, h('span',{}, b.uid===S.me?'你':nameOf(b.uid), vMark(b.uid)), h('span',{class:'mono',text:money(b.amt)+' · '+ago(b.at)})))):h('div',{class:'lbl',style:'margin-top:8px',text:'還沒有人出價'})));
     const bf=$('#dBid');
     if (L && !own){
       if (!bf.firstChild||first){ const inp=h('input',{type:'number',inputmode:'numeric',min:0,step:'any',id:'bidAmt','aria-label':'出價金額'});
         bf.replaceChildren(h('div',{class:'deal auc',style:'margin-top:8px'}, h('div',{class:'lbl',id:'bidHint'}), h('form',{class:'bidform',onsubmit:e=>{ e.preventDefault(); placeBid(id,Number(inp.value)); }}, inp, h('button',{class:'btn lime lg',type:'submit',text:'出價'})),
           h('div',{class:'row',style:'margin-top:8px'}, ...[1,2,5].map(k=>h('button',{class:'btn soft sm',type:'button',onclick:()=>{ const pp=S.plants.get(id); inp.value=minBid(pp)+(k-1)*(pp.step||100); },text:'+'+k+' 口'}))), h('div',{class:'err',id:'bidErr'}),
-          h('p',{class:'lbl',style:'margin-top:6px',text:'得標後賣家會與你聯絡付款與出貨。'}))); }
+          h('p',{class:'lbl',style:'margin-top:6px',text:'得標後賣家會與你聯絡付款與出貨。'}), h('div',{id:'bidV'}))); }
+      const bv=$('#bidV'); if(bv) bv.replaceChildren(...(hasElig(p)?[eligBox(p,'出價')].filter(Boolean):[]));
       const mb=minBid(p); $('#bidHint').textContent='最低可出價 '+money(mb); const inp=$('#bidAmt'); if(!inp.value||Number(inp.value)<mb) inp.value=mb;
     } else bf.replaceChildren();
   } else {
@@ -5937,7 +5957,7 @@ function refreshDetail(first){
     const same=pub().filter(x=>x.id!==p.id&&spKey(x)===gk&&x.status!=='sold'), shopMore=pub().filter(x=>x.id!==p.id&&x.shop===p.shop&&x.status!=='sold');
     rel.replaceChildren(...[fam,techRow({kicker:'SAME GENUS',title:'同屬的其他植株',items:same.slice(0,16)}),techRow({kicker:'SAME GREENHOUSE',title:shopName(p.shop)+' 的其他植株',items:shopMore.slice(0,16)})].filter(Boolean)); }
 }
-async function placeBid(id,amt){ if(needLogin()||needPhone()) return; const p=S.plants.get(id), err=$('#bidErr'); err.textContent=''; if(!live(p)){ err.textContent='競標已經結束。'; return; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return; } if(!rateOK('bid')) return; try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now(),shop:p.shop}}}); toast('已出價 '+money(amt)); }catch(e){} }
+async function placeBid(id,amt){ if(needLogin()||needPhone()) return; const p=S.plants.get(id), err=$('#bidErr'); err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return; if(!live(p)){ err.textContent='競標已經結束。'; return; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return; } if(!rateOK('bid')) return; try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now(),shop:p.shop}}}); toast('已出價 '+money(amt)); }catch(e){} }
 async function askQ(id,text,inp){ if(needLogin()||!text||!rateOK('qa')) return; const p=S.plants.get(id); const qa=[...mySocial().qa,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:id,shop:p?.shop,text,at:Date.now()}].slice(-200); try{ await saveSocial({qa}); inp.value=''; toast('已送出提問'); }catch(e){} }
 
 /* ---------- viewer ---------- */
@@ -6505,11 +6525,13 @@ function saleFields(p){
   const mode=h('select',{'data-k':'mode'}, h('option',{value:'fixed',text:'直購（標價或洽詢）',selected:!p||p.mode!=='auction'}), h('option',{value:'auction',text:'競標',selected:p?.mode==='auction'}));
   const def=new Date(Date.now()+3*864e5); def.setMinutes(0,0,0);
   const fixed=h('div',{class:'two'}, field('售價 NT$（留空顯示「洽詢」，有標價才能加入購物車）', h('input',{type:'number',min:0,step:'any',inputmode:'numeric','data-k':'price',value:p?.price??''})), h('div'));
-  const auc=h('div',{class:'aucbox'}, h('div',{class:'three'}, field('起標價 NT$', h('input',{type:'number',min:0,step:'any','data-k':'startPrice',value:p?.startPrice??''})), field('每口加價 NT$', h('input',{type:'number',min:1,step:'any','data-k':'step',value:p?.step??100})), field('結束時間', h('input',{type:'datetime-local','data-k':'endsAt',value:p?.endsAtMs?tsLocal(p.endsAtMs):tsLocal(def.getTime())}))));
+  const eg=eligEditor(p&&p.mode==='auction'?p:null,'bid');
+  const auc=h('div',{class:'aucbox'}, h('div',{class:'three'}, field('起標價 NT$', h('input',{type:'number',min:0,step:'any','data-k':'startPrice',value:p?.startPrice??''})), field('每口加價 NT$', h('input',{type:'number',min:1,step:'any','data-k':'step',value:p?.step??100})), field('結束時間', h('input',{type:'datetime-local','data-k':'endsAt',value:p?.endsAtMs?tsLocal(p.endsAtMs):tsLocal(def.getTime())}))),
+    eg.el);
   const sync=()=>{ const a=mode.value==='auction'; auc.hidden=!a; fixed.hidden=a; }; mode.addEventListener('change',sync); sync();
   return {el:h('div',{class:'form'}, field('販售方式',mode), fixed, auc), read:f=>{ const v=k=>f.querySelector(`[data-k="${k}"]`)?.value;
-    if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'}; if(end<Date.now()+5*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 5 分鐘後。'}; return {mode:'auction',startPrice:Number(v('startPrice')||0),step:Math.max(1,Number(v('step')||100)),endsAtMs:end,price:null,endNotified:false}; }
-    return {mode:'fixed',price:v('price')?Number(v('price')):null,endsAtMs:null}; }};
+    if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'}; if(end<Date.now()+5*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 5 分鐘後。'}; if(eg.err()) return {err:eg.err()}; return {mode:'auction',startPrice:Number(v('startPrice')||0),step:Math.max(1,Number(v('step')||100)),endsAtMs:end,price:null,endNotified:false,elig:eg.get(),needV:null}; }
+    return {mode:'fixed',price:v('price')?Number(v('price')):null,endsAtMs:null,needV:null,elig:null}; }};
 }
 // 編號＝屬代碼-賣家代碼-流水號（例 AN-VEN-00012），側芽＝母株編號-S01。流水號每個賣場各自往上數，方便標籤機批次列印
 const CODE_A='ABCDEFGHJKMNPQRSTUVWXYZ';
@@ -7170,6 +7192,83 @@ function renderChats(arg){ const box=$('#chatsPage'); if(!S.me){ box.replaceChil
   else right=h('section',{class:'cp-r none'}, h('div',{class:'chl-empty'}, h('div',{class:'chl-ei',text:'💬'}), h('b',{text:'選一個對話'}), h('p',{text:'訊息會即時同步，電腦和手機都看得到。'})));
   box.replaceChildren(h('div',{class:'cp'+(cid?' has':'')}, left, right)); }
 
+/* ================= 會員身分驗證（LINE，免費）：競標、抽獎可以設定「只限已驗證會員」 ================= */
+const LINE_CID='2012159791', LINE_CB=location.origin+'/line-callback';
+S.mv=new Map(); S.profC=new Map(); const profPend=new Set();
+// 已驗證＝綁過 LINE（伺服器寫入，改不了），或手機簡訊驗證過
+function memberOK(uid){ if(!uid) return false; if(S.mv.get(uid)?.line) return true; if(uid===S.me) return !!S.meInfo?.phoneVerified; const c=S.profC.get(uid); if(c===undefined) ensureProf([uid]); return !!c; }
+function ensureProf(uids){ const need=uids.filter(u=>u&&!S.profC.has(u)&&!profPend.has(u)); if(!need.length||!S.user?.profiles) return; need.forEach(u=>profPend.add(u));
+  clearTimeout(ensureProf.t); ensureProf.t=setTimeout(async()=>{ const L=[...profPend]; try{ const r=await S.user.profiles(L); L.forEach(u=>{ S.profC.set(u,!!r[u]?.phoneVerified); profPend.delete(u); }); }catch(e){ L.forEach(u=>{ S.profC.set(u,false); profPend.delete(u); }); } renderAll(); },120); }
+const vMark=uid=>memberOK(uid)?h('span',{class:'vmark',title:'已驗證身分',text:'✓'}):null;
+function openVerify(reason){ if(needLogin()) return;
+  const ok=memberOK(S.me), why={bid:'這場競標限「已驗證身分」的會員出價。',raffle:'這場抽獎限「已驗證身分」的會員參加。'}[reason]||'驗證後就能參加限定已驗證會員的競標與抽獎。';
+  openDialog('驗證身分', h('div',{class:'lv'},
+    h('div',{class:'lv-hero'}, h('span',{class:'lv-ic',text:ok?'✅':'🛡'}), h('div',{}, h('b',{text:ok?'你已經驗證過了':'用 LINE 驗證，免費、約 5 秒'}), h('small',{text:ok?(S.mv.get(S.me)?.line?'已綁定 LINE':'已完成手機驗證'):why}))),
+    ok?null:h('ul',{class:'lv-pts'}, h('li',{text:'台灣的 LINE 都綁手機門號，所以能確認你是真人，防止有人開分身亂標、灌抽獎。'}), h('li',{text:'我們只確認你的 LINE 身分，拿不到你的電話，也不會傳訊息給你。'}), h('li',{text:'同一個 LINE 只能綁一個 VEIN 帳號。'})),
+    ok?null:h('button',{class:'btn lv-btn',type:'button',onclick:startLine}, h('b',{text:'LINE'}), ' 用 LINE 驗證'),
+    ok?null:(window.__veinAuth&&phoneReq()?h('button',{class:'link',type:'button',onclick:()=>{ dlg.close(); openPhone(); },text:'改用手機簡訊驗證'}):null),
+    ok?h('button',{class:'btn pri',type:'button',onclick:()=>dlg.close(),text:'好'}):null), true); }
+function startLine(){ if(needLogin()) return; const st=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  try{ sessionStorage.setItem('vein.lineState',st); sessionStorage.setItem('vein.lineRet',location.hash||'#/'); }catch(e){}
+  location.href='https://access.line.me/oauth2/v2.1/authorize?'+new URLSearchParams({response_type:'code',client_id:LINE_CID,redirect_uri:LINE_CB,state:st,scope:'openid profile'}); }
+async function lineCallback(){ if(location.pathname!=='/line-callback') return; const q=new URLSearchParams(location.search); let ret='#/', st0=null;
+  try{ ret=sessionStorage.getItem('vein.lineRet')||'#/'; st0=sessionStorage.getItem('vein.lineState'); sessionStorage.removeItem('vein.lineState'); }catch(e){}
+  history.replaceState(null,'','/'+ret); route();
+  if (q.get('error')){ toast('已取消 LINE 驗證'); return; }
+  if (!q.get('code')||!st0||q.get('state')!==st0){ toast('驗證連結已失效，請再按一次「用 LINE 驗證」'); return; }
+  if (!S.me){ toast('請先登入 VEIN，再進行 LINE 驗證'); openLogin(); return; }
+  if (!window.__veinCall){ toast('驗證服務還沒準備好，請稍後再試'); return; }
+  const t=toastStay('LINE 驗證中…');
+  try{ await window.__veinCall('lineVerify',{code:q.get('code'),redirectUri:LINE_CB}); t.done(); S.mv.set(S.me,{line:true}); toast('🎉 驗證完成！現在可以參加限定已驗證會員的競標與抽獎'); renderAll(); }
+  catch(e){ t.done(); const c=String(e?.code||''); toast(c.includes('already-exists')?'這個 LINE 已經綁定另一個 VEIN 帳號，一個 LINE 只能綁一個帳號':c.includes('failed-precondition')?'LINE 驗證還在設定中，請稍後再試':'驗證失敗：'+(e?.message||'請再試一次')); } }
+/* ================= 參加資格（競標、抽獎共用）：身分驗證、某段期間的購買紀錄、購買筆數、累計消費、追蹤賣場 ================= */
+// elig＝{verify:'none'|'any'|'line', buy:{on,scope:'shop'|'all',from,to,minN,minSpend}|null, follow:bool}
+const hasElig=x=>!!(x&&(x.elig||x.needV||x.mode==='buyers'));
+function eligOf(x){ if(x?.elig) return x.elig; const e={verify:x?.needV?'any':'none',buy:null,follow:false}; if(x?.mode==='buyers') e.buy={on:true,scope:'shop',minN:1}; return e; }
+const fmtD=ms=>{ const d=new Date(ms); return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate(); };
+function buyStats(uid,B,shop){ const L=purchasesOf(uid).filter(o=>(B.scope==='all'||shop===house()||o.shop===shop)&&(!B.from||(o.at||0)>=B.from)&&(!B.to||(o.at||0)<B.to+864e5));
+  return {n:L.length,sp:L.reduce((a,o)=>a+(+o.total||0),0)}; }
+function buyLabel(B,shop){ const where=B.scope==='all'||shop===house()?'在 VEIN ':'在「'+shopName(shop)+'」', when=B.from&&B.to?fmtD(B.from)+'～'+fmtD(B.to):B.from?fmtD(B.from)+' 之後':B.to?fmtD(B.to)+' 之前':'';
+  return (when?when+' ':'')+where+'買過'+((B.minN||1)>1?' '+B.minN+' 筆以上':'')+(B.minSpend?'、累計 '+money(B.minSpend)+' 以上':''); }
+function eligConds(x){ const e=eligOf(x), c=[];
+  if (e.verify==='line') c.push({k:'v',t:'已綁定 LINE 驗證',chk:u=>!!S.mv.get(u)?.line});
+  else if (e.verify==='any') c.push({k:'v',t:'已驗證身分（LINE 或手機）',chk:u=>memberOK(u)});
+  if (e.buy?.on){ const B=e.buy; c.push({k:'b',t:buyLabel(B,x.shop),chk:u=>{ const s=buyStats(u,B,x.shop); return s.n>=Math.max(1,B.minN||1)&&(!B.minSpend||s.sp>=B.minSpend); },info:u=>{ const s=buyStats(u,B,x.shop); return '你目前 '+s.n+' 筆'+(B.minSpend?'、'+money(s.sp):''); }}); }
+  if (e.follow) c.push({k:'f',t:'有追蹤「'+shopName(x.shop)+'」',chk:u=>((S.social.get(u)||{}).follows||[]).includes(x.shop)||(u===S.me&&following(x.shop))});
+  return c; }
+function eligCheck(uid,x){ if(!uid) return {ok:false,fails:[]}; const c=eligConds(x), fails=c.filter(q=>!q.chk(uid)); return {ok:!fails.length,fails,conds:c}; }
+function eligText(x){ const c=eligConds(x); return c.length?c.map(q=>q.t).join('、'):'所有登入的會員'; }
+// 前台：列出條件，每一條打勾或打叉，沒過的給下一步
+function eligBox(x,what){ const c=eligConds(x); if(!c.length) return null; const me=S.me&&S.me!==x.shop;
+  return h('div',{class:'eg'}, h('b',{class:'eg-h',text:'🛡 '+(what||'參加')+'資格'}),
+    h('ul',{}, ...c.map(q=>{ const ok=me?q.chk(S.me):null; return h('li',{class:ok===null?'':ok?'ok':'no'}, h('i',{text:ok===null?'•':ok?'✓':'✗'}), h('div',{class:'eg-t'}, h('span',{text:q.t}), me&&!ok&&q.k==='v'?h('button',{class:'link',type:'button',onclick:()=>openVerify(what==='出價'?'bid':'raffle'),text:'免費驗證'}):null, me&&!ok&&q.k==='f'?h('button',{class:'link',type:'button',onclick:async()=>{ await toggleFollow?.(x.shop); renderAll(); },text:'追蹤'}):null, me&&!ok&&q.k==='b'&&q.info?h('small',{text:q.info(S.me)}):null)); })),
+    me&&!eligCheck(S.me,x).ok?h('p',{class:'eg-n',text:'不符合資格的'+(what==='出價'?'出價不會算進結果':'報名不會被抽到')+'。'}):null); }
+function eligBlock(x,kind){ const r=eligCheck(S.me,x); if(r.ok) return false; const f=r.fails[0]; if(f.k==='v') openVerify(kind); else toast('不符合資格：'+r.fails.map(q=>q.t).join('、')); return true; }
+// 後台：條件設定
+function eligEditor(x,kind){ const e0=x?eligOf(x):{verify:'any',buy:null,follow:false}; const E={verify:e0.verify||'none',buy:{on:false,scope:'shop',from:null,to:null,minN:1,minSpend:0,...(e0.buy||{})},follow:!!e0.follow};
+  const sum=h('p',{class:'eg-sum'}), who=kind==='raffle'?'參加':'出價';
+  const seg=(opts,get,set)=>{ const b=h('div',{class:'segs'}); const draw=()=>b.replaceChildren(...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(get()===v),onclick:()=>{ set(v); draw(); upd(); },text:l}))); draw(); return b; };
+  const dIn=v=>h('input',{type:'date',value:v?new Date(v-new Date(v).getTimezoneOffset()*6e4).toISOString().slice(0,10):''});
+  const from=dIn(E.buy.from), to=dIn(E.buy.to), minN=h('input',{type:'number',min:1,max:999,value:E.buy.minN||1,inputmode:'numeric'}), minS=h('input',{type:'number',min:0,step:100,value:E.buy.minSpend||'',placeholder:'不限',inputmode:'numeric'});
+  const rd=i=>{ if(!i.value) return null; const [y,m,d]=i.value.split('-').map(Number); return new Date(y,m-1,d).getTime(); };
+  const quick=h('div',{class:'eg-q'}, ...[['近 30 天',30],['近 90 天',90],['近一年',365],['不限',0]].map(([l,n])=>h('button',{type:'button',class:'chip',onclick:()=>{ if(n){ const t=new Date(); t.setHours(0,0,0,0); from.value=new Date(t-n*864e5-t.getTimezoneOffset()*6e4).toISOString().slice(0,10); to.value=''; } else { from.value=''; to.value=''; } upd(); },text:l})));
+  const buySw=h('input',{type:'checkbox',class:'sw',checked:!!E.buy.on}), folSw=h('input',{type:'checkbox',class:'sw',checked:E.follow});
+  const buyBox=h('div',{class:'eg-sub'},
+    h('div',{class:'eg-r'}, h('span',{text:'在哪裡買'}), seg([['shop','我的賣場'],['all','VEIN 任何賣場']],()=>E.buy.scope,v=>E.buy.scope=v)),
+    h('div',{class:'eg-r'}, h('span',{text:'購買期間'}), h('div',{class:'eg-dt'}, from, h('i',{text:'到'}), to)), quick,
+    h('div',{class:'eg-r two'}, h('label',{}, h('span',{text:'至少幾筆訂單'}), minN), h('label',{}, h('span',{text:'累計消費至少 NT$'}), minS)),
+    h('p',{class:'hint',text:'訂單要賣家確認過才算（待確認、取消的不算）。'}));
+  const upd=()=>{ E.buy.on=buySw.checked; E.follow=folSw.checked; E.buy.from=rd(from); E.buy.to=rd(to); E.buy.minN=Math.max(1,Math.round(+minN.value||1)); E.buy.minSpend=Math.max(0,Math.round(+minS.value||0)); buyBox.hidden=!E.buy.on;
+    sum.replaceChildren(h('b',{text:'誰能'+who+'：'}), eligText({elig:get(),shop:S.me})); };
+  [from,to,minN,minS].forEach(i=>i.addEventListener('input',upd)); buySw.addEventListener('change',upd); folSw.addEventListener('change',upd);
+  const get=()=>({verify:E.verify,buy:E.buy.on?{on:true,scope:E.buy.scope,from:E.buy.from,to:E.buy.to,minN:E.buy.minN,minSpend:E.buy.minSpend}:null,follow:E.follow});
+  const el=h('div',{class:'eg-ed'}, h('h4',{text:'🛡 誰可以'+who}),
+    h('div',{class:'eg-r'}, h('span',{text:'身分驗證'}), seg([['none','不限'],['any','LINE 或手機'],['line','只限 LINE']],()=>E.verify,v=>E.verify=v)),
+    h('p',{class:'hint',style:'margin:-4px 0 4px',text:'驗證過的人才能'+who+'，一個人很難開分身帳號'+(kind==='raffle'?'灌抽獎':'亂標')+'。LINE 驗證免費，會員約 5 秒完成。'}),
+    h('label',{class:'eg-sw'}, buySw, h('span',{}, h('b',{text:'要有購買紀錄'}), h('small',{text:'可以限定期間、筆數、累計金額'}))), buyBox,
+    h('label',{class:'eg-sw'}, folSw, h('span',{}, h('b',{text:'要追蹤我的賣場'}), h('small',{text:'順便幫賣場增加追蹤數'}))),
+    sum);
+  upd(); return {el,get,err:()=>E.buy.on&&E.buy.from&&E.buy.to&&E.buy.to<E.buy.from?'購買期間的結束日要晚於開始日。':''}; }
 /* ================= 防濫用：動作頻率限制、異常回報、緊急模式 ================= */
 // 原則：一般人碰不到的門檻才擋；擋的時候只暫停那個動作，不會自動封鎖帳號，要不要封禁由管理員在後台決定
 const devId=(()=>{ let d=lsGet('vein.dev',''); if(!d||d.length<8){ d=Date.now().toString(36)+Math.random().toString(36).slice(2,10); lsSet('vein.dev',d); } return d; })();
@@ -7224,7 +7323,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,rateOK,listed,lsGet,abuseReport,renderAll};
+if (location.hostname==='localhost') window.__vein={S,rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -7855,22 +7954,19 @@ function admRaffles(m){
   if (!rs.length){ m.append(h('div',{class:'empty'}, h('h3',{text:'還沒有抽獎'}))); return; }
   const ids=[]; m.append(h('div',{class:'list'}, ...rs.map(r=>{ const st=rState(r), es=entrants(r), okN=es.filter(e=>eligible(e.uid,r)).length; (r.drawn?.winners||[]).forEach(u=>ids.push(u));
     return h('div',{class:'panel',style:'margin:0'}, h('div',{class:'row',style:'gap:14px'}, h('img',{src:rImg(r),alt:'',style:'width:64px;height:64px;border-radius:14px;object-fit:cover'}),
-      h('div',{style:'min-width:0;flex:1'}, h('b',{text:r.title}), h('div',{class:'hint',text:(r.mode==='buyers'?'買家限定':'公開')+' · '+fmtDate(tsLocal(r.startsAtMs))+' – '+fmtDate(tsLocal(r.endsAtMs))+' · 名額 '+(r.winnersN||1)})),
+      h('div',{style:'min-width:0;flex:1'}, h('b',{text:r.title}), h('div',{class:'hint',text:'資格：'+eligText(r)+' · '+fmtDate(tsLocal(r.startsAtMs))+' – '+fmtDate(tsLocal(r.endsAtMs))+' · 名額 '+(r.winnersN||1)})),
       h('span',{class:'tag '+(st==='open'?'live':st==='drawn'?'lime':'grey'),text:{open:'進行中',soon:'未開始',ended:'待開獎',drawn:'已開獎'}[st]})),
-      h('div',{class:'row',style:'justify-content:space-between;margin-top:12px'}, h('span',{class:'hint',text:es.length+' 人參加'+(r.mode==='buyers'?' · '+okN+' 人符合資格':'')+(r.drawn?' · 得獎：'+(r.drawn.winners||[]).map(nameOf).join('、'):'')}),
+      h('div',{class:'row',style:'justify-content:space-between;margin-top:12px'}, h('span',{class:'hint',text:es.length+' 人參加'+(eligConds(r).length?' · '+okN+' 人符合資格':'')+(r.drawn?' · 得獎：'+(r.drawn.winners||[]).map(nameOf).join('、'):'')}),
         h('div',{class:'row'}, st==='ended'?h('button',{class:'btn lime sm',type:'button',onclick:e=>drawRaffle(r,e.currentTarget),text:'開獎'}):null, h('button',{class:'btn soft sm',type:'button',onclick:()=>{ adm.close(); go('#/raffle/'+rKey(r)); },text:'前台查看'}),
           !r.drawn&&!es.length?h('button',{class:'link',type:'button',onclick:async()=>{ try{ await S.db.doc(`shops/${S.me}/raffles/${r.id}`).delete(); toast('已刪除'); }catch(e){ toast('刪除失敗'); } },text:'刪除'}):null))); })));
   resolveNames(ids);
 }
 function admRaffleForm(m){
   const picker=photoPicker(), start=new Date(); start.setSeconds(0,0); const end=new Date(Date.now()+3*864e5); end.setMinutes(0,0,0);
-  let mode='open';
-  const seg=h('div',{class:'segs'}, h('button',{type:'button','aria-pressed':'true',text:'公開抽獎',onclick:e=>setM('open',e)}), h('button',{type:'button','aria-pressed':'false',text:'買家限定',onclick:e=>setM('buyers',e)}));
-  const mh=h('p',{class:'hint',text:'所有登入的會員都能參加。'});
-  function setM(v,e){ mode=v; seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); mh.textContent=v==='buyers'?'只有在你這裡完成購買的會員能參加。':'所有登入的會員都能參加。'; }
+  const eg=eligEditor(null,'raffle');
   const plantSel=h('select',{'data-f':'plant'}, h('option',{value:'',text:'不連結'}), ...mine().filter(p=>p.status!=='sold').map(p=>h('option',{value:p.id,text:p.code+' · '+short(p.species)})));
   const f=h('form',{class:'form',style:'max-width:720px'},
-    h('div',{class:'row'}, h('span',{class:'hint',text:'模式'}), seg), mh,
+    eg.el,
     field('抽獎標題', h('input',{'data-f':'title',required:true,maxlength:40,placeholder:'例如 十月追蹤抽獎'})),
     field('獎品', h('input',{'data-f':'prize',required:true,maxlength:80,placeholder:'例如 水晶花燭側芽一株（AN-VEN-00012-S03）'})),
     h('div',{class:'three'}, field('開始時間', h('input',{type:'datetime-local','data-f':'start',value:tsLocal(start.getTime())})), field('截止時間', h('input',{type:'datetime-local','data-f':'end',value:tsLocal(end.getTime())})), field('得獎名額', h('input',{type:'number',min:1,max:50,'data-f':'n',value:1}))),
@@ -7879,14 +7975,14 @@ function admRaffleForm(m){
     h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri lg',type:'submit',text:'建立抽獎'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admEdit=null; renderAdmin(true); },text:'取消'})));
   f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-f="${k}"]`).value.trim(), err=f.querySelector('.err');
     const s=new Date(v('start')).getTime(), en=new Date(v('end')).getTime(); if(!s||!en||en<=s){ err.textContent='截止時間要晚於開始時間。'; return; } if(en<Date.now()+5*6e4){ err.textContent='截止時間至少要在 5 分鐘後。'; return; }
-    if(picker.busy()){ err.textContent='圖片還在上傳，請稍候。'; return; } const ph=picker.get(); try{ await S.db.collection(`shops/${S.me}/raffles`).doc().set({title:v('title'),prize:v('prize'),mode,startsAtMs:s,endsAtMs:en,winnersN:Math.max(1,Number(v('n')||1)),plantId:v('plant')||null,img:ph?.thumb||null,notes:v('notes'),createdAt:Date.now()}); toast('抽獎已建立'); S.admEdit=null; renderAdmin(true); }
+    if(eg.err()){ err.textContent=eg.err(); return; } if(picker.busy()){ err.textContent='圖片還在上傳，請稍候。'; return; } const ph=picker.get(); try{ await S.db.collection(`shops/${S.me}/raffles`).doc().set({title:v('title'),prize:v('prize'),mode:eg.get().buy?'buyers':'open',startsAtMs:s,endsAtMs:en,winnersN:Math.max(1,Number(v('n')||1)),elig:eg.get(),plantId:v('plant')||null,img:ph?.thumb||null,notes:v('notes'),createdAt:Date.now()}); toast('抽獎已建立'); S.admEdit=null; renderAdmin(true); }
     catch(ex){ err.textContent='建立失敗，請稍後再試。'; } });
   m.append(admTop('新增抽獎'), f);
 }
 async function drawRaffle(r,btn){
   if (!S.socialReady){ toast('資料還在載入'); return; } if(btn) btn.disabled=true;
   const es=entrants(r); let ver={}; if(window.__veinAuth&&S.user){ try{ ver=await S.user.profiles(es.map(e=>e.uid)); }catch(e){} }
-  const pool=es.filter(e=>eligible(e.uid,r)&&(!window.__veinAuth||!phoneReq()||ver[e.uid]?.phoneVerified)).map(e=>e.uid), n=Math.min(r.winnersN||1,pool.length), a=[...pool];
+  Object.entries(ver).forEach(([u,v])=>S.profC.set(u,!!v?.phoneVerified)); const pool=es.filter(e=>eligible(e.uid,r)&&(!window.__veinAuth||!phoneReq()||ver[e.uid]?.phoneVerified)).map(e=>e.uid), n=Math.min(r.winnersN||1,pool.length), a=[...pool];
   const rnd=new Uint32Array(Math.max(1,a.length)); crypto.getRandomValues(rnd); for(let i=a.length-1;i>0;i--){ const j=rnd[i]%(i+1); [a[i],a[j]]=[a[j],a[i]]; }
   try{ await S.db.doc(`shops/${r.shop}/raffles/${r.id}`).update({drawn:{at:Date.now(),winners:a.slice(0,n),pool:pool.length,entrants:es.length}}); toast(n?'已開獎，抽出 '+n+' 位':'沒有符合資格的參加者'); }catch(e){ toast('開獎失敗'); if(btn) btn.disabled=false; }
 }

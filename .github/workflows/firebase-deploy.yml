@@ -66,8 +66,10 @@ jobs:
         continue-on-error: true
         env:
           SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          LINE_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
         run: |
           echo "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          printf 'LINE_CHANNEL_ID=2012159791\nLINE_CHANNEL_SECRET=%s\n' "$LINE_SECRET" > push/.env
           npm --prefix push install --no-audit --no-fund
           npx --yes firebase-tools@14 deploy --only functions:push --non-interactive --force

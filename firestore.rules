@@ -193,6 +193,14 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // 身分驗證（LINE）：只有伺服器能寫；所有人都能看誰驗證過（競標、抽獎用來判斷資格）
+    match /verif/{uid} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /lineIds/{id} {
+      allow read, write: if false;
+    }
     // 異常流量回報：每台裝置一份（覆寫，不會一直變多）；只有管理員看得到、可以清除。
     // 帳號欄位只能填自己（或未登入填 null），沒辦法栽贓別人。是否停權由管理員決定，不會自動封鎖。
     match /abuse/{dev} {
