@@ -2628,6 +2628,24 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .sh-tip{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#EEF6CF;font-size:13px;line-height:1.55;color:#2E5B10}
 @media (max-width:720px){.sh-modes button{padding:8px}.sh-modes button b{font-size:13.5px}.sh-prev.a-916{height:min(60vh,520px);max-width:none}}
 .sh .sh-side p.sh-tip,.sh .sh-side p.sh-note{display:block}.sh .sh-side p.sh-tip[hidden]{display:none}
+.sd-main{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:20px;align-items:start}
+.sd-left{position:sticky;top:0}
+.sd-prev{border-radius:18px;overflow:hidden;background:#0C0E0D;display:grid;place-items:center;max-height:74vh}
+.sd-cv{width:100%;height:auto;display:block;max-height:74vh;object-fit:contain}
+.sd-prev.st .sd-cv{width:auto;height:min(74vh,700px);max-width:100%}
+.sd-panel{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.sd-g{display:flex;flex-direction:column;gap:8px}.sd-g>b{font-size:13px;color:var(--fg2)}
+.sd-seg{display:flex;flex-wrap:wrap;gap:6px}.sd-seg button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}.sd-seg button[aria-pressed="true"]{background:#111312;color:#fff;border-color:#111312}
+.sd-seg.sm button{padding:5px 10px;font-size:12px}
+.sd-row{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:center;font-size:12.5px;color:var(--fg2)}
+.sd-tpls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sd-tp{border:2px solid transparent;background:none;padding:0;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;align-items:center;font:inherit}
+.sd-tp canvas{width:100%;height:auto;border-radius:10px;display:block;background:#111}.sd-tp small{font-size:11.5px}
+.sd-tp.on canvas{box-shadow:0 0 0 3px #111312,0 0 0 5px #D2FF00}
+.sd-photos{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}.sd-ph{flex:none;width:58px;height:58px;border-radius:10px;overflow:hidden;border:0;padding:0;cursor:pointer;opacity:.7}.sd-ph img{width:100%;height:100%;object-fit:cover}.sd-ph.on{opacity:1;box-shadow:0 0 0 3px #9BC400}
+.sd .sh-modes{margin-bottom:14px}
+@media (max-width:760px){.sd-main{grid-template-columns:1fr}.sd-left{position:static}.sd-prev{max-width:360px;margin:0 auto}.sd-prev.st .sd-cv{height:min(62vh,560px)}.sd-tpls{grid-template-columns:repeat(4,1fr)}}
+.sd-g input:not([type=range]){border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;width:100%;box-sizing:border-box}.sd-g input[type=range]{width:100%}
 </style>
 
 </head>
@@ -5088,11 +5106,147 @@ async function sharePoster(p,kind){
   return {blob,photo};
 }
 
-function openShare(p,start){ lsSet('vein.didShare',true); const mine=p.shop===S.me;
-  return shareDialog({title:'轉發這株',url:plantUrl(p),start:start||(mine&&onSale(p)?'sale':'normal'),modes:[
-    {k:'normal',label:'一般轉發',sub:'LINE・訊息',aspect:'45',text:shareText(p),file:p.code,image:()=>shareImage(p)},
-    {k:'story',label:'分享模式',sub:'IG 限動 9:16',aspect:'916',text:storyText(p),file:p.code+'-story',image:()=>sharePoster(p,'story'),tip:'手機按「分享到 IG 限動」→ 選 Instagram → 限時動態。網址已經幫你複製，可以在限動加「連結」貼圖貼上，大家點了就到 VEIN 看履歷。'},
-    {k:'sale',label:'販售模式',sub:'IG／FB 貼文 4:5',aspect:'45',text:saleText(p),file:p.code+'-sale',image:()=>sharePoster(p,'sale'),tip:'這張圖專門用來 PO 文賣植物：價格、編號、親本、QR code 都在上面，買家掃了就到 VEIN 下單。下面的文字已經附好 hashtag。'}]}); }
+/* ================= 分享圖設計工具：滿版照片＋必要資訊，多種模板 ================= */
+const SD_FMT={story:[1080,1920,'限動 9:16'],post:[1080,1350,'貼文 4:5'],square:[1080,1080,'方形 1:1']};
+const SD_TPL=[['minimal','極簡'],['magazine','雜誌'],['volt','螢光貼紙'],['glass','毛玻璃'],['label','植物吊牌'],['bold','超大字'],['frame','細框藝廊'],['split','雙色條']];
+const SD_COLORS=['#D2FF00','#FFFFFF','#FFB4C8','#FF8A3D','#7FD4FF','#8CF5C0','#111312'];
+const SD_FONTS=[['sans','黑體'],['serif','襯線'],['round','圓體'],['mono','等寬']];
+const SD_FILTERS=[['none','原色'],['bright','明亮'],['warm','暖色'],['cool','冷調'],['mono','黑白'],['film','電影感']];
+const SD_FILTER_CSS={none:'none',bright:'brightness(1.08) saturate(1.12)',warm:'sepia(.18) saturate(1.2) brightness(1.03)',cool:'saturate(.9) hue-rotate(-10deg) brightness(1.02)',mono:'grayscale(1) contrast(1.08)',film:'contrast(1.12) saturate(.85) brightness(.96)'};
+const sdImgCache=new Map();
+const sdImg=src=>{ if(!src) return Promise.resolve(null); if(!sdImgCache.has(src)) sdImgCache.set(src,loadImg(src,!sameOrigin(src))); return sdImgCache.get(src); };
+function sdPhotos(p){ const L=[]; (p.media||[]).forEach(m=>{ if(!m?.url) return; const u=m.type==='video'?(m.poster||''):m.url; if(u&&!L.includes(u)) L.push(u); }); [p.coverThumb,p.thumb].forEach(u=>{ if(u&&!L.includes(u)) L.push(u); }); return L.slice(0,12); }
+function sdTags(p,c){ const t=[]; if(c.showKind) t.push(kindLabel(p)); if(c.showStatus&&onSale(p)) t.push(live(p)?'競標中':'販售中'); if(c.showTags) tagsOf(p).slice(0,2).forEach(x=>t.push('#'+x)); return t; }
+async function sdRender(cv,p,c,scale=1){
+  const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080; cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  const FF={sans:'"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif',serif:'"Noto Serif TC","Songti TC",Georgia,serif',round:'"Arial Rounded MT Bold","Yuanti TC","PingFang TC",system-ui,sans-serif',mono:'"JetBrains Mono",ui-monospace,Menlo,monospace'}, F=FF[c.font]||FF.sans, MONO=FF.mono;
+  const A=c.color||VOLT, INK='#050605', dark=A==='#111312', onA=['#FFFFFF','#D2FF00','#FFB4C8','#8CF5C0','#7FD4FF','#FF8A3D'].includes(A)?INK:'#fff';
+  const im=await sdImg(c.photo||sdPhotos(p)[0]||cover(p)), shopImg=c.showShop&&shopOf(p.shop)?.avatar?await sdImg(shopOf(p.shop).avatar):null;
+  // ---- 照片滿版 ----
+  g.fillStyle=INK; g.fillRect(0,0,W,H);
+  if (im){ const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; try{ g.filter=SD_FILTER_CSS[c.filter||'none']; }catch(e){} g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} }
+  const grad=(y0,y1,a0,a1)=>{ const gr=g.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,'rgba(0,0,0,'+a0+')'); gr.addColorStop(1,'rgba(0,0,0,'+a1+')'); g.fillStyle=gr; g.fillRect(0,Math.min(y0,y1),W,Math.abs(y1-y0)); };
+  const wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; const T=String(txt||''); for(const ch of T){ if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line); if(out.join('').length<T.length){ let l=out[out.length-1]||''; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[out.length-1]=l+'…'; } return out; };
+  const pills=(x,y,list,bg,fg,size,align)=>{ g.font='800 '+size+'px '+F; let X=x; const ph=size*1.75, ws=list.map(t=>g.measureText(t).width+size*1.2), total=ws.reduce((a,b)=>a+b,0)+(list.length-1)*size*.45; if(align==='right') X=x-total; if(align==='center') X=x-total/2;
+    list.forEach((t,i)=>{ g.fillStyle=bg; g.beginPath(); g.roundRect(X,y,ws[i],ph,ph/2); g.fill(); g.fillStyle=fg; g.textBaseline='middle'; g.textAlign='left'; g.fillText(t,X+size*.6,y+ph/2+1); X+=ws[i]+size*.45; }); g.textBaseline='alphabetic'; return ph; };
+  const shop=(x,y,s,col,align)=>{ if(!c.showShop) return 0; const nm=shopName(p.shop); g.font='800 '+Math.round(s*.46)+'px '+F; const tw=g.measureText(nm).width, totalW=s+s*.3+tw; let X=align==='right'?x-totalW:align==='center'?x-totalW/2:x;
+    g.save(); g.beginPath(); g.arc(X+s/2,y+s/2,s/2,0,7); g.closePath(); if(shopImg){ g.clip(); const r=Math.max(s/shopImg.width,s/shopImg.height); g.drawImage(shopImg,X+s/2-shopImg.width*r/2,y+s/2-shopImg.height*r/2,shopImg.width*r,shopImg.height*r); } else { g.fillStyle='#1F5C42'; g.fill(); g.fillStyle='#fff'; g.font='900 '+Math.round(s*.48)+'px '+F; g.textAlign='center'; g.textBaseline='middle'; g.fillText(nm.slice(0,1),X+s/2,y+s/2+1); } g.restore();
+    g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=3*u; g.beginPath(); g.arc(X+s/2,y+s/2,s/2,0,7); g.stroke();
+    g.fillStyle=col; g.font='800 '+Math.round(s*.46)+'px '+F; g.textAlign='left'; g.textBaseline='middle'; g.fillText(nm,X+s*1.3,y+s/2+1); g.textBaseline='alphabetic'; return s; };
+  const vein=(x,y,s,col,align)=>{ g.font='900 '+Math.round(s*.62)+'px '+FF.sans; const tw=g.measureText('VEIN').width+s*.6, tot=s+s*.3+tw; let X=align==='right'?x-tot:align==='center'?x-tot/2:x;
+    g.fillStyle='#1F5C42'; g.beginPath(); g.roundRect(X,y,s,s,s*.26); g.fill(); g.fillStyle=VOLT; g.beginPath(); g.arc(X+s/2,y+s/2,s*.15,0,7); g.fill();
+    g.fillStyle=col; g.textBaseline='middle'; g.textAlign='left'; g.letterSpacing&&(g.letterSpacing=(s*.12)+'px'); g.fillText('VEIN',X+s*1.3,y+s/2+2); g.letterSpacing&&(g.letterSpacing='0px'); g.textBaseline='alphabetic'; };
+  const qr=async(x,y,S0,bg,fg)=>{ if(!c.showQR) return false; const Q=await loadQR(); if(!Q) return false; try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=S0*.09, cell=(S0-pad*2)/n; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,S0,S0,S0*.14); g.fill(); g.fillStyle=fg; for(let r=0;r<n;r++) for(let cc=0;cc<n;cc++) if(q.isDark(r,cc)) g.fillRect(x+pad+cc*cell,y+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); return true; }catch(e){ return false; } };
+  const name=c.title||(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,ch=>ch.toUpperCase()), tags=sdTags(p,c), price=c.showPrice?(onSale(p)?priceLabel(p).main:'私訊詢價'):'', code=c.showCode?p.code:'', note=c.note||'';
+  const story=c.fmt==='story', T=story?250*u:56*u, B=story?H-300*u:H-56*u, L=64*u, R=W-64*u, top=c.pos==='top';
+  const QS=story?190*u:170*u;
+  switch(c.tpl){
+    case 'magazine':{ grad(0,H*.5,.62,0); grad(H*.65,H,0,.6);
+      let y=T+20*u; g.fillStyle='#fff'; g.textAlign='left'; const nl=wrap(name,W-128*u,'italic 900 '+Math.round(124*u)+'px '+F,3); g.font='italic 900 '+Math.round(124*u)+'px '+F; nl.forEach(l=>{ y+=124*u; g.fillText(l,L,y); });
+      y+=30*u; if(tags.length) pills(L,y,tags,A,onA,Math.round(30*u)); y+=70*u; if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(72*u)+'px '+F; g.fillText(price,L,y+60*u); y+=80*u; }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(34*u)+'px '+F; g.fillText(wrap(note,W-128*u,'600 '+Math.round(34*u)+'px '+F,1)[0],L,y+40*u); }
+      if(code){ g.fillStyle='rgba(255,255,255,.85)'; g.font='700 '+Math.round(30*u)+'px '+MONO; g.fillText(code,L,B-90*u); }
+      shop(L,B-70*u,70*u,'#fff'); vein(R,B-56*u,46*u,'#fff','right'); await qr(R-QS,B-90*u-QS,QS,'#fff',INK); break; }
+    case 'volt':{ grad(H*.5,H,0,.55); shop(L,T,72*u,'#fff'); g.fillStyle=A; pills(R,T+8*u,['ON VEIN'],A,onA,Math.round(30*u),'right');
+      const fs=Math.round(92*u), nl=wrap(name,W-220*u,'italic 900 '+fs+'px '+F,2), boxH=nl.length*fs*1.08+60*u; let y=(top?T+170*u:B-boxH-(tags.length?110*u:40*u)-(price?120*u:0));
+      g.save(); g.translate(L-6*u,y); g.rotate(-0.045); g.fillStyle=A; g.beginPath(); g.roundRect(0,0,W-150*u,boxH,26*u); g.fill(); g.fillStyle=onA; g.font='italic 900 '+fs+'px '+F; nl.forEach((l,i)=>g.fillText(l,36*u,30*u+fs*.92+i*fs*1.08)); g.restore();
+      y+=boxH+34*u; if(tags.length){ pills(L,y,tags,'rgba(255,255,255,.92)',INK,Math.round(30*u)); y+=80*u; } if(price){ g.fillStyle='#fff'; g.font='italic 900 '+Math.round(84*u)+'px '+F; g.fillText(price,L,y+70*u); }
+      if(note){ g.fillStyle='#fff'; g.font='700 '+Math.round(32*u)+'px '+F; g.fillText(note,L,top?B-40*u:T+130*u); }
+      if(code){ g.fillStyle='#fff'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.textAlign='right'; g.fillText(code,R,B-10*u); g.textAlign='left'; }
+      await qr(R-QS,top?B-QS-60*u:T+100*u,QS,A,onA); break; }
+    case 'glass':{ const cardH=(price?300:230)*u+(tags.length?70*u:0)+(note?50*u:0)+(code?44*u:0), cy=top?T+90*u:B-cardH, cx=L-16*u, cw=W-2*(L-16*u);
+      if (im){ g.save(); g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*u); g.clip(); try{ g.filter='blur('+Math.round(26*u)+'px) brightness(.8)'; }catch(e){} const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} g.fillStyle='rgba(255,255,255,.16)'; g.fillRect(cx,cy,cw,cardH); g.restore(); }
+      g.strokeStyle='rgba(255,255,255,.45)'; g.lineWidth=2*u; g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*u); g.stroke();
+      let y=cy+40*u; shop(cx+36*u,y,62*u,'#fff'); vein(cx+cw-36*u,y+10*u,42*u,'#fff','right'); y+=62*u+76*u;
+      g.fillStyle='#fff'; g.font='900 '+Math.round(68*u)+'px '+F; g.fillText(wrap(name,cw-72*u-(c.showQR?QS:0),'900 '+Math.round(68*u)+'px '+F,1)[0],cx+36*u,y); y+=30*u;
+      if(tags.length){ pills(cx+36*u,y,tags,A,onA,Math.round(28*u)); y+=70*u; } if(code){ g.fillStyle='rgba(255,255,255,.85)'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.fillText(code,cx+36*u,y+30*u); y+=44*u; }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(30*u)+'px '+F; g.fillText(wrap(note,cw-72*u,'600 '+Math.round(30*u)+'px '+F,1)[0],cx+36*u,y+34*u); y+=50*u; }
+      if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(80*u)+'px '+F; g.fillText(price,cx+36*u,y+80*u); }
+      await qr(cx+cw-36*u-QS,cy+cardH-36*u-QS,QS,'#fff',INK); break; }
+    case 'label':{ grad(H*.55,H,0,.35); shop(L,T,64*u,'#fff'); vein(R,T+8*u,44*u,'#fff','right');
+      const tw=W*.7, th=(320+(price?90:0)+(tags.length?70:0)+(note?46:0))*u, tx=(W-tw)/2, ty=top?T+150*u:B-th;
+      g.save(); g.translate(W/2,ty+th/2); g.rotate(-0.025); g.translate(-W/2,-(ty+th/2)); g.shadowColor='rgba(0,0,0,.35)'; g.shadowBlur=30*u; g.shadowOffsetY=12*u; g.fillStyle='#FBFAF4'; g.beginPath(); g.roundRect(tx,ty,tw,th,22*u); g.fill(); g.shadowColor='transparent';
+      g.fillStyle='#d8d6cc'; g.beginPath(); g.arc(W/2,ty+44*u,16*u,0,7); g.fill(); g.strokeStyle='#bbb'; g.lineWidth=3*u; g.beginPath(); g.moveTo(W/2,ty+28*u); g.lineTo(W/2,ty-60*u); g.stroke();
+      g.textAlign='center'; let y=ty+130*u; g.fillStyle=INK; const nl=wrap(name,tw-80*u,'900 '+Math.round(64*u)+'px '+F,2); g.font='900 '+Math.round(64*u)+'px '+F; nl.forEach(l=>{ g.fillText(l,W/2,y); y+=70*u; });
+      g.fillStyle='#1F5C42'; g.font='700 '+Math.round(30*u)+'px '+MONO; g.fillText(p.code,W/2,y); y+=26*u;
+      if(tags.length){ pills(W/2,y,tags,'#111312',A==='#111312'?VOLT:A,Math.round(26*u),'center'); y+=64*u; } g.textAlign='center';
+      if(note){ g.fillStyle='#555'; g.font='600 '+Math.round(28*u)+'px '+F; g.fillText(wrap(note,tw-80*u,'600 '+Math.round(28*u)+'px '+F,1)[0],W/2,y+30*u); y+=46*u; }
+      if(price){ g.fillStyle=INK; g.font='italic 900 '+Math.round(64*u)+'px '+F; g.fillText(price,W/2,y+70*u); }
+      g.textAlign='left'; g.restore(); await qr(R-QS,top?B-QS:T+110*u,QS,'#fff',INK); break; }
+    case 'bold':{ grad(0,H,.15,.45); const fs=Math.round((story?190:160)*u), nl=wrap(name.toUpperCase(),W-100*u,'900 '+fs+'px '+F,3); g.font='900 '+fs+'px '+F; g.textAlign='center';
+      let y=(top?T+fs*1.1:H/2-(nl.length-1)*fs*.5+fs*.35); g.lineWidth=4*u; g.strokeStyle='#fff'; nl.forEach(l=>{ g.strokeText(l,W/2,y); g.fillStyle='rgba(255,255,255,.12)'; g.fillText(l,W/2,y); y+=fs*1.02; }); g.textAlign='left';
+      if(tags.length) pills(W/2,y+10*u,tags,A,onA,Math.round(30*u),'center'); if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(80*u)+'px '+F; g.textAlign='center'; g.fillText(price,W/2,y+150*u); g.textAlign='left'; }
+      if(note){ g.fillStyle='#fff'; g.font='700 '+Math.round(34*u)+'px '+F; g.textAlign='center'; g.fillText(note,W/2,T+40*u); g.textAlign='left'; }
+      shop(W/2,B-72*u,72*u,'#fff','center'); vein(W/2,T-(story?0:0)+(note?70*u:0),44*u,'#fff','center'); if(code){ g.fillStyle='#fff'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.textAlign='center'; g.fillText(code,W/2,B-100*u); g.textAlign='left'; }
+      await qr(R-QS,B-QS-100*u,QS,'#fff',INK); break; }
+    case 'frame':{ const m=34*u; grad(H*.6,H,0,.5); g.strokeStyle=A==='#111312'?'#fff':A; g.lineWidth=4*u; g.strokeRect(m,story?m+180*u:m,W-2*m,H-2*m-(story?360*u:0));
+      shop(W/2,(story?m+180*u:m)+40*u,64*u,'#fff','center'); g.textAlign='center'; let y=B-(price?200:120)*u-(tags.length?60*u:0);
+      g.fillStyle='#fff'; g.font='500 '+Math.round(26*u)+'px '+MONO; g.fillText('— '+(code||'VEIN COLLECTION')+' —',W/2,y-70*u);
+      g.font='italic 600 '+Math.round(78*u)+'px '+FF.serif; g.fillText(wrap(name,W-200*u,'italic 600 '+Math.round(78*u)+'px '+FF.serif,1)[0],W/2,y); y+=26*u;
+      if(tags.length){ pills(W/2,y,tags,'rgba(255,255,255,.92)',INK,Math.round(26*u),'center'); y+=70*u; } g.textAlign='center';
+      if(price){ g.fillStyle=A==='#111312'?'#fff':A; g.font='italic 700 '+Math.round(60*u)+'px '+FF.serif; g.fillText(price,W/2,y+50*u); }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(28*u)+'px '+F; g.fillText(note,W/2,(story?m+180*u:m)+160*u); }
+      g.textAlign='left'; vein(W/2,B-60*u-(story?-40*u:0)-m,40*u,'#fff','center'); await qr(R-QS-10*u,(story?m+180*u:m)+30*u,QS*.8,'#fff',INK); break; }
+    case 'split':{ const bh=(price?260:190)*u+(tags.length?60*u:0), by=top?0:H-bh-(story?240*u:0); g.fillStyle=A; g.fillRect(0,by,W,bh+(story&&!top?240*u:0)); if(top&&story){ g.fillRect(0,0,W,250*u); }
+      let y=by+(top&&story?250*u:0)+70*u; g.fillStyle=onA; g.font='900 '+Math.round(70*u)+'px '+F; g.fillText(wrap(name,W-140*u-(c.showQR?QS:0),'900 '+Math.round(70*u)+'px '+F,1)[0],L,y); y+=24*u;
+      if(tags.length){ pills(L,y,tags,onA,A,Math.round(28*u)); y+=66*u; } if(price){ g.fillStyle=onA; g.font='italic 900 '+Math.round(76*u)+'px '+F; g.fillText(price,L,y+76*u); }
+      shop(L,top?H-(story?300:56)*u-70*u:T,70*u,'#fff'); vein(R,top?H-(story?300:56)*u-56*u:T+10*u,44*u,'#fff','right');
+      if(code){ g.fillStyle=onA; g.font='700 '+Math.round(28*u)+'px '+MONO; g.textAlign='right'; g.fillText(code,R,by+(top&&story?250*u:0)+60*u); g.textAlign='left'; }
+      if(note){ g.fillStyle='#fff'; g.font='800 '+Math.round(34*u)+'px '+F; g.fillText(note,L,top?H/2:T+130*u); }
+      await qr(R-QS,by+(top&&story?250*u:0)+bh-QS-30*u,QS,onA,A); break; }
+    default:{ // minimal
+      grad(H*.55,H,0,.62); grad(0,260*u,.4,0); shop(L,T,60*u,'#fff'); vein(R,T+8*u,42*u,'#fff','right');
+      let y=top?T+190*u:B-(price?130*u:0)-(code?50*u:0)-(note?50*u:0); const fs=Math.round(84*u), nl=wrap(name,W-128*u-(c.showQR&&!top?QS+20*u:0),'800 '+fs+'px '+F,2);
+      if(!top) y-=nl.length*fs*1.05; if(tags.length){ pills(L,y-fs-50*u,tags,A,onA,Math.round(28*u)); }
+      g.fillStyle='#fff'; g.font='800 '+fs+'px '+F; nl.forEach(l=>{ g.fillText(l,L,y); y+=fs*1.05; });
+      if(code){ g.fillStyle='rgba(255,255,255,.82)'; g.font='700 '+Math.round(30*u)+'px '+MONO; g.fillText(code,L,y); y+=50*u; }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(32*u)+'px '+F; g.fillText(wrap(note,W-128*u,'600 '+Math.round(32*u)+'px '+F,1)[0],L,y); y+=50*u; }
+      if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(90*u)+'px '+F; g.fillText(price,L,y+70*u); }
+      await qr(R-QS,top?B-QS:B-QS,QS,'#fff',INK); }
+  }
+  g.textAlign='left'; return !!im;
+}
+const SD_DEF={fmt:'post',tpl:'minimal',showShop:true,showKind:true,showStatus:true,showTags:false,showPrice:false,showCode:false,showQR:false,color:'#D2FF00',font:'sans',filter:'none',pos:'bottom',focus:'center',zoom:1,note:'',title:''};
+const SD_PRESETS={normal:{},story:{fmt:'story',showQR:false,showPrice:false},sale:{fmt:'post',showPrice:true,showQR:true,showStatus:true,showCode:false}};
+function openShare(p,start){ lsSet('vein.didShare',true);
+  const mine=p.shop===S.me; let mode=start||(mine&&onSale(p)?'sale':'story');
+  let saved={}; try{ saved=JSON.parse(localStorage.getItem('vein.sd')||'{}'); }catch(e){}
+  const c={...SD_DEF,...(saved.style||{}),...SD_PRESETS[mode],photo:sdPhotos(p)[0]||cover(p),note:'',title:''};
+  const cv=h('canvas',{class:'sd-cv'}), prev=h('div',{class:'sd-prev'}, cv), txt=h('textarea',{class:'sh-txt',rows:6}), btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'});
+  const capOf=m=>m==='sale'?saleText(p):m==='story'?storyText(p):shareText(p); txt.value=capOf(mode);
+  let tk=0; const redraw=async()=>{ const my=++tk; prev.classList.toggle('st',c.fmt==='story'); prev.classList.toggle('sq',c.fmt==='square'); const off=document.createElement('canvas'); await sdRender(off,p,c,0.5); if(my!==tk) return; cv.width=off.width; cv.height=off.height; cv.getContext('2d').drawImage(off,0,0); };
+  let rt=0; const soon=()=>{ clearTimeout(rt); rt=setTimeout(redraw,60); try{ localStorage.setItem('vein.sd',JSON.stringify({style:{tpl:c.tpl,color:c.color,font:c.font,filter:c.filter,pos:c.pos}})); }catch(e){} };
+  const seg=(opts,key,cls)=>{ const box=h('div',{class:'sd-seg '+(cls||'')}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(c[key]===v),onclick:()=>{ c[key]=v; box.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(opts[i][0]===v))); soon(); if(key==='fmt'||key==='tpl') drawThumbs(); },text:l}))); return box; };
+  const modes=h('div',{class:'sh-modes'}, ...[['normal','一般轉發','LINE・訊息'],['story','分享模式','IG 限動'],['sale','販售模式','IG／FB 貼文']].map(([k,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ mode=k; Object.assign(c,SD_PRESETS[k]); txt.value=capOf(k); modes.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===k))); rebuild(); }}, h('b',{text:l}), h('small',{text:sub}))));
+  // 模板縮圖
+  const tplBox=h('div',{class:'sd-tpls'});
+  const drawThumbs=async()=>{ tplBox.replaceChildren(...SD_TPL.map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
+  const photoBox=h('div',{class:'sd-photos'}, ...sdPhotos(p).map(u=>h('button',{type:'button',class:'sd-ph'+(c.photo===u?' on':''),onclick:e=>{ c.photo=u; photoBox.querySelectorAll('.sd-ph').forEach(x=>x.classList.toggle('on',x===e.currentTarget)); soon(); drawThumbs(); }}, h('img',{src:u,alt:'',loading:'lazy'}))));
+  const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(!!c[k]),onclick:e=>{ c[k]=!c[k]; e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(); }},l);
+  const ttl=h('input',{maxlength:40,placeholder:'植物名稱（留空用預設）'}); ttl.addEventListener('input',()=>{ c.title=ttl.value.trim(); soon(); });
+  const nt=h('input',{maxlength:30,placeholder:'自訂一句話，例如：限量 3 株'}); nt.addEventListener('input',()=>{ c.note=nt.value.trim(); soon(); });
+  const zoom=h('input',{type:'range',min:1,max:2,step:.05,value:c.zoom}); zoom.addEventListener('input',()=>{ c.zoom=+zoom.value; soon(); });
+  const colors=h('div',{class:'dz-sw'}, ...SD_COLORS.map(col=>h('button',{type:'button',style:'background:'+col,'aria-label':col,'aria-pressed':String(c.color===col),onclick:e=>{ c.color=col; colors.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(); drawThumbs(); }})));
+  const panel=h('div',{class:'sd-panel'});
+  const rebuild=()=>{ panel.replaceChildren(
+      h('div',{class:'sd-g'}, h('b',{text:'尺寸'}), seg(Object.entries(SD_FMT).map(([k,v])=>[k,v[2]]),'fmt')),
+      h('div',{class:'sd-g'}, h('b',{text:'模板'}), tplBox),
+      sdPhotos(p).length>1?h('div',{class:'sd-g'}, h('b',{text:'照片'}), photoBox):null,
+      h('div',{class:'sd-g'}, h('b',{text:'顯示內容'}), h('div',{class:'chips'}, tog('showShop','溫室 logo'), tog('showKind','類型'), tog('showStatus','販售狀態'), tog('showTags','標籤'), tog('showPrice','價格'), tog('showCode','編號'), tog('showQR','QR code')), h('div',{class:'two',style:'margin-top:8px'}, ttl, nt)),
+      h('div',{class:'sd-g'}, h('b',{text:'風格'}), colors, h('div',{class:'sd-row'}, h('span',{text:'字體'}), seg(SD_FONTS,'font','sm')), h('div',{class:'sd-row'}, h('span',{text:'濾鏡'}), seg(SD_FILTERS,'filter','sm')), h('div',{class:'sd-row'}, h('span',{text:'文字位置'}), seg([['bottom','下方'],['top','上方']],'pos','sm')), h('div',{class:'sd-row'}, h('span',{text:'照片對齊'}), seg([['top','上'],['center','中'],['bottom','下']],'focus','sm')), h('div',{class:'sd-row'}, h('span',{text:'放大'}), zoom)));
+    drawThumbs(); soon(); };
+  const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,1); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.92); }catch(e){ r(null); } }); return {blob,ok}; };
+  const fileName=()=>p.code+'-'+(mode==='sale'?'sale':mode==='story'?'story':'share')+'.jpg';
+  const doShare=async(withText)=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗（照片可能還沒允許跨網域讀取），先複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg'});
+    if (navigator.canShare&&navigator.canShare({files:[file]})){ if(mode==='story') copyText(plantUrl(p)); try{ await navigator.share(withText?{files:[file],text:txt.value}:{files:[file]}); }catch(e){} } else { const a=h('a',{href:URL.createObjectURL(blob),download:fileName()}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),500); toast('已下載圖片，文字也幫你複製了'); copyText(txt.value); } };
+  btns.append(h('button',{class:'btn volt lg',type:'button',onclick:()=>doShare(mode!=='story')},'📤 分享圖片'), h('button',{class:'btn ink',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
+    h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗'); return; } const a=h('a',{href:URL.createObjectURL(blob),download:fileName()}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),500); },text:'下載圖片'}),
+    h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'));
+  note.textContent='手機按「分享圖片」選 Instagram／Facebook 就能直接發；限動模式會先幫你複製網址，可以加「連結」貼圖貼上。';
+  openDialog('轉發這株', h('div',{class:'sd'}, modes, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, prev), h('div',{class:'sd-right'}, panel, h('label',{class:'field'}, h('span',{text:'一起傳出去的文字（可以改）'}), txt), btns, note))), false);
+  rebuild();
+}
+
 function xferText(p,x){ const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
   return '🌱 '+from+' 要把「'+nm+'」（編號 '+p.code+'）的所有權轉移給你'+(x.note?'\n「'+x.note+'」':'')+'\n\n打開連結、登入後按「接受」就完成轉移（7 天內有效，只能用一次）👇\n'+claimUrl(x.id); }
 function openXferShare(p,x){ const from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
