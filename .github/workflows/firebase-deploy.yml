@@ -73,4 +73,4 @@ jobs:
           printf 'LINE_CHANNEL_ID=2012159791\nLINE_CHANNEL_SECRET=%s\n' "$LINE_SECRET" > push/.env
           npm --prefix push install --no-audit --no-fund
           set -o pipefail
-          npx --yes firebase-tools@14 deploy --only functions:push --non-interactive --force 2>&1 | tee "$RUNNER_TEMP/push.log" || { grep -iE "error|denied|permission|api|enable|billing|failed" "$RUNNER_TEMP/push.log" | tail -n 25 | while IFS= read -r l; do echo "::error title=push-deploy::$l"; done; exit 1; }
+          npx --yes firebase-tools@14 deploy --only functions:push --non-interactive --force 2>&1 | tee "$RUNNER_TEMP/push.log" || { grep -v "^\s*$" "$RUNNER_TEMP/push.log" | grep -viE "is enabled|ensuring required" | tail -n 40 | while IFS= read -r l; do echo "::error title=push-deploy::$l"; done; exit 1; }
