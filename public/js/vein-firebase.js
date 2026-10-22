@@ -34,7 +34,9 @@ async function start() {
   const st = getStorage(app);
 
   // 等第一次登入狀態回報
-  const u = await new Promise(res => { const off = onAuthStateChanged(auth, x => { off(); res(x); }); });
+  let u = await new Promise(res => { const off = onAuthStateChanged(auth, x => { off(); res(x); }); });
+  // 只能用 Google 登入：如果不是 Google 帳號（例如有人繞過網站直接用手機號碼登入），直接登出
+  if (u && Array.isArray(u.providerData) && u.providerData.length && !u.providerData.some(p => p.providerId === 'google.com')) { try { await signOut(auth); } catch (e) {} u = null; }
 
   window.__veinAuth = {
     async signIn() {

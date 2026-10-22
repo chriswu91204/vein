@@ -7,7 +7,8 @@ rules_version = '2';
 // - 管理員：擁有者 Google 帳號（isOwner）＋ site/admins 名單；可以審核、下架、刪除任何人的內容、封禁帳號
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
+    // 只接受 Google 帳號登入（Google 帳號一定有 email）；手機號碼只用來「驗證」，不能拿來登入或開新帳號
+    function signedIn() { return request.auth != null && request.auth.token.get('email', '') != ''; }
     function isMe(uid) { return signedIn() && request.auth.uid == uid; }
     function hasPhone() { return signedIn() && ('phone_number' in request.auth.token); }
     // ⚠️ 擁有者帳號：要跟 public/js/site-config.js 的 OWNER_EMAILS 一致
