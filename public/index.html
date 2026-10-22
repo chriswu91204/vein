@@ -2646,6 +2646,18 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .sd .sh-modes{margin-bottom:14px}
 @media (max-width:760px){.sd-main{grid-template-columns:1fr}.sd-left{position:static}.sd-prev{max-width:360px;margin:0 auto}.sd-prev.st .sd-cv{height:min(62vh,560px)}.sd-tpls{grid-template-columns:repeat(4,1fr)}}
 .sd-g input:not([type=range]){border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;width:100%;box-sizing:border-box}.sd-g input[type=range]{width:100%}
+.sd-modes{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin:-4px 0 12px;scrollbar-width:thin}
+.sd-modes button{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:9px 14px 9px 10px;font:inherit;cursor:pointer;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:8px;text-align:left;align-items:center}
+.sd-modes button span{grid-row:span 2;font-size:22px}.sd-modes button b{font-size:14px}.sd-modes button small{font-size:11px;color:var(--fg2)}
+.sd-modes button[aria-pressed="true"]{background:#111312;border-color:#111312;color:#fff}.sd-modes button[aria-pressed="true"] small{color:#D2FF00}
+.sd-tabs{display:flex;gap:4px;background:var(--paper);border-radius:999px;padding:4px;overflow-x:auto;scrollbar-width:none}.sd-tabs button{flex:1;white-space:nowrap;border:0;background:none;border-radius:999px;padding:8px 10px;font:inherit;font-size:13px;cursor:pointer;color:var(--fg2)}.sd-tabs button[aria-pressed="true"]{background:var(--surface);color:var(--fg);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.sd-body{display:flex;flex-direction:column;gap:14px;min-height:260px}
+.sd-sl{display:grid;grid-template-columns:120px 1fr 52px;gap:10px;align-items:center;font-size:12.5px;color:var(--fg2)}.sd-sl em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--fg)}.sd-sl input{width:100%;accent-color:#111312}
+.sd-saved{font-size:12px;color:var(--leaf-2);font-weight:600}
+@media (max-width:760px){.sd-sl{grid-template-columns:96px 1fr 46px}}
+html.modal-lock,html.modal-lock body{overflow:hidden;overscroll-behavior:none}
+html.modal-lock body{position:fixed;left:0;right:0;width:100%}
+dialog{overscroll-behavior:contain}dialog *{overscroll-behavior-y:contain}
 </style>
 
 </head>
@@ -5118,133 +5130,185 @@ const sdImg=src=>{ if(!src) return Promise.resolve(null); if(!sdImgCache.has(src
 function sdPhotos(p){ const L=[]; (p.media||[]).forEach(m=>{ if(!m?.url) return; const u=m.type==='video'?(m.poster||''):m.url; if(u&&!L.includes(u)) L.push(u); }); [p.coverThumb,p.thumb].forEach(u=>{ if(u&&!L.includes(u)) L.push(u); }); return L.slice(0,12); }
 function sdTags(p,c){ const t=[]; if(c.showKind) t.push(kindLabel(p)); if(c.showStatus&&onSale(p)) t.push(live(p)?'競標中':'販售中'); if(c.showTags) tagsOf(p).slice(0,2).forEach(x=>t.push('#'+x)); return t; }
 async function sdRender(cv,p,c,scale=1){
-  const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080; cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080, s=u*(c.size||1), rd=c.round??1, TX=c.ink||'#fff'; cv.width=W; cv.height=H; const g=cv.getContext('2d');
   const FF={sans:'"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif',serif:'"Noto Serif TC","Songti TC",Georgia,serif',round:'"Arial Rounded MT Bold","Yuanti TC","PingFang TC",system-ui,sans-serif',mono:'"JetBrains Mono",ui-monospace,Menlo,monospace'}, F=FF[c.font]||FF.sans, MONO=FF.mono;
   const A=c.color||VOLT, INK='#050605', dark=A==='#111312', onA=['#FFFFFF','#D2FF00','#FFB4C8','#8CF5C0','#7FD4FF','#FF8A3D'].includes(A)?INK:'#fff';
   const im=await sdImg(c.photo||sdPhotos(p)[0]||cover(p)), shopImg=c.showShop&&shopOf(p.shop)?.avatar?await sdImg(shopOf(p.shop).avatar):null;
   // ---- 照片滿版 ----
   g.fillStyle=INK; g.fillRect(0,0,W,H);
-  if (im){ const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; try{ g.filter=SD_FILTER_CSS[c.filter||'none']; }catch(e){} g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} }
-  const grad=(y0,y1,a0,a1)=>{ const gr=g.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,'rgba(0,0,0,'+a0+')'); gr.addColorStop(1,'rgba(0,0,0,'+a1+')'); g.fillStyle=gr; g.fillRect(0,Math.min(y0,y1),W,Math.abs(y1-y0)); };
+  if (im){ const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; try{ g.filter=(SD_FILTER_CSS[c.filter||'none']==='none'?'':SD_FILTER_CSS[c.filter])+(c.bright&&c.bright!==1?' brightness('+c.bright+')':'')||'none'; }catch(e){} g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} }
+  if (c.vignette>0){ const vg=g.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,'+c.vignette+')'); g.fillStyle=vg; g.fillRect(0,0,W,H); }
+  const SH=c.shade??1;
+  const grad=(y0,y1,a0,a1)=>{ a0*=SH; a1*=SH; const gr=g.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,'rgba(0,0,0,'+a0+')'); gr.addColorStop(1,'rgba(0,0,0,'+a1+')'); g.fillStyle=gr; g.fillRect(0,Math.min(y0,y1),W,Math.abs(y1-y0)); };
   const wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; const T=String(txt||''); for(const ch of T){ if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line); if(out.join('').length<T.length){ let l=out[out.length-1]||''; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[out.length-1]=l+'…'; } return out; };
   const pills=(x,y,list,bg,fg,size,align)=>{ g.font='800 '+size+'px '+F; let X=x; const ph=size*1.75, ws=list.map(t=>g.measureText(t).width+size*1.2), total=ws.reduce((a,b)=>a+b,0)+(list.length-1)*size*.45; if(align==='right') X=x-total; if(align==='center') X=x-total/2;
-    list.forEach((t,i)=>{ g.fillStyle=bg; g.beginPath(); g.roundRect(X,y,ws[i],ph,ph/2); g.fill(); g.fillStyle=fg; g.textBaseline='middle'; g.textAlign='left'; g.fillText(t,X+size*.6,y+ph/2+1); X+=ws[i]+size*.45; }); g.textBaseline='alphabetic'; return ph; };
-  const shop=(x,y,s,col,align)=>{ if(!c.showShop) return 0; const nm=shopName(p.shop); g.font='800 '+Math.round(s*.46)+'px '+F; const tw=g.measureText(nm).width, totalW=s+s*.3+tw; let X=align==='right'?x-totalW:align==='center'?x-totalW/2:x;
+    list.forEach((t,i)=>{ g.save(); g.globalAlpha=c.tagA??1; g.fillStyle=bg; g.beginPath(); g.roundRect(X,y,ws[i],ph,Math.min(ph/2,ph/2*rd)); g.fill(); g.restore(); g.fillStyle=fg; g.textBaseline='middle'; g.textAlign='left'; g.fillText(t,X+size*.6,y+ph/2+1); X+=ws[i]+size*.45; }); g.textBaseline='alphabetic'; return ph; };
+  const shop=(x,y,s,col,align)=>{ const LG=c.showShop!==false&&c.showLogo!==false, NM=c.showShop!==false&&c.showShopName!==false; if(!LG&&!NM) return 0; const nm=shopName(p.shop); g.font='800 '+Math.round(s*.46)+'px '+F; const tw=NM?g.measureText(nm).width:0, totalW=(LG?s+(NM?s*.3:0):0)+tw; let X=align==='right'?x-totalW:align==='center'?x-totalW/2:x; g.save(); g.globalAlpha=c.markA??1;
+    if(!LG){ g.fillStyle=col; g.textAlign='left'; g.textBaseline='middle'; g.fillText(nm,X,y+s/2+1); g.textBaseline='alphabetic'; g.restore(); return s; }
     g.save(); g.beginPath(); g.arc(X+s/2,y+s/2,s/2,0,7); g.closePath(); if(shopImg){ g.clip(); const r=Math.max(s/shopImg.width,s/shopImg.height); g.drawImage(shopImg,X+s/2-shopImg.width*r/2,y+s/2-shopImg.height*r/2,shopImg.width*r,shopImg.height*r); } else { g.fillStyle='#1F5C42'; g.fill(); g.fillStyle='#fff'; g.font='900 '+Math.round(s*.48)+'px '+F; g.textAlign='center'; g.textBaseline='middle'; g.fillText(nm.slice(0,1),X+s/2,y+s/2+1); } g.restore();
     g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=3*u; g.beginPath(); g.arc(X+s/2,y+s/2,s/2,0,7); g.stroke();
-    g.fillStyle=col; g.font='800 '+Math.round(s*.46)+'px '+F; g.textAlign='left'; g.textBaseline='middle'; g.fillText(nm,X+s*1.3,y+s/2+1); g.textBaseline='alphabetic'; return s; };
-  const vein=(x,y,s,col,align)=>{ g.font='900 '+Math.round(s*.62)+'px '+FF.sans; const tw=g.measureText('VEIN').width+s*.6, tot=s+s*.3+tw; let X=align==='right'?x-tot:align==='center'?x-tot/2:x;
+    if(NM){ g.fillStyle=col; g.font='800 '+Math.round(s*.46)+'px '+F; g.textAlign='left'; g.textBaseline='middle'; g.fillText(nm,X+s*1.3,y+s/2+1); g.textBaseline='alphabetic'; } g.restore(); return s; };
+  const vein=(x,y,s,col,align)=>{ if(c.showVein===false) return; g.save(); g.globalAlpha=c.markA??1; g.font='900 '+Math.round(s*.62)+'px '+FF.sans; const tw=g.measureText('VEIN').width+s*.6, tot=s+s*.3+tw; let X=align==='right'?x-tot:align==='center'?x-tot/2:x;
     g.fillStyle='#1F5C42'; g.beginPath(); g.roundRect(X,y,s,s,s*.26); g.fill(); g.fillStyle=VOLT; g.beginPath(); g.arc(X+s/2,y+s/2,s*.15,0,7); g.fill();
-    g.fillStyle=col; g.textBaseline='middle'; g.textAlign='left'; g.letterSpacing&&(g.letterSpacing=(s*.12)+'px'); g.fillText('VEIN',X+s*1.3,y+s/2+2); g.letterSpacing&&(g.letterSpacing='0px'); g.textBaseline='alphabetic'; };
+    g.fillStyle=col; g.textBaseline='middle'; g.textAlign='left'; g.letterSpacing&&(g.letterSpacing=(s*.12)+'px'); g.fillText('VEIN',X+s*1.3,y+s/2+2); g.letterSpacing&&(g.letterSpacing='0px'); g.textBaseline='alphabetic'; g.restore(); };
   const qr=async(x,y,S0,bg,fg)=>{ if(!c.showQR) return false; const Q=await loadQR(); if(!Q) return false; try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=S0*.09, cell=(S0-pad*2)/n; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,S0,S0,S0*.14); g.fill(); g.fillStyle=fg; for(let r=0;r<n;r++) for(let cc=0;cc<n;cc++) if(q.isDark(r,cc)) g.fillRect(x+pad+cc*cell,y+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); return true; }catch(e){ return false; } };
   const name=c.title||(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,ch=>ch.toUpperCase()), tags=sdTags(p,c), price=c.showPrice?(onSale(p)?priceLabel(p).main:'私訊詢價'):'', code=c.showCode?p.code:'', note=c.note||'';
-  const story=c.fmt==='story', T=story?250*u:56*u, B=story?H-300*u:H-56*u, L=64*u, R=W-64*u, top=c.pos==='top';
-  const QS=story?190*u:170*u;
+  const story=c.fmt==='story', mg=(c.margin??60)*u, T=story?Math.max(250*u,mg):mg, B=story?H-Math.max(300*u,mg):H-mg, L=mg, R=W-mg, top=c.pos==='top';
+  const QS=(story?190:170)*s;
+  if (c.shadow){ g.shadowColor='rgba(0,0,0,.5)'; g.shadowBlur=18*u; g.shadowOffsetY=4*u; }
   switch(c.tpl){
     case 'magazine':{ grad(0,H*.5,.62,0); grad(H*.65,H,0,.6);
-      let y=T+20*u; g.fillStyle='#fff'; g.textAlign='left'; const nl=wrap(name,W-128*u,'italic 900 '+Math.round(124*u)+'px '+F,3); g.font='italic 900 '+Math.round(124*u)+'px '+F; nl.forEach(l=>{ y+=124*u; g.fillText(l,L,y); });
-      y+=30*u; if(tags.length) pills(L,y,tags,A,onA,Math.round(30*u)); y+=70*u; if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(72*u)+'px '+F; g.fillText(price,L,y+60*u); y+=80*u; }
-      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(34*u)+'px '+F; g.fillText(wrap(note,W-128*u,'600 '+Math.round(34*u)+'px '+F,1)[0],L,y+40*u); }
-      if(code){ g.fillStyle='rgba(255,255,255,.85)'; g.font='700 '+Math.round(30*u)+'px '+MONO; g.fillText(code,L,B-90*u); }
-      shop(L,B-70*u,70*u,'#fff'); vein(R,B-56*u,46*u,'#fff','right'); await qr(R-QS,B-90*u-QS,QS,'#fff',INK); break; }
-    case 'volt':{ grad(H*.5,H,0,.55); shop(L,T,72*u,'#fff'); g.fillStyle=A; pills(R,T+8*u,['ON VEIN'],A,onA,Math.round(30*u),'right');
-      const fs=Math.round(92*u), nl=wrap(name,W-220*u,'italic 900 '+fs+'px '+F,2), boxH=nl.length*fs*1.08+60*u; let y=(top?T+170*u:B-boxH-(tags.length?110*u:40*u)-(price?120*u:0));
-      g.save(); g.translate(L-6*u,y); g.rotate(-0.045); g.fillStyle=A; g.beginPath(); g.roundRect(0,0,W-150*u,boxH,26*u); g.fill(); g.fillStyle=onA; g.font='italic 900 '+fs+'px '+F; nl.forEach((l,i)=>g.fillText(l,36*u,30*u+fs*.92+i*fs*1.08)); g.restore();
-      y+=boxH+34*u; if(tags.length){ pills(L,y,tags,'rgba(255,255,255,.92)',INK,Math.round(30*u)); y+=80*u; } if(price){ g.fillStyle='#fff'; g.font='italic 900 '+Math.round(84*u)+'px '+F; g.fillText(price,L,y+70*u); }
-      if(note){ g.fillStyle='#fff'; g.font='700 '+Math.round(32*u)+'px '+F; g.fillText(note,L,top?B-40*u:T+130*u); }
-      if(code){ g.fillStyle='#fff'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.textAlign='right'; g.fillText(code,R,B-10*u); g.textAlign='left'; }
-      await qr(R-QS,top?B-QS-60*u:T+100*u,QS,A,onA); break; }
-    case 'glass':{ const cardH=(price?300:230)*u+(tags.length?70*u:0)+(note?50*u:0)+(code?44*u:0), cy=top?T+90*u:B-cardH, cx=L-16*u, cw=W-2*(L-16*u);
-      if (im){ g.save(); g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*u); g.clip(); try{ g.filter='blur('+Math.round(26*u)+'px) brightness(.8)'; }catch(e){} const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} g.fillStyle='rgba(255,255,255,.16)'; g.fillRect(cx,cy,cw,cardH); g.restore(); }
-      g.strokeStyle='rgba(255,255,255,.45)'; g.lineWidth=2*u; g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*u); g.stroke();
-      let y=cy+40*u; shop(cx+36*u,y,62*u,'#fff'); vein(cx+cw-36*u,y+10*u,42*u,'#fff','right'); y+=62*u+76*u;
-      g.fillStyle='#fff'; g.font='900 '+Math.round(68*u)+'px '+F; g.fillText(wrap(name,cw-72*u-(c.showQR?QS:0),'900 '+Math.round(68*u)+'px '+F,1)[0],cx+36*u,y); y+=30*u;
-      if(tags.length){ pills(cx+36*u,y,tags,A,onA,Math.round(28*u)); y+=70*u; } if(code){ g.fillStyle='rgba(255,255,255,.85)'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.fillText(code,cx+36*u,y+30*u); y+=44*u; }
-      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(30*u)+'px '+F; g.fillText(wrap(note,cw-72*u,'600 '+Math.round(30*u)+'px '+F,1)[0],cx+36*u,y+34*u); y+=50*u; }
-      if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(80*u)+'px '+F; g.fillText(price,cx+36*u,y+80*u); }
-      await qr(cx+cw-36*u-QS,cy+cardH-36*u-QS,QS,'#fff',INK); break; }
-    case 'label':{ grad(H*.55,H,0,.35); shop(L,T,64*u,'#fff'); vein(R,T+8*u,44*u,'#fff','right');
-      const tw=W*.7, th=(320+(price?90:0)+(tags.length?70:0)+(note?46:0))*u, tx=(W-tw)/2, ty=top?T+150*u:B-th;
-      g.save(); g.translate(W/2,ty+th/2); g.rotate(-0.025); g.translate(-W/2,-(ty+th/2)); g.shadowColor='rgba(0,0,0,.35)'; g.shadowBlur=30*u; g.shadowOffsetY=12*u; g.fillStyle='#FBFAF4'; g.beginPath(); g.roundRect(tx,ty,tw,th,22*u); g.fill(); g.shadowColor='transparent';
-      g.fillStyle='#d8d6cc'; g.beginPath(); g.arc(W/2,ty+44*u,16*u,0,7); g.fill(); g.strokeStyle='#bbb'; g.lineWidth=3*u; g.beginPath(); g.moveTo(W/2,ty+28*u); g.lineTo(W/2,ty-60*u); g.stroke();
-      g.textAlign='center'; let y=ty+130*u; g.fillStyle=INK; const nl=wrap(name,tw-80*u,'900 '+Math.round(64*u)+'px '+F,2); g.font='900 '+Math.round(64*u)+'px '+F; nl.forEach(l=>{ g.fillText(l,W/2,y); y+=70*u; });
-      g.fillStyle='#1F5C42'; g.font='700 '+Math.round(30*u)+'px '+MONO; g.fillText(p.code,W/2,y); y+=26*u;
-      if(tags.length){ pills(W/2,y,tags,'#111312',A==='#111312'?VOLT:A,Math.round(26*u),'center'); y+=64*u; } g.textAlign='center';
-      if(note){ g.fillStyle='#555'; g.font='600 '+Math.round(28*u)+'px '+F; g.fillText(wrap(note,tw-80*u,'600 '+Math.round(28*u)+'px '+F,1)[0],W/2,y+30*u); y+=46*u; }
-      if(price){ g.fillStyle=INK; g.font='italic 900 '+Math.round(64*u)+'px '+F; g.fillText(price,W/2,y+70*u); }
-      g.textAlign='left'; g.restore(); await qr(R-QS,top?B-QS:T+110*u,QS,'#fff',INK); break; }
-    case 'bold':{ grad(0,H,.15,.45); const fs=Math.round((story?190:160)*u), nl=wrap(name.toUpperCase(),W-100*u,'900 '+fs+'px '+F,3); g.font='900 '+fs+'px '+F; g.textAlign='center';
-      let y=(top?T+fs*1.1:H/2-(nl.length-1)*fs*.5+fs*.35); g.lineWidth=4*u; g.strokeStyle='#fff'; nl.forEach(l=>{ g.strokeText(l,W/2,y); g.fillStyle='rgba(255,255,255,.12)'; g.fillText(l,W/2,y); y+=fs*1.02; }); g.textAlign='left';
-      if(tags.length) pills(W/2,y+10*u,tags,A,onA,Math.round(30*u),'center'); if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(80*u)+'px '+F; g.textAlign='center'; g.fillText(price,W/2,y+150*u); g.textAlign='left'; }
-      if(note){ g.fillStyle='#fff'; g.font='700 '+Math.round(34*u)+'px '+F; g.textAlign='center'; g.fillText(note,W/2,T+40*u); g.textAlign='left'; }
-      shop(W/2,B-72*u,72*u,'#fff','center'); vein(W/2,T-(story?0:0)+(note?70*u:0),44*u,'#fff','center'); if(code){ g.fillStyle='#fff'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.textAlign='center'; g.fillText(code,W/2,B-100*u); g.textAlign='left'; }
-      await qr(R-QS,B-QS-100*u,QS,'#fff',INK); break; }
-    case 'frame':{ const m=34*u; grad(H*.6,H,0,.5); g.strokeStyle=A==='#111312'?'#fff':A; g.lineWidth=4*u; g.strokeRect(m,story?m+180*u:m,W-2*m,H-2*m-(story?360*u:0));
-      shop(W/2,(story?m+180*u:m)+40*u,64*u,'#fff','center'); g.textAlign='center'; let y=B-(price?200:120)*u-(tags.length?60*u:0);
-      g.fillStyle='#fff'; g.font='500 '+Math.round(26*u)+'px '+MONO; g.fillText('— '+(code||'VEIN COLLECTION')+' —',W/2,y-70*u);
-      g.font='italic 600 '+Math.round(78*u)+'px '+FF.serif; g.fillText(wrap(name,W-200*u,'italic 600 '+Math.round(78*u)+'px '+FF.serif,1)[0],W/2,y); y+=26*u;
-      if(tags.length){ pills(W/2,y,tags,'rgba(255,255,255,.92)',INK,Math.round(26*u),'center'); y+=70*u; } g.textAlign='center';
-      if(price){ g.fillStyle=A==='#111312'?'#fff':A; g.font='italic 700 '+Math.round(60*u)+'px '+FF.serif; g.fillText(price,W/2,y+50*u); }
-      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(28*u)+'px '+F; g.fillText(note,W/2,(story?m+180*u:m)+160*u); }
-      g.textAlign='left'; vein(W/2,B-60*u-(story?-40*u:0)-m,40*u,'#fff','center'); await qr(R-QS-10*u,(story?m+180*u:m)+30*u,QS*.8,'#fff',INK); break; }
-    case 'split':{ const bh=(price?260:190)*u+(tags.length?60*u:0), by=top?0:H-bh-(story?240*u:0); g.fillStyle=A; g.fillRect(0,by,W,bh+(story&&!top?240*u:0)); if(top&&story){ g.fillRect(0,0,W,250*u); }
-      let y=by+(top&&story?250*u:0)+70*u; g.fillStyle=onA; g.font='900 '+Math.round(70*u)+'px '+F; g.fillText(wrap(name,W-140*u-(c.showQR?QS:0),'900 '+Math.round(70*u)+'px '+F,1)[0],L,y); y+=24*u;
-      if(tags.length){ pills(L,y,tags,onA,A,Math.round(28*u)); y+=66*u; } if(price){ g.fillStyle=onA; g.font='italic 900 '+Math.round(76*u)+'px '+F; g.fillText(price,L,y+76*u); }
-      shop(L,top?H-(story?300:56)*u-70*u:T,70*u,'#fff'); vein(R,top?H-(story?300:56)*u-56*u:T+10*u,44*u,'#fff','right');
-      if(code){ g.fillStyle=onA; g.font='700 '+Math.round(28*u)+'px '+MONO; g.textAlign='right'; g.fillText(code,R,by+(top&&story?250*u:0)+60*u); g.textAlign='left'; }
-      if(note){ g.fillStyle='#fff'; g.font='800 '+Math.round(34*u)+'px '+F; g.fillText(note,L,top?H/2:T+130*u); }
-      await qr(R-QS,by+(top&&story?250*u:0)+bh-QS-30*u,QS,onA,A); break; }
+      let y=T+20*s; g.fillStyle=TX; g.textAlign='left'; const nl=wrap(name,W-128*s,'italic 900 '+Math.round(124*s)+'px '+F,3); g.font='italic 900 '+Math.round(124*s)+'px '+F; nl.forEach(l=>{ y+=124*s; g.fillText(l,L,y); });
+      y+=30*s; if(tags.length) pills(L,y,tags,A,onA,Math.round(30*s)); y+=70*s; if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(72*s)+'px '+F; g.fillText(price,L,y+60*s); y+=80*s; }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(34*s)+'px '+F; g.fillText(wrap(note,W-128*s,'600 '+Math.round(34*s)+'px '+F,1)[0],L,y+40*s); }
+      if(code){ g.fillStyle='rgba(255,255,255,.85)'; g.font='700 '+Math.round(30*s)+'px '+MONO; g.fillText(code,L,B-90*s); }
+      shop(L,B-70*s,70*s,TX); vein(R,B-56*s,46*s,TX,'right'); await qr(R-QS,B-90*s-QS,QS,'#fff',INK); break; }
+    case 'volt':{ grad(H*.5,H,0,.55); shop(L,T,72*s,TX); g.fillStyle=A; pills(R,T+8*s,['ON VEIN'],A,onA,Math.round(30*s),'right');
+      const fs=Math.round(92*s), nl=wrap(name,W-220*s,'italic 900 '+fs+'px '+F,2), boxH=nl.length*fs*1.08+60*s; let y=(top?T+170*s:B-boxH-(tags.length?110*s:40*s)-(price?120*s:0));
+      g.save(); g.translate(L-6*s,y); g.rotate(-0.045); g.save(); g.globalAlpha=c.boxA??1; g.fillStyle=A; g.beginPath(); g.roundRect(0,0,W-150*s,boxH,26*s*rd); g.fill(); g.restore(); g.fillStyle=onA; g.font='italic 900 '+fs+'px '+F; nl.forEach((l,i)=>g.fillText(l,36*s,30*s+fs*.92+i*fs*1.08)); g.restore();
+      y+=boxH+34*s; if(tags.length){ pills(L,y,tags,'rgba(255,255,255,.92)',INK,Math.round(30*s)); y+=80*s; } if(price){ g.fillStyle=TX; g.font='italic 900 '+Math.round(84*s)+'px '+F; g.fillText(price,L,y+70*s); }
+      if(note){ g.fillStyle=TX; g.font='700 '+Math.round(32*s)+'px '+F; g.fillText(note,L,top?B-40*s:T+130*s); }
+      if(code){ g.fillStyle=TX; g.font='700 '+Math.round(28*s)+'px '+MONO; g.textAlign='right'; g.fillText(code,R,B-10*s); g.textAlign='left'; }
+      await qr(R-QS,top?B-QS-60*s:T+100*s,QS,A,onA); break; }
+    case 'glass':{ const cardH=(price?300:230)*s+(tags.length?70*s:0)+(note?50*s:0)+(code?44*s:0), cy=top?T+90*s:B-cardH, cx=L-16*s, cw=W-2*(L-16*s);
+      if (im){ g.save(); g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*s*rd); g.clip(); try{ g.filter='blur('+Math.round((c.blur??26)*u)+'px) brightness(.8)'; }catch(e){} const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} g.fillStyle='rgba(255,255,255,'+(.32*(c.boxA??.5))+')'; g.fillRect(cx,cy,cw,cardH); g.restore(); } else { g.fillStyle='rgba(0,0,0,'+(.5*(c.boxA??1))+')'; g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*s*rd); g.fill(); }
+      g.strokeStyle='rgba(255,255,255,.45)'; g.lineWidth=2*s; g.beginPath(); g.roundRect(cx,cy,cw,cardH,40*s*rd); g.stroke();
+      let y=cy+40*s; shop(cx+36*s,y,62*s,TX); vein(cx+cw-36*s,y+10*s,42*s,TX,'right'); y+=62*s+76*s;
+      g.fillStyle=TX; g.font='900 '+Math.round(68*s)+'px '+F; g.fillText(wrap(name,cw-72*s-(c.showQR?QS:0),'900 '+Math.round(68*s)+'px '+F,1)[0],cx+36*s,y); y+=30*s;
+      if(tags.length){ pills(cx+36*s,y,tags,A,onA,Math.round(28*s)); y+=70*s; } if(code){ g.fillStyle='rgba(255,255,255,.85)'; g.font='700 '+Math.round(28*s)+'px '+MONO; g.fillText(code,cx+36*s,y+30*s); y+=44*s; }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(30*s)+'px '+F; g.fillText(wrap(note,cw-72*s,'600 '+Math.round(30*s)+'px '+F,1)[0],cx+36*s,y+34*s); y+=50*s; }
+      if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(80*s)+'px '+F; g.fillText(price,cx+36*s,y+80*s); }
+      await qr(cx+cw-36*s-QS,cy+cardH-36*s-QS,QS,'#fff',INK); break; }
+    case 'label':{ grad(H*.55,H,0,.35); shop(L,T,64*s,TX); vein(R,T+8*s,44*s,TX,'right');
+      const tw=W*.7, th=(320+(price?90:0)+(tags.length?70:0)+(note?46:0))*s, tx=(W-tw)/2, ty=top?T+150*s:B-th;
+      g.save(); g.translate(W/2,ty+th/2); g.rotate(-0.025); g.translate(-W/2,-(ty+th/2)); g.shadowColor='rgba(0,0,0,.35)'; g.shadowBlur=30*s; g.shadowOffsetY=12*s; g.globalAlpha=c.boxA??1; g.fillStyle='#FBFAF4'; g.beginPath(); g.roundRect(tx,ty,tw,th,22*s*rd); g.fill(); g.globalAlpha=1; g.shadowColor='transparent';
+      g.fillStyle='#d8d6cc'; g.beginPath(); g.arc(W/2,ty+44*s,16*s,0,7); g.fill(); g.strokeStyle='#bbb'; g.lineWidth=3*s; g.beginPath(); g.moveTo(W/2,ty+28*s); g.lineTo(W/2,ty-60*s); g.stroke();
+      g.textAlign='center'; let y=ty+130*s; g.fillStyle=INK; const nl=wrap(name,tw-80*s,'900 '+Math.round(64*s)+'px '+F,2); g.font='900 '+Math.round(64*s)+'px '+F; nl.forEach(l=>{ g.fillText(l,W/2,y); y+=70*s; });
+      g.fillStyle='#1F5C42'; g.font='700 '+Math.round(30*s)+'px '+MONO; g.fillText(p.code,W/2,y); y+=26*s;
+      if(tags.length){ pills(W/2,y,tags,'#111312',A==='#111312'?VOLT:A,Math.round(26*s),'center'); y+=64*s; } g.textAlign='center';
+      if(note){ g.fillStyle='#555'; g.font='600 '+Math.round(28*s)+'px '+F; g.fillText(wrap(note,tw-80*s,'600 '+Math.round(28*s)+'px '+F,1)[0],W/2,y+30*s); y+=46*s; }
+      if(price){ g.fillStyle=INK; g.font='italic 900 '+Math.round(64*s)+'px '+F; g.fillText(price,W/2,y+70*s); }
+      g.textAlign='left'; g.restore(); await qr(R-QS,top?B-QS:T+110*s,QS,'#fff',INK); break; }
+    case 'bold':{ grad(0,H,.15,.45); const fs=Math.round((story?190:160)*s), nl=wrap(name.toUpperCase(),W-100*s,'900 '+fs+'px '+F,3); g.font='900 '+fs+'px '+F; g.textAlign='center';
+      let y=(top?T+fs*1.1:H/2-(nl.length-1)*fs*.5+fs*.35); g.lineWidth=4*s; g.strokeStyle=TX; nl.forEach(l=>{ g.strokeText(l,W/2,y); g.fillStyle='rgba(255,255,255,.12)'; g.fillText(l,W/2,y); y+=fs*1.02; }); g.textAlign='left';
+      if(tags.length) pills(W/2,y+10*s,tags,A,onA,Math.round(30*s),'center'); if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(80*s)+'px '+F; g.textAlign='center'; g.fillText(price,W/2,y+150*s); g.textAlign='left'; }
+      if(note){ g.fillStyle=TX; g.font='700 '+Math.round(34*s)+'px '+F; g.textAlign='center'; g.fillText(note,W/2,T+40*s); g.textAlign='left'; }
+      shop(W/2,B-72*s,72*s,TX,'center'); vein(W/2,T-(story?0:0)+(note?70*s:0),44*s,TX,'center'); if(code){ g.fillStyle=TX; g.font='700 '+Math.round(28*s)+'px '+MONO; g.textAlign='center'; g.fillText(code,W/2,B-100*s); g.textAlign='left'; }
+      await qr(R-QS,B-QS-100*s,QS,'#fff',INK); break; }
+    case 'frame':{ const m=(c.frameIn??34)*u; grad(H*.6,H,0,.5); g.save(); g.globalAlpha=c.boxA??1; g.strokeStyle=A==='#111312'?'#fff':A; g.lineWidth=(c.frameW??4)*u; g.beginPath(); g.roundRect(m,story?m+180*s:m,W-2*m,H-2*m-(story?360*s:0),(c.frameR??0)*u); g.stroke(); g.restore();
+      shop(W/2,(story?m+180*s:m)+40*s,64*s,TX,'center'); g.textAlign='center'; let y=B-(price?200:120)*s-(tags.length?60*s:0);
+      g.fillStyle=TX; g.font='500 '+Math.round(26*s)+'px '+MONO; g.fillText('— '+(code||'VEIN COLLECTION')+' —',W/2,y-70*s);
+      g.font='italic 600 '+Math.round(78*s)+'px '+FF.serif; g.fillText(wrap(name,W-200*s,'italic 600 '+Math.round(78*s)+'px '+FF.serif,1)[0],W/2,y); y+=26*s;
+      if(tags.length){ pills(W/2,y,tags,'rgba(255,255,255,.92)',INK,Math.round(26*s),'center'); y+=70*s; } g.textAlign='center';
+      if(price){ g.fillStyle=A==='#111312'?'#fff':A; g.font='italic 700 '+Math.round(60*s)+'px '+FF.serif; g.fillText(price,W/2,y+50*s); }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(28*s)+'px '+F; g.fillText(note,W/2,(story?m+180*s:m)+160*s); }
+      g.textAlign='left'; vein(W/2,B-60*s-(story?-40*s:0)-m,40*s,TX,'center'); await qr(R-QS-10*s,(story?m+180*s:m)+30*s,QS*.8,'#fff',INK); break; }
+    case 'split':{ const bh=(price?260:190)*s+(tags.length?60*s:0), by=top?0:H-bh-(story?240*s:0); g.save(); g.globalAlpha=c.boxA??1; g.fillStyle=A; g.fillRect(0,by,W,bh+(story&&!top?240*s:0)); if(top&&story){ g.fillRect(0,0,W,250*s); } g.restore();
+      let y=by+(top&&story?250*s:0)+70*s; g.fillStyle=onA; g.font='900 '+Math.round(70*s)+'px '+F; g.fillText(wrap(name,W-140*s-(c.showQR?QS:0),'900 '+Math.round(70*s)+'px '+F,1)[0],L,y); y+=24*s;
+      if(tags.length){ pills(L,y,tags,onA,A,Math.round(28*s)); y+=66*s; } if(price){ g.fillStyle=onA; g.font='italic 900 '+Math.round(76*s)+'px '+F; g.fillText(price,L,y+76*s); }
+      shop(L,top?H-(story?300:56)*s-70*s:T,70*s,TX); vein(R,top?H-(story?300:56)*s-56*s:T+10*s,44*s,TX,'right');
+      if(code){ g.fillStyle=onA; g.font='700 '+Math.round(28*s)+'px '+MONO; g.textAlign='right'; g.fillText(code,R,by+(top&&story?250*s:0)+60*s); g.textAlign='left'; }
+      if(note){ g.fillStyle=TX; g.font='800 '+Math.round(34*s)+'px '+F; g.fillText(note,L,top?H/2:T+130*s); }
+      await qr(R-QS,by+(top&&story?250*s:0)+bh-QS-30*s,QS,onA,A); break; }
     default:{ // minimal
-      grad(H*.55,H,0,.62); grad(0,260*u,.4,0); shop(L,T,60*u,'#fff'); vein(R,T+8*u,42*u,'#fff','right');
-      let y=top?T+190*u:B-(price?130*u:0)-(code?50*u:0)-(note?50*u:0); const fs=Math.round(84*u), nl=wrap(name,W-128*u-(c.showQR&&!top?QS+20*u:0),'800 '+fs+'px '+F,2);
-      if(!top) y-=nl.length*fs*1.05; if(tags.length){ pills(L,y-fs-50*u,tags,A,onA,Math.round(28*u)); }
-      g.fillStyle='#fff'; g.font='800 '+fs+'px '+F; nl.forEach(l=>{ g.fillText(l,L,y); y+=fs*1.05; });
-      if(code){ g.fillStyle='rgba(255,255,255,.82)'; g.font='700 '+Math.round(30*u)+'px '+MONO; g.fillText(code,L,y); y+=50*u; }
-      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(32*u)+'px '+F; g.fillText(wrap(note,W-128*u,'600 '+Math.round(32*u)+'px '+F,1)[0],L,y); y+=50*u; }
-      if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(90*u)+'px '+F; g.fillText(price,L,y+70*u); }
+      grad(H*.55,H,0,.62); grad(0,260*s,.4,0); shop(L,T,60*s,TX); vein(R,T+8*s,42*s,TX,'right');
+      let y=top?T+190*s:B-(price?130*s:0)-(code?50*s:0)-(note?50*s:0); const fs=Math.round(84*s), nl=wrap(name,W-128*s-(c.showQR&&!top?QS+20*s:0),'800 '+fs+'px '+F,2);
+      if(!top) y-=nl.length*fs*1.05; if(tags.length){ pills(L,y-fs-50*s,tags,A,onA,Math.round(28*s)); }
+      g.fillStyle=TX; g.font='800 '+fs+'px '+F; nl.forEach(l=>{ g.fillText(l,L,y); y+=fs*1.05; });
+      if(code){ g.fillStyle='rgba(255,255,255,.82)'; g.font='700 '+Math.round(30*s)+'px '+MONO; g.fillText(code,L,y); y+=50*s; }
+      if(note){ g.fillStyle='rgba(255,255,255,.9)'; g.font='600 '+Math.round(32*s)+'px '+F; g.fillText(wrap(note,W-128*s,'600 '+Math.round(32*s)+'px '+F,1)[0],L,y); y+=50*s; }
+      if(price){ g.fillStyle=A; g.font='italic 900 '+Math.round(90*s)+'px '+F; g.fillText(price,L,y+70*s); }
       await qr(R-QS,top?B-QS:B-QS,QS,'#fff',INK); }
   }
+  g.shadowColor='transparent'; g.shadowBlur=0; g.shadowOffsetY=0;
+  if ((c.border||0)>0){ const ins=(c.borderIn??24)*u; g.save(); g.globalAlpha=c.borderA??1; g.strokeStyle=c.borderColor==='ink'?TX:A; g.lineWidth=c.border*u; g.beginPath(); g.roundRect(ins,ins,W-2*ins,H-2*ins,(c.borderR??0)*u); g.stroke(); g.restore(); }
   g.textAlign='left'; return !!im;
 }
-const SD_DEF={fmt:'post',tpl:'minimal',showShop:true,showKind:true,showStatus:true,showTags:false,showPrice:false,showCode:false,showQR:false,color:'#D2FF00',font:'sans',filter:'none',pos:'bottom',focus:'center',zoom:1,note:'',title:''};
-const SD_PRESETS={normal:{},story:{fmt:'story',showQR:false,showPrice:false},sale:{fmt:'post',showPrice:true,showQR:true,showStatus:true,showCode:false}};
+const SD_DEF={fmt:'post',tpl:'minimal',showShop:true,showLogo:true,showShopName:true,showVein:true,showKind:true,showStatus:true,showTags:false,showPrice:false,showCode:false,showQR:false,
+  color:'#D2FF00',ink:'#fff',font:'sans',filter:'none',bright:1,pos:'bottom',focus:'center',zoom:1,size:1,margin:60,shadow:false,
+  shade:1,vignette:0,boxA:1,tagA:1,markA:1,blur:26,round:1,border:0,borderIn:24,borderR:0,borderA:1,borderColor:'accent',frameW:4,frameIn:34,frameR:0,note:'',title:''};
+const sdDays=p=>p.createdAt?Math.max(0,Math.round((Date.now()-toMs(p.createdAt))/864e5)):0;
+const sdGroupN=p=>p.grp?all().filter(x=>x.shop===p.shop&&x.grp===p.grp&&onSale(x)).length:0;
+const SD_MODES=[
+  ['normal','💬','一般轉發','LINE・訊息',{},p=>shareText(p)],
+  ['story','📲','分享限動','IG 限動 9:16',{fmt:'story',showPrice:false,showQR:false},p=>storyText(p)],
+  ['sale','🛒','販售貼文','IG／FB 4:5',{fmt:'post',showPrice:true,showQR:true,showStatus:true},p=>saleText(p)],
+  ['new','🆕','新品上架','NEW 標記',{fmt:'post',tpl:'volt',showPrice:true,showStatus:true,note:'新品上架'},p=>'🆕 新品上架｜在 VEIN 上\n'+saleText(p)],
+  ['auction','⚡','競標倒數','起標／目前出價',{fmt:'story',tpl:'bold',showPrice:true,showStatus:true,showQR:true,note:p=>live(p)?'倒數 '+fmtLeft(p.endsAtMs-Date.now()):'限時競標'},p=>'⚡ 限時競標中｜在 VEIN 出價\n'+saleText(p)],
+  ['batch','🌱','同批實生苗','群組可挑編號',{fmt:'post',tpl:'split',showPrice:true,showStatus:false,showKind:true,note:p=>sdGroupN(p)?'同批 '+sdGroupN(p)+' 株可挑':'同批實生苗'},p=>'🌱 同一批實生苗，到 VEIN 挑你喜歡的編號\n'+saleText(p)],
+  ['growth','📸','成長紀錄','第 N 天',{fmt:'story',tpl:'frame',showPrice:false,showCode:true,note:p=>'第 '+sdDays(p)+' 天 · '+(p.photoCount||0)+' 筆紀錄'},p=>'📸 第 '+sdDays(p)+' 天的樣子\n每一張照片都保留原始拍攝時間，完整履歷在 VEIN\n👉 '+plantUrl(p)],
+  ['mother','👑','母本收藏','不賣也能秀',{fmt:'square',tpl:'magazine',showPrice:false,showStatus:false,showCode:true,note:'母本收藏'},p=>'👑 溫室母本收藏\n'+short(p.species)+(p.cultivar?' '+p.cultivar:'')+'・'+p.code+'\n血統與後代都在 VEIN 👉 '+plantUrl(p)],
+];
+const SD_KEEP=Object.keys(SD_DEF).filter(k=>!['note','title'].includes(k));
+function sdLoad(){ let L={}; try{ L=JSON.parse(localStorage.getItem('vein.sd2')||'{}'); }catch(e){} const R=S.prefs?.sd||{}; return (R.at||0)>(L.at||0)?R:L; }
+let sdSaveT=0;
+function sdSave(st){ st.at=Date.now(); try{ localStorage.setItem('vein.sd2',JSON.stringify(st)); }catch(e){} clearTimeout(sdSaveT); sdSaveT=setTimeout(()=>{ if(S.me&&S.prefsReady) savePrefs({sd:st}); },2500); }
 function openShare(p,start){ lsSet('vein.didShare',true);
-  const mine=p.shop===S.me; let mode=start||(mine&&onSale(p)?'sale':'story');
-  let saved={}; try{ saved=JSON.parse(localStorage.getItem('vein.sd')||'{}'); }catch(e){}
-  const c={...SD_DEF,...(saved.style||{}),...SD_PRESETS[mode],photo:sdPhotos(p)[0]||cover(p),note:'',title:''};
-  const cv=h('canvas',{class:'sd-cv'}), prev=h('div',{class:'sd-prev'}, cv), txt=h('textarea',{class:'sh-txt',rows:6}), btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'});
-  const capOf=m=>m==='sale'?saleText(p):m==='story'?storyText(p):shareText(p); txt.value=capOf(mode);
-  let tk=0; const redraw=async()=>{ const my=++tk; prev.classList.toggle('st',c.fmt==='story'); prev.classList.toggle('sq',c.fmt==='square'); const off=document.createElement('canvas'); await sdRender(off,p,c,0.5); if(my!==tk) return; cv.width=off.width; cv.height=off.height; cv.getContext('2d').drawImage(off,0,0); };
-  let rt=0; const soon=()=>{ clearTimeout(rt); rt=setTimeout(redraw,60); try{ localStorage.setItem('vein.sd',JSON.stringify({style:{tpl:c.tpl,color:c.color,font:c.font,filter:c.filter,pos:c.pos}})); }catch(e){} };
-  const seg=(opts,key,cls)=>{ const box=h('div',{class:'sd-seg '+(cls||'')}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(c[key]===v),onclick:()=>{ c[key]=v; box.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(opts[i][0]===v))); soon(); if(key==='fmt'||key==='tpl') drawThumbs(); },text:l}))); return box; };
-  const modes=h('div',{class:'sh-modes'}, ...[['normal','一般轉發','LINE・訊息'],['story','分享模式','IG 限動'],['sale','販售模式','IG／FB 貼文']].map(([k,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ mode=k; Object.assign(c,SD_PRESETS[k]); txt.value=capOf(k); modes.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===k))); rebuild(); }}, h('b',{text:l}), h('small',{text:sub}))));
-  // 模板縮圖
+  const mine=p.shop===S.me, store=sdLoad(); store.m=store.m||{};
+  const modeDef=k=>SD_MODES.find(m=>m[0]===k)||SD_MODES[0];
+  let mode=start||store.last||(mine&&onSale(p)?'sale':'story'); if(!SD_MODES.some(m=>m[0]===mode)) mode='story';
+  const presetOf=k=>{ const pr={...modeDef(k)[4]}; if(typeof pr.note==='function') pr.note=pr.note(p); return pr; };
+  const build=k=>({...SD_DEF,...presetOf(k),...(store.m[k]||{}),photo:sdPhotos(p)[0]||cover(p),title:'',note:presetOf(k).note||''});
+  let c=build(mode);
+  const cv=h('canvas',{class:'sd-cv'}), prev=h('div',{class:'sd-prev'}, cv), txt=h('textarea',{class:'sh-txt',rows:6}), btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'}), saved=h('span',{class:'sd-saved',text:store.m[mode]?'✓ 已套用你上次的設定':''});
+  txt.value=modeDef(mode)[5](p);
+  let tk=0; const redraw=async()=>{ const my=++tk; prev.classList.toggle('st',c.fmt==='story'); const off=document.createElement('canvas'); await sdRender(off,p,c,0.5); if(my!==tk) return; cv.width=off.width; cv.height=off.height; cv.getContext('2d').drawImage(off,0,0); };
+  let rt=0, th=0;
+  const persist=()=>{ const keep={}; SD_KEEP.forEach(k=>{ if(c[k]!==undefined) keep[k]=c[k]; }); store.m[mode]=keep; store.last=mode; sdSave(store); saved.textContent='✓ 已記住「'+modeDef(mode)[2]+'」的設定，下次自動套用'; };
+  const soon=(thumbs)=>{ clearTimeout(rt); rt=setTimeout(redraw,50); persist(); if(thumbs){ clearTimeout(th); th=setTimeout(drawThumbs,250); } };
+  // ---- 控制元件 ----
+  const seg=(opts,key,cls,thumbs)=>{ const box=h('div',{class:'sd-seg '+(cls||'')}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(c[key]===v),onclick:()=>{ c[key]=v; box.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(opts[i][0]===v))); soon(thumbs); },text:l}))); return box; };
+  const slider=(key,label,min,max,step,fmt)=>{ const val=h('em',{text:fmt?fmt(c[key]):String(c[key])}); const i=h('input',{type:'range',min,max,step,value:c[key]}); i.addEventListener('input',()=>{ c[key]=+i.value; val.textContent=fmt?fmt(c[key]):String(c[key]); soon(); }); return h('div',{class:'sd-sl'}, h('span',{text:label}), i, val); };
+  const pct=v=>Math.round(v*100)+'%';
+  const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(c[k]!==false&&!!c[k]),onclick:e=>{ c[k]=!(c[k]!==false&&!!c[k]); e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(true); }},l);
+  const swatch=(key,list,thumbs)=>{ const box=h('div',{class:'dz-sw'}, ...list.map(col=>h('button',{type:'button',style:'background:'+col,'aria-label':col,'aria-pressed':String(c[key]===col),onclick:e=>{ c[key]=col; box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(thumbs); }}))); return box; };
   const tplBox=h('div',{class:'sd-tpls'});
-  const drawThumbs=async()=>{ tplBox.replaceChildren(...SD_TPL.map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
-  const photoBox=h('div',{class:'sd-photos'}, ...sdPhotos(p).map(u=>h('button',{type:'button',class:'sd-ph'+(c.photo===u?' on':''),onclick:e=>{ c.photo=u; photoBox.querySelectorAll('.sd-ph').forEach(x=>x.classList.toggle('on',x===e.currentTarget)); soon(); drawThumbs(); }}, h('img',{src:u,alt:'',loading:'lazy'}))));
-  const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(!!c[k]),onclick:e=>{ c[k]=!c[k]; e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(); }},l);
-  const ttl=h('input',{maxlength:40,placeholder:'植物名稱（留空用預設）'}); ttl.addEventListener('input',()=>{ c.title=ttl.value.trim(); soon(); });
-  const nt=h('input',{maxlength:30,placeholder:'自訂一句話，例如：限量 3 株'}); nt.addEventListener('input',()=>{ c.note=nt.value.trim(); soon(); });
-  const zoom=h('input',{type:'range',min:1,max:2,step:.05,value:c.zoom}); zoom.addEventListener('input',()=>{ c.zoom=+zoom.value; soon(); });
-  const colors=h('div',{class:'dz-sw'}, ...SD_COLORS.map(col=>h('button',{type:'button',style:'background:'+col,'aria-label':col,'aria-pressed':String(c.color===col),onclick:e=>{ c.color=col; colors.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(); drawThumbs(); }})));
+  const drawThumbs=()=>{ tplBox.replaceChildren(...SD_TPL.map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
+  const modesBox=h('div',{class:'sd-modes'}, ...SD_MODES.map(([k,ic,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ persist(); mode=k; c=build(k); txt.value=modeDef(k)[5](p); saved.textContent=store.m[k]?'✓ 已套用你上次的「'+modeDef(k)[2]+'」設定':''; modesBox.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===k))); store.last=k; sdSave(store); drawPanel(); }}, h('span',{text:ic}), h('b',{text:l}), h('small',{text:sub}))));
+  let tab=store.tab||'layout';
+  const tabs=[['layout','版型'],['content','內容'],['style','文字與顏色'],['alpha','透明度'],['frame','外框']];
   const panel=h('div',{class:'sd-panel'});
-  const rebuild=()=>{ panel.replaceChildren(
-      h('div',{class:'sd-g'}, h('b',{text:'尺寸'}), seg(Object.entries(SD_FMT).map(([k,v])=>[k,v[2]]),'fmt')),
-      h('div',{class:'sd-g'}, h('b',{text:'模板'}), tplBox),
-      sdPhotos(p).length>1?h('div',{class:'sd-g'}, h('b',{text:'照片'}), photoBox):null,
-      h('div',{class:'sd-g'}, h('b',{text:'顯示內容'}), h('div',{class:'chips'}, tog('showShop','溫室 logo'), tog('showKind','類型'), tog('showStatus','販售狀態'), tog('showTags','標籤'), tog('showPrice','價格'), tog('showCode','編號'), tog('showQR','QR code')), h('div',{class:'two',style:'margin-top:8px'}, ttl, nt)),
-      h('div',{class:'sd-g'}, h('b',{text:'風格'}), colors, h('div',{class:'sd-row'}, h('span',{text:'字體'}), seg(SD_FONTS,'font','sm')), h('div',{class:'sd-row'}, h('span',{text:'濾鏡'}), seg(SD_FILTERS,'filter','sm')), h('div',{class:'sd-row'}, h('span',{text:'文字位置'}), seg([['bottom','下方'],['top','上方']],'pos','sm')), h('div',{class:'sd-row'}, h('span',{text:'照片對齊'}), seg([['top','上'],['center','中'],['bottom','下']],'focus','sm')), h('div',{class:'sd-row'}, h('span',{text:'放大'}), zoom)));
-    drawThumbs(); soon(); };
+  const drawPanel=()=>{ const tb=h('div',{class:'sd-tabs'}, ...tabs.map(([k,l])=>h('button',{type:'button','aria-pressed':String(tab===k),onclick:()=>{ tab=k; store.tab=k; drawPanel(); },text:l})));
+    const body=[];
+    if (tab==='layout'){
+      body.push(h('div',{class:'sd-g'}, h('b',{text:'尺寸'}), seg(Object.entries(SD_FMT).map(([k,v])=>[k,v[2]]),'fmt','',true)), h('div',{class:'sd-g'}, h('b',{text:'模板'}), tplBox));
+      const ph=sdPhotos(p); if(ph.length>1) body.push(h('div',{class:'sd-g'}, h('b',{text:'照片'}), h('div',{class:'sd-photos'}, ...ph.map(u=>h('button',{type:'button',class:'sd-ph'+(c.photo===u?' on':''),onclick:e=>{ c.photo=u; e.currentTarget.parentElement.querySelectorAll('.sd-ph').forEach(x=>x.classList.toggle('on',x===e.currentTarget)); soon(true); }}, h('img',{src:u,alt:'',loading:'lazy'}))))));
+      body.push(h('div',{class:'sd-g'}, h('b',{text:'照片調整'}), h('div',{class:'sd-row'}, h('span',{text:'對齊'}), seg([['top','上'],['center','中'],['bottom','下']],'focus','sm')), slider('zoom','放大',1,2.5,.05,v=>v.toFixed(2)+'×'), slider('bright','亮度',.6,1.4,.02,pct), h('div',{class:'sd-row'}, h('span',{text:'濾鏡'}), seg(SD_FILTERS,'filter','sm',true))));
+      drawThumbs();
+    }
+    if (tab==='content'){
+      const ttl=h('input',{maxlength:40,placeholder:'植物名稱（留空用預設）',value:c.title}); ttl.addEventListener('input',()=>{ c.title=ttl.value.trim(); soon(); });
+      const nt=h('input',{maxlength:30,placeholder:'自訂一句話，例如：限量 3 株',value:c.note}); nt.addEventListener('input',()=>{ c.note=nt.value.trim(); soon(); });
+      body.push(h('div',{class:'sd-g'}, h('b',{text:'溫室與品牌'}), h('div',{class:'chips'}, tog('showLogo','溫室 logo'), tog('showShopName','溫室名稱'), tog('showVein','VEIN 標誌'))),
+        h('div',{class:'sd-g'}, h('b',{text:'植物資訊'}), h('div',{class:'chips'}, tog('showKind','類型'), tog('showStatus','販售狀態'), tog('showTags','商品標籤'), tog('showPrice','價格'), tog('showCode','編號'), tog('showQR','QR code'))),
+        h('div',{class:'sd-g'}, h('b',{text:'文字'}), ttl, nt));
+    }
+    if (tab==='style'){
+      body.push(h('div',{class:'sd-g'}, h('b',{text:'主色（標籤、貼紙、價格）'}), swatch('color',SD_COLORS,true)),
+        h('div',{class:'sd-g'}, h('b',{text:'文字顏色'}), swatch('ink',['#FFFFFF','#111312','#D2FF00','#FFE9A8'])),
+        h('div',{class:'sd-g'}, h('div',{class:'sd-row'}, h('span',{text:'字體'}), seg(SD_FONTS,'font','sm',true)), h('div',{class:'sd-row'}, h('span',{text:'文字位置'}), seg([['bottom','下方'],['top','上方']],'pos','sm',true)), h('div',{class:'sd-row'}, h('span',{text:'文字陰影'}), seg([[false,'關'],[true,'開']],'shadow','sm')),
+          slider('size','文字與卡片大小',.6,1.5,.05,v=>Math.round(v*100)+'%'), slider('margin','邊距',20,160,2,v=>v+'px'), slider('round','圓角',0,2,.1,v=>Math.round(v*100)+'%')));
+    }
+    if (tab==='alpha'){
+      body.push(h('div',{class:'sd-g'}, h('b',{text:'半透明程度'}), slider('shade','照片暗化漸層',0,1.6,.05,pct), slider('vignette','四周暗角',0,.8,.02,pct), slider('boxA','卡片／貼紙／色條',0,1,.02,pct), slider('tagA','標籤底色',0,1,.02,pct), slider('markA','溫室 logo 與 VEIN 標誌',0,1,.02,pct), slider('blur','毛玻璃模糊',0,60,1,v=>v+'px')));
+    }
+    if (tab==='frame'){
+      body.push(h('div',{class:'sd-g'}, h('b',{text:'整張外框（所有模板都能加）'}), slider('border','框線粗細',0,40,1,v=>v?v+'px':'無'), slider('borderIn','框的大小（內縮）',0,160,2,v=>v+'px'), slider('borderR','框的圓角',0,120,2,v=>v+'px'), slider('borderA','框的透明度',0,1,.02,pct), h('div',{class:'sd-row'}, h('span',{text:'顏色'}), seg([['accent','主色'],['ink','文字色']],'borderColor','sm'))),
+        h('div',{class:'sd-g'}, h('b',{text:'「細框藝廊」模板的框'}), slider('frameW','粗細',1,30,1,v=>v+'px'), slider('frameIn','內縮',0,160,2,v=>v+'px'), slider('frameR','圓角',0,120,2,v=>v+'px')));
+    }
+    panel.replaceChildren(tb, h('div',{class:'sd-body'}, ...body), h('div',{class:'row',style:'justify-content:space-between;gap:8px;flex-wrap:wrap'}, saved, h('button',{type:'button',class:'bf-lk',onclick:()=>{ delete store.m[mode]; sdSave(store); c=build(mode); drawPanel(); toast('已恢復「'+modeDef(mode)[2]+'」的預設'); },text:'恢復這個模式的預設'})));
+    redraw(); };
   const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,1); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.92); }catch(e){ r(null); } }); return {blob,ok}; };
-  const fileName=()=>p.code+'-'+(mode==='sale'?'sale':mode==='story'?'story':'share')+'.jpg';
-  const doShare=async(withText)=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗（照片可能還沒允許跨網域讀取），先複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg'});
-    if (navigator.canShare&&navigator.canShare({files:[file]})){ if(mode==='story') copyText(plantUrl(p)); try{ await navigator.share(withText?{files:[file],text:txt.value}:{files:[file]}); }catch(e){} } else { const a=h('a',{href:URL.createObjectURL(blob),download:fileName()}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),500); toast('已下載圖片，文字也幫你複製了'); copyText(txt.value); } };
-  btns.append(h('button',{class:'btn volt lg',type:'button',onclick:()=>doShare(mode!=='story')},'📤 分享圖片'), h('button',{class:'btn ink',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
-    h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗'); return; } const a=h('a',{href:URL.createObjectURL(blob),download:fileName()}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),500); },text:'下載圖片'}),
+  const fileName=()=>p.code+'-'+mode+'.jpg';
+  const dl=blob=>{ const a=h('a',{href:URL.createObjectURL(blob),download:fileName()}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),500); };
+  const doShare=async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg'}); const story=c.fmt==='story';
+    if (navigator.canShare&&navigator.canShare({files:[file]})){ if(story) copyText(plantUrl(p)); try{ await navigator.share(story?{files:[file]}:{files:[file],text:txt.value}); }catch(e){} } else { dl(blob); copyText(txt.value); toast('已下載圖片，文字也幫你複製了'); } };
+  btns.append(h('button',{class:'btn volt lg',type:'button',onclick:doShare},'📤 分享圖片'), h('button',{class:'btn ink',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
+    h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); },text:'下載圖片'}),
     h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'));
-  note.textContent='手機按「分享圖片」選 Instagram／Facebook 就能直接發；限動模式會先幫你複製網址，可以加「連結」貼圖貼上。';
-  openDialog('轉發這株', h('div',{class:'sd'}, modes, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, prev), h('div',{class:'sd-right'}, panel, h('label',{class:'field'}, h('span',{text:'一起傳出去的文字（可以改）'}), txt), btns, note))), false);
-  rebuild();
+  note.textContent='手機按「分享圖片」選 Instagram／Facebook 就能發；限動尺寸會先幫你複製網址，可以加「連結」貼圖貼上。';
+  openDialog('轉發這株', h('div',{class:'sd'}, modesBox, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, prev), h('div',{class:'sd-right'}, panel, h('label',{class:'field'}, h('span',{text:'一起傳出去的文字（可以改）'}), txt), btns, note))), false);
+  drawPanel(); setTimeout(()=>modesBox.querySelector('[aria-pressed="true"]')?.scrollIntoView({inline:'center',block:'nearest'}),50);
 }
 
 function xferText(p,x){ const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
@@ -5314,7 +5378,9 @@ function histBtn(p,cls,label){ return h('a',{class:'btn '+(cls||'soft')+' hbtn',
 function leaveHistory(){ if(S.histUnsub){ S.histUnsub(); S.histUnsub=null; } S.histFor=null; S.histDocs=null; histSig=''; }
 let histSig='', histIO=null;
 const HK={par:['🧬','親本來源'],rec:['📷','紀錄'],note:['✍️','事件'],reg:['🏷','登錄'],kid:['🌱','繁殖'],own:['🤝','所有權'],sale:['🛒','上架']};
-{ const _sm=HTMLDialogElement.prototype.showModal; HTMLDialogElement.prototype.showModal=function(){ this._openAt=performance.now(); const r=_sm.apply(this,arguments); try{ placeDock(); }catch(e){} return r; }; document.addEventListener('close',()=>setTimeout(()=>{ try{ placeDock(); }catch(e){} }),true); }
+{ const _sm=HTMLDialogElement.prototype.showModal; HTMLDialogElement.prototype.showModal=function(){ this._openAt=performance.now(); const r=_sm.apply(this,arguments); try{ placeDock(); }catch(e){} syncScrollLock(); return r; }; document.addEventListener('close',()=>setTimeout(()=>{ try{ placeDock(); }catch(e){} syncScrollLock(); }),true); }
+// 開著視窗（後台、商品…）時鎖住背後的網頁，手指滑動只會捲動目前的視窗
+function syncScrollLock(){ const H=document.documentElement, open=!!document.querySelector('dialog[open]'); if(open&&!H.classList.contains('modal-lock')){ const y=scrollY; H.dataset.sy=String(y); H.dataset.sh=location.hash; H.classList.add('modal-lock'); document.body.style.top=(-y)+'px'; } else if(!open&&H.classList.contains('modal-lock')){ const y=+H.dataset.sy||0, same=H.dataset.sh===location.hash||/^#(admin|plants)/.test(location.hash)||/^#(admin|plants)/.test(H.dataset.sh||''); H.classList.remove('modal-lock'); document.body.style.top=''; if(same) scrollTo(0,y); } }
 function lightbox(list,i){
   document.querySelectorAll('.lb').forEach(x=>x._close?x._close():x.remove());
   let k=Math.max(0,i|0); const stage=h('div',{class:'lb-s'}), cnt=h('span',{class:'lb-n mono'});
