@@ -2620,6 +2620,14 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .bdg.t-gold,.bdg.t-silver,.bdg.t-bronze,.bdg.t-lime{color:#1a1d1b}
 .bw-i.on.t-gold,.bw-i.on.t-silver,.bw-i.on.t-bronze,.bw-i.on.t-lime{color:#1a1d1b}.bw-i.on.t-gold small,.bw-i.on.t-silver small,.bw-i.on.t-bronze small,.bw-i.on.t-lime small{color:rgba(0,0,0,.6)}
 .sf.sf-m-dark .sf-tabs,.sf.sf-m-forest .sf-tabs{background:rgba(0,0,0,.35)}.sf.sf-m-dark .sf-tabs button,.sf.sf-m-forest .sf-tabs button{color:var(--fg2)}.sf.sf-m-dark .sf-tabs button[aria-current="true"],.sf.sf-m-forest .sf-tabs button[aria-current="true"]{color:#111}
+.sh-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:-4px 0 16px}
+.sh-modes button{border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:10px 12px;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,background .2s}
+.sh-modes button b{font-size:15px}.sh-modes button small{font-size:11.5px;color:var(--fg2)}
+.sh-modes button[aria-pressed="true"]{border-color:#111312;background:#111312;color:#fff}.sh-modes button[aria-pressed="true"] small{color:#D2FF00}
+.sh-prev.a-916{aspect-ratio:9/16;max-height:72vh;justify-self:center;width:auto;height:min(72vh,640px)}
+.sh-tip{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#EEF6CF;font-size:13px;line-height:1.55;color:#2E5B10}
+@media (max-width:720px){.sh-modes button{padding:8px}.sh-modes button b{font-size:13.5px}.sh-prev.a-916{height:min(60vh,520px);max-width:none}}
+.sh .sh-side p.sh-tip,.sh .sh-side p.sh-note{display:block}.sh .sh-side p.sh-tip[hidden]{display:none}
 </style>
 
 </head>
@@ -4992,26 +5000,99 @@ async function shareImage(p,o={}){
   const blob=await new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.9); }catch(e){ res(null); } });
   return {blob,photo};
 }
-// 共用分享視窗：預覽圖＋可編輯文字，按鈕把圖片和文字一起分享出去
+// 共用分享視窗：預覽圖＋可編輯文字，按鈕把圖片和文字一起分享出去；可切換多種模式（一般／IG 限動／販售貼文）
 async function shareDialog(o){
-  const txt=h('textarea',{class:'sh-txt',rows:7}); txt.value=o.text;
-  const prev=h('div',{class:'sh-prev'}, h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
-  const btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'});
-  openDialog(o.title, h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, o.lead?h('div',{class:'sh-lead'}, o.lead):null, h('label',{class:'field'}, h('span',{text:'要一起傳出去的文字（可以改）'}), txt), btns, note)), false);
-  const {blob,photo}=await o.image(); if(!prev.isConnected) return;
-  const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],o.file+'.jpg',{type:'image/jpeg'}):null;
-  prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',style:'color:#fff',text:'分享圖產生失敗，可以先傳文字與連結。'}));
-  if (!photo) note.textContent='分享圖暫時放不進植物照片，先用圖示代替；文字和連結不受影響。';
-  const canFile=file&&navigator.canShare&&navigator.canShare({files:[file]});
-  const copyAll=async()=>{ try{ if(blob&&window.ClipboardItem&&navigator.clipboard?.write){ const png=await new Promise(r=>{ const c=document.createElement('canvas'), i=new Image(); i.onload=()=>{ c.width=i.width; c.height=i.height; c.getContext('2d').drawImage(i,0,0); c.toBlob(r,'image/png'); }; i.onerror=()=>r(null); i.src=url; }); if(png){ await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([txt.value],{type:'text/plain'}),'image/png':png})]); toast('已複製圖片＋文字，貼到聊天室就好'); return; } } }catch(e){} copyText(txt.value); };
-  btns.replaceChildren(
-    navigator.share?h('button',{class:'btn volt lg',type:'button',onclick:async()=>{ try{ if(canFile) await navigator.share({files:[file],text:txt.value}); else await navigator.share({text:txt.value}); }catch(e){} }},canFile?'📤 分享圖片＋文字':'📤 分享'):null,
-    h('button',{class:'btn ink',type:'button',onclick:copyAll,text:'複製文字＋連結'}),
-    h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'),
-    url?h('a',{class:'btn soft',href:url,download:o.file+'.jpg',text:'下載圖片'}):null);
-  if (!canFile) note.textContent=(note.textContent?note.textContent+' ':'')+'這個瀏覽器不能一次分享圖片＋文字：請先「下載圖片」，再「複製文字＋連結」一起貼上。';
+  const modes=o.modes||[{k:'x',image:o.image,text:o.text,file:o.file}];
+  const txt=h('textarea',{class:'sh-txt',rows:7});
+  const prev=h('div',{class:'sh-prev'}), btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'}), tip=h('p',{class:'sh-tip',hidden:true});
+  const cache=new Map(); let cur=null, tok=0;
+  const seg=modes.length>1?h('div',{class:'sh-modes'}, ...modes.map(m=>h('button',{type:'button','data-k':m.k,onclick:()=>load(m)}, h('b',{text:m.label}), m.sub?h('small',{text:m.sub}):null))):null;
+  openDialog(o.title, h('div',{}, seg, h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, o.lead?h('div',{class:'sh-lead'}, o.lead):null, tip, h('label',{class:'field'}, h('span',{text:'要一起傳出去的文字（可以改）'}), txt), btns, note))), false);
+  async function load(m){ cur=m; const my=++tok; seg?.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===m.k)));
+    prev.className='sh-prev'+(m.aspect?' a-'+m.aspect:''); txt.value=m.text; tip.hidden=!m.tip; tip.textContent=m.tip||''; note.textContent=''; btns.replaceChildren();
+    prev.replaceChildren(h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
+    if (!cache.has(m.k)) cache.set(m.k,m.image()); const {blob,photo}=await cache.get(m.k); if(!prev.isConnected||my!==tok) return;
+    const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],m.file+'.jpg',{type:'image/jpeg'}):null;
+    prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',style:'color:#fff',text:'分享圖產生失敗，可以先傳文字與連結。'}));
+    if (!photo) note.textContent='分享圖暫時放不進植物照片，先用圖示代替；文字和連結不受影響。';
+    const canFile=file&&navigator.canShare&&navigator.canShare({files:[file]});
+    const copyAll=async()=>{ try{ if(blob&&window.ClipboardItem&&navigator.clipboard?.write){ const png=await new Promise(r=>{ const c=document.createElement('canvas'), i=new Image(); i.onload=()=>{ c.width=i.width; c.height=i.height; c.getContext('2d').drawImage(i,0,0); c.toBlob(r,'image/png'); }; i.onerror=()=>r(null); i.src=url; }); if(png){ await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([txt.value],{type:'text/plain'}),'image/png':png})]); toast('已複製圖片＋文字，貼到聊天室就好'); return; } } }catch(e){} copyText(txt.value); };
+    const share=async(withText)=>{ try{ if(canFile) await navigator.share(withText?{files:[file],text:txt.value}:{files:[file]}); else await navigator.share({text:txt.value}); }catch(e){} };
+    btns.replaceChildren(
+      m.k==='story'?(navigator.share&&canFile?h('button',{class:'btn volt lg',type:'button',onclick:()=>{ copyText(txt.value); share(false); }},'📲 分享到 IG 限動'):null):navigator.share?h('button',{class:'btn volt lg',type:'button',onclick:()=>share(true)},canFile?(m.k==='sale'?'📤 分享到 IG／FB':'📤 分享圖片＋文字'):'📤 分享'):null,
+      h('button',{class:'btn ink',type:'button',onclick:m.k==='sale'||m.k==='story'?()=>copyText(txt.value):copyAll,text:m.k==='sale'?'複製貼文文字（含 hashtag）':m.k==='story'?'複製網址文字':'複製文字＋連結'}),
+      m.k==='x'||m.k==='normal'?h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'):null,
+      m.k==='sale'?h('a',{class:'btn soft',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(plantUrlOf(o)); }},'Facebook 分享連結'):null,
+      url?h('a',{class:'btn soft',href:url,download:m.file+'.jpg',text:'下載圖片'}):null);
+    if (!canFile) note.textContent=(note.textContent?note.textContent+' ':'')+(m.k==='story'?'這個瀏覽器不能直接分享到 IG：請「下載圖片」，再到 IG 限動選這張圖。':'這個瀏覽器不能一次分享圖片＋文字：請先「下載圖片」，再複製文字一起貼上。');
+  }
+  load(modes.find(m=>m.k===o.start)||modes[0]);
 }
-function openShare(p){ lsSet('vein.didShare',true); return shareDialog({title:'轉發這株',text:shareText(p),file:p.code,image:()=>shareImage(p)}); }
+const plantUrlOf=o=>o.url||siteUrl();
+/* ---- 分享模式（IG 限動 9:16）與販售模式（IG／FB 貼文 4:5）---- */
+const parList=p=>{ const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)), mX=momExt(p), dX=dadExt(p); return [M?M.code:mX?(mX.name||mX.code):momCode(p),D?D.code:dX?(dX.name||dX.code):dadCode(p)].filter(Boolean); };
+function storyText(p){ return '🌱 '+short(p.species)+(p.cultivar?' '+p.cultivar:'')+'\n每一株都有編號與成長履歷，就在 VEIN\n👉 '+plantUrl(p); }
+function saleText(p){ const pl=priceLabel(p), par=parList(p), g=genusOf(normSp(p.species)), gz=genusZh(g);
+  const tags=['#VEIN','#VEIN植物市集','#植物溯源','#植物交易',gz?'#'+gz:'',g?'#'+g:'',p.kind==='seedling'?'#實生苗':p.kind==='pup'?'#側芽':'#母株',...tagsOf(p).slice(0,3).map(t=>'#'+String(t).replace(/\s+/g,''))].filter(Boolean);
+  return ['🌿 '+short(p.species)+(p.cultivar?' '+p.cultivar:'')+' 販售中｜在 VEIN 上',
+    '💰 '+(onSale(p)?pl.sub+' '+pl.main+(live(p)?'（競標中，倒數 '+fmtLeft(p.endsAtMs-Date.now())+'）':''):'價格請私訊或在 VEIN 聊聊'),
+    '🏷 編號 '+p.code+' · '+kindLabel(p), par.length?'🧬 '+(p.kind==='pup'?'分株自 ':'親本 ')+par.join(' × '):'', memoOf(p)?'📝 '+memoOf(p):'',
+    '📸 '+(p.photoCount||0)+' 筆成長紀錄，原始拍攝時間都查得到',
+    '', '🛒 在 VEIN 下單／看完整履歷：'+plantUrl(p), '或到 VEIN 搜尋編號「'+p.code+'」', '賣家：'+shopName(p.shop), '', tags.join(' ')].filter((x,i,a)=>x!==''||(a[i-1]!==''&&i>0)).join('\n'); }
+async function sharePoster(p,kind){
+  const story=kind==='story', W=1080, H=story?1920:1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  try{ await document.fonts?.ready; }catch(e){}
+  const F='"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,Menlo,monospace', INK='#050605';
+  const src=(p.media||[]).find(m=>m.type!=='video')?.url||cover(p); const im=await loadImg(src,!sameOrigin(src)), photo=!!im;
+  const wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; const T=String(txt); for(const ch of T){ if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line); if(out.join('').length<T.length){ let l=out[out.length-1]||''; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[out.length-1]=l+'…'; } return out; };
+  const pill=(x,y,txt,bg,fg,size,right)=>{ g.font='800 '+size+'px '+F; const tw=g.measureText(txt).width, pw=tw+size*1.3, ph=size*1.8, X=right?x-pw:x; g.fillStyle=bg; g.beginPath(); g.roundRect(X,y,pw,ph,ph/2); g.fill(); g.fillStyle=fg; g.textBaseline='middle'; g.fillText(txt,X+size*.65,y+ph/2+1); g.textBaseline='alphabetic'; return pw; };
+  const cover0=(x,y,w,hh)=>{ if(!im){ const gr=g.createLinearGradient(x,y,x+w,y+hh); gr.addColorStop(0,'#1d3a27'); gr.addColorStop(1,INK); g.fillStyle=gr; g.fillRect(x,y,w,hh); return; } const r=Math.max(w/im.width,hh/im.height), iw=im.width*r, ih=im.height*r; g.save(); g.beginPath(); g.rect(x,y,w,hh); g.clip(); g.drawImage(im,x+(w-iw)/2,y+(hh-ih)/2,iw,ih); g.restore(); };
+  const logo=(x,y,s,col)=>{ g.fillStyle='#1F5C42'; g.beginPath(); g.roundRect(x,y,s,s,s*.25); g.fill(); g.fillStyle=VOLT; g.beginPath(); g.arc(x+s/2,y+s/2,s*.15,0,7); g.fill(); g.fillStyle=col||'#fff'; g.font='900 '+Math.round(s*.62)+'px '+F; g.textBaseline='middle'; g.fillText('V E I N',x+s+s*.35,y+s/2+2); g.textBaseline='alphabetic'; };
+  const qr=async(x,y,S0,bg,fg)=>{ const Q=await loadQR(); if(!Q) return false; try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=S0*.08, cell=(S0-pad*2)/n; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,S0,S0,S0*.1); g.fill(); g.fillStyle=fg; for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) g.fillRect(x+pad+c*cell,y+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); return true; }catch(e){ return false; } };
+  const name=(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,c=>c.toUpperCase()), pl=priceLabel(p), par=parList(p);
+  if (story){
+    // 9:16 限動：照片滿版，上下留給 IG 介面的安全區
+    cover0(0,0,W,H);
+    const t1=g.createLinearGradient(0,0,0,420); t1.addColorStop(0,'rgba(0,0,0,.65)'); t1.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=t1; g.fillRect(0,0,W,420);
+    const t2=g.createLinearGradient(0,H*.45,0,H); t2.addColorStop(0,'rgba(5,6,5,0)'); t2.addColorStop(.5,'rgba(5,6,5,.78)'); t2.addColorStop(1,'rgba(5,6,5,.95)'); g.fillStyle=t2; g.fillRect(0,H*.45,W,H*.55);
+    logo(64,250,64); pill(W-64,252,'TRACED ON VEIN',VOLT,INK,28,true);
+    // 斜貼紙
+    g.save(); g.translate(64,(wrap(name,W-128,'italic 900 104px '+F,2).length>1?830:940)); g.rotate(-0.05); g.fillStyle=VOLT; g.beginPath(); g.roundRect(0,0,600,96,18); g.fill(); g.fillStyle=INK; g.font='italic 900 54px '+F; g.textBaseline='middle'; g.fillText('有履歷的植物 🌱',28,50); g.textBaseline='alphabetic'; g.restore();
+    let y=1110; const nl=wrap(name,W-128,'italic 900 104px '+F,2); if(nl.length>1) y-=106; g.fillStyle='#fff'; g.font='italic 900 104px '+F; nl.forEach(l=>{ y+=106; g.fillText(l,60,y); });
+    y+=70; g.font='700 46px '+MONO; g.fillStyle=VOLT; g.fillText(p.code,64,y);
+    y+=62; g.fillStyle='rgba(255,255,255,.85)'; g.font='600 34px '+F; g.fillText([kindLabel(p),par.length?(p.kind==='pup'?'分株自 ':'親本 ')+par.join(' × '):'',(p.photoCount||0)+' 筆成長紀錄'].filter(Boolean).join('  ·  ').slice(0,46),64,y);
+    // 底部卡片：QR＋網址（IG 底部約 260px 會被回覆列蓋住，放在上面）
+    const cy=H-260-220; g.fillStyle='rgba(255,255,255,.96)'; g.beginPath(); g.roundRect(56,cy,W-112,200,32); g.fill();
+    const ok=await qr(80,cy+20,160,'#fff',INK);
+    const tx=ok?268:92; g.fillStyle=INK; g.font='900 40px '+F; g.fillText('在 VEIN 看完整履歷',tx,cy+82); g.fillStyle='#555'; g.font='600 28px '+F; g.fillText(location.host,tx,cy+128); g.fillStyle='#1F5C42'; g.font='800 26px '+F; g.fillText('↑ 也可以加「連結」貼圖貼上網址',tx,cy+168);
+  } else {
+    // 4:5 販售貼文：上方照片、下方黑底資訊、大大的價格
+    const PH=Math.round(H*.6); cover0(0,0,W,PH);
+    const t1=g.createLinearGradient(0,0,0,260); t1.addColorStop(0,'rgba(0,0,0,.6)'); t1.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=t1; g.fillRect(0,0,W,260);
+    const fade=g.createLinearGradient(0,PH-220,0,PH); fade.addColorStop(0,'rgba(5,6,5,0)'); fade.addColorStop(1,INK); g.fillStyle=fade; g.fillRect(0,PH-220,W,220);
+    g.fillStyle=INK; g.fillRect(0,PH,W,H-PH);
+    logo(52,48,58); let px=W-52; [[onSale(p)?(live(p)?'● 競標中':'販售中'):'接受洽詢','#fff',INK],[kindLabel(p),VOLT,INK]].forEach(([t,bg,fg])=>{ px-=pill(px,50,t,bg,fg,28,true)+12; });
+    // 斜角「SALE ON VEIN」緞帶
+    g.save(); g.translate(W-300,PH-120); g.rotate(-0.08); g.fillStyle=VOLT; g.beginPath(); g.roundRect(0,0,300,84,14); g.fill(); g.fillStyle=INK; g.font='italic 900 40px '+F; g.textBaseline='middle'; g.fillText('ON VEIN ↗',28,44); g.textBaseline='alphabetic'; g.restore();
+    let y=PH-34; const nl=wrap(name,W-120,'italic 900 80px '+F,2); if(nl.length>1) y-=84; g.fillStyle='#fff'; g.font='italic 900 80px '+F; nl.forEach(l=>{ g.fillText(l,48,y); y+=84; });
+    y=PH+70; g.font='700 38px '+MONO; g.fillStyle=VOLT; g.fillText(p.code,52,y);
+    y+=56; g.fillStyle='rgba(255,255,255,.82)'; g.font='600 30px '+F; [par.length?(p.kind==='pup'?'分株自 ':'親本 ')+par.join(' × '):'',memoOf(p)?'備註 '+memoOf(p):'',(p.photoCount||0)+' 筆成長紀錄 · 賣家 '+shopName(p.shop)].filter(Boolean).slice(0,3).forEach(t=>{ g.fillText(wrap(t,W-52-300,'600 30px '+F,1)[0]||'',52,y); y+=46; });
+    // 價格
+    const QS=220, qx=W-52-QS, qy=H-52-QS;
+    g.fillStyle='rgba(255,255,255,.6)'; g.font='700 28px '+F; g.fillText(onSale(p)?pl.sub:'價格',52,H-170);
+    g.fillStyle=VOLT; g.font='italic 900 '+(onSale(p)?96:72)+'px '+F; g.fillText(onSale(p)?pl.main:'私訊詢價',48,H-80);
+    g.fillStyle='rgba(255,255,255,.55)'; g.font='600 24px '+F; g.fillText('在 VEIN 搜尋編號就能下單・每株都有履歷',52,H-38);
+    if (await qr(qx,qy,QS,VOLT,INK)){ g.fillStyle=VOLT; g.font='800 22px '+F; g.textAlign='center'; g.fillText('掃描到 VEIN 購買',qx+QS/2,qy-14); g.textAlign='left'; }
+  }
+  const blob=await new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.9); }catch(e){ res(null); } });
+  return {blob,photo};
+}
+
+function openShare(p,start){ lsSet('vein.didShare',true); const mine=p.shop===S.me;
+  return shareDialog({title:'轉發這株',url:plantUrl(p),start:start||(mine&&onSale(p)?'sale':'normal'),modes:[
+    {k:'normal',label:'一般轉發',sub:'LINE・訊息',aspect:'45',text:shareText(p),file:p.code,image:()=>shareImage(p)},
+    {k:'story',label:'分享模式',sub:'IG 限動 9:16',aspect:'916',text:storyText(p),file:p.code+'-story',image:()=>sharePoster(p,'story'),tip:'手機按「分享到 IG 限動」→ 選 Instagram → 限時動態。網址已經幫你複製，可以在限動加「連結」貼圖貼上，大家點了就到 VEIN 看履歷。'},
+    {k:'sale',label:'販售模式',sub:'IG／FB 貼文 4:5',aspect:'45',text:saleText(p),file:p.code+'-sale',image:()=>sharePoster(p,'sale'),tip:'這張圖專門用來 PO 文賣植物：價格、編號、親本、QR code 都在上面，買家掃了就到 VEIN 下單。下面的文字已經附好 hashtag。'}]}); }
 function xferText(p,x){ const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
   return '🌱 '+from+' 要把「'+nm+'」（編號 '+p.code+'）的所有權轉移給你'+(x.note?'\n「'+x.note+'」':'')+'\n\n打開連結、登入後按「接受」就完成轉移（7 天內有效，只能用一次）👇\n'+claimUrl(x.id); }
 function openXferShare(p,x){ const from=shopOf(x.from)?shopName(x.from):nameOf(x.from);
