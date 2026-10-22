@@ -56,6 +56,16 @@ async function start() {
     }
   };
   auth.languageCode = 'zh-TW';
+  // 手機推播：註冊 service worker、要通知權限、拿 FCM token
+  window.__veinPush = {
+    async supported() { try { if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) return false; const M = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js'); return await M.isSupported(); } catch (e) { return false; } },
+    async enable(vapidKey) {
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' }); await navigator.serviceWorker.ready;
+      const perm = await Notification.requestPermission(); if (perm !== 'granted') { const e = new Error('denied'); e.code = 'denied'; throw e; }
+      const M = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js');
+      return await M.getToken(M.getMessaging(app), { vapidKey, serviceWorkerRegistration: reg });
+    }
+  };
 
   /* ---------- db ---------- */
   const mapErr = e => ({ code: e && e.code === 'permission-denied' ? 'invalid_argument' : (e && e.code) || 'unknown', message: e && e.message, original: e });
