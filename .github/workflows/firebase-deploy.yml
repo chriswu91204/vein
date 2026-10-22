@@ -78,5 +78,5 @@ jobs:
             gcloud services enable cloudbilling.googleapis.com --project vein-48ec8 --quiet && sleep 60 || true
           fi
           set -o pipefail
-          npx --yes firebase-tools@14 deploy --only functions:push --non-interactive --force 2>&1 | tee "$RUNNER_TEMP/push.log" || { grep -v "^\s*$" "$RUNNER_TEMP/push.log" | grep -viE "is enabled|ensuring required|^i  |Serving at|outdated|breaking changes|Deploying to" | tail -n 9 | while IFS= read -r l; do echo "::error title=push-deploy::$l"; done; exit 1; }
+          npx --yes firebase-tools@14 deploy --only functions:push --non-interactive --force 2>&1 | tee "$RUNNER_TEMP/push.log" || { grep -iE "denied|permission|build failed|propagat|invalid|unable|could not|reason|status|message|error" "$RUNNER_TEMP/push.log" | grep -viE "Failed to create|There was an error deploying|^\s*$" | sort -u | tail -n 9 | while IFS= read -r l; do echo "::error title=push-deploy::$l"; done; exit 1; }
           npx --yes firebase-tools@14 functions:list --non-interactive 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -E "│|\|" | while IFS= read -r l; do echo "::notice title=functions::$l"; done || true
