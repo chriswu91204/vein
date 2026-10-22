@@ -2224,6 +2224,17 @@ dialog .lb{position:fixed;inset:0}
 .sf.has-bg .sc-it,.sf.has-bg .sc-faq,.sf.has-bg .sc-tiles,.sf.has-bg .sc-rw,.sf.has-bg .sc-story,.sf.has-bg .sc-links,.sf.has-bg .sc-stats{background:rgba(250,250,247,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:28px;padding:clamp(16px,3vw,32px)}
 @media (max-width:760px){.sc-it,.sc-story.m{grid-template-columns:1fr}.sc-it.r .sc-itm{order:0}.sc-cd{grid-template-columns:1fr}.sc-cdn{grid-row:auto}.sc-cd-u{min-width:0;flex:1}.sc-vid{aspect-ratio:4/5;border-radius:24px}.sc-tg{grid-template-columns:repeat(2,1fr)}.sc-rc{width:250px}}
 html.pv #nav,html.pv .tabbar,html.pv footer,html.pv #sellerStrip,html.pv .pv-hide{display:none!important}html.pv body{padding-bottom:0!important}
+.pv-edit #pgSeller [data-bid]{cursor:pointer;transition:outline-color .15s}
+.pv-edit #pgSeller [data-bid]:hover{outline:2px dashed rgba(31,92,66,.45);outline-offset:4px;border-radius:14px}
+.pv-edit #pgSeller [data-bid].pv-sel{outline:3px solid #C6F432;outline-offset:4px;border-radius:14px}
+.pv-edit #pgSeller [data-bid].pv-moving{opacity:.35}
+.pv-tb{position:absolute;z-index:9999;transform:scale(var(--pvz,1));transform-origin:right top;display:flex;align-items:center;gap:2px;background:#111312;color:#fff;border-radius:12px;padding:4px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px}
+.pv-tb .pv-nm{padding:0 8px 0 2px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.pv-tb button,.pv-tb .pv-hd{border:0;background:transparent;color:#fff;min-width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px;display:inline-grid;place-items:center}
+.pv-tb button:hover{background:rgba(255,255,255,.14)}.pv-tb .pv-hd{cursor:grab;touch-action:none;background:rgba(198,244,50,.2)}
+.pv-dragging,.pv-dragging *{cursor:grabbing!important;user-select:none}
+.pv-line{position:absolute;z-index:9998;height:4px;background:#C6F432;border-radius:4px;box-shadow:0 0 0 3px rgba(198,244,50,.3);pointer-events:none}
+.pv-line{height:calc(4px * var(--pvz,1))}.pv-line span{position:absolute;left:50%;top:-12px;transform:translateX(-50%) scale(var(--pvz,1));transform-origin:center bottom;background:#111312;color:#C6F432;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
 [data-bid].pv-hl{animation:pvHl 1.6s ease}@keyframes pvHl{0%,60%{outline:3px solid #D2FF00;outline-offset:6px;border-radius:20px}100%{outline:3px solid transparent;outline-offset:12px}}
 /* ---- 賣場設計工具 ---- */
 .bd-form{max-width:none}
@@ -2821,6 +2832,13 @@ button.pm-pv i{font-style:normal;font-size:12px;color:var(--fg3,#9A9F96);opacity
 .ql{display:flex;flex-direction:column;gap:14px}.ql-p{display:flex;gap:12px;align-items:center;background:#F5F6F2;border-radius:14px;padding:10px}
 .ql-p img,.ql-p>span{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:#E8EBE3;font-size:24px}.ql-p b{display:block;font-size:15px}.ql-p small{color:var(--fg2)}
 /* ---- 安全 ---- */
+.bd-strip{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 10px;scrollbar-width:thin;align-items:center}
+.bd-sh{flex:none;font-size:12px;color:var(--fg2);font-weight:600;padding-right:2px}
+.bd-sc{flex:none;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px 7px 9px;cursor:grab;touch-action:pan-x;font-size:12.5px;user-select:none;-webkit-user-select:none}
+.bd-sc:hover{border-color:#1F5C42}.bd-sc span{font-size:15px}.bd-sc b{white-space:nowrap}
+.bd-pc{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.bd-ghost{position:fixed;left:0;top:0;z-index:2147483600;pointer-events:none;display:flex;align-items:center;gap:8px;background:#111312;color:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 14px 34px rgba(0,0,0,.3);font-size:13px;opacity:.92}
+.bd-ghost small{color:#9AA19A;font-size:11.5px}.bd-ghost.ok{background:#1F5C42}.bd-ghost.ok small{color:#C6F432}
 .mp-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
 .mp-av{width:58px;height:58px;border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,#1F5C42,#3E8A5F);color:#fff;font-weight:800;font-size:19px;letter-spacing:-.02em}
 .mp-hm{min-width:0;display:flex;flex-direction:column;gap:6px}.mp-nm{font-size:21px;line-height:1.2;word-break:break-word}
@@ -7620,7 +7638,45 @@ function normSections(list){ const out=(Array.isArray(list)&&list.length?list:SF
   SF_SECTIONS.forEach(([k])=>{ if(!out.some(x=>x.k===k)) out.push({id:k,k,on:false}); }); return out; }
 // 預覽視窗（iframe）裡用：收到草稿就重畫
 if (PREVIEW){ document.documentElement.classList.add('pv');
-  window.__veinPreview=st=>{ S.previewStore=st; if(PAGE==='seller') renderSeller(true); };
+  window.__veinPreview=st=>{ S.previewStore=st; if(PAGE==='seller') renderSeller(true); requestAnimationFrame(()=>window.__veinPvMarks?.()); };
+  // ---- 在預覽裡直接編輯：點區塊選取、工具列（移動／複製／刪除）、拖曳換位置、從外面拖元件進來放 ----
+  const PV={edit:false,sel:null,hov:null,tb:null,line:null,drag:null,k:1};
+  // 預覽被縮小顯示時，工具列和指示線反過來放大，才看得清楚、點得到
+  window.__veinPvScale=k=>{ PV.k=Math.max(.2,Math.min(1,k||1)); document.documentElement.style.setProperty('--pvz',String(1/PV.k)); placeTb(); };
+  const bdApi=()=>{ try{ return window.parent.__veinBd||null; }catch(e){ return null; } };
+  const secEls=()=>[...document.querySelectorAll('#pgSeller [data-bid]')];
+  const byId=id=>id&&document.querySelector('#pgSeller [data-bid="'+CSS.escape(id)+'"]');
+  const tbEl=()=>{ if(PV.tb) return PV.tb;
+    PV.tb=h('div',{class:'pv-tb'}, h('span',{class:'pv-hd',title:'按住拖曳換位置','data-a':'drag',text:'⠿'}), h('b',{class:'pv-nm'}),
+      ...[['up','↑','上移'],['down','↓','下移'],['set','⚙','設定'],['dup','⧉','複製'],['del','🗑','刪除／隱藏']].map(([a,t,ti])=>h('button',{type:'button','data-a':a,title:ti,text:t})));
+    PV.tb.addEventListener('click',e=>{ const a=e.target.closest('[data-a]')?.dataset.a, id=PV.tb.dataset.id, B=bdApi(); if(!a||!id||!B||a==='drag') return; e.preventDefault(); e.stopPropagation();
+      if(a==='up') B.move(id,-1); else if(a==='down') B.move(id,1); else if(a==='dup') B.dup(id); else if(a==='del') B.del(id); else if(a==='set') B.select(id,true); },true);
+    PV.tb.addEventListener('pointerdown',e=>{ if(!e.target.closest('[data-a=drag]')) return; e.preventDefault(); const id=PV.tb.dataset.id; PV.tb.setPointerCapture?.(e.pointerId); PV.drag={id}; document.documentElement.classList.add('pv-dragging'); byId(id)?.classList.add('pv-moving');
+      const mv=ev=>{ ev.preventDefault(); window.__veinPvDrop(ev.clientX,ev.clientY); };
+      const up=()=>{ PV.tb.removeEventListener('pointermove',mv); PV.tb.removeEventListener('pointerup',up); PV.tb.removeEventListener('pointercancel',up); document.documentElement.classList.remove('pv-dragging'); byId(id)?.classList.remove('pv-moving'); const r=PV.last; window.__veinPvDropEnd(); PV.drag=null; if(r&&r.before!==id) bdApi()?.moveTo(id,r.before); };
+      PV.tb.addEventListener('pointermove',mv); PV.tb.addEventListener('pointerup',up); PV.tb.addEventListener('pointercancel',up); });
+    document.body.append(PV.tb); return PV.tb; };
+  const placeTb=()=>{ const el=byId(PV.hov)||byId(PV.sel); const t=tbEl(); if(!PV.edit||!el){ t.hidden=true; return; } const r=el.getBoundingClientRect(), I=bdApi()?.info(el.dataset.bid)||{};
+    t.hidden=false; t.dataset.id=el.dataset.bid; t.querySelector('.pv-nm').textContent=I.name||'區塊'; t.querySelector('[data-a=dup]').hidden=!I.comp; t.querySelector('[data-a=del]').title=I.comp?'刪除':'隱藏這個區塊';
+    t.style.top=Math.max(scrollY+4,r.top+scrollY+8)+'px'; t.style.left=Math.max(8,Math.min(r.right+scrollX-t.offsetWidth-8,innerWidth-t.offsetWidth-8))+'px'; };
+  const markSel=()=>{ secEls().forEach(el=>el.classList.toggle('pv-sel',PV.edit&&el.dataset.bid===PV.sel)); placeTb(); };
+  window.__veinPvEdit=on=>{ PV.edit=!!on; document.documentElement.classList.toggle('pv-edit',PV.edit); markSel(); };
+  window.__veinPvSel=id=>{ PV.sel=id||null; markSel(); };
+  window.__veinPvMarks=markSel;
+  document.addEventListener('mouseover',e=>{ if(!PV.edit||PV.drag) return; const el=e.target.closest?.('#pgSeller [data-bid]'); if(el&&el.dataset.bid!==PV.hov){ PV.hov=el.dataset.bid; placeTb(); } });
+  addEventListener('scroll',()=>{ if(PV.edit) placeTb(); },{passive:true}); addEventListener('resize',()=>{ if(PV.edit) placeTb(); });
+  document.addEventListener('click',e=>{ if(!PV.edit||e.target.closest('.pv-tb')) return; const el=e.target.closest('#pgSeller [data-bid]'); if(!el) return; e.preventDefault(); e.stopPropagation(); PV.sel=PV.hov=el.dataset.bid; markSel(); bdApi()?.select(el.dataset.bid); },true);
+  // 放置指示線：x、y 是預覽視窗裡的座標；回傳要放在哪個區塊前面（null＝放在最後）
+  window.__veinPvDrop=(x,y)=>{ const L=secEls().filter(el=>!el.classList.contains('pv-moving')); if(!PV.line){ PV.line=h('div',{class:'pv-line'}, h('span',{text:'放在這裡'})); document.body.append(PV.line); }
+    if (y<70) scrollBy(0,-18); else if (y>innerHeight-70) scrollBy(0,18);
+    let before=null, top;
+    for (const el of L){ const r=el.getBoundingClientRect(); if(y<r.top+r.height/2){ before=el.dataset.bid; top=r.top-8; break; } }
+    if (before===null){ const last=L[L.length-1]; top=last?last.getBoundingClientRect().bottom+8:120; }
+    const host=document.querySelector('#pgSeller')?.getBoundingClientRect();
+    PV.line.hidden=false; PV.line.style.top=(top+scrollY)+'px'; PV.line.style.left=((host?host.left:0)+scrollX+12)+'px'; PV.line.style.width=((host?host.width:innerWidth)-24)+'px';
+    PV.last={before}; return PV.last; };
+  window.__veinPvDropEnd=()=>{ if(PV.line) PV.line.hidden=true; PV.last=null; };
+
   window.__veinPreviewFocus=id=>{ const el=document.querySelector('[data-bid="'+CSS.escape(id)+'"]'); if(!el) return; el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('pv-hl'); void el.offsetWidth; el.classList.add('pv-hl'); };
   document.addEventListener('click',e=>{ const a=e.target.closest('a[href]'); if(!a) return; const u=a.getAttribute('href'); if(u.startsWith('#/seller/')) return; e.preventDefault(); e.stopPropagation(); toast('預覽模式：連結不會跳轉'); },true);
 }
@@ -7641,15 +7697,17 @@ function admDesign(m){
   // ---- 預覽 ----
   let devW=S.dzDev==='m'?390:1280;
   const fr=h('iframe',{class:'bd-fr',title:'賣場預覽',src:location.pathname+'?pv=1#/seller/'+S.me,loading:'eager'});
-  const push=()=>{ try{ fr.contentWindow?.__veinPreview?.(JSON.parse(JSON.stringify(D))); }catch(e){} };
+  const push=()=>{ try{ const w=fr.contentWindow; w?.__veinPreview?.(JSON.parse(JSON.stringify(D))); w?.__veinPvEdit?.((S.dzMode||'edit')==='edit'); w?.__veinPvSel?.(S.dzOpen); fit(); }catch(e){} };
   let pt=0; const pushSoon=()=>{ clearTimeout(pt); pt=setTimeout(push,250); };
   fr.addEventListener('load',()=>{ let n=0; const t=setInterval(()=>{ n++; try{ if(fr.contentWindow.__veinPreview){ push(); if(n>6) clearInterval(t); } }catch(e){} if(n>60) clearInterval(t); },300); });
-  const focusPv=id=>{ try{ fr.contentWindow.__veinPreviewFocus?.(id); }catch(e){} };
+  const focusPv=id=>{ try{ fr.contentWindow.__veinPreviewFocus?.(id); fr.contentWindow.__veinPvSel?.(id); }catch(e){} };
   const devBox=h('div',{class:'bd-dev'}, fr);
-  const fit=()=>{ const W=devBox.clientWidth, H=devBox.clientHeight; if(!W) return; const k=Math.min(1,W/devW); fr.style.width=devW+'px'; fr.style.height=(H/k)+'px'; fr.style.transform='scale('+k+')'; devBox.classList.toggle('m',devW<500); };
+  const fit=()=>{ const W=devBox.clientWidth, H=devBox.clientHeight; if(!W) return; const k=Math.min(1,W/devW); fr.style.width=devW+'px'; fr.style.height=(H/k)+'px'; fr.style.transform='scale('+k+')'; devBox.classList.toggle('m',devW<500); try{ fr.contentWindow.__veinPvScale?.(k); }catch(e){} };
   new ResizeObserver(fit).observe(devBox);
   const devBtns=h('div',{class:'segs'}, ...[['d','🖥 電腦'],['m','📱 手機']].map(([k,l])=>h('button',{type:'button','aria-pressed':String((S.dzDev||'d')===k),onclick:e=>{ S.dzDev=k; devW=k==='m'?390:1280; devBtns.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); fit(); },text:l})));
-  const pv=h('div',{class:'bd-pv'}, h('div',{class:'bd-pvh'}, h('b',{text:'即時預覽'}), devBtns, h('button',{class:'btn soft sm',type:'button',onclick:()=>{ fr.src=fr.src; },text:'↻'}), h('button',{class:'btn soft sm bd-pvx',type:'button',onclick:()=>wrap.classList.remove('show-pv'),text:'關閉'})), devBox, h('p',{class:'hint',style:'margin:6px 2px 0',text:'預覽是草稿，按「儲存並發佈」後買家才看得到。'}));
+  const modeBtns=h('div',{class:'segs'}, ...[['edit','✏️ 編輯'],['try','👆 試用']].map(([k,l])=>h('button',{type:'button','aria-pressed':String((S.dzMode||'edit')===k),title:k==='edit'?'點預覽裡的區塊就能選取、移動、刪除':'像買家一樣操作預覽',onclick:e=>{ S.dzMode=k; modeBtns.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); try{ fr.contentWindow.__veinPvEdit?.(k==='edit'); }catch(x){} },text:l})));
+  const strip=h('div',{class:'bd-strip'}, h('span',{class:'bd-sh',text:'拖進預覽 →'}), ...Object.entries(SF_COMP).map(([k,c])=>{ const b=h('button',{type:'button',class:'bd-sc',title:c.d+'（按住拖到預覽裡）'}, h('span',{text:c.ic}), h('b',{text:c.n})); b.addEventListener('pointerdown',e=>dragComp(k,e,b)); return b; }));
+  const pv=h('div',{class:'bd-pv'}, h('div',{class:'bd-pvh'}, h('b',{text:'即時預覽'}), modeBtns, devBtns, h('button',{class:'btn soft sm',type:'button',onclick:()=>{ fr.src=fr.src; },text:'↻'}), h('button',{class:'btn soft sm bd-pvx',type:'button',onclick:()=>wrap.classList.remove('show-pv'),text:'關閉'})), strip, devBox, h('p',{class:'hint',style:'margin:6px 2px 0',text:'預覽是草稿，按「儲存並發佈」後買家才看得到。'}));
   // ---- 編輯器 ----
   let undo=null;
   const mark=()=>{ flag.textContent='有尚未儲存的變更'; flag.classList.add('warn'); pushSoon(); };
@@ -7682,6 +7740,20 @@ function admDesign(m){
   const applyTpl=t=>{ undo={sections:JSON.parse(JSON.stringify(D.sections)),accent:D.accent}; const old=D.sections; const used=new Set();
     const ns=t.s.map(k=>{ const prev=old.find(y=>y.k===k&&!used.has(y.id)); if(prev){ used.add(prev.id); return {...prev,on:true}; } return SF_COMP[k]?{id:scId(),k,on:true,cfg:SF_COMP[k].def()}:{id:k,k,on:true}; });
     D.sections=normSections([...ns,...old.filter(y=>!used.has(y.id)&&SF_COMP[y.k]).map(y=>({...y,on:false}))]); D.accent=t.accent; S.dzTpl=t.k; mark(); draw(); toast('已套用「'+t.n+'」模板，可以再自由調整'); };
+  // 從元件庫按住拖到「預覽」裡想放的位置（滑鼠、手指都可以）；只點一下＝加在目前選取的區塊下面
+  const lastVis=()=>D.sections.reduce((a,x,i)=>x.on!==false?i:a,-1)+1;
+  const atOf=before=>{ if(!before) return lastVis(); const i=D.sections.findIndex(y=>y.id===before); return i<0?lastVis():i; };
+  function dragComp(k,e,src){ if(e.button>0) return; const sx=e.clientX, sy=e.clientY, c=SF_COMP[k]; let ghost=null, moved=false, res=null; try{ src.setPointerCapture(e.pointerId); }catch(x){}
+    const W=()=>fr.contentWindow;
+    const mv=ev=>{ if(!moved){ if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<8) return; moved=true; ghost=h('div',{class:'bd-ghost'}, h('span',{text:c.ic}), h('b',{text:c.n}), h('small',{text:'拖到預覽裡放開'})); adm.append(ghost); if(!wrap.classList.contains('show-pv')&&getComputedStyle(pv).display==='none'){ wrap.classList.add('show-pv'); fit(); } }
+      ev.preventDefault(); ghost.style.transform='translate('+ev.clientX+'px,'+ev.clientY+'px) translate(-50%,-140%)';
+      const r=fr.getBoundingClientRect(), inside=ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom;
+      if (inside){ const kk=r.width/(fr.offsetWidth||r.width); try{ res=W().__veinPvDrop?.((ev.clientX-r.left)/kk,(ev.clientY-r.top)/kk)||null; }catch(x){ res=null; } ghost.classList.toggle('ok',!!res); ghost.querySelector('small').textContent=res?'放開就加入這裡':'拖到預覽裡放開'; }
+      else { res=null; ghost.classList.remove('ok'); ghost.querySelector('small').textContent='拖到預覽裡放開'; try{ W().__veinPvDropEnd?.(); }catch(x){} } };
+    const end=ok=>{ src.removeEventListener('pointermove',mv); src.removeEventListener('pointerup',up); src.removeEventListener('pointercancel',cancel); ghost?.remove(); try{ W().__veinPvDropEnd?.(); }catch(x){}
+      if (!ok) return; if(!moved){ addBlock(k); toast('已加入「'+c.n+'」，也可以按住拖到預覽裡的位置'); return; } if(res){ addBlock(k,atOf(res.before)); toast('已放入「'+c.n+'」'); } };
+    const up=()=>end(true), cancel=()=>end(false);
+    src.addEventListener('pointermove',mv); src.addEventListener('pointerup',up); src.addEventListener('pointercancel',cancel); }
   // 拖拉排序（手指與滑鼠都可以，抓左邊的把手）
   const sortable=list=>{ list.addEventListener('pointerdown',e=>{ const hd=e.target.closest('.bd-h'); if(!hd) return; const row=hd.closest('.bd-row'); e.preventDefault(); row.classList.add('drag'); const sc=adm.querySelector('#admMain'); let raf=0, lastY=e.clientY;
       const auto=()=>{ if(!sc) return; const r=sc.getBoundingClientRect(); if(lastY<r.top+70) sc.scrollTop-=14; else if(lastY>r.bottom-70) sc.scrollTop+=14; raf=requestAnimationFrame(auto); }; raf=requestAnimationFrame(auto);
@@ -7698,8 +7770,8 @@ function admDesign(m){
     if (S.dzTab==='blocks'){
       out.push(h('div',{class:'panel'}, h('div',{class:'row',style:'justify-content:space-between;flex-wrap:wrap;gap:8px'}, h('h3',{text:'版面模板'}), undo?h('button',{class:'btn soft sm',type:'button',onclick:()=>{ D.sections=undo.sections; D.accent=undo.accent; undo=null; S.dzTpl=null; mark(); draw(); },text:'↶ 復原模板'}):null), h('p',{class:'hint',text:'一鍵換版面，你已經填好的內容會保留。'}),
         h('div',{class:'bd-tpls'}, ...SF_TPL.map(t=>h('button',{type:'button',class:'bd-tpl'+(S.dzTpl===t.k?' on':''),style:'--ta:'+t.accent,onclick:()=>applyTpl(t)}, h('div',{class:'bd-tm'}, ...t.s.slice(0,6).map(k=>h('i',{class:'k-'+k}))), h('b',{text:t.n}), h('small',{text:t.d}))))));
-      out.push(h('div',{class:'panel'}, h('h3',{text:'元件庫'}), h('p',{class:'hint',text:'點一下加到目前選取的區塊下面；用電腦也可以直接拖到下面的版面裡。'}),
-        h('div',{class:'bd-pal'}, ...Object.entries(SF_COMP).map(([k,c])=>{ const b=h('button',{type:'button',class:'bd-pc',draggable:'true',title:c.d,onclick:()=>addBlock(k)}, h('span',{text:c.ic}), h('b',{text:c.n}), h('small',{text:c.d})); b.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/x-vein-comp',k); e.dataTransfer.effectAllowed='copy'; }); return b; }))));
+      out.push(h('div',{class:'panel'}, h('h3',{text:'元件庫'}), h('p',{class:'hint',text:'點一下加到目前選取的區塊下面；或按住直接拖到右邊預覽裡想放的位置。'}),
+        h('div',{class:'bd-pal'}, ...Object.entries(SF_COMP).map(([k,c])=>{ const b=h('button',{type:'button',class:'bd-pc',title:c.d}, h('span',{text:c.ic}), h('b',{text:c.n}), h('small',{text:c.d})); b.addEventListener('pointerdown',e=>dragComp(k,e,b)); return b; }))));
       const list=sortable(h('div',{class:'bd-list'}, ...D.sections.map((x,i)=>{ const comp=!!SF_COMP[x.k], open=S.dzOpen===x.id;
         const sw=h('input',{type:'checkbox',class:'sw',checked:x.on!==false,'aria-label':'顯示',onchange:e=>{ x.on=e.target.checked; row.classList.toggle('off',!x.on); mark(); }});
         const row=h('div',{class:'bd-row'+(x.on===false?' off':'')+(open?' open':''),'data-id':x.id},
@@ -7735,6 +7807,14 @@ function admDesign(m){
         h('div',{class:'panel'}, h('h3',{text:'母本展示櫃（最多 12 株，不用上架也能展示）'}), field('展示櫃標題', scT), mineR.length?pickGrid(D.showcase,[...mineR].sort((a,b)=>(((a.kind||'mother')==='mother')?0:1)-(((b.kind||'mother')==='mother')?0:1)),12):h('p',{class:'hint',text:'先到植物管理登錄植株。'})));
     }
     return out; };
+  // 預覽視窗會呼叫這些：選取、上下移、複製、刪除、拖到新位置
+  window.__veinBd={
+    info:id=>{ const x=D.sections.find(y=>y.id===id); return x?{name:scIcon(x.k)+' '+scName(x.k),comp:!!SF_COMP[x.k]}:null; },
+    select:(id,open)=>{ S.dzTab='blocks'; S.dzOpen=id; draw(); const go=()=>ed.querySelector('[data-id="'+CSS.escape(id)+'"]')?.scrollIntoView({behavior:'smooth',block:open?'start':'nearest'}); setTimeout(go,30); if(open&&wrap.classList.contains('show-pv')&&getComputedStyle(ed).display==='none') wrap.classList.remove('show-pv'); },
+    move:(id,d)=>{ const i=D.sections.findIndex(y=>y.id===id); if(i<0) return; let j=i+d; while(j>=0&&j<D.sections.length&&D.sections[j].on===false) j+=d; if(j<0||j>=D.sections.length) return; const [x]=D.sections.splice(i,1); D.sections.splice(j,0,x); S.dzOpen=id; mark(); draw(); },
+    moveTo:(id,before)=>{ const i=D.sections.findIndex(y=>y.id===id); if(i<0||before===id) return; const [x]=D.sections.splice(i,1); D.sections.splice(atOf(before),0,x); S.dzOpen=id; mark(); draw(); toast('已移動'); },
+    dup:id=>{ const i=D.sections.findIndex(y=>y.id===id); const x=D.sections[i]; if(!x||!SF_COMP[x.k]) return; const c={...JSON.parse(JSON.stringify(x)),id:scId()}; D.sections.splice(i+1,0,c); S.dzOpen=c.id; mark(); draw(); },
+    del:id=>{ const i=D.sections.findIndex(y=>y.id===id); const x=D.sections[i]; if(!x) return; if(SF_COMP[x.k]){ D.sections.splice(i,1); toast('已刪除「'+scName(x.k)+'」'); } else { x.on=false; toast('已隱藏「'+scName(x.k)+'」，在左邊列表可以再打開'); } if(S.dzOpen===id) S.dzOpen=null; mark(); draw(); } };
   draw();
   const save=h('button',{class:'btn pri',type:'submit',text:'儲存並發佈'});
   const wrap=h('div',{class:'bd'+(S.dzPv?' show-pv':'')}, ed, pv);
