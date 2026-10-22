@@ -48,7 +48,7 @@ service cloud.firestore {
     // 網站設定、賣家審核、管理員名單、封禁名單、主頁素材／文字／自訂區塊（media、text、blocks、verified 認證賣家名單 只有擁有者能改）
     match /site/{docId} {
       allow read: if true;
-      allow write: if isAdmin() && (!(docId in ['admins', 'media', 'text', 'blocks', 'verified', 'badges']) || isOwner());
+      allow write: if isAdmin() && (!(docId in ['admins', 'media', 'text', 'blocks', 'badges']) || isOwner());
     }
 
     // 公開的名字、頭像與「手機已驗證」標記
@@ -207,6 +207,12 @@ service cloud.firestore {
         && request.resource.data.dn == ((resource != null && resource.data.dk == dk()) ? resource.data.dn + 1 : 1)
         && request.resource.data.mn == ((resource != null && resource.data.mk == mk()) ? resource.data.mn + 1 : 1)
         && request.resource.data.dn <= 3 && request.resource.data.mn <= 10;
+    }
+    // 升級成認證會員的申請：本人建立（每人一份，覆寫）；管理員讀取、處理後刪除
+    match /upreq/{uid} {
+      allow read, delete: if isAdmin();
+      allow create, update: if isMe(uid) && request.resource.data.uid == uid
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'shop', 'kind', 'why', 'cur', 'at']);
     }
     // 異常流量回報：每台裝置一份（覆寫，不會一直變多）；只有管理員看得到、可以清除。
     // 帳號欄位只能填自己（或未登入填 null），沒辦法栽贓別人。是否停權由管理員決定，不會自動封鎖。

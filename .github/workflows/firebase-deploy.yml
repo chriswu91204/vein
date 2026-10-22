@@ -21,6 +21,17 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           expires: 7d
+      # 省流量：部署前壓縮網頁裡的 CSS／JS（原始碼不變；壓縮失敗的段落會自動保留原樣）
+      - uses: actions/setup-node@v4
+        if: github.event_name == 'push'
+        with:
+          node-version: 22
+      - name: Minify (main)
+        if: github.event_name == 'push'
+        continue-on-error: true
+        run: |
+          npm i --no-save --no-audit --no-fund esbuild@0.24.0
+          node tools/minify.mjs node_modules/.bin/esbuild public/index.html
       - name: Live site (main)
         if: github.event_name == 'push'
         uses: FirebaseExtended/action-hosting-deploy@v0

@@ -4,7 +4,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
 import { OWNER_EMAILS, APPCHECK_SITE_KEY } from './site-config.js';
 
@@ -153,7 +153,9 @@ async function start() {
       });
       const url = await getDownloadURL(r);
       return { id: url, url, sizeBytes: blob.size, contentType: blob.type || 'image/jpeg' };
-    }
+    },
+    // 刪掉 Storage 裡的檔案（用下載網址）；只有本人或擁有者帳號有權限（見 storage.rules）
+    async removeUrl(url) { if (!/firebasestorage/.test(String(url || ''))) return false; await deleteObject(ref(st, url)); return true; }
   } : null;
 
   window.__veinResolve({ use: async n => n === 'db' ? db : n === 'user' ? user : n === 'assets' ? assets : null });

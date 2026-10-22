@@ -2833,6 +2833,11 @@ button.pm-pv i{font-style:normal;font-size:12px;color:var(--fg3,#9A9F96);opacity
 .ql{display:flex;flex-direction:column;gap:14px}.ql-p{display:flex;gap:12px;align-items:center;background:#F5F6F2;border-radius:14px;padding:10px}
 .ql-p img,.ql-p>span{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:#E8EBE3;font-size:24px}.ql-p b{display:block;font-size:15px}.ql-p small{color:var(--fg2)}
 /* ---- 安全 ---- */
+.up{display:flex;flex-direction:column;gap:12px;text-align:left}.up-ic{font-size:40px}.up h3{margin:0;font-size:22px}
+.up-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.up-c{background:#F4F7F1;border-radius:14px;padding:12px 14px}.up-c b{display:block;margin-bottom:6px}.up-c ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--fg2)}
+@media (max-width:480px){.up-cards{grid-template-columns:1fr}}
+.tp-r{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid var(--line)}.tp-r:first-of-type{border-top:0}
+.tp-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.tp-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.tp-d{display:inline-flex;gap:6px;align-items:center}.tp-d input{padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit}
 .aw-g{display:flex;flex-direction:column;gap:6px;margin-top:10px}.aw-l{display:flex;gap:6px;flex-wrap:wrap}.chip.aw.on{background:#111312;color:#C6F432}
 .bdg.t-special{background:linear-gradient(135deg,#1F5C42,#2E7D57);color:#fff;border-color:transparent}
 /* ---- 手機版比例：商品改兩欄、輪播卡片不要佔滿整個畫面 ---- */
@@ -3771,7 +3776,7 @@ const shopList=()=>[...S.shops.keys()].filter(approved).sort((a,b)=>popScore(b)-
 function popScore(u){ const r=rating(u); return followers(u)*3+r.n*2+r.avg+all().filter(p=>p.shop===u&&p.status==='sold').length*2+pub().filter(p=>p.shop===u&&p.status!=='sold').length*.5; }
 const onSaleOf=u=>pub().filter(p=>p.shop===u&&p.status!=='sold');
 // 賣家等級：一般賣家／認證賣家（只有擁有者能在後台授予，存在 site/verified）
-const isVerified=u=>!!u&&(!!S.verified?.[u]||u===house()||!!S.adminUids?.[u]);
+const isVerified=u=>{ if(!u) return false; if(u===house()||S.adminUids?.[u]) return true; const v=S.verified?.[u]; if(!v) return false; return !(typeof v==='object'&&v.until&&v.until<Date.now()); };
 const vBadge=u=>isVerified(u)?h('span',{class:'vbadge',title:'VEIN 認證賣家',text:'認證'}):null;
 const onSale=p=>listed(p)&&!p.hidden&&!p.private&&!p.blocked&&approved(p.shop)&&p.status!=='sold';
 const newestOf=u=>onSaleOf(u).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
@@ -4937,6 +4942,7 @@ async function boot(){
   S.db=db; S.user=user; S.assets=assets;
   if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write'); }
   S.booted=true; renderNav(); setTimeout(()=>{ try{ installNudge(); }catch(e){} },1500); setTimeout(()=>{ try{ guardBoot(); }catch(e){} },2500);
+  if (db&&S.admin) db.collection('upreq').onSnapshot(sn=>{ S.upreqN=sn.size; if(adm.open) renderAdmNav(); }, ()=>{});
   if (db&&S.admin) db.collection('abuse').onSnapshot(sn=>{ S.abuseN=sn.docs.filter(d=>d.id!=='_budget').length; if(adm.open) renderAdmNav(); }, ()=>{});
   if (!db){ S.failed=true; renderAll(); return; }
   db.collection('shops').onSnapshot(sn=>{ S.shopsReady=true; S.shops.clear(); sn.docs.forEach(d=>S.shops.set(d.id,d.data())); checkReady(); }, ()=>{ S.failed=true; renderAll(); });
@@ -4948,6 +4954,9 @@ async function boot(){
   db.doc('site/info').onSnapshot(d=>{ S.site=d.exists?d.data():{}; renderAll(); }, ()=>{});
   db.collection('owners').onSnapshot(sn=>{ S.owners.clear(); sn.docs.forEach(d=>S.owners.set(d.id,d.data())); renderAll(); }, ()=>{});
   db.doc('site/verified').onSnapshot(d=>{ S.verified=(d.exists&&d.data().uids)||{}; renderAll(); }, ()=>{});
+  db.doc('site/vbuyers').onSnapshot(d=>{ S.vbuyers=(d.exists&&d.data().uids)||{}; renderAll(); }, ()=>{});
+  db.doc('site/limits').onSnapshot(d=>{ S.limits=(d.exists&&d.data().uids)||{}; }, ()=>{});
+  if (S.me) setTimeout(()=>{ try{ autoPurge(); }catch(e){} },8000);
   db.doc('site/badges').onSnapshot(d=>{ S.badges=(d.exists&&d.data().uids)||{}; try{ BCACHE.clear(); }catch(e){} renderAll(); }, ()=>{});
   db.doc('site/home').onSnapshot(d=>{ S.home=d.exists?d.data():{}; wallSig=''; renderWall(); }, ()=>{});
   db.doc('site/text').onSnapshot(d=>{ applyText(d.exists?d.data():{}); }, ()=>{});
@@ -5099,7 +5108,7 @@ const TOUR={
   home:[{sel:'[data-tour=add]',t:'👋 歡迎開店！我們一起上架第一株植物，只要 1 分鐘。先按這裡「登錄植物」。',click:true}],
   new:[{sel:'[data-tour=kind]',t:'① 選類型：自己的源頭植株選「母株」，從母株分出來的選「側芽」，播種的選「實生苗」。'},
        {sel:'[data-tour=species]',t:'② 選分類（屬），填種名或品種名。「備註」會顯示在商品縮圖上，可以寫雜交組合或特色。'},
-       {sel:'[data-tour=photos]',t:'③ 加照片或影片（可以多張，影片 10 秒內），第一張會當封面。'},
+       {sel:'[data-tour=photos]',t:'③ 加照片或影片（可以多張，影片 6 秒內（認證會員）），第一張會當封面。'},
        {sel:'[data-tour=listsw]',t:'④ 打開「登錄後直接上架販售」，填上售價（不填會顯示「洽詢」）。'},
        {sel:'[data-tour=submit]',t:'⑤ 按這裡就完成！系統會自動給編號，商品馬上上架。',click:true}],
   edit:[{t:'✅ 植物登錄好了！還沒上架的話，到「上架販售」勾選這株、設定價格就能賣。',act:['帶我去上架販售',()=>{ S.admTab='list'; S.admEdit=null; renderAdmin(true); }]}],
@@ -5147,7 +5156,7 @@ const GUIDES=[
   ['選類型','母株＝你的源頭植株；側芽＝從某株母株分出來；實生苗＝播種出來的。選錯之後也能在「管理」改。'],
   ['選父母本','點父母本欄位，輸入編號或品種搜尋 VEIN 上已登錄的植株。國外進口、向別人買的，打開「母本不在 VEIN 上」填名稱、來源、上傳父母本照片。'],
   ['填品種與備註','選分類（屬）、填種名／品種名。「備註」會顯示在商品縮圖上，適合寫雜交組合或特色（例如：斑葉、已發根）。'],
-  ['拍照或錄影','可以放多張照片和 10 秒內的影片，第一張是封面。照片會保留原始拍攝時間。'],
+  ['拍照或錄影','可以放多張照片和 6 秒內的影片（認證會員），第一張是封面。照片會保留原始拍攝時間。'],
   ['公開與上架','預設會公開植物檔案；勾「直接上架販售」可以一起設定價格。按「登錄」就完成，編號自動產生。']],
   tips:['編號格式：屬代碼-賣家代碼-流水號（例 AN-VEN-00012），側芽接在母株後面（-S01）。','沒照片也能先登錄，但會先不公開，補照片後再打開。'],go:[['去登錄一株','adm:new']]},
  {id:'batch',cat:'seller',ic:'📷',t:'批量登錄＋連續拍照（一整批實生苗、側芽）',min:4,steps:[
@@ -5820,7 +5829,7 @@ function renderHistory(force){
             else { for(const m0 of phs) await S.db.collection(pPath(p)+'/photos').doc().set({...m0.full,poster:m0.video?m0.thumb:null,takenAt:when||m0.takenAt,takenSource:when?'manual':m0.takenSource,title,stage:title,note:no.value.trim(),registeredAt:reg});
               const cur=S.plants.get(p.id), latest=phs.map(z=>when||z.takenAt).sort().pop(), upd={photoCount:(cur.photoCount||0)+phs.length,media:[...mediaOf(phs),...(cur.media||[])].slice(0,12)}; if(!cur.coverThumb) upd.coverThumb=cur.thumb||phs[0].thumb; if(!cur.lastPhotoAt||latest>=cur.lastPhotoAt){ upd.thumb=phs[phs.length-1].thumb; upd.lastPhotoAt=latest; upd.lastStage=title; } if(lv.value) upd.leaves=Number(lv.value); await S.db.doc(pPath(p)).update(upd); }
             S.histNew=false; toast('已加入履歷'); renderHistory(true); }catch(ex){ btn.disabled=false; er.textContent='加入失敗，請稍後再試。'; } }},
-        h('h3',{text:'新增一個時間點'}), h('div',{class:'two'}, field('標題（可自訂，也可以從建議挑）',ti), field('發生時間（沒改的話用照片拍攝時間）',dt)), field('說明',no), fieldBox('照片或影片（選填，可多張；影片 10 秒內）',picker.el), h('div',{class:'two'}, field('目前葉片數（選填）',lv), h('div')), er,
+        h('h3',{text:'新增一個時間點'}), h('div',{class:'two'}, field('標題（可自訂，也可以從建議挑）',ti), field('發生時間（沒改的話用照片拍攝時間）',dt)), field('說明',no), fieldBox('照片或影片（選填，可多張；影片 6 秒內（認證會員））',picker.el), h('div',{class:'two'}, field('目前葉片數（選填）',lv), h('div')), er,
         h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'加入履歷'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.histNew=false; renderHistory(true); },text:'取消'})));
     }
   }
@@ -6141,7 +6150,7 @@ function admUsers(m){
         tr.addEventListener('click',()=>{ S.userSel=r.u; renderAdmin(true); }); return tr; })))):h('div',{class:'empty'}, h('h3',{text:'沒有符合的會員'}))));
 }
 function admUserDetail(m,u){
-  const r=memberRows().find(x=>x.u===u)||{u,name:nameOf(u),level:levelOf(u)}, sh=shopOf(u), b=S.bans?.[u], me=u===S.me;
+  const r={buyN:0,sellN:0,spend:0,revenue:0,plants:0,owns:0,bids:0,fol:0,...(memberRows().find(x=>x.u===u)||{u,name:nameOf(u),level:levelOf(u)})}, sh=shopOf(u), b=S.bans?.[u], me=u===S.me;
   const bo=buyerOrders(u), so=S.shops.has(u)?sellerOrders(u):[], ps=all().filter(p=>p.shop===u), owns=all().filter(p=>ownerOf(p)===u&&p.shop!==u);
   const lvSel=h('select',{disabled:me}, ...LEVELS.filter(([k])=>S.isOwner||k==='buyer'||k==='seller'||k===r.level).map(([k,l])=>h('option',{value:k,text:l,selected:r.level===k,disabled:(k==='seller'||k==='verified')&&!S.shops.has(u)})));
   const reason=h('input',{maxlength:100,placeholder:'停權原因（會記錄）'});
@@ -6150,6 +6159,7 @@ function admUserDetail(m,u){
   m.append(h('div',{class:'top'}, h('div',{}, h('button',{class:'bf-lk',type:'button',onclick:()=>admBack(()=>{ S.userSel=null; renderAdmin(true); }),text:'← 上一頁'}), h('h2',{text:r.name||'（未設定名稱）'}), h('div',{class:'row',style:'gap:6px;margin-top:6px'}, h('span',{class:'lvl '+r.level,text:Object.fromEntries(LEVELS)[r.level]}), b?h('span',{class:'tag live',text:'已停權'}):null, r.phone?h('span',{class:'tag lime',text:'手機已驗證'}):null)),
       sh?h('a',{class:'btn soft',href:'#/seller/'+u,onclick:()=>adm.close(),text:'看賣場 →'}):null),
     h('div',{class:'kpis'}, ...[['買入',r.buyN+' 筆'],['消費',money(r.spend||0)],['賣出',r.sellN+' 筆'],['銷售額',money(r.revenue||0)],['登錄植株',String(r.plants||0)],['擁有他人植株',String(r.owns||0)],['出價',String(r.bids||0)],['追蹤者',String(r.fol||0)],['評分',r.rt?.n?r.rt.avg.toFixed(1)+'★（'+r.rt.n+'）':'—']].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{style:'font-size:24px',text:v})))),
+    S.admin?tierPanel(u):null,
     S.isOwner?h('div',{class:'panel'}, h('h3',{text:'🏅 頒發徽章'}), h('p',{class:'hint',text:'點一下頒發，再點一次收回。頒發的徽章會顯示在對方的賣場或個人頁。'}),
       sh?h('div',{class:'aw-g'}, h('small',{class:'hint',text:'賣家徽章'}), h('div',{class:'aw-l'}, ...SPECIAL_BADGES.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); }))):null,
       h('div',{class:'aw-g'}, h('small',{class:'hint',text:'會員徽章'}), h('div',{class:'aw-l'}, ...MEMBER_SPECIAL.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); })))):null,
@@ -6236,6 +6246,7 @@ function renderAdmin(force){
   if (T==='users'&&S.admin) return admUsers(main);
   if (T==='site'&&S.admin) return admSite(main);
   if (T==='guard'&&S.admin) return admGuard(main);
+  if (T==='tiers'&&S.admin) return admTiers(main);
   if (T==='media'&&S.isOwner) return admMedia(main);
   S.admTab='home'; admHome(main);
 }
@@ -6251,7 +6262,7 @@ function renderAdmNav(){
     {k:'sell',t:'銷售',ic:'🏷',items:[['plants','商品管理',mine().filter(listed).length],['list','上架販售'],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['auc','競標',liveN],['raffle','抽獎',rOpen]]},
     {k:'order',t:'訂單與客服',ic:'📦',items:[['orders','訂單',pendO+payN],['offers','議價',offN],['qa','顧客提問',pendingQ]]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')]]});
-  if (S.admin&&!PM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['site','網站設定'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
+  if (S.admin&&!PM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return S.admTab===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });
@@ -6332,7 +6343,7 @@ const priceNum=p=>isAuc(p)?(topBid(p.id)?.amt||p.startPrice||0):(p.price||0);
 function quickListForm(p,done){
   const sale=saleFields(p.price!=null||p.mode?p:null), show=h('input',{type:'checkbox',class:'sw',checked:!p.hidden}), err=h('div',{class:'err'});
   const go=h('button',{class:'btn pri lg',type:'button',text:'🏷 上架這一株'});
-  go.addEventListener('click',async()=>{ err.textContent=''; const s=sale.read(sale.el); if(s.err){ err.textContent=s.err; return; } go.disabled=true; go.textContent='上架中…';
+  go.addEventListener('click',async()=>{ err.textContent=''; const s=sale.read(sale.el); if(s.err){ err.textContent=s.err; return; } if(!capOK(1)) return; go.disabled=true; go.textContent='上架中…';
     try{ await S.db.doc(pPath(p)).update({listed:true,status:'available',listedAt:Date.now(),hidden:!show.checked,...s}); Object.assign(p,{listed:true,status:'available',hidden:!show.checked,...s}); toast('🎉 '+p.code+' 已上架'); done&&done(); }
     catch(ex){ go.disabled=false; go.textContent='🏷 上架這一株'; err.textContent='上架失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } });
   const el=h('div',{class:'ql'}, h('div',{class:'ql-p'}, admThumb(p)?h('img',{src:admThumb(p),alt:''}):h('span',{text:'🌱'}), h('div',{}, h('b',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('small',{class:'mono',text:p.code+' · '+kindLabel(p)}))),
@@ -6556,7 +6567,7 @@ function admNew(m, preset){
     if (kind==='pup'&&!mo?.p&&!momX.get()){ err.textContent='請選擇側芽的母株；母株不在 VEIN 上的話，打開「母本不在 VEIN 上」填名稱或上傳照片。'; return; }
     if (kind==='seedling'&&!mo&&!momX.get()){ err.textContent='請填實生苗的母本。'; return; }
     if (momX.busy()||dadX.busy()){ err.textContent='親本的照片還在上傳，請稍候。'; return; }
-    const s=listSw.checked?sale.read(f):{mode:'fixed',price:null,endsAtMs:null}; if(s.err){ err.textContent=s.err; return; }
+    const s=listSw.checked?sale.read(f):{mode:'fixed',price:null,endsAtMs:null}; if(s.err){ err.textContent=s.err; return; } if(listSw.checked&&!capOK(1)) return;
     if (picker.busy()){ err.textContent='照片或影片還在上傳，請稍候。'; return; } const phs=picker.get(), ph=phs[0]; if(!ph){ err.textContent='請至少加上一張照片或影片。'; return; } if(!spC.get().trim()){ err.textContent='請選擇分類（屬）。'; return; }
     const pupExt=kind==='pup'&&!mo?.p;
     if (kind!=='pup'||pupExt){ serial=Math.max(serial,nextSerial()); sync(); }
@@ -6586,7 +6597,7 @@ function admList(m){
   sale.el.querySelector('[data-k=mode]').addEventListener('change',drawP);
   const rows=shown.map(p=>h('label',{class:'ls-row'+(sel.has(p.id)?' on':'')}, h('input',{type:'checkbox',checked:sel.has(p.id),onchange:e=>{ e.target.checked?sel.add(p.id):sel.delete(p.id); e.target.closest('.ls-row').classList.toggle('on',e.target.checked); drawP(); }}), p.thumb?h('img',{src:p.thumb,alt:''}):h('span',{class:'rg-ph'}), h('b',{class:'mono',text:p.code}), h('span',{text:short(p.species)+(p.cultivar?' · '+p.cultivar:'')}), memoEl(p,'sm'), h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), !p.thumb?h('span',{class:'hint',text:'沒有照片'}):null));
   const err=h('div',{class:'err'});
-  const go=h('button',{class:'btn pri lg',type:'button','data-tour':'go',onclick:async()=>{ err.textContent=''; const s=sale.read(sale.el); if(s.err){ err.textContent=s.err; return; } const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); if(!ps.length) return;
+  const go=h('button',{class:'btn pri lg',type:'button','data-tour':'go',onclick:async()=>{ err.textContent=''; const s=sale.read(sale.el); if(s.err){ err.textContent=s.err; return; } const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); if(!ps.length) return; if(!capOK(ps.filter(p=>!listed(p)).length)) return;
     go.disabled=true; let n=0; try{ for(const p of ps){ const s2={...s}, v=prices[p.id]; if(v!==undefined&&v!==''){ if(s2.mode==='auction') s2.startPrice=Number(v); else s2.price=Number(v); }
         await S.db.doc(pPath(p)).update({listed:true,status:'available',listedAt:Date.now(),hidden:!show.checked,...s2}); Object.assign(p,{listed:true,status:'available',hidden:!show.checked,...s2}); n++; go.textContent='上架中 '+n+' / '+ps.length+'…'; }
       toast('已上架 '+n+' 株'); sel.clear(); S.admTab='plants'; renderAdmin(true); }catch(ex){ go.disabled=false; err.textContent='上架到第 '+(n+1)+' 株時失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } }});
@@ -6650,7 +6661,7 @@ function admBatch(m){
   const grpSw=h('input',{type:'checkbox',class:'sw'}), gName=h('input',{maxlength:40,placeholder:'例如 Red Queen × 銀色襯裙 實生苗 2026 春'}), gDesc=h('textarea',{rows:2,maxlength:400,placeholder:'群組介紹（選填）'});
   const gFile=h('input',{type:'file',accept:'image/*,video/*',class:'vh'}), gPrev=h('div',{class:'gcov'}, h('span',{class:'hint',text:'沒選的話用第一株的照片'}));
   gFile.addEventListener('change',()=>{ const f0=gFile.files[0]; if(!f0) return; const u=URL.createObjectURL(f0); gPrev.replaceChildren(/^video/.test(f0.type)?h('video',{src:u,muted:true,autoplay:true,loop:true,playsinline:true}):h('img',{src:u,alt:''})); });
-  const grpBox=h('div',{class:'gbox',hidden:true}, field('群組名稱（商店卡片上的大標題）', gName), field('群組介紹', gDesc), fieldBox('群組主圖（照片或 10 秒內影片）', h('div',{class:'row',style:'gap:12px;align-items:center;flex-wrap:wrap'}, gPrev, h('label',{class:'btn soft sm'}, gFile, '選擇主圖'))), h('p',{class:'hint',text:'群組只能直購（標價或洽詢）；商店只顯示一張群組卡，買家進去挑編號。'}));
+  const grpBox=h('div',{class:'gbox',hidden:true}, field('群組名稱（商店卡片上的大標題）', gName), field('群組介紹', gDesc), fieldBox('群組主圖（照片或 6 秒內影片）', h('div',{class:'row',style:'gap:12px;align-items:center;flex-wrap:wrap'}, gPrev, h('label',{class:'btn soft sm'}, gFile, '選擇主圖'))), h('p',{class:'hint',text:'群組只能直購（標價或洽詢）；商店只顯示一張群組卡，買家進去挑編號。'}));
   grpSw.addEventListener('change',()=>{ const on=grpSw.checked; grpBox.hidden=!on; if(on){ listSw.checked=true; saleBox.hidden=false; modeSel.value='fixed'; modeSel.dispatchEvent(new Event('change')); if(!gName.value.trim()) gName.value=[crIn.value.trim()||[spC.get(),epIn.value.trim()].filter(Boolean).join(' '),KIND[kind]].filter(Boolean).join(' '); } listSw.disabled=on; modeSel.querySelector('option[value=auction]').disabled=on; redraw(); });
   listSw.addEventListener('change',()=>{ saleBox.hidden=!listSw.checked; redraw(); }); modeSel.addEventListener('change',()=>redraw());
   const seg=h('div',{class:'segs'}, ...[['mother','母株'],['pup','側芽（同一株母株）'],['seedling','實生苗（同一組親本）']].map(([k,l])=>h('button',{type:'button','data-t':k,'aria-pressed':String(kind===k),text:l})));
@@ -6706,7 +6717,7 @@ function admBatch(m){
       if (momX.busy()||dadX.busy()){ err.textContent='親本的照片還在上傳，請稍候。'; return; }
       if (!spC.get().trim()){ err.textContent='請選擇分類（屬）。'; return; }
       if (grpSw.checked&&!gName.value.trim()){ err.textContent='請填群組名稱。'; return; }
-      const L=listSw.checked||grpSw.checked, sv=L?sale.read(sale.el):{mode:'fixed',price:null,endsAtMs:null}; if(sv.err){ err.textContent=sv.err; return; }
+      const L=listSw.checked||grpSw.checked, sv=L?sale.read(sale.el):{mode:'fixed',price:null,endsAtMs:null}; if(sv.err){ err.textContent=sv.err; return; } if(L&&!capOK((B.cards||[]).length)) return;
       const mX=mo?.p?null:momX.get(), dX=da?.p||kind==='pup'?null:dadX.get(), mL=mo?.code||(mX?(mX.code||mX.name):null), dL=da?.code||(dX?(dX.code||dX.name):null);
       base={kind,species:[spC.get().trim(),epIn.value.trim()].filter(Boolean).join(' '),cultivar:'',cross:crIn.value.trim(),momId:mo?.id||null,momCode:mL,dadId:kind!=='pup'?(da?.id||null):null,dadCode:kind!=='pup'?dL:null,parentId:kind==='pup'?(mo?.id||null):null,parentCode:kind==='pup'?mL:null,momExt:mX,dadExt:dX,tags:tg.get(),grp:grpSw.checked?'g'+Date.now().toString(36):null,batch:null,stage:stageSel.value,L,sale:sv,hidden:!show.checked}; }
     const codes=B.cards.map((_,i)=>codeFor(i)); if(codes.some(x=>!x||all().some(p=>p.code===x))){ err.textContent='有編號已經用過或還沒選母株。'; return; }
@@ -6747,7 +6758,7 @@ function admBatch(m){
     h('button',{class:'btn soft',type:'button',onclick:()=>{ for(let i=0;i<10;i++) addCard(false); },text:'＋10'}));
   const f=h('form',{class:'form bt',style:'max-width:980px',onsubmit:e=>e.preventDefault()}, modeSeg, shared,
     h('div',{class:'panel'}, h('div',{class:'bt-top'}, h('h3',{text:(B.mode==='cont'?'2':'2')+'. 一株一株加進來'}), h('div',{class:'codebox bt-range'}, h('div',{class:'lbl',text:'這一批的編號'}), countEl, dupMsg)),
-      h('p',{class:'hint',text:'按「＋ 增加編號」編號就自動 +1，接著選這一株的照片或影片（可以多張，影片 10 秒內）。拍一株、加一株，最後一次建立。'}),
+      h('p',{class:'hint',text:'按「＋ 增加編號」編號就自動 +1，接著選這一株的照片或影片（可以多張，影片 6 秒內（認證會員））。拍一株、加一株，最後一次建立。'}),
       cardsBox, adders),
     h('div',{class:'bt-bar'}, h('div',{style:'min-width:0'}, err, prog), goBtn));
   m.append(admTop('批量登錄', h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'改用登錄一株'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='labels'; renderAdmin(true); },text:'標籤列印'})), regChooser('batch'), h('p',{class:'hint',style:'margin:-6px 0 16px;max-width:780px',text:'同一批（同一株母株的側芽、同一組親本的實生苗）：父母本和文字只要填一次，接著每按一次「＋ 增加編號」就多一株、編號自動 +1，再幫它加照片或影片。建立後可匯出 CSV 給 BarTender，或直接列印 QR 標籤。'}), f);
@@ -6808,7 +6819,7 @@ function admGroups(m){
     return {el:h('div',{class:'row',style:'gap:12px;align-items:center;flex-wrap:wrap'}, pv0, h('label',{class:'btn soft sm'}, fi, '換主圖')),file:()=>fi.files[0]}; };
   const blocks=[];
   if (pre){ const nm=h('input',{maxlength:40,value:'',placeholder:'群組名稱'}), ds=h('textarea',{rows:2,maxlength:400,placeholder:'介紹（選填）'}), cb=coverBox(null), er=h('div',{class:'err'}), pg=h('span',{class:'hint'});
-    const go=h('button',{class:'btn pri',type:'button',disabled:pre.length<2,onclick:async()=>{ if(!nm.value.trim()){ er.textContent='請填群組名稱。'; return; } go.disabled=true; const gid='g'+Date.now().toString(36);
+    const go=h('button',{class:'btn pri',type:'button',disabled:pre.length<2,onclick:async()=>{ if(!nm.value.trim()){ er.textContent='請填群組名稱。'; return; } if(!capOK(pre.filter(p=>!listed(p)).length)) return; go.disabled=true; const gid='g'+Date.now().toString(36);
       try{ let cov=null; if(cb.file()){ pg.textContent='上傳主圖…'; try{ cov=await uploadMediaFile(cb.file(),x=>{ pg.textContent='上傳主圖 '+Math.round(x*100)+'%'; }); }catch(e2){ toast(e2.message||'主圖上傳失敗'); } } if(!cov){ const t0=pre.find(p=>p.thumb); if(t0) cov={type:'image',url:t0.thumb}; }
         await saveGroup(gid,{name:nm.value.trim(),desc:ds.value.trim(),cover:cov,kind:pre[0].kind||'mother',at:Date.now()});
         let i=0; for(const p of pre){ const patch={grp:gid}; if(!listed(p)) Object.assign(patch,{listed:true,status:'available',listedAt:Date.now(),mode:'fixed'}); await S.db.doc(pPath(p)).update(patch); Object.assign(p,patch); pg.textContent='加入中 '+(++i)+' / '+pre.length; }
@@ -6834,7 +6845,7 @@ function admGroups(m){
 /* ---- 賣場裝修（認證賣家） ---- */
 const ACCENTS=['#D4F25A','#2E7D5B','#E8C9D2','#F2B84B','#7CC4E8','#B79CF2','#FF7A59','#111312'];
 async function uploadMediaFile(f,onP){
-  if (/^video\//.test(f.type)){ try{ const cv=await compatVideo(f); f=cv.file; }catch(e){ hevcHelp(); throw new Error(HEVC_MSG); } if(f.size>60*1024*1024) throw new Error('影片超過 60MB，請先剪短或壓縮'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
+  if (/^video\//.test(f.type)){ if(!canVideo(S.me)){ setTimeout(()=>openUpgrade('video'),50); throw new Error('影片上傳是認證會員功能（可以改傳照片）'); } let d0=0; try{ d0=await videoDuration(f); }catch(e){} if(d0>MAX_VID_SEC) throw new Error('影片最長 6 秒（目前 '+d0.toFixed(1)+' 秒），請先剪短再上傳'); try{ const cv=await compatVideo(f); f=cv.file; }catch(e){ hevcHelp(); throw new Error(HEVC_MSG); } if(f.size>24*1024*1024) throw new Error('影片檔案太大（超過 24MB），請剪短或降低畫質'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
   if (/^image\//.test(f.type)){ const im=await loadImage(f), blob=await encode(im,1920,0.84); const url=await uploadBlob(blob,onP); let thumb=null; try{ thumb=await uploadBlob(await encode(im,640,0.75)); }catch(e){} return {type:'image',url,thumb}; }
   throw new Error('請選照片或影片');
 }
@@ -7358,6 +7369,76 @@ function eligEditor(x,kind){ const e0=x?eligOf(x):{verify:'phone',buy:null,follo
     h('label',{class:'eg-sw'}, folSw, h('span',{}, h('b',{text:'要追蹤我的賣場'}), h('small',{text:'順便幫賣場增加追蹤數'}))),
     sum);
   upd(); return {el,get,err:()=>E.buy.on&&E.buy.from&&E.buy.to&&E.buy.to<E.buy.from?'購買期間的結束日要晚於開始日。':''}; }
+/* ================= 認證會員（賣家／買家）、到期、上架上限、影片權限 ================= */
+// site/verified（認證賣家）、site/vbuyers（認證買家）：值是 true／時間／{at,until,by}；until＝到期時間（沒有＝永久）
+// 認證到期 3 個月後自動清掉這個人上傳的影片（省儲存與流量）；一般賣家同時最多上架 100 株（管理員可以個別調整 site/limits）
+const VID_PURGE_DAYS=90, LIST_CAP=100;
+const vEnt=(m,u)=>{ const v=m?.[u]; if(!v) return null; return typeof v==='object'?v:{at:+v||0}; };
+const vActive=e=>!!e&&(!e.until||e.until>Date.now());
+const isVBuyer=u=>!!u&&vActive(vEnt(S.vbuyers,u));
+const canVideo=u=>!!u&&(isVerified(u)||isVBuyer(u)||(u===S.me&&(S.isOwner||S.admin)));
+function vExpiredAt(u){ const L=[vEnt(S.verified,u),vEnt(S.vbuyers,u)].filter(Boolean); if(!L.length||L.some(vActive)) return 0; return Math.max(...L.map(e=>e.until||0)); }
+const capOf=u=>isVerified(u)?Infinity:(+S.limits?.[u]||LIST_CAP);
+const listedNow=u=>all().filter(p=>p.shop===u&&listed(p)&&p.status!=='sold').length;
+// 上架前檢查：會超過上限就跳出升級畫面，回傳 false
+function capOK(n){ if(!S.me||!n) return true; const cap=capOf(S.me), cur=listedNow(S.me); if(cur+n<=cap) return true; openUpgrade('list',{cur,cap,n}); return false; }
+function videoGate(){ if(canVideo(S.me)) return true; openUpgrade('video'); return false; }
+function openUpgrade(why,o={}){ if(!S.me){ openLogin(); return; }
+  const head={list:['已達上架上限','一般賣家同時最多上架 '+(o.cap===Infinity?'∞':o.cap)+' 株，你目前在售 '+(o.cur||0)+' 株'+(o.n?'，這次要再上架 '+o.n+' 株':'')+'。'],video:['影片上傳是認證會員功能','認證賣家與認證買家才能上傳植物影片（每支最多 6 秒）。'],design:['賣場裝修是認證賣家功能','認證賣家可以用拖拉方式設計自己的賣場。']}[why]||['升級成認證會員',''];
+  const sent=h('p',{class:'hint',hidden:true,text:'✅ 已經通知管理員，開通後會再通知你。'}), err=h('div',{class:'err'});
+  const ask=async btn=>{ btn.disabled=true; try{ await S.db.doc('upreq/'+S.me).set({uid:S.me,name:(S.meInfo?.name||'').slice(0,40),shop:hasShop()?shopName(S.me).slice(0,40):'',kind:hasShop()?'seller':'buyer',why:String(why).slice(0,10),cur:o.cur||0,at:Date.now()}); sent.hidden=false; btn.textContent='已送出申請'; toast('已通知管理員'); }catch(e){ btn.disabled=false; err.textContent='送出失敗，請稍後再試或用下方聯絡方式。'; } };
+  openDialog(head[0], h('div',{class:'up'}, h('div',{class:'up-ic',text:why==='list'?'📦':why==='video'?'🎬':'✨'}), h('h3',{text:head[0]}), h('p',{class:'hint',text:head[1]}),
+    h('div',{class:'up-cards'},
+      h('div',{class:'up-c'}, h('b',{text:'🏪 認證賣家'}), h('ul',{}, h('li',{text:'上架數量無上限'}), h('li',{text:'賣場裝修（拖拉設計）'}), h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'認證賣家徽章'}))),
+      h('div',{class:'up-c'}, h('b',{text:'🛍 認證買家'}), h('ul',{}, h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'認證買家標示，賣家更信任'})))),
+    h('p',{class:'hint',text:'目前開通請先聯繫管理員，之後會開放線上升級。'}),
+    h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('button',{class:'btn pri',type:'button',onclick:e=>ask(e.currentTarget),text:'📩 通知管理員幫我開通'}), S.site?.line?h('a',{class:'btn soft',href:'https://line.me/R/ti/p/'+encodeURIComponent(S.site.line),target:'_blank',rel:'noopener',text:'LINE 聯絡 '+S.site.line}):null),
+    sent, err), true); }
+// 影片清理：認證到期滿 3 個月 → 刪掉這個人植物裡的影片（成長紀錄裡的影片也刪），賣場裝修裡的影片也拿掉；照片與文字都保留
+async function purgeVideos(u,onP){ if(!S.db) return 0; let n=0; const ps=all().filter(p=>p.shop===u);
+  for (const p of ps){ const M=p.media||[]; const keep=M.filter(m=>m?.type!=='video'); if(keep.length!==M.length){ try{ await S.db.doc(pPath(p)).update({media:keep,vid:null}); p.media=keep; n+=M.length-keep.length; for(const m of M.filter(m=>m?.type==='video')) S.assets?.removeUrl?.(m.url).catch(()=>{}); }catch(e){} }
+    try{ const sn=await S.db.collection(pPath(p)+'/photos').get(); for(const d of sn.docs){ const x=d.data(); if(isVidRec({...x})){ try{ await S.db.doc(pPath(p)+'/photos/'+d.id).delete(); n++; const vu=x.full?.asset||x.url; if(vu) S.assets?.removeUrl?.(vu).catch(()=>{}); }catch(e){} } } }catch(e){}
+    onP&&onP(p.code); }
+  const st=shopOf(u)?.store; if(st){ const strip=v=>Array.isArray(v)?v.filter(x=>!(x&&typeof x==='object'&&x.type==='video')).map(strip):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,x&&typeof x==='object'&&x.type==='video'?null:strip(x)])):v; const s2=strip(JSON.parse(JSON.stringify(st))); if(JSON.stringify(s2)!==JSON.stringify(st)){ try{ await S.db.doc('shops/'+u).update({store:s2}); n++; }catch(e){} } }
+  return n; }
+async function markPurged(u){ for(const [doc,map] of [['site/verified',S.verified],['site/vbuyers',S.vbuyers]]){ const e=vEnt(map,u); if(e&&!vActive(e)){ const cur={...(map||{})}; cur[u]={...e,purgedAt:Date.now()}; try{ await S.db.doc(doc).set({uids:cur}); }catch(x){} } } }
+// 自動：管理員打開後台、或本人登入時，檢查有沒有到期滿 3 個月還沒清的
+async function autoPurge(){ if(!S.db||autoPurge.ran) return; autoPurge.ran=true;
+  const due=u=>{ const t=vExpiredAt(u); const ents=[vEnt(S.verified,u),vEnt(S.vbuyers,u)].filter(Boolean); return t&&Date.now()-t>VID_PURGE_DAYS*864e5&&!ents.every(e=>e.purgedAt); };
+  const L=S.admin?[...new Set([...Object.keys(S.verified||{}),...Object.keys(S.vbuyers||{})])].filter(due):(S.me&&due(S.me)?[S.me]:[]);
+  for (const u of L){ const n=await purgeVideos(u); if(S.admin) await markPurged(u); if(n) console.info('[VEIN] 已清除過期影片',u,n); } }
+// 管理員：設定認證（種類、到期日）
+async function setTier(u,kind,until){ const doc=kind==='buyer'?'site/vbuyers':'site/verified', key=kind==='buyer'?'vbuyers':'verified'; const cur={...(S[key]||{})};
+  if (until===null) delete cur[u]; else cur[u]={at:vEnt(S[key],u)?.at||Date.now(),until:until||0,by:S.me};
+  try{ await S.db.doc(doc).set({uids:cur}); S[key]=cur; try{ BCACHE.clear(); }catch(e){} toast(until===null?'已取消認證':'已更新認證'); renderAll(); if(adm.open) renderAdmin(true); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }
+async function setLimit(u,n){ const cur={...(S.limits||{})}; if(!n) delete cur[u]; else cur[u]=n; try{ await S.db.doc('site/limits').set({uids:cur}); S.limits=cur; toast('已更新上架上限'); if(adm.open) renderAdmin(true); }catch(e){ toast('操作失敗'); } }
+function tierPanel(u){ const sh=!!shopOf(u); const row=(kind,label,map)=>{ const e=vEnt(map,u), on=vActive(e), exp=e&&!on;
+    const d=h('input',{type:'date',value:e?.until?new Date(e.until+8*36e5).toISOString().slice(0,10):''});
+    const until=()=>d.value?new Date(d.value+'T23:59:59+08:00').getTime():0;
+    const ext=days=>{ const base=Math.max(Date.now(),e?.until||0); return base+days*864e5; };
+    return h('div',{class:'tp-r'}, h('div',{class:'tp-h'}, h('b',{text:label}), h('span',{class:'tag '+(on?'lime':exp?'live':'grey'),text:on?(e.until?'有效到 '+fmtDay(e.until):'永久有效'):exp?'已到期 '+fmtDay(e.until)+(e.purgedAt?' · 影片已清除':' · '+Math.max(0,Math.ceil((e.until+VID_PURGE_DAYS*864e5-Date.now())/864e5))+' 天後清影片'):'未認證'})),
+      h('div',{class:'tp-a'}, ...[[30,'+1 個月'],[90,'+3 個月'],[365,'+1 年']].map(([n,l])=>h('button',{class:'btn soft sm',type:'button',onclick:()=>setTier(u,kind,ext(n)),text:on?'延長 '+l:'開通 '+l})),
+        h('button',{class:'btn soft sm',type:'button',onclick:()=>setTier(u,kind,0),text:'永久'}),
+        h('span',{class:'tp-d'}, d, h('button',{class:'btn soft sm',type:'button',onclick:()=>{ if(!d.value){ toast('先選日期'); return; } setTier(u,kind,until()); },text:'設定到期日'})),
+        e?confirmBtn('取消認證','soft',()=>setTier(u,kind,null)):null)); };
+  const lim=h('input',{type:'number',min:1,max:100000,value:S.limits?.[u]||'',placeholder:String(LIST_CAP),style:'width:100px'});
+  return h('div',{class:'panel tp'}, h('h3',{text:'🎫 認證與權限'}), h('p',{class:'hint',text:'認證賣家：上架無上限、賣場裝修、上傳影片。認證買家：上傳影片。到期後功能自動關閉，到期滿 3 個月會自動清除這個人上傳的影片（照片與文字保留）。'}),
+    row('seller','🏪 認證賣家',S.verified), row('buyer','🛍 認證買家',S.vbuyers),
+    h('div',{class:'tp-r'}, h('div',{class:'tp-h'}, h('b',{text:'📦 上架上限'}), h('span',{class:'hint',text:sh?'目前在售 '+listedNow(u)+' 株 · 上限 '+(isVerified(u)?'無上限（認證賣家）':capOf(u)+' 株'):'還沒開店'})),
+      h('div',{class:'tp-a'}, lim, h('button',{class:'btn soft sm',type:'button',onclick:()=>setLimit(u,Math.round(+lim.value||0)),text:'設定這個人的上限'}), S.limits?.[u]?h('button',{class:'btn soft sm',type:'button',onclick:()=>setLimit(u,0),text:'恢復預設 '+LIST_CAP}):null)),
+    h('div',{class:'tp-r'}, h('div',{class:'tp-h'}, h('b',{text:'🎬 影片'}), h('span',{class:'hint',text:'現在清除這個人上傳的所有影片'})), h('div',{class:'tp-a'}, confirmBtn('立即清除影片','soft',async()=>{ const t=toastStay('清除中…'); const n=await purgeVideos(u,c=>t.set('清除中 '+c)); t.done(); toast('已清除 '+n+' 個影片'); })))); }
+// 管理員：升級申請與到期清單
+function admTiers(m){ const reqBox=h('div',{class:'list'}, h('p',{class:'hint',text:'讀取中…'}));
+  S.db.collection('upreq').get().then(sn=>{ const L=sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.at-a.at); resolveNames(L.map(x=>x.uid));
+    reqBox.replaceChildren(...(L.length?L.map(x=>h('div',{class:'li',style:'background:#F7F7F4'}, h('div',{style:'min-width:0'}, h('b',{text:(x.shop||x.name||nameOf(x.uid))+' · '+(x.kind==='seller'?'賣家':'買家')}), h('span',{text:({list:'上架滿了',video:'想上傳影片',design:'想用賣場裝修'}[x.why]||'申請認證')+(x.cur?' · 在售 '+x.cur+' 株':'')+' · '+ago(x.at)})),
+      h('div',{class:'row',style:'gap:6px'}, h('button',{class:'btn pri sm',type:'button',onclick:()=>{ S.admTab='users'; S.userSel=x.uid; renderAdmin(true); },text:'去開通'}), h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ try{ await S.db.doc('upreq/'+x.id).delete(); toast('已移除'); renderAdmin(true); }catch(e){ toast('操作失敗'); } },text:'完成／移除'})))):[h('p',{class:'hint',text:'目前沒有申請。'})])); }).catch(()=>reqBox.replaceChildren(h('p',{class:'hint',text:'讀取失敗（規則可能還在部署）'})));
+  const ents=[...Object.entries(S.verified||{}).map(([u])=>[u,'seller',vEnt(S.verified,u)]),...Object.entries(S.vbuyers||{}).map(([u])=>[u,'buyer',vEnt(S.vbuyers,u)])].filter(x=>x[2]); resolveNames(ents.map(x=>x[0]));
+  const soon=ents.filter(([,,e])=>e.until).sort((a,b)=>a[2].until-b[2].until);
+  m.append(admTop('認證會員'), h('p',{class:'hint',style:'margin:-6px 0 14px',text:'在「會員中心」點任何一位會員，就能開通／延長／取消認證、調整上架上限、清除影片。'}),
+    h('div',{class:'panel'}, h('h3',{text:'📩 升級申請'}), reqBox),
+    h('div',{class:'panel'}, h('h3',{text:'⏰ 認證到期一覽'}), soon.length?h('div',{class:'list'}, ...soon.map(([u,k,e])=>{ const on=vActive(e); return h('button',{class:'li',type:'button',style:'background:#F7F7F4',onclick:()=>{ S.admTab='users'; S.userSel=u; renderAdmin(true); }}, h('div',{style:'min-width:0'}, h('b',{text:(shopOf(u)?shopName(u):nameOf(u))+' · '+(k==='seller'?'認證賣家':'認證買家')}), h('span',{text:(on?'到期 ':'已到期 ')+fmtDay(e.until)+(on?'':(e.purgedAt?' · 影片已清除':' · 滿 3 個月後清影片'))})), h('span',{class:'tag '+(on?'lime':'live'),text:on?'有效':'已到期'})); })):h('p',{class:'hint',text:'所有認證都是永久有效，或還沒有人有到期日。'}),
+      h('div',{class:'row',style:'margin-top:10px'}, h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ autoPurge.ran=false; const t=toastStay('檢查中…'); await autoPurge(); t.done(); toast('檢查完成'); },text:'立即檢查並清理過期影片'}))),
+    h('div',{class:'panel'}, h('h3',{text:'👥 目前的認證會員'}), ents.length?h('div',{class:'list'}, ...ents.map(([u,k,e])=>h('button',{class:'li',type:'button',style:'background:#F7F7F4',onclick:()=>{ S.admTab='users'; S.userSel=u; renderAdmin(true); }}, h('div',{style:'min-width:0'}, h('b',{text:(shopOf(u)?shopName(u):nameOf(u))}), h('span',{text:(k==='seller'?'認證賣家':'認證買家')+' · '+(e.until?(vActive(e)?'到 '+fmtDay(e.until):'已到期'):'永久')})), h('span')))):h('p',{class:'hint',text:'還沒有認證會員。'}))); }
 /* ================= 防濫用：動作頻率限制、異常回報、緊急模式 ================= */
 // 原則：一般人碰不到的門檻才擋；擋的時候只暫停那個動作，不會自動封鎖帳號，要不要封禁由管理員在後台決定
 const devId=(()=>{ let d=lsGet('vein.dev',''); if(!d||d.length<8){ d=Date.now().toString(36)+Math.random().toString(36).slice(2,10); lsSet('vein.dev',d); } return d; })();
@@ -7412,7 +7493,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,get SF_COMP(){ return SF_COMP; }};
+if (location.hostname==='localhost') window.__vein={S,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,get SF_COMP(){ return SF_COMP; }};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -7737,7 +7818,7 @@ function admDesign(m){
   const V=proOf(S.me)||S.admin;
   if (!V){ m.append(h('div',{class:'panel lockp'}, h('div',{class:'lock-i',text:'🔒'}), h('h3',{text:'賣場設計工具是認證（高級）賣家專屬功能'}), h('p',{class:'hint',text:'一般賣家的賣場使用標準版面。成為認證賣家後可以使用：'}),
     h('div',{class:'lock-l'}, ...[['拖拉式版面設計','把區塊拖上拖下排順序，右邊即時預覽電腦版與手機版'],['6 種版面模板','經典溫室、極簡藝廊、拍賣主打、新品發表、家族血統、社群口碑'],['13 種互動元件','公告跑馬燈、倒數計時、數據動畫、評價牆、常見問題、圖文、影片橫幅、分類磚…'],['橫幅輪播與背景','最多 6 張照片或影片，整頁背景照片或影片'],['焦點、熱門與展示櫃','主打一株、精選推薦、母本收藏不賣也能展示'],['主題色','自訂賣場配色']].map(([t,d])=>h('div',{}, h('b',{text:t}), h('span',{text:d})))),
-    h('p',{class:'hint',style:'margin-top:12px',text:'前 '+FOUNDER_N+' 間進駐的創始溫室，進駐後半年免費使用。想申請認證，請透過頁尾的聯絡方式與平台聯繫。'}))); return; }
+    h('p',{class:'hint',style:'margin-top:12px',text:'前 '+FOUNDER_N+' 間進駐的創始溫室，進駐後半年免費使用。'}), h('button',{class:'btn pri',type:'button',style:'margin-top:10px',onclick:()=>openUpgrade('design'),text:'📩 申請成為認證賣家'}))); return; }
   const sh=shopOf(S.me)||{}, D=S.design||(S.design=JSON.parse(JSON.stringify(sh.store||{})));
   D.banners=D.banners||[]; D.hot=D.hot||[]; D.showcase=D.showcase||[]; D.sections=normSections(D.sections);
   if (!S.dzTab) S.dzTab='blocks';
@@ -7953,7 +8034,7 @@ function admEditor(m, id){
   const sale=saleFields(p);
   const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), kidsAll=all().filter(x=>momId(x)===p.id||dadId(x)===p.id);
   const picker=mediaPicker();
-  const rec=h('form',{class:'form'}, fieldBox('照片或影片（選填，可多選，影片 10 秒內；不放照片就是純文字事件）', picker.el), h('div',{class:'two'}, field('階段／事件標題（可自訂）', h('input',{'data-r':'stage',maxlength:40,list:stageList(),placeholder:'例如：換盆、開花、第一片真葉',value:stagesFor(p.kind)[1]||''})), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
+  const rec=h('form',{class:'form'}, fieldBox('照片或影片（選填，可多選，影片 6 秒內（認證會員）；不放照片就是純文字事件）', picker.el), h('div',{class:'two'}, field('階段／事件標題（可自訂）', h('input',{'data-r':'stage',maxlength:40,list:stageList(),placeholder:'例如：換盆、開花、第一片真葉',value:stagesFor(p.kind)[1]||''})), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
     field('說明（選填）', h('input',{'data-r':'note',maxlength:300,placeholder:'例如：根長約 3 公分'})), h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'加入履歷'}), h('button',{class:'btn soft',type:'button',onclick:()=>openHistory(p.id),text:'看履歷頁 →'})));
   rec.addEventListener('submit',async e=>{ e.preventDefault(); const err=rec.querySelector('.err'); if(picker.busy()){ err.textContent='還在上傳，請稍候。'; return; } const phs=picker.get(); const stage=rec.querySelector('[data-r=stage]').value.trim(), note=rec.querySelector('[data-r=note]').value.trim(); if(!stage){ err.textContent='請填階段或事件標題。'; return; } const b=rec.querySelector('button[type=submit]');
     if(!phs.length){ b.disabled=true; try{ const reg=nowLocal(); await S.db.collection(pPath(p)+'/photos').doc().set({ev:true,title:stage,stage,note,takenAt:reg,takenSource:'manual',registeredAt:reg}); toast('已加入履歷'); renderAdmin(true); }catch(ex){ b.disabled=false; err.textContent='加入失敗，請稍後再試。'; } return; }
@@ -8414,14 +8495,14 @@ async function preparePhoto(file,onStage){
   return {takenAt,takenSource,thumb:preview,full:{img:dataUrlUnder(img,1200,170000)},preview};
 }
 
-/* ---------- 多照片＋10 秒影片 ---------- */
-const MAX_VID_SEC=10.5;
+/* ---------- 多照片＋6 秒影片 ---------- */
+const MAX_VID_SEC=6.5; // 影片最多 6 秒（省流量）
 function videoDuration(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.preload='metadata'; v.muted=true; v.onloadedmetadata=()=>{ URL.revokeObjectURL(u); res(v.duration||0); }; v.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; v.src=u; setTimeout(()=>rej(new Error('decode')),30000); }); }
 const HEVC_MSG='這支影片的格式這個瀏覽器讀不了（多半是 iPhone 的 HEVC 格式）';
 let hevcWarned=0;
 function hevcHelp(){ if(Date.now()-hevcWarned<5000) return; hevcWarned=Date.now(); const body=h('div',{class:'hevc'}, h('p',{text:'iPhone 錄的是 HEVC（高效率）格式。電腦上的 Chrome、Edge 多半讀不了這種影片，所以沒辦法在這台電腦轉檔上傳。'}),
     h('ol',{}, h('li',{}, h('b',{text:'最簡單：'}), '直接用 iPhone 打開 VEIN（Safari 或 Chrome 都可以）上傳。網站會自動把影片轉成大家都能播的格式，大約要等影片播放一次的時間。'), h('li',{}, h('b',{text:'一定要用電腦：'}), '先在 iPhone 用「照片」或剪輯 App 把影片匯出成 MP4（H.264），或 AirDrop 到 Mac 用 Safari 上傳。')),
-    h('p',{class:'hint',text:'影片限 10 秒內、60MB 以內。照片不受影響。'}));
+    h('p',{class:'hint',text:'影片限 6 秒內、24MB 以內。照片不受影響。'}));
   openDialog('影片格式不支援', body, true); }
 /* iPhone HEVC 影片：在能播放的瀏覽器（iPhone Safari 等）先轉成 H.264 MP4（或 WebM）再上傳，所有人都能播 */
 async function isHEVC(file){ try{ const n=Math.min(file.size,1<<20), a=new Uint8Array(await file.slice(0,n).arrayBuffer()), b=file.size>n?new Uint8Array(await file.slice(file.size-n).arrayBuffer()):new Uint8Array(0);
@@ -8472,10 +8553,11 @@ async function compatVideo(file,onStage){
 }
 async function prepareMedia(file,onStage){
   if (/^video\//.test(file.type)){
+    if (!canVideo(S.me)){ setTimeout(()=>openUpgrade('video'),50); const x=new Error('影片上傳是認證會員功能（可以改傳照片）'); x.vein='msg'; throw x; }
     let dur; try{ dur=await videoDuration(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
-    if (dur>MAX_VID_SEC){ const x=new Error('影片超過 10 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短'); x.vein='msg'; throw x; }
+    if (dur>MAX_VID_SEC){ const x=new Error('影片最長 6 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短再上傳'); x.vein='msg'; throw x; }
     const cv=await compatVideo(file,onStage); if(cv.file!==file){ file=cv.file; if(cv.dur) dur=cv.dur; }
-    if (file.size>60*1024*1024){ const x=new Error('影片超過 60MB'); x.vein='msg'; throw x; }
+    if (file.size>24*1024*1024){ const x=new Error('影片檔案太大（超過 24MB），請剪短或降低畫質'); x.vein='msg'; throw x; }
     onStage&&onStage('處理影片中…');
     let poster; try{ poster=await videoPoster(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
     const preview=URL.createObjectURL(poster);
@@ -8486,9 +8568,9 @@ async function prepareMedia(file,onStage){
 }
 function mediaPicker(o={}){
   const items=[]; let busy=0;
-  const inp=h('input',{type:'file',accept:'image/*,video/mp4,video/webm,video/quicktime',multiple:true,class:'vh'});
+  const inp=h('input',{type:'file',accept:canVideo(S.me)?'image/*,video/mp4,video/webm,video/quicktime':'image/*',multiple:true,class:'vh'});
   const grid=h('div',{class:'mp-grid'}), st=h('span',{class:'hint'});
-  const zone=h('label',{class:'drop mp-drop'}, inp, h('strong',{style:'color:var(--fg)',text:'加入照片或影片（可多選）'}), h('span',{class:'hint',text:'照片可一次選多張；影片限 10 秒內。第一個會當封面，可以調整順序。'}));
+  const zone=h('label',{class:'drop mp-drop'}, inp, h('strong',{style:'color:var(--fg)',text:'加入照片或影片（可多選）'}), h('span',{class:'hint',text:'照片可一次選多張；影片限 6 秒內（認證會員）。第一個會當封面，可以調整順序。'}));
   const draw=()=>{ grid.replaceChildren(...items.map((it,i)=>h('div',{class:'mp-it'+(it.err?' err':'')}, it.prep?.preview||it.prev?h('img',{src:it.prep?.preview||it.prev,alt:''}):h('span',{class:'mp-ph'}), it.isVid?h('span',{class:'mp-v',text:'▶ '+(it.prep?.dur?it.prep.dur.toFixed(0)+'s':'影片')}):null, i===0?h('span',{class:'mp-c',text:'封面'}):null,
       h('span',{class:'mp-s',text:it.err||it.st||''}),
       h('div',{class:'mp-ctl'}, i?h('button',{type:'button','aria-label':'往前',onclick:e=>{ e.preventDefault(); [items[i-1],items[i]]=[items[i],items[i-1]]; draw(); },text:'←'}):null, h('button',{type:'button','aria-label':'移除',onclick:e=>{ e.preventDefault(); items.splice(i,1); draw(); },text:'✕'}))))); st.textContent=items.length?items.filter(x=>x.prep).length+' / '+items.length+' 已上傳':''; };
