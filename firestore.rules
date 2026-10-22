@@ -110,7 +110,8 @@ service cloud.firestore {
         && request.resource.data.amt == resource.data.amt && request.resource.data.pid == resource.data.pid; }
       allow read: if party() || isAdmin();
       allow create: if signedIn() && notBanned() && request.resource.data.buyer == request.auth.uid
-        && request.resource.data.seller != request.auth.uid && request.resource.data.status == 'open';
+        && request.resource.data.seller != request.auth.uid && request.resource.data.status == 'open'
+        && request.resource.data.get('msg', '').size() <= 500 && request.resource.data.size() <= 12;
       allow update: if signedIn() && same() && (
         (request.auth.uid == resource.data.seller && resource.data.status == 'open' && request.resource.data.status in ['accepted', 'rejected'])
         || (request.auth.uid == resource.data.buyer && resource.data.status == 'open' && request.resource.data.status == 'withdrawn'));
@@ -126,7 +127,9 @@ service cloud.firestore {
       allow update: if mem() && request.resource.data.members == resource.data.members;
       match /messages/{mid} {
         allow read: if mem() || isAdmin();
-        allow create: if mem() && notBanned() && request.resource.data.from == request.auth.uid;
+        allow create: if mem() && notBanned() && request.resource.data.from == request.auth.uid
+          && request.resource.data.size() <= 20
+          && (!('text' in request.resource.data) || (request.resource.data.text is string && request.resource.data.text.size() <= 2000));
         allow update: if mem() && resource.data.from != request.auth.uid
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resp', 'respAt', 'respBy']);
       }
@@ -188,6 +191,19 @@ service cloud.firestore {
           || xferOk(resource.data.current)
           || isAdmin());
       allow delete: if isAdmin();
+    }
+
+    // 異常流量回報：每台裝置一份（覆寫，不會一直變多）；只有管理員看得到、可以清除。
+    // 帳號欄位只能填自己（或未登入填 null），沒辦法栽贓別人。是否停權由管理員決定，不會自動封鎖。
+    match /abuse/{dev} {
+      allow read, delete: if isAdmin();
+      allow create, update: if dev.size() >= 8 && dev.size() <= 40 && dev != '_budget'
+        && request.resource.data.keys().hasOnly(['dev', 'uid', 'name', 'ua', 'last', 'n', 'ev'])
+        && request.resource.data.dev == dev
+        && request.resource.data.uid == (request.auth == null ? null : request.auth.uid)
+        && request.resource.data.ev is list && request.resource.data.ev.size() <= 20
+        && request.resource.data.ua is string && request.resource.data.ua.size() <= 200
+        && (resource == null || resource.data.uid == null || resource.data.uid == request.resource.data.uid);
     }
 
     // 私人資料（收藏、購物車）：只有本人看得到

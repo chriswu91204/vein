@@ -6,7 +6,7 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signI
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
-import { OWNER_EMAILS } from './site-config.js';
+import { OWNER_EMAILS, APPCHECK_SITE_KEY } from './site-config.js';
 
 const notReady = !config || !config.apiKey || String(config.apiKey).startsWith('PASTE');
 if (notReady) {
@@ -19,6 +19,13 @@ if (notReady) {
 
 async function start() {
   const app = initializeApp(config);
+  // App Check：證明請求真的來自 VEIN 網站，擋掉直接打資料庫的程式（要在 site-config.js 填金鑰才會啟用）
+  if (APPCHECK_SITE_KEY) {
+    try {
+      const AC = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check.js');
+      AC.initializeAppCheck(app, { provider: new AC.ReCaptchaV3Provider(APPCHECK_SITE_KEY), isTokenAutoRefreshEnabled: true });
+    } catch (e) { console.warn('[VEIN] App Check 啟用失敗', e); }
+  }
   const auth = getAuth(app);
   // 本機快取：重複造訪與換頁時直接用快取，減少資料庫讀取與流量
   let fs;

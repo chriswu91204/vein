@@ -2,6 +2,7 @@
 // 不需要任何密碼或金鑰（用專案本身的權限送出）；網站端的 Web Push 公開金鑰在「網站設定」填寫。
 const { onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
+const { onMessagePublished } = require('firebase-functions/v2/pubsub');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
@@ -66,5 +67,20 @@ exports.pushCare = onSchedule({ schedule: 'every 15 minutes', timeZone: 'Asia/Ta
       for (const z of v.zones || []) for (const t of z.tasks || []) { const at = dueAt(t); if (at && at <= now && at > now - win) hits.push(z.name + '：' + t.name); }
       if (hits.length) await push(col.id, '🌱 日常管理提醒', hits.slice(0, 4).join('、') + (hits.length > 4 ? ' 等 ' + hits.length + ' 項' : '') + ' 該做了', '/#plants/care', 'care');
     } catch (e) { logger.warn('care check failed', col.id, String(e)); }
+  }
+});
+
+// 費用保護：Google Cloud 預算通知（Pub/Sub 主題 billing-alerts）→ 記錄目前花費；超過預算且「自動緊急模式」開著 → 開啟網站緊急模式
+exports.budgetGuard = onMessagePublished({ topic: 'billing-alerts', maxInstances: 1 }, async (ev) => {
+  const d = ev.data?.message?.json || {};
+  const cost = Number(d.costAmount), budget = Number(d.budgetAmount);
+  if (!isFinite(cost) || !isFinite(budget) || budget <= 0) return;
+  await db.doc('abuse/_budget').set({ cost, budget, cur: d.currencyCode || '', name: d.budgetDisplayName || '', at: Date.now() });
+  const info = (await db.doc('site/info').get()).data() || {};
+  if (cost >= budget && info.autoLock !== false && !info.lockdown) {
+    await db.doc('site/info').set({ lockdown: true, lockBy: 'budget', lockMsg: info.lockMsg || '' }, { merge: true });
+    logger.warn('budget exceeded → lockdown', { cost, budget });
+    const owner = await admin.auth().getUserByEmail('chriswu91204@gmail.com').catch(() => null);
+    if (owner) await push(owner.uid, '🚨 VEIN 已自動開啟緊急模式', `本月費用 ${Math.round(cost)} 已超過預算 ${Math.round(budget)}`, '/#admin/guard', 'budget').catch(() => {});
   }
 });

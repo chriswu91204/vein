@@ -59,7 +59,7 @@ jobs:
           echo "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           npm --prefix functions install --no-audit --no-fund
-          npx --yes firebase-tools@14 deploy --only functions --non-interactive --force
+          npx --yes firebase-tools@14 deploy --only functions:default --non-interactive --force
       # 手機推播（聊天、議價、日常管理提醒）：在 GitHub → Settings → Variables 新增 DEPLOY_PUSH = true 才會部署（需要 Blaze 方案）
       - name: Push notifications / Cloud Functions (main)
         if: github.event_name == 'push' && vars.DEPLOY_PUSH == 'true'
