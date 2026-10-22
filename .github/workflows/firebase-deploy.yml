@@ -66,11 +66,9 @@ jobs:
         continue-on-error: true
         env:
           SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          LINE_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
         run: |
           echo "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
-          printf 'LINE_CHANNEL_ID=2012159791\nLINE_CHANNEL_SECRET=%s\n' "$LINE_SECRET" > push/.env
           npm --prefix push install --no-audit --no-fund
           # 第一次部署需要的 Google API（部署帳號有「服務使用情形管理員」權限就能自己開）
           gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" --quiet

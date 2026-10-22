@@ -193,13 +193,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 身分驗證（LINE）：只有伺服器能寫；所有人都能看誰驗證過（競標、抽獎用來判斷資格）
-    match /verif/{uid} {
-      allow read: if true;
-      allow write: if false;
-    }
-    match /lineIds/{id} {
-      allow read, write: if false;
+    // 手機簡訊驗證次數：每人每天 3 次、每月 10 次。日期用伺服器時間（台灣時間）算，只能一次 +1，改網頁也繞不過；管理員可以刪掉重設
+    match /smsq/{uid} {
+      function tw() { return request.time + duration.value(8, 'h'); }
+      function dk() { return tw().year() * 10000 + tw().month() * 100 + tw().day(); }
+      function mk() { return tw().year() * 100 + tw().month(); }
+      allow read: if isMe(uid) || isAdmin();
+      allow delete: if isAdmin();
+      allow create, update: if isMe(uid)
+        && request.resource.data.keys().hasOnly(['dk', 'mk', 'dn', 'mn'])
+        && request.resource.data.dk == dk() && request.resource.data.mk == mk()
+        && request.resource.data.dn == ((resource != null && resource.data.dk == dk()) ? resource.data.dn + 1 : 1)
+        && request.resource.data.mn == ((resource != null && resource.data.mk == mk()) ? resource.data.mn + 1 : 1)
+        && request.resource.data.dn <= 3 && request.resource.data.mn <= 10;
     }
     // 異常流量回報：每台裝置一份（覆寫，不會一直變多）；只有管理員看得到、可以清除。
     // 帳號欄位只能填自己（或未登入填 null），沒辦法栽贓別人。是否停權由管理員決定，不會自動封鎖。
