@@ -911,7 +911,7 @@ a.shopchip:hover{color:var(--fg)}
 .tr-bg>div{display:flex;width:max-content;animation:mq 60s linear infinite}
 .tr-bg span{font-family:var(--f-display);font-weight:700;font-size:clamp(90px,14vw,200px);line-height:.9;letter-spacing:-.04em;white-space:nowrap;color:transparent;-webkit-text-stroke:2px #fff}
 .tr-head{position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-.tr.dark .tr-head{padding:0 max(var(--gl),calc((100vw - 1240px)/2))}
+.tr.dark .tr-head{padding:0 max(var(--gl),calc((100% - 1240px)/2))}
 .tr-k{display:flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.22em;color:var(--leaf-2)}
 .tr-k i{width:7px;height:7px;background:currentColor;border-radius:1px;animation:blink 1.6s infinite}
 .tr.dark .tr-k{color:var(--lime)}
@@ -925,9 +925,10 @@ a.shopchip:hover{color:var(--fg)}
 .tr-btn:hover{background:var(--ink);color:var(--lime);transform:scale(1.06)}
 .tr.dark .tr-btn{background:transparent;border-color:rgba(255,255,255,.2);color:#fff}.tr.dark .tr-btn:hover{background:var(--lime);color:#111}
 .tr-more{font-size:14px;font-weight:500;color:var(--leaf-2);text-decoration:none;white-space:nowrap;margin-left:6px}.tr.dark .tr-more{color:var(--lime)}
+.tr.few .tr-count,.tr.few .tr-prog,.tr.few .tr-btn{display:none}
 .tr-track{position:relative;display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 2px 22px;cursor:grab;perspective:1200px}
 .tr-track::-webkit-scrollbar{display:none}
-.tr.dark .tr-track{padding-left:max(var(--gl),calc((100vw - 1240px)/2));padding-right:var(--gr);scroll-padding-left:max(var(--gl),calc((100vw - 1240px)/2))}
+.tr.dark .tr-track{padding-left:max(var(--gl),calc((100% - 1240px)/2));padding-right:var(--gr);scroll-padding-left:max(var(--gl),calc((100% - 1240px)/2))}
 .tr-track.drag{cursor:grabbing;scroll-snap-type:none}.tr-track.drag .tr-card{pointer-events:none}
 .tr-card{flex:0 0 min(270px,74%);scroll-snap-align:start;transform-style:preserve-3d;transition:transform .5s var(--ease),opacity .7s var(--ease),box-shadow .5s;opacity:0;transform:translateX(40px)}
 .tr.in .tr-card{opacity:1;transform:none;transition-delay:calc(var(--i)*60ms),calc(var(--i)*60ms),0s}
@@ -966,7 +967,7 @@ a.shopchip:hover{color:var(--fg)}
 .sb-t{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;margin:6px 0 8px}
 .sb-t img,.sb-t i{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;background:rgba(255,255,255,.08);display:block}
 .wallsec{padding-bottom:30px}.wallsec .swall{margin:0}.wallsec .wcard{background:#151816;color:#F3F3F0}.wallsec .wc-m span{color:rgba(255,255,255,.5)}.wallsec .wc-m>.ring>.av{border-color:#151816}
-.wallsec .hotrow{padding:0 max(var(--gl),calc((100vw - 1240px)/2))}
+.wallsec .hotrow{padding:0 max(var(--gl),calc((100% - 1240px)/2))}
 /* spotlight */
 .spot{position:relative;height:min(78vh,620px);min-height:520px;border-radius:34px;overflow:hidden;background:var(--ink);margin-top:26px}
 .spot::before{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(var(--hud),var(--hud)) 18px 18px/26px 2px no-repeat,linear-gradient(var(--hud),var(--hud)) 18px 18px/2px 26px no-repeat,linear-gradient(var(--hud),var(--hud)) calc(100% - 18px) calc(100% - 18px)/26px 2px no-repeat,linear-gradient(var(--hud),var(--hud)) calc(100% - 18px) calc(100% - 18px)/2px 26px no-repeat}
@@ -1057,7 +1058,7 @@ label.imgpick{position:relative;display:grid;place-items:center}.imgpick-in{disp
 /* ---- fx carousels v19 ---- */
 /* coverflow */
 .cfx{padding-bottom:34px}
-.cf{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:center;padding:0 max(var(--gl),calc((100vw - 1240px)/2))}
+.cf{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:center;padding:0 max(var(--gl),calc((100% - 1240px)/2))}
 .tr:not(.dark).cfx .cf{padding:0}
 .cf-stage{position:relative;height:min(460px,72vw);perspective:1400px;touch-action:pan-y;user-select:none;overflow:clip;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
 .cf-card{position:absolute;left:50%;top:50%;width:min(300px,52vw);aspect-ratio:3/4;margin:calc(min(300px,52vw)*-.6666) 0 0 calc(min(300px,52vw)*-.5);border-radius:24px;overflow:hidden;cursor:pointer;transition:transform .75s cubic-bezier(.2,.8,.2,1),opacity .6s;box-shadow:0 40px 80px -30px rgba(0,0,0,.6);background:#222}
@@ -2832,6 +2833,27 @@ button.pm-pv i{font-style:normal;font-size:12px;color:var(--fg3,#9A9F96);opacity
 .ql{display:flex;flex-direction:column;gap:14px}.ql-p{display:flex;gap:12px;align-items:center;background:#F5F6F2;border-radius:14px;padding:10px}
 .ql-p img,.ql-p>span{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:#E8EBE3;font-size:24px}.ql-p b{display:block;font-size:15px}.ql-p small{color:var(--fg2)}
 /* ---- 安全 ---- */
+.aw-g{display:flex;flex-direction:column;gap:6px;margin-top:10px}.aw-l{display:flex;gap:6px;flex-wrap:wrap}.chip.aw.on{background:#111312;color:#C6F432}
+.bdg.t-special{background:linear-gradient(135deg,#1F5C42,#2E7D57);color:#fff;border-color:transparent}
+/* ---- 手機版比例：商品改兩欄、輪播卡片不要佔滿整個畫面 ---- */
+/* 卡片自己變窄時（兩欄、家族、精選…任何地方）自動切換成精簡版，不會擠成一條長條 */
+.tile{container-type:inline-size;container-name:tile}
+@container tile (max-width:230px){
+  .tm{padding:10px 11px 12px!important;gap:2px!important}.nm{font-size:15px!important}.nm.long{font-size:13.5px!important}.sb{font-size:11.5px!important}.k{font-size:11px!important}
+  .memo,.ttags,.tm .shopchip{display:none!important}.ft{margin-top:6px!important;gap:6px!important;flex-wrap:wrap}.pr{font-size:14.5px!important;white-space:nowrap}.ft .btn{padding:6px 10px;font-size:12px}
+  .bd{left:8px!important;top:8px!important;right:44px!important;gap:4px!important}.bd .tag{font-size:10.5px;padding:2px 7px}.qv-btn{display:none!important}
+}
+@media (max-width:640px){
+  .grid,.bf-main .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .grid .tile .tm{padding:10px 11px 12px;gap:2px}.grid .tile .nm{font-size:15px}.grid .tile .nm.long{font-size:13.5px}.grid .tile .sb{font-size:11.5px}.grid .tile .k{font-size:11px}
+  .grid .tile .memo,.grid .tile .ttags,.grid .tile .tm .shopchip{display:none}.grid .tile .ft{margin-top:6px;gap:6px;flex-wrap:wrap}.grid .tile .pr{font-size:14.5px}.grid .tile .ft .btn{padding:6px 10px;font-size:12px}
+  .grid .tile .bd{left:8px;top:8px;right:44px;gap:4px}.grid .tile .bd .tag{font-size:10.5px;padding:2px 7px}.grid .tile .fav{transform:scale(.85);transform-origin:top right}
+  .tr-card{flex-basis:60%!important}.tr.big .tr-card{flex-basis:70%!important}
+  .tr-card.tile .tm{padding:10px 12px 12px}.tr-card.tile .nm{font-size:16px}.tr-card.tile .memo,.tr-card.tile .ttags{display:none}
+  .rgrid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;padding-bottom:6px;scrollbar-width:none}.rgrid::-webkit-scrollbar{display:none}.rgrid>*{flex:0 0 72%;scroll-snap-align:start}
+  .pw{grid-auto-rows:36vw!important}.gtile .ti,.gtile .gi{aspect-ratio:4/3}.pw-i.tall{grid-row:span 1}.pw-i.big{grid-row:span 2}
+  .tile .qv-btn{display:none}
+}
 .bd-strip{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 10px;scrollbar-width:thin;align-items:center}
 .bd-sh{flex:none;font-size:12px;color:var(--fg2);font-weight:600;padding-right:2px}
 .bd-sc{flex:none;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px 7px 9px;cursor:grab;touch-action:pan-x;font-size:12.5px;user-select:none;-webkit-user-select:none}
@@ -4090,7 +4112,7 @@ function techRow(o){
   const track=h('div',{class:'tr-track'}, ...o.items.map((it,i)=>{ const c=(o.card||tile)(it,i); c.classList.add('tr-card'); c.style.setProperty('--i',i); c.dataset.idx=pad2(i+1); return c; }));
   const count=h('span',{class:'tr-count mono'}, h('b',{text:'01'}), ' / '+pad2(n)), bar=h('i');
   const step=d=>{ const c=track.querySelector('.tr-card'); const w=c?c.getBoundingClientRect().width+18:300; track.scrollBy({left:d*w*(innerWidth<700?1:2),behavior:'smooth'}); };
-  const sec=h('section',{class:'tr'+(o.dark?' dark':'')+(o.big?' big':'')+(o.cls?' '+o.cls:'')},
+  const sec=h('section',{class:'tr'+(o.dark?' dark':'')+(o.big?' big':'')+(o.cls?' '+o.cls:'')+(n<3?' few':'')},
     o.bg?h('div',{class:'tr-bg','aria-hidden':'true'}, h('div',{}, ...Array(6).fill(0).map(()=>h('span',{text:o.bg+' · '})))):null,
     h('div',{class:'tr-head'},
       h('div',{class:'tr-ti'}, h('span',{class:'tr-k mono'}, h('i'), o.kicker||''), h('h3',{text:o.title}), o.sub?h('p',{text:o.sub}):null),
@@ -4771,9 +4793,9 @@ function renderMe(){
     isSeller()?tile('🏪',S.admin&&!hasShop()?'管理後台':'商店管理','上架與訂單',()=>{ sheet.close(); openAdmin(); }):tile('🏪','開賣場','免費申請',()=>{ sheet.close(); openApply(); }),
     tile('🔔','手機通知',pushOn?'已開啟':'未開啟',()=>enablePush(),pushOn?'on':''),
     !isStandalone()?tile('📲','加到主畫面','像 App',()=>openInstall()):tile('📱','手機驗證',ver?'已驗證':'未驗證',()=>openVerify(),ver?'on':''));
-  const MB=memberBadges(S.me), got=MB.filter(b=>b.ok), next=MB.filter(b=>!b.ok).sort((a,b)=>b.prog[0]/b.prog[1]-a.prog[0]/a.prog[1])[0];
+  const MB=memberBadges(S.me), got=MB.filter(b=>b.ok), next=MB.filter(b=>!b.ok&&b.prog).sort((a,b)=>b.prog[0]/b.prog[1]-a.prog[0]/a.prog[1])[0];
   const bdg=h('div',{class:'mp-bdg'}, h('div',{class:'mp-bh'}, h('b',{text:'🏅 徽章 '+got.length+' / '+MB.length}), h('button',{type:'button',class:'mp-more',onclick:()=>{ S.meBdgAll=!S.meBdgAll; renderMe(); },text:S.meBdgAll?'收起':'看全部'})),
-    h('div',{class:'mp-bl'}, ...(S.meBdgAll?MB:got).map(b=>h('span',{class:'bdg t-'+(b.ok?'silver':'bronze')+(b.ok?'':' off')}, h('i',{text:b.ic}), h('b',{text:b.n+(b.ok?'':' '+b.prog[0]+'/'+b.prog[1])}))), !got.length&&!S.meBdgAll?h('span',{class:'hint',text:'還沒有徽章'}):null),
+    h('div',{class:'mp-bl'}, ...(S.meBdgAll?MB:got).map(b=>h('span',{class:'bdg t-'+(b.special&&b.ok?'special':b.ok?'silver':'bronze')+(b.ok?'':' off'),title:b.d+(b.special&&!b.ok?'（平台頒發）':''),onclick:b.act&&!b.ok?()=>openVerify():null}, h('i',{text:b.ic}), h('b',{text:b.n+(b.ok?'':b.prog?' '+b.prog[0]+'/'+b.prog[1]:b.special?' · 平台頒發':'')}))), !got.length&&!S.meBdgAll?h('span',{class:'hint',text:'還沒有徽章'}):null),
     !S.meBdgAll&&next?h('div',{class:'mp-next'}, h('span',{text:'下一個：'+next.ic+' '+next.n}), h('i',{}, h('em',{style:'width:'+Math.round(Math.min(1,next.prog[0]/next.prog[1])*100)+'%'})), h('small',{text:next.prog[0]+' / '+next.prog[1]})):null);
   const TABS=[['orders','訂單',ords.length],['mine','我的植物',all().filter(p=>ownerOf(p)===S.me&&p.shop!==S.me).length],['offers','議價',myOffers().length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['favs','收藏',favs.length],['follows','追蹤',fol.length],['qs','提問',qs.length]];
   box.append(head, acts, bdg, h('div',{class:'htabs scroll mp-tabs',role:'tablist'}, ...TABS.map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(S.meTab===k),onclick:()=>{ S.meTab=k; renderMe(); }}, l, n?h('span',{class:'n',text:String(n)}):null))));
@@ -4926,7 +4948,7 @@ async function boot(){
   db.doc('site/info').onSnapshot(d=>{ S.site=d.exists?d.data():{}; renderAll(); }, ()=>{});
   db.collection('owners').onSnapshot(sn=>{ S.owners.clear(); sn.docs.forEach(d=>S.owners.set(d.id,d.data())); renderAll(); }, ()=>{});
   db.doc('site/verified').onSnapshot(d=>{ S.verified=(d.exists&&d.data().uids)||{}; renderAll(); }, ()=>{});
-  db.doc('site/badges').onSnapshot(d=>{ S.badges=(d.exists&&d.data().uids)||{}; renderAll(); }, ()=>{});
+  db.doc('site/badges').onSnapshot(d=>{ S.badges=(d.exists&&d.data().uids)||{}; try{ BCACHE.clear(); }catch(e){} renderAll(); }, ()=>{});
   db.doc('site/home').onSnapshot(d=>{ S.home=d.exists?d.data():{}; wallSig=''; renderWall(); }, ()=>{});
   db.doc('site/text').onSnapshot(d=>{ applyText(d.exists?d.data():{}); }, ()=>{});
   db.doc('site/blocks').onSnapshot(d=>{ setBlocks(d.exists?(d.data().items||[]):[]); }, ()=>{});
@@ -6128,6 +6150,9 @@ function admUserDetail(m,u){
   m.append(h('div',{class:'top'}, h('div',{}, h('button',{class:'bf-lk',type:'button',onclick:()=>admBack(()=>{ S.userSel=null; renderAdmin(true); }),text:'← 上一頁'}), h('h2',{text:r.name||'（未設定名稱）'}), h('div',{class:'row',style:'gap:6px;margin-top:6px'}, h('span',{class:'lvl '+r.level,text:Object.fromEntries(LEVELS)[r.level]}), b?h('span',{class:'tag live',text:'已停權'}):null, r.phone?h('span',{class:'tag lime',text:'手機已驗證'}):null)),
       sh?h('a',{class:'btn soft',href:'#/seller/'+u,onclick:()=>adm.close(),text:'看賣場 →'}):null),
     h('div',{class:'kpis'}, ...[['買入',r.buyN+' 筆'],['消費',money(r.spend||0)],['賣出',r.sellN+' 筆'],['銷售額',money(r.revenue||0)],['登錄植株',String(r.plants||0)],['擁有他人植株',String(r.owns||0)],['出價',String(r.bids||0)],['追蹤者',String(r.fol||0)],['評分',r.rt?.n?r.rt.avg.toFixed(1)+'★（'+r.rt.n+'）':'—']].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{style:'font-size:24px',text:v})))),
+    S.isOwner?h('div',{class:'panel'}, h('h3',{text:'🏅 頒發徽章'}), h('p',{class:'hint',text:'點一下頒發，再點一次收回。頒發的徽章會顯示在對方的賣場或個人頁。'}),
+      sh?h('div',{class:'aw-g'}, h('small',{class:'hint',text:'賣家徽章'}), h('div',{class:'aw-l'}, ...SPECIAL_BADGES.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); }))):null,
+      h('div',{class:'aw-g'}, h('small',{class:'hint',text:'會員徽章'}), h('div',{class:'aw-l'}, ...MEMBER_SPECIAL.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); })))):null,
     (()=>{ const t=h('span',{class:'hint',text:'讀取中…'}), pn=h('div',{class:'panel',style:'display:flex;gap:12px;align-items:center;flex-wrap:wrap'}, h('b',{text:'📱 手機驗證簡訊'}), t);
       S.db.doc('smsq/'+u).get().then(d=>{ const q=d.exists?d.data():null, K=smsKeys(); const dn=q&&q.dk===K.dk?q.dn:0, mn=q&&q.mk===K.mk?q.mn:0;
         t.textContent='今天 '+dn+' / '+SMS_DAY+' 次 · 本月 '+mn+' / '+SMS_MONTH+' 次';
@@ -6906,10 +6931,31 @@ const BADGES=[
   ['raffle','🎁','抽獎主辦','辦過抽獎回饋大家',u=>pg([...S.raffles.values()].filter(r=>r.shop===u).length,1),'bronze'],
   ['decor','🎨','精緻賣場','用賣場設計工具發佈過裝修',u=>({ok:!!shopOf(u)?.store?.sections?.length}),'bronze'],
   ['year','📅','老字號','進駐滿一年',u=>pg(shopDays(u),365),'silver'],
+  ['year3','🏯','三年老店','進駐滿三年',u=>pg(shopDays(u),365*3),'gold'],
+  ['deal300','🌋','成交 300','完成 300 筆訂單',u=>pg(soldN(u),300),'gold'],
+  ['rev100k','💰','業績十萬','累計成交金額 NT$100,000',u=>pg(revOf(u),100000),'silver'],
+  ['rev1m','💎','業績百萬','累計成交金額 NT$1,000,000',u=>pg(revOf(u),1000000),'gold'],
+  ['auc10','🔨','競標達人','舉辦過 10 場競標',u=>pg(all().filter(p=>p.shop===u&&p.mode==='auction').length,10),'bronze'],
+  ['auchot','⚡','熱門競標','單場競標有 20 次以上出價',u=>pg(Math.max(0,...all().filter(p=>p.shop===u&&isAuc(p)).map(p=>bidsFor(p.id).length)),20),'silver'],
+  ['fans500','👑','超人氣溫室','500 位以上追蹤者',u=>pg(followers(u),500),'gold'],
+  ['rev50','💬','口碑溫室','累計 50 則買家評價',u=>pg(rating(u).n,50),'silver'],
+  ['cat100','📚','百株溫室','登錄 100 株以上植物',u=>pg(all().filter(p=>p.shop===u).length,100),'bronze'],
+  ['cat500','🏛','植物博物館','登錄 500 株以上植物',u=>pg(all().filter(p=>p.shop===u).length,500),'gold'],
+  ['gen10','🧭','收藏大全','種了 10 個以上不同的屬',u=>pg(shopStats(u).gen||0,10),'silver'],
+  ['bigfam','🌳','家族繁衍','有一株母本留下 10 株以上後代',u=>pg(Math.max(0,...all().filter(p=>p.shop===u).map(m=>all().filter(k=>momId(k)===m.id).length)),10),'silver'],
+  ['pass10','🔄','履歷傳承','10 株植物完成所有權轉移，履歷跟著走',u=>pg(all().filter(p=>p.shop===u&&ownerOf(p)&&ownerOf(p)!==u).length,10),'silver'],
+  ['grp5','📦','批量大戶','開過 5 個以上批量群組',u=>pg(Object.keys(shopOf(u)?.groups||{}).length,5),'bronze'],
+  ['raffle5','🎉','回饋達人','辦過 5 場以上抽獎',u=>pg([...S.raffles.values()].filter(r=>r.shop===u).length,5),'silver'],
 ];
-const SPECIAL_BADGES=[['honest','🛡','誠信賣家','平台確認交易紀錄良好'],['top','👑','年度溫室','VEIN 年度推薦溫室'],['pick','⭐','編輯精選','VEIN 編輯推薦'],['event','🎪','活動夥伴','與 VEIN 合作舉辦活動'],['rescue','🚑','救援達人','熱心協助其他玩家']];
+const revOf=u=>[...S.sorders.values()].filter(o=>o.shop===u&&OK_ST.includes(o.status)).reduce((a,o)=>a+(+o.total||0),0);
+const SPECIAL_BADGES=[['honest','🛡','誠信賣家','平台確認交易紀錄良好'],['top','👑','年度溫室','VEIN 年度推薦溫室'],['pick','⭐','編輯精選','VEIN 編輯推薦'],['event','🎪','活動夥伴','與 VEIN 合作舉辦活動'],['rescue','🚑','救援達人','熱心協助其他玩家'],
+  ['quality','🌿','品質保證','平台抽查植株狀態優良'],['breedpro','🎓','育種專家','育種成果獲平台肯定'],['mentor','🧑‍🏫','熱心教學','常分享照顧與育種知識'],['photo','📷','攝影大師','植物照片拍得特別好'],['pack','🎁','包裝細心','買家一致稱讚包裝'],
+  ['fastship','🚀','出貨神速','下單後很快就出貨'],['rare','💠','稀有品種','擁有少見的品種'],['media','📰','媒體推薦','曾被媒體或社群報導'],['ambassador','🏳️','VEIN 大使','協助推廣 VEIN'],['champion','🥇','比賽冠軍','植物比賽得獎'],['charity','❤️','公益夥伴','參與公益活動']];
+// 會員（買家／收藏家）的平台頒發徽章，跟賣家共用 site/badges
+const MEMBER_SPECIAL=[['vip','💠','VIP 買家','平台認定的重要買家'],['trusted','🤝','誠信買家','付款、取貨都很準時'],['helper','🙋','熱心玩家','常幫忙解答問題'],['og','🐣','元老會員','VEIN 早期就加入的會員'],['reporter','🕵️','回報達人','幫忙回報問題或可疑內容'],['winner','🏆','活動得主','在 VEIN 活動中得獎'],['creator','🎥','內容創作者','分享優質植物內容']];
 S.badges={};
-function badgesOf(u){ const out=[]; for(const [k,ic,n,d,fn,tier] of BADGES){ let r={}; try{ r=fn(u)||{}; }catch(e){} out.push({k,ic,n,d,tier,ok:!!r.ok,prog:r.prog,txt:r.txt||''}); }
+const BCACHE=new Map();
+function badgesOf(u){ const c=BCACHE.get(u); if(c&&Date.now()-c.t<4000) return c.out; const out=[]; BCACHE.set(u,{t:Date.now(),out}); for(const [k,ic,n,d,fn,tier] of BADGES){ let r={}; try{ r=fn(u)||{}; }catch(e){} out.push({k,ic,n,d,tier,ok:!!r.ok,prog:r.prog,txt:r.txt||''}); }
   const sp=S.badges?.[u]||{}; for(const [k,ic,n,d] of SPECIAL_BADGES) out.push({k,ic,n,d,tier:'special',ok:!!sp[k],special:true}); return out; }
 const earned=u=>badgesOf(u).filter(b=>b.ok).sort((a,b)=>(b.special-a.special)||(['gold','lime','silver','bronze'].indexOf(a.tier)-['gold','lime','silver','bronze'].indexOf(b.tier)));
 function badgeChip(b,sm){ return h('span',{class:'bdg t-'+b.tier+(sm?' sm':''),title:b.n+(b.txt?' '+b.txt:'')+'：'+b.d}, h('i',{text:b.ic}), sm?null:h('b',{text:b.n+(b.txt?' '+b.txt:'')})); }
@@ -6918,11 +6964,14 @@ function badgeWall(u,opts={}){ const L=badgesOf(u), mine=u===S.me;
   return h('div',{class:'bw'}, ...L.filter(b=>b.ok||!opts.earnedOnly).map(b=>h('div',{class:'bw-i t-'+b.tier+(b.ok?' on':'')}, h('span',{class:'bw-ic',text:b.ic}), h('b',{text:b.n+(b.txt?' '+b.txt:'')}), h('small',{text:b.d}),
     !b.ok&&b.prog&&(mine||opts.showProg)?h('div',{class:'bw-p'}, h('i',{}, h('em',{style:'width:'+(b.prog[0]/b.prog[1]*100)+'%'})), h('small',{text:b.prog[0]+' / '+b.prog[1]})):null, !b.ok&&b.special?h('small',{class:'bw-sp',text:'平台頒發'}):null))); }
 function openBadges(u){ const n=earned(u).length; openDialog(shopName(u)+' 的徽章', h('div',{}, h('p',{class:'hint',style:'margin:0 0 14px',text:'已獲得 '+n+' / '+badgesOf(u).length+' 枚。徽章依真實的成交、評價、追蹤與紀錄自動頒發，特別徽章由 VEIN 平台頒發。'}), badgeWall(u,{showProg:u===S.me}))); }
-async function setSpecialBadge(u,k,on){ const cur=JSON.parse(JSON.stringify(S.badges||{})); cur[u]={...(cur[u]||{})}; if(on) cur[u][k]=Date.now(); else delete cur[u][k]; try{ await S.db.doc('site/badges').set({uids:cur}); S.badges=cur; toast(on?'已頒發':'已收回'); renderAdmin(true); }catch(e){ toast('操作失敗'); } }
+async function setSpecialBadge(u,k,on){ BCACHE.clear(); const cur=JSON.parse(JSON.stringify(S.badges||{})); cur[u]={...(cur[u]||{})}; if(on) cur[u][k]=Date.now(); else delete cur[u][k]; try{ await S.db.doc('site/badges').set({uids:cur}); S.badges=cur; toast(on?'已頒發':'已收回'); renderAdmin(true); }catch(e){ toast('操作失敗'); } }
 // 會員（買家／收藏家）徽章
-function memberBadges(u){ const buys=purchasesOf(u).length, my=S.socialAll?.get(u)||{}, revs=Object.keys(my.reviews||{}).length, fol=(my.follows||[]).length, reg=all().filter(p=>p.shop===u).length;
-  return [['🛍','首購',buys>=1,[buys,1]],['💚','常客',buys>=5,[buys,5]],['✍️','評價達人',revs>=3,[revs,3]],['👀','追蹤 10 間溫室',fol>=10,[fol,10]],['📒','收藏家',reg>=10,[reg,10]],['🌳','大收藏家',reg>=50,[reg,50]]].map(([ic,n,ok,prog])=>({ic,n,ok,prog,d:n,tier:ok?'silver':'bronze'})); }
-function computeShopStats(docs){ const ids=new Set(docs.map(d=>d.id)); let par=0,recs=0,vids=0,bred=0; const gen=new Set();
+function memberBadges(u){ const P=purchasesOf(u), buys=P.length, spend=P.reduce((a,o)=>a+(+o.total||0),0), my=S.socialAll?.get(u)||{}, revs=Object.keys(my.reviews||{}).length, fol=(my.follows||[]).length, reg=all().filter(p=>p.shop===u).length;
+  const bidsN=Object.keys(my.bids||{}).length, won=all().filter(p=>isAuc(p)&&p.status==='sold'&&p.buyer===u).length, rafN=Object.keys(my.raffles||{}).length, lucky=[...S.raffles.values()].filter(r=>(r.drawn?.winners||[]).includes(u)).length, owns=all().filter(p=>ownerOf(p)===u&&p.shop!==u).length;
+  const auto=[['🛍','首購',buys,1],['💚','常客',buys,5],['💎','鐵粉',buys,20],['💰','大戶',spend,10000],['✍️','評價達人',revs,3],['👀','追蹤 10 間溫室',fol,10],['🔭','追蹤 30 間溫室',fol,30],['🔨','競標玩家',bidsN,5],['🏅','得標者',won,1],['🎟','抽獎常客',rafN,5],['🍀','幸運兒',lucky,1],['🔄','傳承者',owns,5],['📒','收藏家',reg,10],['🌳','大收藏家',reg,50]]
+    .map(([ic,n,cur,goal])=>({ic,n,ok:cur>=goal,prog:[Math.min(cur,goal),goal],d:n,tier:cur>=goal?'silver':'bronze'}));
+  const ph=u===S.me?!!S.meInfo?.phoneVerified:!!S.profC?.get(u); auto.unshift({ic:'📱',n:'手機已驗證',ok:ph,prog:null,d:'完成手機簡訊驗證',tier:ph?'lime':'bronze',act:true});
+  const sp=S.badges?.[u]||{}; return [...auto,...MEMBER_SPECIAL.map(([k,ic,n,d])=>({k,ic,n,d,ok:!!sp[k],tier:'special',special:true}))]; }function computeShopStats(docs){ const ids=new Set(docs.map(d=>d.id)); let par=0,recs=0,vids=0,bred=0; const gen=new Set();
   docs.forEach(d=>{ const p=d.data(); if(p.momId||p.dadId||p.momCode||p.dadCode||p.momExt||p.dadExt) par++; recs+=Number(p.photoCount)||0; if((p.media||[]).some(m=>m&&m.type==='video')) vids++; const g=genusOf(p.species||''); if(g) gen.add(g.toLowerCase()); if(p.kind==='seedling'&&p.momId&&ids.has(p.momId)) bred++; });
   return {n:docs.length,par,recs,vids,bred,gen:gen.size}; }
 
@@ -7363,7 +7412,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake};
+if (location.hostname==='localhost') window.__vein={S,rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,get SF_COMP(){ return SF_COMP; }};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
