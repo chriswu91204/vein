@@ -7348,7 +7348,11 @@ async function transcodeVideo(file,onP,maxSec=MAX_VID_SEC){
   v.style.cssText='position:fixed;right:0;bottom:0;width:4px;height:4px;opacity:.02;pointer-events:none;z-index:2147483647';
   (document.querySelector('dialog[open]')||document.body).append(v);
   try{
-    await new Promise((res,rej)=>{ v.onloadeddata=res; v.onerror=()=>rej(Object.assign(new Error('decode'),{step:'讀取影片'})); setTimeout(()=>rej(Object.assign(new Error('decode'),{step:'讀取影片逾時'})),30000); });
+    // iPhone Safari 不會預先載入影片畫面（只讀檔頭），要先「播一下」才會開始讀，長一點的影片才不會卡在這一步
+    const ready=new Promise((res,rej)=>{ v.onloadeddata=res; v.oncanplay=res; v.onplaying=res; v.onerror=()=>rej(Object.assign(new Error('decode'),{step:'讀取影片'})); setTimeout(()=>rej(Object.assign(new Error('timeout'),{step:'讀取影片逾時'})),45000); });
+    v.play().catch(()=>{});
+    await ready; try{ v.pause(); }catch(e){}
+    if (v.currentTime>0.05){ await new Promise(r=>{ v.onseeked=r; v.currentTime=0; setTimeout(r,3000); }); }
     if (!v.videoWidth) throw Object.assign(new Error('decode'),{step:'讀不到畫面'});
     const k=Math.min(1,960/Math.max(v.videoWidth,v.videoHeight)), W=Math.round(v.videoWidth*k/2)*2, H=Math.round(v.videoHeight*k/2)*2;
     const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
@@ -7369,11 +7373,13 @@ async function transcodeVideo(file,onP,maxSec=MAX_VID_SEC){
     return {file:new File([blob],file.name.replace(/\.[^.]+$/,'')+(type==='video/mp4'?'.mp4':'.webm'),{type,lastModified:file.lastModified||Date.now()}),dur:Math.min(dur,lastT||dur)};
   } finally { try{ v.pause(); }catch(e){} v.remove(); URL.revokeObjectURL(url); }
 }
+// 這台裝置自己播得了這支影片嗎？（iPhone／Mac 可以播 HEVC，就算轉檔失敗也能先上傳原檔）
+function playableHere(file){ return new Promise(res=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.muted=true; v.preload='metadata'; const end=ok=>{ URL.revokeObjectURL(u); res(ok); }; v.onloadedmetadata=()=>end(v.videoWidth>0||(v.duration>0&&/iPhone|iPad|Macintosh/.test(navigator.userAgent))); v.onerror=()=>end(false); setTimeout(()=>end(false),15000); v.src=u; }); }
 async function compatVideo(file,onStage){
   if (!(await isHEVC(file))) return {file};
   onStage&&onStage('iPhone 影片轉檔中…');
   try{ const r=await transcodeVideo(file,p=>onStage&&onStage('轉檔中 '+p+'%')); return r; }
-  catch(e){ if(e.message==='decode'){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
+  catch(e){ if(e.message==='decode'&&!(await playableHere(file))){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
     // 轉不成但這台裝置播得了（例如 iPhone）：先上傳原檔，iPhone／Mac 上都看得到
     console.warn('[VEIN] 轉檔失敗', e.step||e.message); toast('影片轉檔失敗（'+(e.step||e.message)+'），先上傳原檔'); return {file,failed:e.step||e.message}; }
 }
