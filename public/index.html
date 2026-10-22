@@ -3192,9 +3192,11 @@ function applyMedia(next){
       const was=el.dataset.url; el.dataset.url=r.url; if(el.getAttribute('src')&&was!==r.url){ const pl=!el.paused; el.src=r.url; if(pl&&!REDUCE) el.play().catch(()=>{}); } }
     else if (el.getAttribute('src')!==r.url) el.src=r.url; });
 }
+// 省流量模式（手機開了「低數據模式」或網路很慢）：裝飾影片只顯示封面圖，不下載
+const LOWDATA=(()=>{ try{ const c=navigator.connection; return !!(c&&(c.saveData||/(^|-)2g$/.test(c.effectiveType||''))); }catch(e){ return false; } })();
 const vio = new IntersectionObserver(es => es.forEach(e => {
   const v=e.target;
-  if (e.isIntersecting){ if (!v.src) v.src=v.dataset.url||vSrc(v.dataset.src); if (!REDUCE && !v.dataset.hold) v.play().catch(()=>{}); }
+  if (e.isIntersecting){ if (LOWDATA&&!v.closest('#pgPlant,#pgFeed,.lb,dialog')) return; if (!v.src) v.src=v.dataset.url||vSrc(v.dataset.src); if (!REDUCE && !v.dataset.hold) v.play().catch(()=>{}); }
   else v.pause();
 }), { rootMargin:'200px 0px' });
 window.__vio=vio;
@@ -7332,7 +7334,8 @@ const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigat
 let bip=null; addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); bip=e; document.querySelectorAll('.ins-one').forEach(b=>b.hidden=false); });
 addEventListener('appinstalled',()=>{ lsSet('vein.installed',true); toast('🎉 VEIN 已加到主畫面'); });
 // 在 App 模式啟動時也註冊 service worker（推播要用）
-if ('serviceWorker' in navigator&&!PREVIEW) addEventListener('load',()=>{ if(isStandalone()||lsGet('vein.pushOn',false)) navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{}); });
+// 每個訪客都註冊：內建影片／圖片只下載一次（省網站流量），推播也用同一個
+if ('serviceWorker' in navigator&&!PREVIEW&&!POPUP) addEventListener('load',()=>{ setTimeout(()=>navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{}),1500); });
 function phoneArt(kind){ // 畫一支手機，標出要點的地方
   const steps=kind==='ios'?[['⬆️','點下方的「分享」按鈕'],['➕','往下滑，點「加入主畫面」'],['✅','右上角按「新增」']]:[['⋮','點右上角的「⋮」選單'],['📲','點「安裝應用程式」或「加到主畫面」'],['✅','按「安裝」']];
   return h('div',{class:'ins-art'}, h('div',{class:'ins-ph '+kind}, h('div',{class:'ins-scr'}, h('div',{class:'ins-logo'}, h('i')), h('b',{text:'VEIN'})), h('span',{class:'ins-hot',text:kind==='ios'?'⬆️':'⋮'})),
