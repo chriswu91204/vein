@@ -94,6 +94,10 @@ exports.lineVerify = onCall({ maxInstances: 3, timeoutSeconds: 20 }, async (req)
   const code = String(req.data?.code || ''), redirect = String(req.data?.redirectUri || '');
   if (!code || code.length > 200 || !/^https:\/\/vein-48ec8\.(web\.app|firebaseapp\.com)\/line-callback$/.test(redirect)) throw new HttpsError('invalid-argument', '資料不完整');
   const secret = process.env.LINE_CHANNEL_SECRET; if (!secret) throw new HttpsError('failed-precondition', 'LINE 驗證還沒設定好');
+  // 核對暗號：要是這個帳號在 15 分鐘內自己發起的（防止別人拿他的授權碼綁到你的帳號）
+  const stRef = db.doc(`data/users/${uid}/line/state`), st = (await stRef.get()).data();
+  if (!st || st.s !== String(req.data?.state || '') || Date.now() - (st.at || 0) > 15 * 60000) throw new HttpsError('out-of-range', '驗證連結已過期，請再試一次');
+  await stRef.delete().catch(() => {});
   const tr = await fetch('https://api.line.me/oauth2/v2.1/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: LINE_ID, client_secret: secret }) });
   const tk = await tr.json().catch(() => ({}));

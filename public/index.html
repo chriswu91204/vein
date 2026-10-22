@@ -7242,19 +7242,23 @@ function openVerify(reason){ if(needLogin()) return;
     ok?null:h('button',{class:'btn lv-btn',type:'button',onclick:startLine}, h('b',{text:'LINE'}), ' 用 LINE 驗證'),
     ok?null:(window.__veinAuth&&phoneReq()?h('button',{class:'link',type:'button',onclick:()=>{ dlg.close(); openPhone(); },text:'改用手機簡訊驗證'}):null),
     ok?h('button',{class:'btn pri',type:'button',onclick:()=>dlg.close(),text:'好'}):null), true); }
-function startLine(){ if(needLogin()) return; const st=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
-  try{ sessionStorage.setItem('vein.lineState',st); sessionStorage.setItem('vein.lineRet',location.hash||'#/'); }catch(e){}
+// 暗號存在自己的帳號裡（data/users/{我}/line/state），由伺服器核對：LINE 授權完常常會從「LINE 內建瀏覽器」回來，不能靠原本分頁的暫存
+async function startLine(){ if(needLogin()) return; const st=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  try{ await S.db.doc('data/users/'+S.me+'/line/state').set({s:st,at:Date.now(),ret:location.hash||'#/'}); }catch(e){ toast('無法開始驗證，請稍後再試'); return; }
+  lsSet('vein.lineRet',location.hash||'#/');
   location.href='https://access.line.me/oauth2/v2.1/authorize?'+new URLSearchParams({response_type:'code',client_id:LINE_CID,redirect_uri:LINE_CB,state:st,scope:'openid profile'}); }
-async function lineCallback(){ if(location.pathname!=='/line-callback') return; const q=new URLSearchParams(location.search); let ret='#/', st0=null;
-  try{ ret=sessionStorage.getItem('vein.lineRet')||'#/'; st0=sessionStorage.getItem('vein.lineState'); sessionStorage.removeItem('vein.lineState'); }catch(e){}
-  history.replaceState(null,'','/'+ret); route();
-  if (q.get('error')){ toast('已取消 LINE 驗證'); return; }
-  if (!q.get('code')||!st0||q.get('state')!==st0){ toast('驗證連結已失效，請再按一次「用 LINE 驗證」'); return; }
-  if (!S.me){ toast('請先登入 VEIN，再進行 LINE 驗證'); openLogin(); return; }
+async function lineCallback(){
+  if (location.pathname==='/line-callback'){ const q=new URLSearchParams(location.search), ret=lsGet('vein.lineRet','#/')||'#/';
+    history.replaceState(null,'','/'+(String(ret).startsWith('#')?ret:'#/')); route();
+    if (q.get('error')){ lsSet('vein.linePend',null); toast('已取消 LINE 驗證'); return; }
+    if (q.get('code')&&q.get('state')) lsSet('vein.linePend',{code:q.get('code'),state:q.get('state'),at:Date.now()}); }
+  const P=lsGet('vein.linePend',null); if(!P) return;
+  if (Date.now()-(P.at||0)>9*6e4){ lsSet('vein.linePend',null); toast('LINE 驗證逾時了，請再按一次「用 LINE 驗證」'); return; }
+  if (!S.me){ toast('請先登入 VEIN，登入後會自動完成 LINE 驗證'); openLogin(); return; }
   if (!window.__veinCall){ toast('驗證服務還沒準備好，請稍後再試'); return; }
-  const t=toastStay('LINE 驗證中…');
-  try{ await window.__veinCall('lineVerify',{code:q.get('code'),redirectUri:LINE_CB}); t.done(); S.mv.set(S.me,{line:true}); toast('🎉 驗證完成！現在可以參加限定已驗證會員的競標與抽獎'); renderAll(); }
-  catch(e){ t.done(); const c=String(e?.code||''); toast(c.includes('already-exists')?'這個 LINE 已經綁定另一個 VEIN 帳號，一個 LINE 只能綁一個帳號':/failed-precondition|not-found|internal|unavailable/.test(c)?'LINE 驗證的伺服器還沒啟用，請稍後再試':'驗證失敗：'+(e?.message||'請再試一次')); } }
+  lsSet('vein.linePend',null); const t=toastStay('LINE 驗證中…');
+  try{ await window.__veinCall('lineVerify',{code:P.code,state:P.state,redirectUri:LINE_CB}); t.done(); S.mv.set(S.me,{line:true}); toast('🎉 驗證完成！現在可以參加限定已驗證會員的競標與抽獎'); renderAll(); }
+  catch(e){ t.done(); const c=String(e?.code||''); toast(c.includes('already-exists')?'這個 LINE 已經綁定另一個 VEIN 帳號，一個 LINE 只能綁一個帳號':c.includes('out-of-range')?'驗證連結已過期或不是這個帳號發起的，請再按一次「用 LINE 驗證」':/failed-precondition|not-found|internal|unavailable/.test(c)?'LINE 驗證的伺服器還沒啟用，請稍後再試':'驗證失敗：'+(e?.message||'請再試一次')); } }
 /* ================= 參加資格（競標、抽獎共用）：身分驗證、某段期間的購買紀錄、購買筆數、累計消費、追蹤賣場 ================= */
 // elig＝{verify:'none'|'any'|'line', buy:{on,scope:'shop'|'all',from,to,minN,minSpend}|null, follow:bool}
 const hasElig=x=>!!(x&&(x.elig||x.needV||x.mode==='buyers'));
