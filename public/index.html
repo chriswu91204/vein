@@ -2705,6 +2705,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .cvp{scroll-margin-top:90px}
 .pe-iw{position:relative;flex:none}
 .pe-cvb{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);border:0;border-radius:999px;background:#050605;color:#D2FF00;font:inherit;font-size:12px;font-weight:700;padding:4px 10px;white-space:nowrap;cursor:pointer}
+.cb-clr b{color:#C2281F}
 .cvp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
 .cvp-g.sm{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .cvp-it{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--paper);border:2px solid transparent;padding:0}
@@ -3612,7 +3613,8 @@ function combo(o){
     rows=all.filter(it=>!t||[it.v,it.label,it.sub].join(' ').toLowerCase().includes(t)).slice(0,600);
     if (o.allowCustom&&t&&!all.some(it=>it.v.toLowerCase()===t||it.label.toLowerCase()===t)) rows.push({v:q.value.trim(),label:'使用「'+q.value.trim()+'」',custom:true});
     if (cur>=rows.length) cur=rows.length-1;
-    opts.replaceChildren(...(rows.length?rows.map((it,i)=>h('div',{class:'cb-opt'+(i===cur?' on':'')+(it.custom?' cu':'')+(it.v===wrap.dataset.value?' sel':''),role:'option','data-i':String(i),onmousedown:e=>{ e.preventDefault(); pick(i); }}, h('b',{text:it.label}), it.sub?h('span',{text:it.sub}):null, it.count!=null?h('small',{text:String(it.count)}):null)):[h('div',{class:'cb-empty',text:'找不到符合的項目'})]));
+    const clr=o.clearable&&wrap.dataset.value?[h('div',{class:'cb-opt cb-clr',role:'option',onmousedown:e=>{ e.preventDefault(); set(''); close(); }}, h('b',{text:'✕ 清除（不填）'}))]:[];
+    opts.replaceChildren(...clr,...(rows.length?rows.map((it,i)=>h('div',{class:'cb-opt'+(i===cur?' on':'')+(it.custom?' cu':'')+(it.v===wrap.dataset.value?' sel':''),role:'option','data-i':String(i),onmousedown:e=>{ e.preventDefault(); pick(i); }}, h('b',{text:it.label}), it.sub?h('span',{text:it.sub}):null, it.count!=null?h('small',{text:String(it.count)}):null)):[h('div',{class:'cb-empty',text:'找不到符合的項目'})]));
   };
   const open=()=>{ if(wrap.classList.contains('ro')||list.hidden===false) return; q.value=''; cur=-1; draw(); list.hidden=false; inp.setAttribute('aria-expanded','true'); setTimeout(()=>q.focus(),0);
     document.addEventListener('pointerdown',outside,true); };
@@ -3625,7 +3627,7 @@ function combo(o){
   q.addEventListener('keydown',e=>{
     if(e.key==='ArrowDown'){ e.preventDefault(); cur=Math.min(rows.length-1,cur+1); draw(); opts.querySelector('.on')?.scrollIntoView({block:'nearest'}); }
     else if(e.key==='ArrowUp'){ e.preventDefault(); cur=Math.max(0,cur-1); draw(); opts.querySelector('.on')?.scrollIntoView({block:'nearest'}); }
-    else if(e.key==='Enter'){ e.preventDefault(); if(cur>=0) pick(cur); else if(rows[0]) pick(0); }
+    else if(e.key==='Enter'){ e.preventDefault(); if(cur>=0) pick(cur); else if(q.value.trim()&&rows[0]) pick(0); else close(); }
     else if(e.key==='Escape'){ e.preventDefault(); close(); inp.focus(); } });
   wrap.querySelector('.cb-caret').addEventListener('mousedown',e=>{ e.preventDefault(); list.hidden?open():close(); });
   set(o.value||'',true);
@@ -6814,7 +6816,7 @@ function admReg(m){
 /* ---- 父母本選擇器：用編號或品種搜尋所有已登錄的植株 ---- */
 function parentPicker(o){
   const items=()=>vis().filter(p=>!p.blocked&&p.id!==o.self).sort((a,b)=>((b.shop===S.me)-(a.shop===S.me))||(a.code||'').localeCompare(b.code||'',undefined,{numeric:true})).map(p=>({v:p.id,label:p.code,sub:short(p.species)+(p.cultivar?' '+p.cultivar:'')+' · '+kindLabel(p)+' · '+(p.shop===S.me?'我的':shopName(p.shop))}));
-  const c=combo({items,value:o.value&&S.plants.has(o.value)?o.value:'',placeholder:o.placeholder||'點選後搜尋編號或品種',searchPh:'輸入編號或品種，例如 AN-VEN-00012',allowCustom:o.external!==false,onPick:()=>o.onChange&&o.onChange()});
+  const c=combo({items,value:o.value&&S.plants.has(o.value)?o.value:'',placeholder:o.placeholder||'點選後搜尋編號或品種',searchPh:'輸入編號或品種，例如 AN-VEN-00012',allowCustom:o.external!==false,clearable:true,onPick:()=>o.onChange&&o.onChange()});
   if (o.value&&!S.plants.has(o.value)) c.set(o.value,true);
   const get=()=>{ const v=(c.get()||'').trim(); if(!v) return null; if(S.plants.has(v)){ const x=S.plants.get(v); return {id:x.id,code:x.code,p:x}; } const x=findByCode(v); if(x) return {id:x.id,code:x.code,p:x}; return {id:null,code:v.toUpperCase()}; };
   return {el:c.el,get,set:v=>c.set(v,true),clear:()=>{ c.set('',true); c.input.value=''; }};
