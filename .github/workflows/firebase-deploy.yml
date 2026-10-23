@@ -26,6 +26,13 @@ jobs:
         if: github.event_name == 'push'
         with:
           node-version: 22
+      # 版本號：開著的舊分頁會偵測到新版本並自動更新
+      - name: Stamp build (main)
+        if: github.event_name == 'push'
+        run: |
+          V="${GITHUB_SHA::12}"
+          sed -i "s/__VEIN_BUILD__/$V/" public/index.html
+          echo "$V" > public/version.txt
       - name: Minify (main)
         if: github.event_name == 'push'
         continue-on-error: true
