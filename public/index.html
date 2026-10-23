@@ -2670,6 +2670,12 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .rc{position:relative}
 .rc-sh{position:absolute;right:10px;top:10px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(5,6,5,.72);color:#D2FF00;font:900 18px/1 inherit;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .2s,background .2s;z-index:2}
 .rc-sh:hover,.rc-sh:focus-visible{background:#D2FF00;color:#050605;transform:scale(1.06)}
+.ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);width:40px;height:40px;border-radius:50%;background:#050605;box-shadow:0 8px 20px -8px rgba(0,0,0,.5);z-index:9998;transform:translate(-50%,-60px);opacity:0;pointer-events:none;display:grid;place-items:center;transition:opacity .15s}
+.ptr i{width:18px;height:18px;border-radius:50%;border:3px solid rgba(210,255,0,.35);border-top-color:#D2FF00}
+.ptr.go i{border-color:#D2FF00;border-top-color:#D2FF00}
+.ptr.spin{transition:transform .2s}
+.ptr.spin i{border-color:rgba(210,255,0,.35);border-top-color:#D2FF00;animation:ptrS .7s linear infinite}
+@keyframes ptrS{to{transform:rotate(360deg)}}
 .upd-bar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;border:0;border-radius:999px;background:#050605;color:#fff;padding:12px 20px;font:inherit;font-size:14px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);cursor:pointer}
 .upd-bar b{color:#D2FF00}
 .li-wrap{display:flex;gap:8px;align-items:center}
@@ -7731,6 +7737,14 @@ const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
 const isAndroid=/Android/i.test(UA);
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+/* 下拉更新：加到主畫面（App 模式）時瀏覽器沒有內建的下拉重新整理，這裡補上；一般瀏覽器用它自己的 */
+(function ptr(){ if(!('ontouchstart' in window)) return; let y0=null, dy=0, el=null, on=false;
+  const blocked=()=>!isStandalone()||scrollY>2||document.documentElement.classList.contains('fd-on')||document.documentElement.classList.contains('modal-lock')||document.querySelector('dialog[open]');
+  const ui=()=>el||(el=document.body.appendChild(Object.assign(document.createElement('div'),{className:'ptr',innerHTML:'<i></i>'})));
+  addEventListener('touchstart',e=>{ if(on||e.touches.length!==1||blocked()){ y0=null; return; } y0=e.touches[0].clientY; dy=0; },{passive:true});
+  addEventListener('touchmove',e=>{ if(y0==null) return; if(scrollY>2){ y0=null; ui().style.cssText=''; return; } dy=Math.max(0,e.touches[0].clientY-y0); const d=Math.min(110,dy*.5), k=ui(); k.style.transform='translate(-50%,'+(d-56)+'px) rotate('+(d*3.2)+'deg)'; k.style.opacity=String(Math.min(1,d/50)); k.classList.toggle('go',d>=70); },{passive:true});
+  addEventListener('touchend',()=>{ if(y0==null) return; y0=null; const k=ui(); if(Math.min(110,dy*.5)>=70){ on=true; k.classList.add('spin'); k.style.transform='translate(-50%,24px)'; k.style.opacity='1'; setTimeout(()=>location.reload(),350); } else { k.style.cssText=''; k.classList.remove('go'); } },{passive:true});
+})();
 let bip=null; addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); bip=e; document.querySelectorAll('.ins-one').forEach(b=>b.hidden=false); });
 addEventListener('appinstalled',()=>{ lsSet('vein.installed',true); toast('🎉 VEIN 已加到主畫面'); });
 // 在 App 模式啟動時也註冊 service worker（推播要用）
