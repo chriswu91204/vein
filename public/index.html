@@ -2678,6 +2678,27 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 @keyframes ptrS{to{transform:rotate(360deg)}}
 .upd-bar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;border:0;border-radius:999px;background:#050605;color:#fff;padding:12px 20px;font:inherit;font-size:14px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);cursor:pointer}
 .upd-bar b{color:#D2FF00}
+.td{border:2px solid #050605;border-radius:20px;padding:12px;margin:0 0 14px;background:var(--surface)}
+.td-h{display:flex;align-items:center;gap:8px;margin:0 2px 10px}
+.td-h .n{background:#E5484D;color:#fff;border-radius:999px;font-size:12px;font-weight:800;padding:1px 8px}
+.td-h small{margin-left:auto;color:var(--fg2);font-size:12px}
+.td-c{display:grid;grid-template-columns:52px 1fr;gap:4px 12px;align-items:center;padding:10px;border-radius:14px;background:var(--paper)}
+.td-c+.td-c{margin-top:8px}
+.td-c.hot{background:#FFF1EF;box-shadow:inset 3px 0 0 #E5484D}
+.td-c>img,.td-c>i{width:52px;height:52px;border-radius:12px;object-fit:cover;grid-row:span 2;background:#ddd}
+.td-m{min-width:0;display:flex;flex-direction:column}
+.td-m b{font-size:14.5px}
+.td-m span{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-m small{font-size:12px;color:var(--fg2)}
+.td-m em{font-style:normal;font-variant-numeric:tabular-nums;color:#C2281F;font-weight:700}
+.td-a{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.td-more{display:block;margin:10px auto 0}
+.qb{white-space:nowrap}
+.qb.arm{background:#E5484D!important;color:#fff!important;border-color:#E5484D!important}
+.tag.red{background:#FFE3E0;color:#C2281F}
+#tabMe{position:relative}
+#tabMe .me-b{top:0;right:calc(50% - 24px)}
+.me-b{background:#E5484D;color:#fff}
 .li-wrap{display:flex;gap:8px;align-items:center}
 .li-wrap>.li{flex:1;min-width:0}
 .auc-sh{width:100%;justify-content:center;margin-top:14px;gap:6px}
@@ -4723,6 +4744,7 @@ setTimeout(()=>{ pushArmed=true; },4000);
 function renderBell(){
   const ns=notifs(), seen=lsGet('vein.nseen:'+S.me,0), unread=ns.filter(n=>n.at>seen).length, b=$('#bellBadge');
   b.hidden=!unread; b.textContent=unread>9?'9+':String(unread);
+  const td=meTodo().length; for(const id of ['navMe','tabMe']){ const el=$('#'+id); if(!el) continue; let mb=el.querySelector('.me-b'); if(!mb){ mb=h('span',{class:'badge me-b'}); el.append(mb); } mb.hidden=!td; mb.textContent=td>9?'9+':String(td); }
   const ids=new Set(ns.map(n=>n.id));
   if (knownN&&pushArmed&&S.ready) ns.filter(n=>!knownN.has(n.id)&&Date.now()-n.at<36e5).slice(0,3).forEach(pushCard);
   knownN=ids;
@@ -4866,6 +4888,29 @@ function openLogin(){
     h('p',{class:'hint',text:'登入即表示你同意本站的服務條款與隱私權政策。'})), true);
 }
 function openMe(tab){ if(!S.me){ openLogin(); return; } if(tab) S.meTab=tab; renderMe(); if(!sheet.open) sheet.showModal(); }
+/* 「我的」待處理：被超標、得標、中獎、議價成立——每一項都能直接動作 */
+function meTodo(){ if(!S.me) return []; const my=mySocial(), out=[], now=Date.now();
+  for (const pid of Object.keys(my.bids||{})){ const p=S.plants.get(pid); if(!p||!isAuc(p)) continue; const t=topBid(pid);
+    if (live(p)&&t&&t.uid!==S.me) out.push({k:'outbid',id:'ob:'+pid,p,t,at:t.at});
+    else if (!live(p)&&t&&t.uid===S.me&&now-p.endsAtMs<14*864e5) out.push({k:'won',id:'won:'+pid,p,t,at:p.endsAtMs}); }
+  Object.keys(my.raffles||{}).forEach(k=>{ const r=S.raffles.get(k); if(r?.drawn&&(r.drawn.winners||[]).includes(S.me)&&now-r.drawn.at<14*864e5) out.push({k:'rwin',id:'rw:'+k,r,at:r.drawn.at}); });
+  myOffers().filter(o=>o.status==='accepted'&&now-(o.decidedAt||o.at)<7*864e5).forEach(o=>out.push({k:'offer',id:'of:'+o.id,o,p:S.plants.get(o.pid),at:o.decidedAt||o.at}));
+  return out.sort((a,b)=>(a.k==='outbid'?0:1)-(b.k==='outbid'?0:1)||(a.k==='outbid'?a.p.endsAtMs-b.p.endsAtMs:b.at-a.at)); }
+function quickBidBtn(p,cls){ let armed=false, t=0; const amtNow=()=>minBid(S.plants.get(p.id)||p);
+  const b=h('button',{class:'btn '+(cls||'volt')+' sm qb',type:'button',text:'出 '+money(amtNow())});
+  b.addEventListener('click',async e=>{ e.stopPropagation(); const a=amtNow(); if(!armed){ armed=true; b.textContent='確定出 '+money(a)+'？'; b.classList.add('arm'); t=setTimeout(()=>{ armed=false; b.textContent='出 '+money(amtNow()); b.classList.remove('arm'); },3500); return; }
+    clearTimeout(t); armed=false; b.disabled=true; b.classList.remove('arm'); b.textContent='出價中…'; const ok=await placeBid(p.id,a); b.disabled=false; b.textContent=ok?'✓ 已出 '+money(a):'出 '+money(amtNow()); if(ok) setTimeout(()=>{ if(sheet.open) renderMe(); },900); });
+  return b; }
+function todoCard(x){ const img=src=>src?h('img',{src,alt:'',loading:'lazy'}):h('i');
+  if (x.k==='outbid'){ const p=x.p, my=mySocial().bids?.[p.id];
+    return h('div',{class:'td-c hot'}, img(p.thumb), h('div',{class:'td-m'}, h('b',{text:'出價被超越了'}), h('span',{text:pName(p)+' · '+p.code}), h('small',{}, '目前 '+money(x.t.amt)+(my?' · 你出 '+money(my.amt):'')+' · 剩 ', h('em',{'data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())}))),
+      h('div',{class:'td-a'}, quickBidBtn(p), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ sheet.close(); openPlant(p.id); },text:'看競標'}))); }
+  if (x.k==='won'){ const p=x.p; return h('div',{class:'td-c'}, img(p.thumb), h('div',{class:'td-m'}, h('b',{text:'🏆 恭喜得標'}), h('span',{text:pName(p)+' · '+money(x.t.amt)}), h('small',{text:'賣家會與你聯絡付款與寄送，也可以先聊聊'})),
+      h('div',{class:'td-a'}, chatBtn(p.shop,{pid:p.id},'volt sm','聊聊賣家'), h('button',{class:'btn soft sm',type:'button',onclick:()=>openAucShare(p),text:'↗ 分享'}))); }
+  if (x.k==='rwin'){ const r=x.r; return h('div',{class:'td-c'}, img(rImg(r)), h('div',{class:'td-m'}, h('b',{text:'🎉 你中獎了'}), h('span',{text:r.title}), h('small',{text:'獎品：'+r.prize})),
+      h('div',{class:'td-a'}, chatBtn(r.shop,null,'volt sm','聊聊賣家'), h('button',{class:'btn soft sm',type:'button',onclick:()=>openRaffleShare(r,'win'),text:'↗ 分享'}))); }
+  const o=x.o, p=x.p; return h('div',{class:'td-c'}, img(p?.thumb), h('div',{class:'td-m'}, h('b',{text:'🤝 賣家同意了你的議價'}), h('span',{text:(p?pName(p)+' · ':'')+money(o.amt)}), h('small',{text:o.reply||'接著到訂單完成付款'})),
+    h('div',{class:'td-a'}, h('button',{class:'btn volt sm',type:'button',onclick:()=>{ S.meTab='orders'; renderMe(); },text:'看訂單'}), p?chatBtn(p.shop,{pid:p.id},'soft sm','聊聊'):null)); }
 function renderMe(){
   const box=$('#meBody'); box.replaceChildren();
   const favs=(S.prefs.favs||[]).map(i=>S.plants.get(i)).filter(p=>p&&!p.hidden);
@@ -4890,7 +4935,8 @@ function renderMe(){
     h('div',{class:'mp-bl'}, ...(S.meBdgAll?MB:got).map(b=>h('span',{class:'bdg t-'+(b.special&&b.ok?'special':b.ok?'silver':'bronze')+(b.ok?'':' off'),title:b.d+(b.special&&!b.ok?'（平台頒發）':''),onclick:b.act&&!b.ok?()=>openVerify():null}, h('i',{text:b.ic}), h('b',{text:b.n+(b.ok?'':b.prog?' '+b.prog[0]+'/'+b.prog[1]:b.special?' · 平台頒發':'')}))), !got.length&&!S.meBdgAll?h('span',{class:'hint',text:'還沒有徽章'}):null),
     !S.meBdgAll&&next?h('div',{class:'mp-next'}, h('span',{text:'下一個：'+next.ic+' '+next.n}), h('i',{}, h('em',{style:'width:'+Math.round(Math.min(1,next.prog[0]/next.prog[1])*100)+'%'})), h('small',{text:next.prog[0]+' / '+next.prog[1]})):null);
   const TABS=[['orders','訂單',ords.length],['mine','我的植物',all().filter(p=>ownerOf(p)===S.me&&p.shop!==S.me).length],['offers','議價',myOffers().length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['favs','收藏',favs.length],['follows','追蹤',fol.length],['qs','提問',qs.length]];
-  box.append(head, acts, bdg, h('div',{class:'htabs scroll mp-tabs',role:'tablist'}, ...TABS.map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(S.meTab===k),onclick:()=>{ S.meTab=k; renderMe(); }}, l, n?h('span',{class:'n',text:String(n)}):null))));
+  const TD=meTodo(); const todoEl=TD.length?h('div',{class:'td'}, h('div',{class:'td-h'}, h('b',{text:'待處理'}), h('span',{class:'n',text:String(TD.length)}), h('small',{text:'被超標可以直接在這裡加價'})), ...TD.slice(0,S.meTodoAll?40:4).map(todoCard), TD.length>4?h('button',{type:'button',class:'mp-more td-more',onclick:()=>{ S.meTodoAll=!S.meTodoAll; renderMe(); },text:S.meTodoAll?'收起':'看全部 '+TD.length+' 項'}):null):null;
+  box.append(head, acts, todoEl, bdg, h('div',{class:'htabs scroll mp-tabs',role:'tablist'}, ...TABS.map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(S.meTab===k),onclick:()=>{ S.meTab=k; renderMe(); }}, l, n?h('span',{class:'n',text:String(n)}):null))));
   const T=S.meTab, empty=(a,b)=>box.append(h('div',{class:'empty'}, h('h3',{text:a}), h('p',{text:b})));
   if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else box.append(h('div',{class:'list'}, ...ords.map(orderCard))); }
   else if (T==='mine'){ const L=all().filter(p=>ownerOf(p)===S.me&&p.shop!==S.me); if(!L.length) empty('還沒有植物','交易完成或別人轉移給你的植株會出現在這裡，可以查看履歷或再轉移。'); else box.append(h('div',{class:'row',style:'justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap'}, h('span',{class:'hint',text:'這些植物也在你的「植物管理」裡，可以繼續記錄成長、排日常照顧。'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ sheet.close(); openPlants('reg'); },text:'🌱 到植物管理'})), h('div',{class:'list'}, ...L.map(p=>h('div',{class:'ocard'}, h('button',{type:'button',class:'oi',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:''}), h('span',{class:'mono',text:p.code+' · '+short(p.species)})), ownerTimeline(p), transferForm(p,()=>renderMe()))))); }
@@ -4898,8 +4944,9 @@ function renderMe(){
   else if (T==='favs'){ if(!favs.length) empty('還沒有收藏','在植株卡片右上角點愛心，就會收在這裡。'); else box.append(h('div',{class:'mini'}, ...favs.map(tile))); }
   else if (T==='bids'){ if(!bids.length) empty('還沒有出價','競標中的植株可以直接在頁面出價。');
     else box.append(h('div',{class:'list'}, ...bids.map(p=>{ const my=mySocial().bids[p.id], t=topBid(p.id), lead=t&&t.uid===S.me;
-      return h('button',{class:'li',type:'button',onclick:()=>openPlant(p.id)}, p.thumb?h('img',{src:p.thumb,alt:''}):h('i'), h('div',{style:'min-width:0'}, h('b',{text:short(p.species)+' · '+p.code}), h('span',{text:(live(p)?'剩 '+fmtLeft(p.endsAtMs-Date.now()):'已結標')+' · 我出 '+money(my.amt)})),
-        h('div',{class:'r'}, h('b',{text:t?money(t.amt):'—'}), h('span',{class:'tag '+(lead?'lime':'grey'),text:lead?(live(p)?'領先中':'得標'):(live(p)?'被超越':'未得標')}))); }))); }
+      const row=h('button',{class:'li',type:'button',onclick:()=>openPlant(p.id)}, p.thumb?h('img',{src:p.thumb,alt:''}):h('i'), h('div',{style:'min-width:0'}, h('b',{text:short(p.species)+' · '+p.code}), h('span',{text:(live(p)?'剩 '+fmtLeft(p.endsAtMs-Date.now()):'已結標')+' · 我出 '+money(my.amt)})),
+        h('div',{class:'r'}, h('b',{text:t?money(t.amt):'—'}), h('span',{class:'tag '+(lead?'lime':live(p)?'red':'grey'),text:lead?(live(p)?'領先中':'得標'):(live(p)?'被超越':'未得標')})));
+      return live(p)&&!lead?h('div',{class:'li-wrap'}, row, quickBidBtn(p)):row; }))); }
   else if (T==='raffles'){ if(!rafs.length) empty('還沒有參加抽獎','到「抽獎」頁看看正在進行的抽獎。'); else box.append(h('div',{class:'list'}, ...rafs.map(r=>{ const st=rState(r), win=(r.drawn?.winners||[]).includes(S.me);
       return h('button',{class:'li',type:'button',onclick:()=>{ sheet.close(); go('#/raffle/'+rKey(r)); }}, h('img',{src:rImg(r),alt:''}), h('div',{style:'min-width:0'}, h('b',{text:r.title}), h('span',{text:shopName(r.shop)+' · '+(st==='open'?'剩 '+fmtLeft(r.endsAtMs-Date.now()):st==='drawn'?'已開獎':st==='ended'?'等待開獎':'尚未開始')})), h('div',{class:'r'}, h('span',{class:'tag '+(win?'lime':'grey'),text:win?'🎉 中獎':st==='drawn'?'未中獎':'已參加'}))); }))); }
   else if (T==='follows'){ if(!fol.length) empty('還沒有追蹤賣家','在賣家頁面按「追蹤」。'); else box.append(h('div',{class:'list'}, ...fol.map(u=>h('a',{class:'li',href:'#/seller/'+u,onclick:()=>sheet.close()}, avatar(u,44), h('div',{style:'min-width:0'}, h('b',{text:shopName(u)}), h('span',{text:ratingTxt(u)+' · '+pub().filter(p=>p.shop===u&&p.status!=='sold').length+' 株在售'})), h('span'))))); }
@@ -5131,6 +5178,7 @@ function verWatch(){ if(BUILD.startsWith('__')||verWatch.on) return; verWatch.on
   const busy=()=>dlg.open||$('#sheet')?.open||adm.open||document.activeElement?.matches?.('input,textarea,select,[contenteditable]');
   const chk=async()=>{ if(shown||document.hidden) return; try{ const r=await fetch('/version.txt?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const v=(await r.text()).trim();
     if(v&&/^[0-9a-f]{6,40}$/.test(v)&&v!==BUILD){ if(first&&!busy()){ location.reload(); return; } shown=true; document.body.append(h('button',{class:'upd-bar',type:'button',onclick:()=>location.reload()}, h('b',{text:'有新版本'}), h('span',{text:'點這裡更新'}))); } }catch(e){} finally{ first=false; } };
+  verWatch.check=async()=>{ try{ const r=await fetch('/version.txt?t='+Date.now(),{cache:'no-store'}); const v=r.ok?(await r.text()).trim():''; if(v&&/^[0-9a-f]{6,40}$/.test(v)&&v!==BUILD){ location.reload(); return true; } }catch(e){} return false; };
   chk(); addEventListener('visibilitychange',()=>{ if(!document.hidden) chk(); }); setInterval(chk,15*60e3); }
 
 function resetDlg(){ if(S.photoUnsub){ S.photoUnsub(); S.photoUnsub=null; } S.open=null; S.openR=null; S.openCart=false; }
@@ -6275,7 +6323,7 @@ function refreshDetail(first){
     const same=pub().filter(x=>x.id!==p.id&&spKey(x)===gk&&x.status!=='sold'), shopMore=pub().filter(x=>x.id!==p.id&&x.shop===p.shop&&x.status!=='sold');
     rel.replaceChildren(...[fam,techRow({kicker:'SAME GENUS',title:'同屬的其他植株',items:same.slice(0,16)}),techRow({kicker:'SAME GREENHOUSE',title:shopName(p.shop)+' 的其他植株',items:shopMore.slice(0,16)})].filter(Boolean)); }
 }
-async function placeBid(id,amt){ if(needLogin()||needPhone()) return; const p=S.plants.get(id), err=$('#bidErr'); err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return; if(!live(p)){ err.textContent='競標已經結束。'; return; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return; } if(!rateOK('bid')) return; try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now(),shop:p.shop}}}); toast('已出價 '+money(amt)); }catch(e){} }
+async function placeBid(id,amt){ if(needLogin()||needPhone()) return false; const p=S.plants.get(id), e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return false; if(!live(p)){ err.textContent='競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now(),shop:p.shop}}}); toast('已出價 '+money(amt)); return true; }catch(e){ return false; } }
 async function askQ(id,text,inp){ if(needLogin()||!text||!rateOK('qa')) return; const p=S.plants.get(id); const qa=[...mySocial().qa,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:id,shop:p?.shop,text,at:Date.now()}].slice(-200); try{ await saveSocial({qa}); inp.value=''; toast('已送出提問'); }catch(e){} }
 
 /* ---------- viewer ---------- */
@@ -7737,13 +7785,20 @@ const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
 const isAndroid=/Android/i.test(UA);
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+/* 只刷新目前這一頁：重新跟資料庫同步、重畫畫面，不重新載入整個網站（登入、已下載的東西都留著，不多花網站流量）
+   有新版本時才整頁更新 */
+async function softRefresh(){ try{ if(await verWatch.check?.()) return; }catch(e){}
+  try{ await Promise.race([S.db?.resync?.(),new Promise(r=>setTimeout(r,4000))]); }catch(e){}
+  const m=(location.hash||'').match(/^#\/(\w+)(?:\/(.+))?$/), pg=m?.[1]||'home', arg=m?.[2]?decodeURIComponent(m[2]):'';
+  try{ if(pg==='plant'&&arg) buildPlantPage(arg); else if(pg==='history') renderHistory(true); else if(pg==='seller') renderSeller(true); else if(pg==='group') renderGroup(true); else if(pg==='store'||pg==='shop') renderShop(true); else if(pg==='raffle'){ renderRafflePage(); if(S.openR&&dlg.open) renderRaffleDetail(); } else if(pg==='chats') renderChats(arg); }catch(e){}
+  try{ if(sheet.open) renderMe(); }catch(e){} renderAll(); toast('已更新'); }
 /* 下拉更新：加到主畫面（App 模式）時瀏覽器沒有內建的下拉重新整理，這裡補上；一般瀏覽器用它自己的 */
 (function ptr(){ if(!('ontouchstart' in window)) return; let y0=null, dy=0, el=null, on=false;
   const blocked=()=>!isStandalone()||scrollY>2||document.documentElement.classList.contains('fd-on')||document.documentElement.classList.contains('modal-lock')||document.querySelector('dialog[open]');
   const ui=()=>el||(el=document.body.appendChild(Object.assign(document.createElement('div'),{className:'ptr',innerHTML:'<i></i>'})));
   addEventListener('touchstart',e=>{ if(on||e.touches.length!==1||blocked()){ y0=null; return; } y0=e.touches[0].clientY; dy=0; },{passive:true});
   addEventListener('touchmove',e=>{ if(y0==null) return; if(scrollY>2){ y0=null; ui().style.cssText=''; return; } dy=Math.max(0,e.touches[0].clientY-y0); const d=Math.min(110,dy*.5), k=ui(); k.style.transform='translate(-50%,'+(d-56)+'px) rotate('+(d*3.2)+'deg)'; k.style.opacity=String(Math.min(1,d/50)); k.classList.toggle('go',d>=70); },{passive:true});
-  addEventListener('touchend',()=>{ if(y0==null) return; y0=null; const k=ui(); if(Math.min(110,dy*.5)>=70){ on=true; k.classList.add('spin'); k.style.transform='translate(-50%,24px)'; k.style.opacity='1'; setTimeout(()=>location.reload(),350); } else { k.style.cssText=''; k.classList.remove('go'); } },{passive:true});
+  addEventListener('touchend',()=>{ if(y0==null) return; y0=null; const k=ui(); if(Math.min(110,dy*.5)>=70){ on=true; k.classList.add('spin'); k.style.transform='translate(-50%,24px)'; k.style.opacity='1'; const t0=Date.now(); softRefresh().finally(()=>setTimeout(()=>{ on=false; k.classList.remove('spin','go'); k.style.cssText=''; },Math.max(0,600-(Date.now()-t0)))); } else { k.style.cssText=''; k.classList.remove('go'); } },{passive:true});
 })();
 let bip=null; addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); bip=e; document.querySelectorAll('.ins-one').forEach(b=>b.hidden=false); });
 addEventListener('appinstalled',()=>{ lsSet('vein.installed',true); toast('🎉 VEIN 已加到主畫面'); });

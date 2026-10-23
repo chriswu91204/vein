@@ -3,7 +3,7 @@
 // window.claude.use('db' | 'user' | 'assets')。網站其他程式碼不需要知道底層是 Firebase。
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
 import { OWNER_EMAILS, APPCHECK_SITE_KEY } from './site-config.js';
@@ -107,7 +107,7 @@ async function start() {
       collection: c => Q(path + '/' + c)
     };
   }
-  const db = { doc: D, collection: p => Q(p) };
+  const db = { doc: D, collection: p => Q(p), async resync() { try { await disableNetwork(fs); } finally { await enableNetwork(fs); } } };
 
   /* ---------- user ---------- */
   let isAdmin = false, isOwner = false;
