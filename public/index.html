@@ -2699,6 +2699,27 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 #tabMe{position:relative}
 #tabMe .me-b{top:0;right:calc(50% - 24px)}
 .me-b{background:#E5484D;color:#fff}
+.cvp{scroll-margin-top:90px}
+.pe-iw{position:relative;flex:none}
+.pe-cvb{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);border:0;border-radius:999px;background:#050605;color:#D2FF00;font:inherit;font-size:12px;font-weight:700;padding:4px 10px;white-space:nowrap;cursor:pointer}
+.cvp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.cvp-g.sm{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.cvp-it{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--paper);border:2px solid transparent;padding:0}
+.cvp-it.cv{border-color:#D2FF00;box-shadow:0 0 0 2px #050605}
+.cvp-it img{width:100%;height:100%;object-fit:cover;display:block}
+.cvp-c{position:absolute;left:6px;top:6px;background:#D2FF00;color:#050605;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px}
+.cvp-v{position:absolute;right:6px;top:6px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;border-radius:999px;padding:2px 6px}
+.cvp-ctl{position:absolute;left:0;right:0;bottom:0;display:flex;gap:4px;padding:6px;background:linear-gradient(transparent,rgba(0,0,0,.7));justify-content:flex-end}
+.cvp-ctl button{border:0;border-radius:999px;background:rgba(255,255,255,.92);color:#050605;font:inherit;font-size:12px;font-weight:700;min-width:30px;height:30px;padding:0 8px;cursor:pointer}
+.cvp-ctl button:first-child:not(:only-child){margin-right:auto}
+.cvp-add{aspect-ratio:1;border:2px dashed var(--line);border-radius:14px;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:inherit;cursor:pointer;color:var(--fg2)}
+.cvp-add b{font-size:24px;line-height:1}
+.cvp-add span{font-size:12px}
+.cvp-pick{margin-top:12px;padding:12px;border-radius:14px;background:var(--paper)}
+.cvp-it.pk{cursor:pointer}
+.cvp-it.pk small{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65));padding:10px 6px 4px;text-align:left}
+.cvp-it.pk.on{opacity:.4;cursor:default}
+.cvp-it.pk.busy{opacity:.6}
 .li-wrap{display:flex;gap:8px;align-items:center}
 .li-wrap>.li{flex:1;min-width:0}
 .auc-sh{width:100%;justify-content:center;margin-top:14px;gap:6px}
@@ -8388,7 +8409,7 @@ function admEditor(m, id){
   const newKid=k=>{ S.admTab=k==='pup'?'new':'batch'; S.admEdit=null; if(k==='pup') S.newPreset={kind:'pup',momId:p.id}; else S.batchForm={mode:'new',kind:'seedling',cont:'',cards:[],sh:{momId:p.id}}; renderAdmin(true); };
   const head=h('div',{class:'pe-head'},
     h('button',{class:'bf-lk',type:'button',onclick:()=>admBack(()=>{ S.admEdit=null; renderAdmin(true); })}, NAV.idx()>0?'← 上一頁':S.admTab==='reg'?'← 植物管理':'← 商品管理'),
-    h('div',{class:'pe-hm'}, h('button',{type:'button',class:'pe-img',onclick:()=>{ const M=(p.media||[]).filter(x=>x?.url); lightbox(M.length?M:[{type:'image',url:cover(p)}],0); }}, h('img',{src:cover(p),alt:''})),
+    h('div',{class:'pe-hm'}, h('div',{class:'pe-iw'}, h('button',{type:'button',class:'pe-img',onclick:()=>{ const M=(p.media||[]).filter(x=>x?.url); lightbox(M.length?M:[{type:'image',url:cover(p)}],0); }}, h('img',{src:cover(p),alt:''})), h('button',{type:'button',class:'pe-cvb',onclick:()=>{ setTab('rec'); requestAnimationFrame(()=>document.querySelector('.cvp')?.scrollIntoView({behavior:'smooth',block:'start'})); },text:'換封面'})),
       h('div',{class:'pe-ht'}, h('div',{class:'mono pe-code',text:p.code}), h('h2',{class:'pe-name'+(nm.length>24?' long':''),text:nm||'未命名'}), memoOf(p)?h('p',{class:'pe-memo',text:memoOf(p)}):null,
         h('div',{class:'pe-chips'}, inbound?h('span',{class:'tag zone',style:'--zc:#2E7D5B',text:'🔄 轉入 · 原賣場 '+shopName(p.shop)}):null, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null, careZoneOf(p.id)?h('button',{type:'button',class:'tag zone',style:'--zc:'+careZoneOf(p.id).color,onclick:()=>{ S.admTab='care'; S.admEdit=null; renderAdmin(true); },text:'📍 '+careZoneOf(p.id).name}):null, p.hidden?h('span',{class:'tag',text:'不在商店展示'}):null, isLocked(p)?h('span',{class:'tag',text:'已轉手・血統鎖定'}):null))),
     h('div',{class:'pe-acts'},
@@ -8408,7 +8429,7 @@ function admEditor(m, id){
   const TABS=[['rec','📸 成長紀錄'],['data','🧬 資料與父母本'],...(hasShop()&&!inbound?[['sale','🏷 販售設定']]:[]),['own','🔄 所有權'],['set','⚙️ 隱私與刪除']];
   if (!TABS.some(t=>t[0]===S.peTab)) S.peTab='rec';
   const side=h('div',{id:'admSide'}); admSideFill(side,p);
-  const panes={ rec:()=>[h('div',{class:'panel'}, h('h3',{text:'加入成長紀錄'}), rec)],
+  const panes={ rec:()=>[coverPanel(p), h('div',{class:'panel'}, h('h3',{text:'加入成長紀錄'}), rec)],
     data:()=>[h('div',{class:'panel'}, h('h3',{text:'植物資料與父母本'}), ed)],
     sale:()=>[salePanel, side],
     own:()=>[h('div',{class:'panel'}, h('h3',{text:'所有權'}), ownerTimeline(p), transferForm(p,()=>renderAdmin(true)))],
@@ -8419,6 +8440,34 @@ function admEditor(m, id){
   m.append(h('div',{class:'pe'}, head, sum, tabBar, body)); setTab(S.peTab);
 }
 async function sellToWinner(p,t){ try{ await S.db.doc(`shops/${S.me}/orders/auc-${p.id}`).set({buyer:t.uid,items:[p.id],total:t.amt,note:'競標得標',status:'confirmed',at:Date.now()}); await updatePlant(p.id,{status:'sold',buyer:t.uid,soldPrice:t.amt},'已成立訂單並標記售出'); renderAdmin(true); }catch(e){ toast('操作失敗'); } }
+/* 封面與商品照片：上傳後也能換封面、調順序、移除；成長紀錄（履歷）裡的原始照片不受影響 */
+const mThumb=m=>m?.type==='video'?(m.poster||''):(m?.thumb||m?.url||'');
+function coverPanel(p){
+  let M=(p.media||[]).slice(0,12).map(m=>({...m})), dirty=false, recs=null;
+  const grid=h('div',{class:'cvp-g'}), pickBox=h('div',{class:'cvp-pick',hidden:true}), msg=h('span',{class:'hint'});
+  const save=h('button',{class:'btn pri sm',type:'button',disabled:true,text:'儲存封面與照片'}), undo=h('button',{class:'btn soft sm',type:'button',hidden:true,text:'復原'});
+  const mark=()=>{ dirty=true; save.disabled=false; undo.hidden=false; msg.textContent='還沒儲存'; draw(); };
+  const draw=()=>{ grid.replaceChildren(...M.map((m,i)=>h('div',{class:'cvp-it'+(i?'':' cv')}, h('img',{src:mThumb(m),alt:'',loading:'lazy'}), m.type==='video'?h('span',{class:'cvp-v',text:'▶'}):null, i?null:h('span',{class:'cvp-c',text:'封面'}),
+      h('div',{class:'cvp-ctl'}, i?h('button',{type:'button',title:'設為封面',onclick:()=>{ M.unshift(M.splice(i,1)[0]); mark(); },text:'★ 封面'}):null, i>1?h('button',{type:'button','aria-label':'往前',onclick:()=>{ [M[i-1],M[i]]=[M[i],M[i-1]]; mark(); },text:'←'}):null, h('button',{type:'button','aria-label':'移除',onclick:()=>{ M.splice(i,1); mark(); },text:'✕'})))),
+      M.length<12?h('button',{type:'button',class:'cvp-add',onclick:openPick}, h('b',{text:'＋'}), h('span',{text:'從成長紀錄挑'})):null);
+    if(!M.length) grid.prepend(h('p',{class:'hint',style:'grid-column:1/-1;margin:0',text:'目前沒有商品照片，商店卡片會用最新一筆成長紀錄的照片。'})); };
+  async function openPick(){ pickBox.hidden=false; pickBox.replaceChildren(h('p',{class:'hint',text:'載入成長紀錄照片…'}));
+    try{ if(!recs){ const sn=await S.db.collection(pPath(p)+'/photos').orderBy('takenAt','desc').get(); recs=sn.docs.map(d=>({id:d.id,...d.data()})).filter(d=>!d.ev&&(imgSrc(d)||d.poster)); } }catch(e){ recs=[]; }
+    const used=new Set(M.map(m=>m.src||m.url));
+    pickBox.replaceChildren(h('div',{class:'row',style:'justify-content:space-between;margin-bottom:8px'}, h('b',{text:'點一張加進來（會放在最後，可以再設成封面）'}), h('button',{class:'link',type:'button',onclick:()=>{ pickBox.hidden=true; },text:'收起'})),
+      recs.length?h('div',{class:'cvp-g sm'}, ...recs.map(d=>{ const vid=isVidRec(d), src=vid?(d.asset?imgSrc(d):d.url):imgSrc(d), on=used.has(src)||M.some(m=>m.url===src||m.src===src);
+        return h('button',{type:'button',class:'cvp-it pk'+(on?' on':''),disabled:on,title:(d.title||d.stage||'')+' '+fmtDay(d.takenAt),onclick:async e=>{ const b=e.currentTarget; if(M.length>=12){ toast('最多 12 張'); return; } b.disabled=true; b.classList.add('busy');
+            try{ let it; if(vid){ if(!canVideo(S.me)){ toast('影片只有認證會員可以放'); b.disabled=false; b.classList.remove('busy'); return; } it={type:'video',url:src,poster:d.poster||recPoster(d),src}; }
+              else { let th=src; try{ const im=await loadImg(src,!sameOrigin(src)); if(im&&S.assets){ th=await uploadBlob(await encode(im,640,.75)); } }catch(x){} it={type:'image',url:th,src}; }
+              M.push(it); mark(); b.classList.remove('busy'); b.classList.add('on'); }catch(x){ b.disabled=false; b.classList.remove('busy'); toast('加入失敗'); } }},
+          h('img',{src:vid?recPoster(d):src,alt:'',loading:'lazy'}), vid?h('span',{class:'cvp-v',text:'▶'}):null, h('small',{text:fmtDay(d.takenAt)||''})); })):h('p',{class:'hint',text:'還沒有照片類的成長紀錄。先在下面「加入成長紀錄」拍照，新的照片會自動加進商品照片。'})); }
+  save.addEventListener('click',async()=>{ save.disabled=true; save.textContent='儲存中…'; const c0=M[0]; const upd={media:M.map(({src,...m})=>src&&m.type==='image'?{...m,src}:m),coverThumb:c0?mThumb(c0):null};
+    try{ await S.db.doc(pPath(p)).update(upd); Object.assign(p,upd); dirty=false; undo.hidden=true; msg.textContent='✓ 已儲存，商店與商品頁會用新的封面'; toast('封面與照片已更新'); }catch(e){ save.disabled=false; msg.textContent='儲存失敗：'+(e?.code==='invalid_argument'||/permission/i.test(e?.message||'')?'沒有權限（植物已轉給別人時，由新主人管理）':'請稍後再試'); } finally{ save.textContent='儲存封面與照片'; } });
+  undo.addEventListener('click',()=>{ M=(p.media||[]).slice(0,12).map(m=>({...m})); dirty=false; save.disabled=true; undo.hidden=true; msg.textContent=''; draw(); });
+  draw();
+  return h('div',{class:'panel cvp'}, h('div',{class:'row',style:'justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap'}, h('h3',{style:'margin:0',text:'封面與商品照片'}), h('span',{class:'hint',text:M.length+' / 12'})),
+    h('p',{class:'hint',style:'margin:6px 0 12px',text:'第一張是封面（商店卡片、分享圖都用它）。可以換封面、調順序、移除；移除只是不在商品頁顯示，履歷裡的原始紀錄不會刪掉。'}),
+    grid, pickBox, h('div',{class:'row',style:'margin-top:12px;gap:8px;flex-wrap:wrap;align-items:center'}, save, undo, msg)); }
 function admSideFill(box,p){
   if(!p) return; const t=topBid(p.id), bs=bidsFor(p.id); resolveNames(bs.map(b=>b.uid));
   box.replaceChildren(
