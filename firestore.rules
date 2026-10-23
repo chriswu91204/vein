@@ -40,6 +40,13 @@ service cloud.firestore {
     // 轉移過所有權的植株：血統資料（品種、父母本、外部親本、編號、登錄時間）鎖定，成長紀錄只能新增不能改刪
     function ownDoc(pid) { return /databases/$(database)/documents/owners/$(pid); }
     function locked(pid) { return exists(ownDoc(pid)) && get(ownDoc(pid)).data.get('log', []).size() > 0; }
+    // 植物現在的主人：轉移過就看 owners/{pid}.current，沒轉移過就是登錄的賣場
+    function holder(uid, pid) { return signedIn() && notBanned() && request.auth.uid == (exists(ownDoc(pid)) ? get(ownDoc(pid)).data.current : uid); }
+    // 新主人只能改照顧與紀錄相關的欄位（品種、父母本、價格、上架都不能動）
+    function ownerFieldsOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['photoCount', 'lastPhotoAt', 'lastStage', 'thumb', 'coverThumb', 'media', 'notes', 'tags', 'leaves', 'cross', 'hidden', 'private', 'vid', 'updatedAt']);
+    }
     function lineageSame() {
       return !request.resource.data.diff(resource.data).affectedKeys()
         .hasAny(['code', 'kind', 'species', 'momId', 'momCode', 'dadId', 'dadCode', 'parentId', 'parentCode', 'momExt', 'dadExt', 'createdAt']);
@@ -83,12 +90,15 @@ service cloud.firestore {
     match /shops/{uid}/plants/{pid} {
       allow read: if true;
       allow create: if (seller(uid) && blockedUnchanged()) || isAdmin();
-      allow update: if (seller(uid) && blockedUnchanged() && (!locked(pid) || lineageSame())) || isAdmin();
+      // 植物轉給別人之後，原賣家就不能再改；改由現在的主人照顧（只能動紀錄相關欄位）
+      allow update: if (seller(uid) && holder(uid, pid) && blockedUnchanged() && (!locked(pid) || lineageSame()))
+        || (holder(uid, pid) && request.auth.uid != uid && blockedUnchanged() && ownerFieldsOnly())
+        || isAdmin();
       allow delete: if (seller(uid) && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/plants/{pid}/photos/{photoId} {
       allow read: if true;
-      allow create: if seller(uid) || isAdmin();
+      allow create: if holder(uid, pid) || isAdmin();
       allow update, delete: if (seller(uid) && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/raffles/{rid} {
