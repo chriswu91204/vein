@@ -2676,6 +2676,9 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .ptr.spin{transition:transform .2s}
 .ptr.spin i{border-color:rgba(210,255,0,.35);border-top-color:#D2FF00;animation:ptrS .7s linear infinite}
 @keyframes ptrS{to{transform:rotate(360deg)}}
+.sv-ov{position:fixed;inset:0;z-index:10000;background:rgba(5,6,5,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px 18px calc(24px + env(safe-area-inset-bottom))}
+.sv-ov img{max-width:100%;max-height:68vh;border-radius:14px;-webkit-touch-callout:default;user-select:auto}
+.sv-ov p{color:#fff;margin:0;font-size:15px;text-align:center}
 .upd-bar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;border:0;border-radius:999px;background:#050605;color:#fff;padding:12px 20px;font:inherit;font-size:14px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);cursor:pointer}
 .upd-bar b{color:#D2FF00}
 .td{border:2px solid #050605;border-radius:20px;padding:12px;margin:0 0 14px;background:var(--surface)}
@@ -5504,6 +5507,16 @@ async function shareImage(p,o={}){
   const blob=await new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.9); }catch(e){ res(null); } });
   return {blob,photo};
 }
+/* 存圖：手機存到相簿（iPhone 走分享選單 →「儲存影像」；Android 直接下載進相簿的 Download；LINE／IG 內建瀏覽器改成長按存圖），電腦就是下載 */
+const UA0=navigator.userAgent, IOS0=/iPhone|iPad|iPod/.test(UA0)||(/Macintosh/.test(UA0)&&navigator.maxTouchPoints>1), MOB0=IOS0||/Android/i.test(UA0);
+const saveLabel=()=>MOB0?'存到相簿':'下載圖片';
+async function saveImg(blob,name){ if(!blob){ toast('圖片產生失敗'); return; } name=name||'vein.jpg';
+  const file=new File([blob],name,{type:blob.type||'image/jpeg'}), url=URL.createObjectURL(blob);
+  const longPress=()=>{ const ov=h('div',{class:'sv-ov',role:'dialog','aria-label':'存到相簿',onclick:e=>{ if(e.target===ov) ov.remove(); }}, h('img',{src:url,alt:'分享圖'}), h('p',{text:IOS0?'長按圖片 → 選「加入照片」或「儲存到照片」':'長按圖片 → 選「下載圖片」，就會存進相簿'}), h('button',{class:'btn lime',type:'button',onclick:()=>ov.remove(),text:'好了'})); document.body.append(ov); };
+  if (MOB0&&INAPP){ longPress(); return; }
+  if (IOS0){ if(navigator.canShare&&navigator.canShare({files:[file]})){ toast('在選單裡選「儲存影像」就會存到相簿'); try{ await navigator.share({files:[file]}); }catch(e){} return; } longPress(); return; }
+  const a=h('a',{href:url,download:name}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),800);
+  if (MOB0) toast('已存到手機，相簿的「Download」裡找得到'); }
 // 共用分享視窗：預覽圖＋可編輯文字，按鈕把圖片和文字一起分享出去；可切換多種模式（一般／IG 限動／販售貼文）
 async function shareDialog(o){
   const modes=o.modes||[{k:'x',image:o.image,text:o.text,file:o.file}];
@@ -5527,8 +5540,8 @@ async function shareDialog(o){
       h('button',{class:'btn ink',type:'button',onclick:m.k==='sale'||m.k==='story'?()=>copyText(txt.value):copyAll,text:m.k==='sale'?'複製貼文文字（含 hashtag）':m.k==='story'?'複製網址文字':m.k==='post'||m.k==='square'?'複製圖片＋文字':'複製文字＋連結'}),
       m.k!=='story'&&m.k!=='sale'?h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'):null,
       m.k==='sale'||(o.url&&m.k==='post')?h('a',{class:'btn soft',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(plantUrlOf(o)); }},'Facebook 分享連結'):null,
-      url?h('a',{class:'btn soft',href:url,download:m.file+'.jpg',text:'下載圖片'}):null);
-    if (!canFile) note.textContent=(note.textContent?note.textContent+' ':'')+(m.k==='story'?'這個瀏覽器不能直接分享到 IG：請「下載圖片」，再到 IG 限動選這張圖。':'這個瀏覽器不能一次分享圖片＋文字：請先「下載圖片」，再複製文字一起貼上。');
+      blob?h('button',{class:'btn soft',type:'button',onclick:()=>saveImg(blob,m.file+'.jpg'),text:saveLabel()}):null);
+    if (!canFile) note.textContent=(note.textContent?note.textContent+' ':'')+(m.k==='story'?'這個瀏覽器不能直接分享到 IG：請先「'+saveLabel()+'」，再到 IG 限動選這張圖。':'這個瀏覽器不能一次分享圖片＋文字：請先「'+saveLabel()+'」，再複製文字一起貼上。');
   }
   load(modes.find(m=>m.k===o.start)||modes[0]);
 }
@@ -5774,11 +5787,11 @@ function openShare(p,start){ lsSet('vein.didShare',true);
     redraw(); };
   const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,1); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.92); }catch(e){ r(null); } }); return {blob,ok}; };
   const fileName=()=>p.code+'-'+mode+'.jpg';
-  const dl=blob=>{ const a=h('a',{href:URL.createObjectURL(blob),download:fileName()}); document.body.append(a); a.click(); setTimeout(()=>a.remove(),500); };
+  const dl=blob=>saveImg(blob,fileName());
   const doShare=async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg'}); const story=c.fmt==='story';
-    if (navigator.canShare&&navigator.canShare({files:[file]})){ if(story) copyText(plantUrl(p)); try{ await navigator.share(story?{files:[file]}:{files:[file],text:txt.value}); }catch(e){} } else { dl(blob); copyText(txt.value); toast('已下載圖片，文字也幫你複製了'); } };
+    if (navigator.canShare&&navigator.canShare({files:[file]})){ if(story) copyText(plantUrl(p)); try{ await navigator.share(story?{files:[file]}:{files:[file],text:txt.value}); }catch(e){} } else { copyText(txt.value); dl(blob); } };
   btns.append(h('button',{class:'btn volt lg',type:'button',onclick:doShare},'📤 分享圖片'), h('button',{class:'btn ink',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
-    h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); },text:'下載圖片'}),
+    h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); },text:saveLabel()}),
     h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'));
   note.textContent='手機按「分享圖片」選 Instagram／Facebook 就能發；限動尺寸會先幫你複製網址，可以加「連結」貼圖貼上。';
   openDialog('轉發這株', h('div',{class:'sd'}, modesBox, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, prev), h('div',{class:'sd-right'}, panel, h('label',{class:'field'}, h('span',{text:'一起傳出去的文字（可以改）'}), txt), btns, note))), false);
