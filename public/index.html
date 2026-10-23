@@ -2756,6 +2756,11 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .me-start b{font-size:18px}.me-start p{color:#C9CCC7;margin:6px 0 14px}
 @media (max-width:900px){.me{grid-template-columns:1fr;grid-template-areas:'side' 'main' 'extra';row-gap:4px}.me-tabs{top:56px}.me-card{padding:14px}.me-stats button{padding:8px 4px}.me-extra{margin-top:20px}}
 @media (max-width:520px){.me-stats b{font-size:18px}.me-fg{grid-template-columns:1fr}}
+.snipe{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--fg2);background:rgba(0,0,0,.04);border-radius:10px;padding:8px 10px}
+.deal.auc .snipe{background:rgba(255,255,255,.08);color:inherit;opacity:.85}
+.snipe.on{box-shadow:inset 3px 0 0 #D2FF00}
+.snipe-ed{margin:6px 0 10px;padding:12px;border-radius:14px;background:var(--paper)}
+.snipe-ed .two{margin-top:10px}
 .cvp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
 .cvp-g.sm{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .cvp-it{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--paper);border:2px solid transparent;padding:0}
@@ -3781,6 +3786,16 @@ const mine=()=>all().filter(p=>p.shop===S.me); // 我的賣場登錄的（銷售
 const holds=p=>!!p&&!!S.me&&(S.owners.get(p.id)?.current||p.shop)===S.me;
 const myPlants=()=>all().filter(holds);
 const pPath=p=>`shops/${p.shop}/plants/${p.id}`;
+/* 防尾刀：結束前幾分鐘內有人出價，結標時間自動往後延（每個人看到的時間都一樣，由出價紀錄算出來） */
+const SNIPE_DEF={on:true,win:5,ext:5,max:120};
+const snipeOf=p=>p?.snipe&&p.snipe.on!==false?{...SNIPE_DEF,...p.snipe}:null;
+function bidEvents(p){ const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[p.id]; if(!b||typeof b.amt!=='number') continue; if(hasElig(p)&&!eligCheck(uid,p).ok) continue; const ts=Array.isArray(b.ts)&&b.ts.length?b.ts:[b.at]; for(const t of ts) if(typeof t==='number') out.push(t); } return out.sort((a,b)=>a-b); }
+function snipeEnd(p,raw){ const sn=snipeOf(p); if(!sn||!raw) return raw; let end=raw; const W=sn.win*6e4, E=sn.ext*6e4, cap=raw+sn.max*6e4; for(const t of bidEvents(p)){ if(t>end) break; if(t>end-W) end=Math.min(cap,Math.max(end,t+E)); } return end; }
+const snipeSeen=new Map();
+function applySnipe(){ for(const p of S.plants.values()){ if(p.mode!=='auction') continue; if(!('endsAtRaw' in p)) p.endsAtRaw=p.endsAtMs; if(!p.endsAtRaw) continue;
+    const e=snipeEnd(p,p.endsAtRaw), prev=snipeSeen.get(p.id); snipeSeen.set(p.id,e); p.endsAtMs=e;
+    if (prev&&e>prev+1000&&Date.now()<e&&PAGE==='plant'&&(location.hash||'').includes(encodeURIComponent(p.id))) toast('⏱ 最後時刻有人出價，結標延長到 '+fmtMD(e)); } }
+const snipeNote=p=>{ const sn=snipeOf(p); if(!sn) return null; const ext=p.endsAtRaw&&p.endsAtMs>p.endsAtRaw; return h('p',{class:'snipe'+(ext?' on':'')}, h('b',{text:'⏱ 防尾刀'}), ' 結束前 '+sn.win+' 分鐘內有人出價，會延長到出價後 '+sn.ext+' 分鐘'+(ext?'。已延長 '+Math.round((p.endsAtMs-p.endsAtRaw)/6e4)+' 分鐘（原定 '+fmtMD(p.endsAtRaw)+'）':'。')); };
 const isAuc=p=>p.mode==='auction'&&p.endsAtMs;
 const live=p=>isAuc(p)&&Date.now()<p.endsAtMs&&p.status!=='sold';
 function bidsFor(id){ const p=S.plants.get(id); const end=p?.endsAtMs||Infinity; const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[id]; if(b&&typeof b.amt==='number'&&b.at<=end&&(!hasElig(p)||eligCheck(uid,p).ok)) out.push({uid,amt:b.amt,at:b.at}); } return out.sort((a,b)=>b.amt-a.amt||a.at-b.at); }
@@ -6431,7 +6446,7 @@ function refreshDetail(first){
       h('div',{class:'row',style:'justify-content:space-between'}, h('span',{class:'tag '+(L?'live':'grey'),text:L?'LIVE 競標中':'競標已結束'}), h('span',{class:'lbl',text:'每口 +'+money(p.step||100)})),
       h('div',{class:'row',style:'margin-top:14px'}, h('div',{}, h('div',{class:'lbl',text:t?(L?'目前最高':'得標價'):'起標價'}), h('div',{class:'bp',text:money(t?t.amt:p.startPrice)})),
         h('div',{style:'text-align:right'}, h('div',{class:'lbl',text:L?'剩餘時間':'結束於'}), h('div',{class:'cd','data-ends':L?String(p.endsAtMs):null,text:L?fmtLeft(p.endsAtMs-Date.now()):fmtDate(tsLocal(p.endsAtMs))}))),
-      t?h('div',{class:'lbl',style:'margin-top:8px',text:(L?'領先：':'得標：')+(t.uid===S.me?'你':nameOf(t.uid))}):null,
+      t?h('div',{class:'lbl',style:'margin-top:8px',text:(L?'領先：':'得標：')+(t.uid===S.me?'你':nameOf(t.uid))}):null, snipeNote(p),
       bs.length?h('div',{class:'bids'}, ...bs.slice(0,10).map(b=>h('div',{}, h('span',{}, b.uid===S.me?'你':nameOf(b.uid), vMark(b.uid)), h('span',{class:'mono',text:money(b.amt)+' · '+ago(b.at)})))):h('div',{class:'lbl',style:'margin-top:8px',text:'還沒有人出價'}),
       h('button',{class:'btn '+(L?'volt':'soft')+' auc-sh',type:'button',onclick:()=>openAucShare(p)}, h('i',{class:'shbtn-i',text:'↗'}), L?(own?'轉發競標，找更多人來出價':'轉發給朋友一起來標'):'分享競標結果')));
     const bf=$('#dBid');
@@ -6487,7 +6502,7 @@ function refreshDetail(first){
     const same=pub().filter(x=>x.id!==p.id&&spKey(x)===gk&&x.status!=='sold'), shopMore=pub().filter(x=>x.id!==p.id&&x.shop===p.shop&&x.status!=='sold');
     rel.replaceChildren(...[fam,techRow({kicker:'SAME GENUS',title:'同屬的其他植株',items:same.slice(0,16)}),techRow({kicker:'SAME GREENHOUSE',title:shopName(p.shop)+' 的其他植株',items:shopMore.slice(0,16)})].filter(Boolean)); }
 }
-async function placeBid(id,amt){ if(needLogin()||needPhone()) return false; const p=S.plants.get(id), e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return false; if(!live(p)){ err.textContent='競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:Date.now(),shop:p.shop}}}); toast('已出價 '+money(amt)); return true; }catch(e){ return false; } }
+async function placeBid(id,amt){ if(needLogin()||needPhone()) return false; const p=S.plants.get(id), e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return false; if(!live(p)){ err.textContent='競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ const now=Date.now(), pv=mySocial().bids?.[id], ts=[...(Array.isArray(pv?.ts)?pv.ts:pv?.at?[pv.at]:[]),now].slice(-12); await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:now,shop:p.shop,ts}}}); try{ applySnipe(); }catch(e){} const sn=snipeOf(p); toast('已出價 '+money(amt)+(sn&&p.endsAtMs-now<sn.ext*6e4+2000&&p.endsAtRaw&&p.endsAtMs>p.endsAtRaw?'，結標延長到 '+fmtMD(p.endsAtMs):'')); return true; }catch(e){ return false; } }
 async function askQ(id,text,inp){ if(needLogin()||!text||!rateOK('qa')) return; const p=S.plants.get(id); const qa=[...mySocial().qa,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:id,shop:p?.shop,text,at:Date.now()}].slice(-200); try{ await saveSocial({qa}); inp.value=''; toast('已送出提問'); }catch(e){} }
 
 /* ---------- viewer ---------- */
@@ -7067,11 +7082,15 @@ function saleFields(p){
   const fixed=h('div',{class:'two'}, field('售價 NT$（留空顯示「洽詢」，有標價才能加入購物車）', h('input',{type:'number',min:0,step:'any',inputmode:'numeric','data-k':'price',value:p?.price??''})), h('div'));
   const eg=eligEditor(p&&p.mode==='auction'?p:null,'bid');
   const auc=h('div',{class:'aucbox'}, h('div',{class:'three'}, field('起標價 NT$', h('input',{type:'number',min:0,step:'any','data-k':'startPrice',value:p?.startPrice??''})), field('每口加價 NT$', h('input',{type:'number',min:1,step:'any','data-k':'step',value:p?.step??100})), field('結束時間', h('input',{type:'datetime-local','data-k':'endsAt',value:p?.endsAtMs?tsLocal(p.endsAtMs):tsLocal(def.getTime())}))),
+    (()=>{ const s0=p?.mode==='auction'?(p.snipe||{on:false}):SNIPE_DEF; const opt=(k,v0)=>h('select',{'data-k':k}, ...[1,2,3,5,10,15].map(n=>h('option',{value:n,text:n+' 分鐘',selected:n===(v0||5)})));
+      const on=h('input',{type:'checkbox',class:'sw','data-k':'snOn',checked:s0.on!==false}), body=h('div',{class:'two'}, field('結束前多久內出價會延長',opt('snWin',s0.win)), field('每次延長到出價後',opt('snExt',s0.ext)));
+      const sy=()=>{ body.hidden=!on.checked; }; on.addEventListener('change',sy); sy();
+      return h('div',{class:'snipe-ed'}, h('label',{class:'row',style:'gap:10px;align-items:center'}, on, h('span',{}, h('b',{text:'⏱ 防尾刀'}), h('small',{class:'hint',text:'　最後幾分鐘有人出價就自動延長，不怕被最後一秒偷標'}))), body); })(),
     eg.el);
   const sync=()=>{ const a=mode.value==='auction'; auc.hidden=!a; fixed.hidden=a; }; mode.addEventListener('change',sync); sync();
   return {el:h('div',{class:'form'}, field('販售方式',mode), fixed, auc), read:f=>{ const v=k=>f.querySelector(`[data-k="${k}"]`)?.value;
-    if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'}; if(end<Date.now()+5*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 5 分鐘後。'}; if(eg.err()) return {err:eg.err()}; return {mode:'auction',startPrice:Number(v('startPrice')||0),step:Math.max(1,Number(v('step')||100)),endsAtMs:end,price:null,endNotified:false,elig:eg.get(),needV:null}; }
-    return {mode:'fixed',price:v('price')?Number(v('price')):null,endsAtMs:null,needV:null,elig:null}; }};
+    if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'}; if(end<Date.now()+5*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 5 分鐘後。'}; if(eg.err()) return {err:eg.err()}; const snOn=!!f.querySelector('[data-k=snOn]')?.checked; return {mode:'auction',startPrice:Number(v('startPrice')||0),step:Math.max(1,Number(v('step')||100)),endsAtMs:end,price:null,endNotified:false,elig:eg.get(),needV:null,snipe:snOn?{on:true,win:Number(v('snWin')||5),ext:Number(v('snExt')||5),max:120}:{on:false}}; }
+    return {mode:'fixed',price:v('price')?Number(v('price')):null,endsAtMs:null,needV:null,elig:null,snipe:null}; }};
 }
 // 編號＝屬代碼-賣家代碼-流水號（例 AN-VEN-00012），側芽＝母株編號-S01。流水號每個賣場各自往上數，方便標籤機批次列印
 const CODE_A='ABCDEFGHJKMNPQRSTUVWXYZ';
@@ -9121,7 +9140,7 @@ function photoPicker(){
 /* ---------- render ---------- */
 let rq=0;
 const typing=el=>!!el&&el.contains(document.activeElement)&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ lockScreen(); }catch(e){} renderNav(); renderShop(); renderBell(); socialProof(); if(lastV) renderVerify(lastV);
+function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ applySnipe(); }catch(e){} try{ lockScreen(); }catch(e){} renderNav(); renderShop(); renderBell(); socialProof(); if(lastV) renderVerify(lastV);
   if (PAGE==='sell'&&!typing($('#sellPage'))) platRerender(); if (PAGE==='home') renderCommunity();
   if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='history') renderHistory(); if (PAGE==='claim') renderClaim(); if (PAGE==='raffle') renderRafflePage(); renderWall();
   if (PAGE==='plant'){ if(S.pendingPlant&&S.plants.has(S.pendingPlant)) buildPlantPage(S.pendingPlant); else refreshDetail(false); }

@@ -56,6 +56,17 @@ async function send(uid, title, lines, link) {
     logger.info('mail sent', { uid, title });
   } catch (e) { logger.error('mail failed', { uid, title, err: String(e) }); }
 }
+// 防尾刀：跟網站同一套算法，用所有出價時間推算真正的結標時間
+async function effEnd(p) {
+  const sn = p && p.snipe && p.snipe.on !== false ? { win: 5, ext: 5, max: 120, ...p.snipe } : null;
+  if (!sn || !p.endsAtMs) return p ? p.endsAtMs : 0;
+  const ts = [];
+  (await db.collection('social').get()).forEach(d => { const b = (d.data().bids || {})[p.id]; if (b && typeof b.amt === 'number') (Array.isArray(b.ts) && b.ts.length ? b.ts : [b.at]).forEach(t => typeof t === 'number' && ts.push(t)); });
+  ts.sort((a, b) => a - b);
+  let end = p.endsAtMs; const W = sn.win * 6e4, E = sn.ext * 6e4, cap = p.endsAtMs + sn.max * 6e4;
+  for (const t of ts) { if (t > end) break; if (t > end - W) end = Math.min(cap, Math.max(end, t + E)); }
+  return end;
+}
 async function topBidder(pid, endsAtMs, excludeUid) {
   let best = null;
   (await db.collection('social').get()).forEach(d => {
@@ -86,10 +97,12 @@ exports.onSocial = onDocumentWritten({ document: 'social/{uid}', secrets }, asyn
     const prev = (before.bids || {})[pid];
     if (prev && prev.amt >= bid.amt) continue;
     const p = await findPlant(pid, bid.shop);
-    if (!p || !p.endsAtMs || bid.at > p.endsAtMs) continue;
-    const other = await topBidder(pid, p.endsAtMs, uid);
+    if (!p || !p.endsAtMs) continue;
+    const end = await effEnd({ id: pid, ...p });
+    if (bid.at > end) continue;
+    const other = await topBidder(pid, end, uid);
     if (other && other.amt < bid.amt && other.at < bid.at) {
-      await send(other.uid, '你的出價被超越了', [`${plantLine(p)} 目前最高出價 ${money(bid.amt)}，超過你的 ${money(other.amt)}。`, `結標時間：${when(p.endsAtMs)}`, '想拿下它，記得回來加價。'], '/#/shop');
+      await send(other.uid, '你的出價被超越了', [`${plantLine(p)} 目前最高出價 ${money(bid.amt)}，超過你的 ${money(other.amt)}。`, `結標時間：${when(end)}`, '想拿下它，記得回來加價。'], '/#/shop');
     }
   }
 
@@ -151,8 +164,10 @@ exports.auctionsEnded = onSchedule({ schedule: 'every 10 minutes', timeZone: 'As
   for (const d of snap.docs) {
     const p = { id: d.id, ...d.data() };
     if (p.mode !== 'auction' || p.endNotified) continue;
+    const end = await effEnd(p);
+    if (end > now) continue; // 防尾刀延長中，下一輪再檢查
     const shop = d.ref.parent.parent.id;
-    const win = await topBidder(p.id, p.endsAtMs, null);
+    const win = await topBidder(p.id, end, null);
     if (win) {
       await send(win.uid, '恭喜你得標', [`你以 ${money(win.amt)} 得標 ${plantLine(p)}。`, `賣家「${await shopName(shop)}」會成立訂單並私訊你付款與寄送方式。`], '/');
       await send(shop, '競標結束：有得標者', [`${plantLine(p)} 由 ${await nameOf(win.uid)} 以 ${money(win.amt)} 得標。`, '到賣家後台打開這株植物，按「成立訂單給得標者」。'], '/#admin');
