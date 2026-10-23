@@ -2715,6 +2715,12 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .cvp-add{aspect-ratio:1;border:2px dashed var(--line);border-radius:14px;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:inherit;cursor:pointer;color:var(--fg2)}
 .cvp-add b{font-size:24px;line-height:1}
 .cvp-add span{font-size:12px}
+.cvp-adds{display:contents}
+label.cvp-add{position:relative}
+.cvp-add b{font-size:22px}
+.cvp-it.up{display:grid;place-items:center}
+.cvp-it.up img{position:absolute;inset:0;opacity:.45}
+.cvp-st{position:relative;font-size:12px;font-weight:700;text-align:center;padding:0 6px;color:var(--fg)}
 .cvp-pick{margin-top:12px;padding:12px;border-radius:14px;background:var(--paper)}
 .cvp-it.pk{cursor:pointer}
 .cvp-it.pk small{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65));padding:10px 6px 4px;text-align:left}
@@ -8443,13 +8449,24 @@ async function sellToWinner(p,t){ try{ await S.db.doc(`shops/${S.me}/orders/auc-
 /* 封面與商品照片：上傳後也能換封面、調順序、移除；成長紀錄（履歷）裡的原始照片不受影響 */
 const mThumb=m=>m?.type==='video'?(m.poster||''):(m?.thumb||m?.url||'');
 function coverPanel(p){
-  let M=(p.media||[]).slice(0,12).map(m=>({...m})), dirty=false, recs=null;
+  let M=(p.media||[]).slice(0,12).map(m=>({...m})), dirty=false, recs=null; const up=[];
+  const acc=canVideo(S.me)?'image/*,video/mp4,video/webm,video/quicktime':'image/*';
+  const camIn=h('input',{type:'file',accept:'image/*',capture:'environment',class:'vh'}), albIn=h('input',{type:'file',accept:acc,multiple:true,class:'vh'});
+  const addFiles=fs=>{ fs.slice(0,Math.max(0,12-M.length-up.length)).forEach(f=>{ const u={st:'處理中…'}; up.push(u); draw();
+      prepareMedia(f,(m,prev)=>{ u.st=m; if(prev) u.prev=prev; draw(); }).then(r=>{ up.splice(up.indexOf(u),1); M.push({...(r.video?{type:'video',url:r.full.asset,poster:r.thumb}:{type:'image',url:r.thumb,src:r.full?.asset?(/^https?:/.test(r.full.asset)?r.full.asset:'/_blob/'+r.full.asset):undefined}),fresh:r}); mark(); })
+        .catch(e=>{ u.err=e?.hevc?'格式讀不了':e?.vein==='msg'?e.message:'上傳失敗'; if(e?.hevc) hevcHelp(); draw(); }); }); };
+  for(const i of [camIn,albIn]) i.addEventListener('change',()=>{ const fs=[...i.files]; i.value=''; addFiles(fs); });
   const grid=h('div',{class:'cvp-g'}), pickBox=h('div',{class:'cvp-pick',hidden:true}), msg=h('span',{class:'hint'});
   const save=h('button',{class:'btn pri sm',type:'button',disabled:true,text:'儲存封面與照片'}), undo=h('button',{class:'btn soft sm',type:'button',hidden:true,text:'復原'});
   const mark=()=>{ dirty=true; save.disabled=false; undo.hidden=false; msg.textContent='還沒儲存'; draw(); };
-  const draw=()=>{ grid.replaceChildren(...M.map((m,i)=>h('div',{class:'cvp-it'+(i?'':' cv')}, h('img',{src:mThumb(m),alt:'',loading:'lazy'}), m.type==='video'?h('span',{class:'cvp-v',text:'▶'}):null, i?null:h('span',{class:'cvp-c',text:'封面'}),
+  const cnt=h('span',{class:'hint'});
+  const draw=()=>{ cnt.textContent=M.length+' / 12'; grid.replaceChildren(...M.map((m,i)=>h('div',{class:'cvp-it'+(i?'':' cv')}, h('img',{src:m.fresh?.preview||mThumb(m),alt:'',loading:'lazy'}), m.type==='video'?h('span',{class:'cvp-v',text:'▶'}):null, i?null:h('span',{class:'cvp-c',text:'封面'}),
       h('div',{class:'cvp-ctl'}, i?h('button',{type:'button',title:'設為封面',onclick:()=>{ M.unshift(M.splice(i,1)[0]); mark(); },text:'★ 封面'}):null, i>1?h('button',{type:'button','aria-label':'往前',onclick:()=>{ [M[i-1],M[i]]=[M[i],M[i-1]]; mark(); },text:'←'}):null, h('button',{type:'button','aria-label':'移除',onclick:()=>{ M.splice(i,1); mark(); },text:'✕'})))),
-      M.length<12?h('button',{type:'button',class:'cvp-add',onclick:openPick}, h('b',{text:'＋'}), h('span',{text:'從成長紀錄挑'})):null);
+      ...up.map(u=>h('div',{class:'cvp-it up'}, u.prev?h('img',{src:u.prev,alt:''}):null, h('span',{class:'cvp-st',text:u.err||u.st}), u.err?h('div',{class:'cvp-ctl'}, h('button',{type:'button','aria-label':'移除',onclick:()=>{ up.splice(up.indexOf(u),1); draw(); },text:'✕'})):null)),
+      M.length+up.length<12?h('div',{class:'cvp-adds'},
+        h('label',{class:'cvp-add'}, camIn, h('b',{text:'📷'}), h('span',{text:'拍照'})),
+        h('label',{class:'cvp-add'}, albIn, h('b',{text:'🖼'}), h('span',{text:'從相簿選'})),
+        h('button',{type:'button',class:'cvp-add',onclick:openPick}, h('b',{text:'🌱'}), h('span',{text:'從成長紀錄挑'}))):null);
     if(!M.length) grid.prepend(h('p',{class:'hint',style:'grid-column:1/-1;margin:0',text:'目前沒有商品照片，商店卡片會用最新一筆成長紀錄的照片。'})); };
   async function openPick(){ pickBox.hidden=false; pickBox.replaceChildren(h('p',{class:'hint',text:'載入成長紀錄照片…'}));
     try{ if(!recs){ const sn=await S.db.collection(pPath(p)+'/photos').orderBy('takenAt','desc').get(); recs=sn.docs.map(d=>({id:d.id,...d.data()})).filter(d=>!d.ev&&(imgSrc(d)||d.poster)); } }catch(e){ recs=[]; }
@@ -8461,12 +8478,15 @@ function coverPanel(p){
               else { let th=src; try{ const im=await loadImg(src,!sameOrigin(src)); if(im&&S.assets){ th=await uploadBlob(await encode(im,640,.75)); } }catch(x){} it={type:'image',url:th,src}; }
               M.push(it); mark(); b.classList.remove('busy'); b.classList.add('on'); }catch(x){ b.disabled=false; b.classList.remove('busy'); toast('加入失敗'); } }},
           h('img',{src:vid?recPoster(d):src,alt:'',loading:'lazy'}), vid?h('span',{class:'cvp-v',text:'▶'}):null, h('small',{text:fmtDay(d.takenAt)||''})); })):h('p',{class:'hint',text:'還沒有照片類的成長紀錄。先在下面「加入成長紀錄」拍照，新的照片會自動加進商品照片。'})); }
-  save.addEventListener('click',async()=>{ save.disabled=true; save.textContent='儲存中…'; const c0=M[0]; const upd={media:M.map(({src,...m})=>src&&m.type==='image'?{...m,src}:m),coverThumb:c0?mThumb(c0):null};
-    try{ await S.db.doc(pPath(p)).update(upd); Object.assign(p,upd); dirty=false; undo.hidden=true; msg.textContent='✓ 已儲存，商店與商品頁會用新的封面'; toast('封面與照片已更新'); }catch(e){ save.disabled=false; msg.textContent='儲存失敗：'+(e?.code==='invalid_argument'||/permission/i.test(e?.message||'')?'沒有權限（植物已轉給別人時，由新主人管理）':'請稍後再試'); } finally{ save.textContent='儲存封面與照片'; } });
+  save.addEventListener('click',async()=>{ if(up.some(u=>!u.err)){ msg.textContent='照片還在上傳，請稍候'; return; } save.disabled=true; save.textContent='儲存中…'; const c0=M[0]; const fresh=M.filter(m=>m.fresh).map(m=>m.fresh);
+    const upd={media:M.map(({src,fresh,...m})=>src&&m.type==='image'?{...m,src}:m),coverThumb:c0?mThumb(c0):null};
+    try{ if(fresh.length){ const reg=nowLocal(); for(const x of fresh) await S.db.collection(pPath(p)+'/photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:'商品照片',title:'商品照片',note:'',registeredAt:reg});
+        const cur=S.plants.get(p.id)||p, latest=fresh.map(x=>x.takenAt).sort().pop(); upd.photoCount=(cur.photoCount||0)+fresh.length; if(!cur.lastPhotoAt||latest>=cur.lastPhotoAt){ upd.lastPhotoAt=latest; upd.thumb=fresh[fresh.length-1].thumb; } }
+      await S.db.doc(pPath(p)).update(upd); M.forEach(m=>delete m.fresh); Object.assign(p,upd); dirty=false; undo.hidden=true; msg.textContent='✓ 已儲存，商店與商品頁會用新的封面'; toast('封面與照片已更新'); }catch(e){ save.disabled=false; msg.textContent='儲存失敗：'+(e?.code==='invalid_argument'||/permission/i.test(e?.message||'')?'沒有權限（植物已轉給別人時，由新主人管理）':'請稍後再試'); } finally{ save.textContent='儲存封面與照片'; } });
   undo.addEventListener('click',()=>{ M=(p.media||[]).slice(0,12).map(m=>({...m})); dirty=false; save.disabled=true; undo.hidden=true; msg.textContent=''; draw(); });
   draw();
-  return h('div',{class:'panel cvp'}, h('div',{class:'row',style:'justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap'}, h('h3',{style:'margin:0',text:'封面與商品照片'}), h('span',{class:'hint',text:M.length+' / 12'})),
-    h('p',{class:'hint',style:'margin:6px 0 12px',text:'第一張是封面（商店卡片、分享圖都用它）。可以換封面、調順序、移除；移除只是不在商品頁顯示，履歷裡的原始紀錄不會刪掉。'}),
+  return h('div',{class:'panel cvp'}, h('div',{class:'row',style:'justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap'}, h('h3',{style:'margin:0',text:'封面與商品照片'}), cnt),
+    h('p',{class:'hint',style:'margin:6px 0 12px',text:'第一張是封面（商店卡片、分享圖都用它）。可以直接拍照、從相簿選，或從成長紀錄挑；新拍的照片也會自動記進履歷（保留拍攝時間）。移除只是不在商品頁顯示，履歷裡的原始紀錄不會刪掉。'}),
     grid, pickBox, h('div',{class:'row',style:'margin-top:12px;gap:8px;flex-wrap:wrap;align-items:center'}, save, undo, msg)); }
 function admSideFill(box,p){
   if(!p) return; const t=topBid(p.id), bs=bidsFor(p.id); resolveNames(bs.map(b=>b.uid));
