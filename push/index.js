@@ -13,7 +13,7 @@ setGlobalOptions({ region: 'asia-east1', maxInstances: 5 });
 const SITE = 'https://vein-48ec8.web.app';
 
 async function tokensOf(uid) {
-  const snap = await db.collection(`data/users/${uid}/push`).get();
+  const snap = await db.collection(`data/users/${uid}/push/devices`).get();
   return snap.docs.filter(d => d.data().token && d.data().on !== false).map(d => ({ ref: d.ref, token: d.data().token }));
 }
 async function push(uid, title, body, link, tag) {
