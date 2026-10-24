@@ -2771,6 +2771,93 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .be-f{border:0;padding:0;margin:12px 0 0;min-width:0;display:flex;flex-direction:column;gap:10px}.be-f[disabled]{display:none}
 .be-mx{background:#FFF6D6;border-radius:10px;padding:8px 10px;color:#6B5200}
 .be-go{gap:10px;position:sticky;bottom:10px;background:var(--bg,#F2F2EF);padding:8px 0;z-index:5}
+.pp-code2{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--surface);border-radius:18px;padding:12px 14px;box-shadow:0 1px 0 var(--line)}
+.pc-l{display:flex;flex-direction:column;min-width:0}.pc-l small{font-size:11.5px;color:var(--fg2)}
+.pc-c{border:0;background:transparent;padding:0;font-size:19px;font-weight:700;color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-align:left}
+.pc-c i{font-style:normal;font-size:14px;color:var(--fg2)}
+.pc-a{display:grid;grid-template-columns:repeat(3,auto);gap:6px}
+.pc-b{display:inline-flex;align-items:center;gap:5px;border:0;border-radius:999px;background:var(--paper);padding:8px 12px;font:inherit;font-size:13px;font-weight:600;color:var(--fg);text-decoration:none;cursor:pointer;white-space:nowrap}
+.pc-b i{font-style:normal}.pc-b:hover{background:#D2FF00}
+.pp-facts{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media (max-width:900px){
+  .pp-i #dHead{order:0}.pp-i #dDeal{order:1}.pp-i #dBid{order:2}.pp-i #dInfo{order:3}.pp-i #dSeller{order:4}
+  .pp-code2{padding:12px}.pc-a{grid-template-columns:repeat(3,1fr);width:100%}.pc-b{justify-content:center}
+  .pp-facts>div{padding:10px 8px!important}.pp-facts b{font-size:15px!important}.pp-facts span{font-size:11px!important}
+}
+.lw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.lw-o{position:relative;display:flex;align-items:flex-start;gap:10px;text-align:left;border:0;border-radius:18px;background:var(--surface);padding:14px;font:inherit;color:inherit;cursor:pointer;box-shadow:0 1px 0 var(--line);transition:box-shadow .15s,transform .15s}
+.lw-o:hover{transform:translateY(-1px);box-shadow:0 10px 24px -18px rgba(0,0,0,.4)}
+.lw-o.on{box-shadow:0 0 0 2px #2E6B4E;background:#F3FAEC}
+.lw-o>i{font-style:normal;font-size:24px;line-height:1}
+.lw-o span{display:flex;flex-direction:column;gap:2px;min-width:0}.lw-o b{font-size:15px}.lw-o small{font-size:12.5px;color:var(--fg2);line-height:1.4}
+.lw-o em{position:absolute;top:10px;right:10px;font-style:normal;font-size:11px;font-weight:800;background:#2E6B4E;color:#fff;border-radius:999px;padding:2px 8px}
+@media (max-width:760px){ .kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px} .kpi{padding:10px 8px;border-radius:14px} .kpi span{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .kpi b{font-size:17px!important;margin-top:2px} }
+.hm-todo h3{margin-bottom:10px}
+.hm-tl{display:flex;flex-direction:column;gap:8px}
+.hm-ti{display:flex;align-items:center;gap:12px;border:0;background:#FFF6D6;border-radius:14px;padding:12px 14px;font:inherit;text-align:left;cursor:pointer;color:inherit}
+.hm-ti:hover{filter:brightness(.97)}.hm-ti>i{font-style:normal;font-size:22px}.hm-ti span{flex:1;display:flex;flex-direction:column;min-width:0}.hm-ti b{font-size:15px}.hm-ti small{color:var(--fg2);font-size:12.5px}
+.hm-ti em{font-style:normal;font-weight:800;background:#111;color:#D2FF00;border-radius:999px;padding:2px 10px;font-size:14px}.hm-ti u{text-decoration:none;font-size:22px;color:var(--fg2)}
+.ck-it.next{background:rgba(210,255,0,.12);border-radius:12px;box-shadow:0 0 0 1.5px #D2FF00}.ck-t em{font-style:normal;color:#D2FF00;font-weight:800;margin-left:8px;font-size:12.5px}
+.nf .nf-step{margin:0}.nf{gap:12px}
+.nf-h{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.nf-h>i{flex:none;width:28px;height:28px;border-radius:50%;background:#111;color:#D2FF00;font-style:normal;font-weight:800;display:grid;place-items:center;font-size:14px}
+.nf-h h3{margin:0;font-size:17px}.nf-h small{display:block;color:var(--fg2);font-size:12.5px;margin-top:2px}
+.nf .field>span{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.nf-sw{gap:12px;font-size:14px}.nf-sw span{display:flex;align-items:center;gap:6px}
+.nf-more summary{cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;list-style:none}.nf-more summary::-webkit-details-marker{display:none}
+.nf-more summary::before{content:'＋';width:28px;height:28px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-weight:800}
+.nf-more[open] summary::before{content:'－'}.nf-more summary small{color:var(--fg2);font-size:12.5px;flex-basis:100%;padding-left:36px}
+.nf-bar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#111;color:#fff;border-radius:18px;padding:10px 10px 10px 16px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6)}
+.nf-bar .btn.pri{background:#D2FF00;color:#111}.nf-bar .btn.dim{opacity:.55}
+.nf-chk{font-size:13.5px;min-width:0;flex:1}.nf-miss b{display:inline-block;background:rgba(255,255,255,.14);border-radius:999px;padding:2px 9px;margin:2px 4px 2px 0;font-size:12.5px}.nf-ok{color:#D2FF00;font-weight:700}
+.nf-chk.shake{animation:nfShake .4s}@keyframes nfShake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+#admin:has(.nf-bar) #chDock{display:none}
+.rq{display:inline-block;vertical-align:middle;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;margin-left:4px;letter-spacing:0}
+.rq.must{background:#FFE4DE;color:#B4361F}.rq.opt{background:var(--paper);color:var(--fg2)}
+@media (max-width:760px){ .lw{grid-template-columns:1fr;gap:8px} .lw-o{padding:12px} }
+/* ---- 植物頁 v2：購買卡、議價、賣家卡、所有者 ---- */
+.deal.buy{padding:20px 20px 16px;box-shadow:0 1px 0 var(--line),0 20px 40px -30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:12px}
+.by-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.deal.buy .bp{margin:-4px 0 0}.deal.buy .bp.ask{font-size:clamp(28px,3vw,36px)}
+.by-note{margin:-4px 0 0}
+.by-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.by-btns.one{grid-template-columns:1fr}.by-btns.one:has(> :nth-child(2)){grid-template-columns:1.6fr 1fr}
+.by-btns .btn{width:100%;justify-content:center;display:inline-flex;align-items:center;gap:8px;flex-direction:row;white-space:nowrap}
+.by-btns .ch-bi{display:inline-block;flex:none}
+.by-st{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper);border-radius:14px;padding:12px 14px;font-weight:700}
+.by-st.ok{background:#EEF8D6}
+.by-own{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper);border-radius:14px;padding:10px 12px 10px 14px;color:var(--fg2);font-size:14px}
+.by-qty{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--paper);border-radius:14px;padding:10px 12px}
+.by-left{font-size:12.5px;color:var(--fg2)}.by-sub{margin-left:auto;display:flex;align-items:baseline;gap:6px}.by-sub small{color:var(--fg2);font-size:12px}.by-subv{font-size:18px;font-variant-numeric:tabular-nums}
+.by-otog{display:flex;align-items:center;justify-content:space-between;width:100%;border:1px dashed var(--line);background:transparent;border-radius:14px;padding:12px 14px;font:inherit;font-size:14px;color:var(--fg);cursor:pointer}
+.by-otog:hover{border-color:var(--fg2);background:var(--paper)}.by-otog i{font-style:normal;color:var(--fg2)}
+.by-off{display:flex;flex-direction:column;gap:8px;background:var(--paper);border-radius:16px;padding:14px}
+.by-oh{display:flex;align-items:center;justify-content:space-between;gap:8px}.by-oh b{font-size:15px}
+.by-orow{display:grid;grid-template-columns:1fr auto;gap:8px}
+.by-amt{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 12px;min-width:0}
+.by-amt:focus-within{border-color:var(--leaf-2,#2E6B4E);box-shadow:0 0 0 3px rgba(46,107,78,.12)}
+.by-amt span{font-family:var(--f-mono);font-size:13px;color:var(--fg2)}
+.by-amt input{flex:1;min-width:0;border:0;background:transparent;height:44px;font-family:var(--f-mono);font-size:17px;color:var(--fg);outline:none}
+.by-off>input{height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 12px;font:inherit;font-size:14px;color:var(--fg)}
+.by-off .btn{height:46px}
+.by-trust{list-style:none;margin:2px 0 0;padding:10px 0 0;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--fg2)}
+.by-trust li::before{content:'✓';color:var(--leaf-2,#2E6B4E);font-weight:800;margin-right:5px}
+.sellercard.sc2{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:14px;box-shadow:0 1px 0 var(--line)}
+.sc-top{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;min-width:0}
+.sc-m{min-width:0;flex:1}.sc-n{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sc-n b{font-size:17px}
+.sc-s{font-size:13px;color:var(--fg2);margin-top:2px}
+.sc-go{font-style:normal;font-size:24px;color:var(--fg2)}
+.sc-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sc-acts.one{grid-template-columns:1fr}
+.sc-acts .btn{width:100%;justify-content:center;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.hp-own{gap:12px}.ho-i{font-size:22px}.ho-m{display:flex;flex-direction:column;line-height:1.25;flex:1;min-width:0}.ho-m small{font-size:12px;color:var(--fg2)}.ho-m b{font-size:16px}
+.ho-n{font-size:12.5px;color:var(--fg2);background:var(--paper);border-radius:999px;padding:4px 10px}
+.ho-xf{margin-top:10px;background:var(--surface);border-radius:16px;padding:0 16px;box-shadow:0 1px 0 var(--line)}
+.ho-xf>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;flex-wrap:wrap}
+.ho-xf>summary::-webkit-details-marker{display:none}
+.ho-xf>summary span{font-weight:700}.ho-xf>summary small{color:var(--fg2);font-size:12.5px}
+.ho-xf[open]>summary{border-bottom:1px solid var(--line)}
+.ho-xf>.xfer,.ho-xf>div{padding-bottom:14px}
+@media (max-width:520px){ .by-btns .btn.lg{padding-left:10px;padding-right:10px} .sc-acts .btn{padding-left:6px;padding-right:6px;font-size:13px} }
 #admMain select{max-width:100%}#admMain form,#admMain .panel{min-width:0}
 #admin:has(.rg-bulk2) #chDock,#admin:has(.be) #chDock,#admin:has(.rs-ov) #chDock{display:none}
 .rs-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,11,.45);display:flex;align-items:flex-end;justify-content:center;animation:rsF .18s ease}
@@ -3391,7 +3478,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></symbol>
   <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></symbol>
-  <symbol id="i-gavel" viewBox="0 0 24 24"><path d="M13.5 4.5l6 6M11 7l6 6M12.2 5.8l-3.4 3.4M18.2 11.8l-3.4 3.4M10.5 12.5L4 19M3.5 21h9"/></symbol>
+  <symbol id="i-gavel" viewBox="0 0 24 24"><g transform="rotate(-40 10 9)"><rect x="5" y="4" width="10" height="5" rx="1.2"/><path d="M4 4.6v3.8M16 4.6v3.8M10 9v10"/></g><path d="M12.5 20.5h8M14 18h5"/></symbol>
   <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></symbol>
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
@@ -4037,7 +4124,7 @@ const all=()=>[...S.plants.values()];
 const listed=p=>!!p&&p.listed!==false;
 // 鎖住（私人）：擁有者以外的人看不到這株，連預覽圖都不顯示
 const isPriv=p=>!!p?.private;
-const privFor=p=>isPriv(p)&&p.shop!==S.me&&!(S.owners?.get?.(p.id)?.current===S.me)&&!S.admin;
+const privFor=p=>isPriv(p)&&p.shop!==S.me&&!(S.owners?.get?.(p.id)?.current===S.me);
 const LOCK_IMG='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#E6E8E1"/><g fill="none" stroke="#9A9E95" stroke-width="9" stroke-linecap="round"><rect x="68" y="94" width="64" height="52" rx="12" fill="#D3D6CD" stroke="none"/><path d="M80 94V78a20 20 0 0 1 40 0v16"/></g><circle cx="100" cy="118" r="6" fill="#9A9E95"/></svg>');
 const pub0=()=>all().filter(p=>listed(p)&&!p.hidden&&!p.private&&!p.blocked&&approved(p.shop));
 // 群組販售：同一群組的植株在商店裡合併成一張群組卡（id 以 g: 開頭），點進去再挑編號
@@ -5296,7 +5383,7 @@ function ownerTimeline(p){
   return h('ol',{class:'own-tl'}, ...L.map((x,i)=>h('li',{class:i===L.length-1?'cur':''}, h('i'), h('div',{}, h('b',{text:x.via==='register'?who(x.to)+' 登錄這株':who(x.from)+' → '+who(x.to)}), h('span',{class:'hint',text:fmtDate(tsLocal(x.at))+' · '+(OWN_VIA[x.via]||x.via)+(x.ref?' · 訂單 '+x.ref:'')+(x.note?' · '+x.note:'')}), i===L.length-1?h('span',{class:'tag lime',text:'目前所有者'}):null))));
 }
 function transferForm(p,after){
-  if (!S.me||(ownerOf(p)!==S.me&&!S.admin)) return null;
+  if (!S.me||S.work||ownerOf(p)!==S.me) return null; // 只有現在的主人本人可以轉移（管理員、小編都不行）
   const linkBox=xferLinkBox(p,after);
   const to=h('input',{maxlength:60,placeholder:'對方的會員 ID（請對方在「我的」複製給你）'}), note=h('input',{maxlength:100,placeholder:'備註（選填，例如：私下交易、贈送）'}), err=h('div',{class:'err'});
   const f=h('form',{class:'form xfer',onsubmit:async e=>{ e.preventDefault(); err.textContent=''; const id=to.value.trim(); if(!id){ err.textContent='請填對方的會員 ID'; return; } if(id===ownerOf(p)){ err.textContent='對方已經是目前所有者'; return; }
@@ -6080,7 +6167,7 @@ function startChecklist(){
   const items=[['設定 LINE 聯絡方式',!!(sh.line||sh.contact),()=>{ S.shopTab='basic'; S.admTab='shop'; renderAdmin(true); },'start'],['設定匯款帳號',!!S.bank?.account,()=>{ S.shopTab='basic'; S.admTab='shop'; renderAdmin(true); },'start'],['登錄第一株植物',ps.length>0,()=>{ S.admTab='new'; renderAdmin(true); },'new'],['上架販售一株',ps.some(p=>listed(p)&&p.status!=='keep'),()=>{ S.admTab='list'; renderAdmin(true); },'list'],['下載或列印一次標籤',!!lsGet('vein.didLabels',false),()=>{ S.admTab='labels'; renderAdmin(true); },'labels'],['看一次植物履歷頁',!!lsGet('vein.sawHistory',false),()=>{ const p=ps[0]; if(p) openHistory(p.id); else openGuide('history'); },'history'],['轉發一株到 LINE／IG',!!lsGet('vein.didShare',false),()=>{ const p=ps[0]; if(p) openShare(p); else openGuide('share'); },'share']];
   const done=items.filter(x=>x[1]).length; if(done===items.length) return null;
   return h('div',{class:'panel ck'}, h('div',{class:'ck-h'}, h('div',{}, h('h3',{text:'🚀 新手上手清單'}), h('span',{class:'hint',text:'完成 '+done+' / '+items.length+' · 每一項旁邊都有教學'})), h('div',{class:'ck-bar'}, h('i',{style:'width:'+Math.round(done/items.length*100)+'%'})), h('button',{class:'bf-lk',type:'button',onclick:()=>{ lsSet('vein.hideStart',true); renderAdmin(true); },text:'隱藏'})),
-    h('div',{class:'ck-list'}, ...items.map(([t,ok,fn,gid])=>h('div',{class:'ck-it'+(ok?' ok':'')}, h('span',{class:'ck-b',text:ok?'✓':''}), h('button',{type:'button',class:'ck-t',onclick:fn,text:t}), h('button',{type:'button',class:'ck-g',onclick:()=>openGuide(gid),text:'？教學'})))),
+    h('div',{class:'ck-list'}, ...items.map(([t,ok,fn,gid],i)=>{ const nx=!ok&&items.findIndex(x=>!x[1])===i; return h('div',{class:'ck-it'+(ok?' ok':'')+(nx?' next':'')}, h('span',{class:'ck-b',text:ok?'✓':''}), h('button',{type:'button',class:'ck-t',onclick:fn}, t, nx?h('em',{text:'下一步 →'}):null), h('button',{type:'button',class:'ck-g',onclick:()=>openGuide(gid),text:'？教學'})); })),
     h('a',{class:'btn soft sm',href:'#/guide',onclick:()=>{ try{ adm.close(); }catch(e){} },style:'margin-top:12px',text:'打開教學中心 →'}));
 }
 
@@ -6907,7 +6994,7 @@ function buildPlantPage(id){
     h('nav',{class:'crumbs'}, h('a',{href:'#/store',text:'植物商店'}), h('span',{text:'›'}), h('a',{href:'#/store/c/'+encodeURIComponent(gk),text:genusZh(g)||g||'其他'}), h('span',{text:'›'}), h('b',{class:'mono',text:p.code})),
     h('div',{class:'pp'},
       h('div',{class:'pp-g'}, h('div',{class:'pp-main',id:'dBigWrap',onclick:e=>{ if(e.target.tagName==='VIDEO') return; S.photos.length&&openViewer(S.gi); }}, h('img',{id:'dBig',src:cover(p),alt:p.code}), h('video',{id:'dVid',class:'pp-vid',muted:true,loop:true,playsinline:true,controls:true,hidden:true}), h('span',{class:'pp-cnt',id:'dCnt'})), h('div',{class:'pp-thumbs',id:'dThumbs'})),
-      h('div',{class:'pp-i'}, h('div',{id:'dInfo'}), h('div',{id:'dDeal'}), h('div',{id:'dBid'}), h('div',{id:'dSeller'}))),
+      h('div',{class:'pp-i'}, h('div',{id:'dHead'}), h('div',{id:'dInfo'}), h('div',{id:'dDeal'}), h('div',{id:'dBid'}), h('div',{id:'dSeller'}))),
     h('section',{class:'pp-sec'}, secHead('PLANT FILE','植物檔案','編號與拍攝時間登錄後就不能修改'), h('div',{id:'pSpec'})),
     h('section',{class:'pp-sec dark'}, secHead('LINEAGE','血統','母本、父本、同胞與後代，點任一株看它的檔案'), h('div',{id:'pTree'})),
     h('section',{class:'pp-sec hpre'}, secHead('HISTORY','履歷','成長紀錄、分出的側芽與實生苗、所有權變更，完整時間軸在履歷頁',histBtn(p,'pri')), h('div',{id:'pRuler'}), h('div',{id:'dFilm'}, h('p',{class:'hint',text:'載入成長紀錄中…'})), h('div',{id:'pOwn'})),
@@ -6926,6 +7013,17 @@ function buildPlantPage(id){
   }, ()=>{ const f=$('#dFilm'); if(f) f.replaceChildren(h('p',{class:'err',text:'無法載入成長紀錄，請重新整理。'})); });
   if (S.pTab==='qa') setTimeout(()=>$('#pQaSec')?.scrollIntoView({behavior:'smooth'}),300); S.pTab=null;
 }
+// 議價／出價區塊（直購頁與不販售的植株共用）：有標價的收在「想議價？」裡，沒標價的直接打開
+function offerPart(p,mo){ const id=p.id; let offerEl=null; S.offerOpen=S.offerOpen||{}; const open=!p.price||!!S.offerOpen[id]||mo?.status==='open';{
+      if (mo&&mo.status==='open') offerEl=h('div',{class:'by-off'}, h('div',{class:'by-oh'}, h('b',{text:'你的出價 '+money(mo.amt)}), h('span',{class:'tag grey',text:'等待賣家回覆'})), mo.msg?h('p',{class:'hint',text:'留言：'+mo.msg}):null, h('button',{class:'bf-lk',type:'button',onclick:()=>S.db.doc('offers/'+mo.id).update({status:'withdrawn',decidedAt:Date.now()}).then(()=>toast('已撤回')),text:'撤回出價'}));
+      else if (!open) offerEl=h('button',{type:'button',class:'by-otog',onclick:()=>{ S.offerOpen[id]=true; refreshDetail(false); }}, h('span',{text:'💬 想議價？出個價給賣家'}), h('i',{text:'⌄'}));
+      else { const amt=h('input',{type:'number',min:1,inputmode:'numeric',placeholder:p.price?String(Math.round(p.price*0.9)):'例如 3000','aria-label':'出價金額'}), msg=h('input',{maxlength:200,placeholder:'想跟賣家說的話（選填）','aria-label':'留言'});
+        offerEl=h('form',{class:'by-off',onsubmit:async e=>{ e.preventDefault(); if(needLogin()||needPhone()) return; const v=Number(amt.value); if(!v||v<1){ toast('請輸入出價金額'); amt.focus(); return; }
+            try{ if(!rateOK('offer')) return; const ref=S.db.collection('offers').doc(); await ref.set({buyer:S.me,seller:p.shop,pid:id,code:p.code,amt:v,msg:msg.value.trim(),status:'open',at:Date.now()}); toast('已送出，賣家同意後會自動成立訂單'); }catch(ex){ toast('送出失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }},
+          h('div',{class:'by-oh'}, h('b',{text:p.price?'出個價給賣家':'這株沒有標價，直接出價'}), p.price?h('button',{type:'button',class:'bf-lk',onclick:()=>{ S.offerOpen[id]=false; refreshDetail(false); },text:'收起'}):null),
+          mo&&mo.status==='rejected'?h('p',{class:'hint',text:'上次出價 '+money(mo.amt)+' 被婉拒'+(mo.reply?'：'+mo.reply:'')}):null,
+          h('div',{class:'by-orow'}, h('label',{class:'by-amt'}, h('span',{text:'NT$'}), amt), h('button',{class:'btn ink',type:'submit',text:'送出出價'})), msg,
+          h('small',{class:'hint',text:'賣家同意後會自動成立訂單，再依訂單流程匯款。'})); } } return offerEl; }
 function setGal(i){ S.gi=i; const d=S.photos[i]; const b=$('#dBig'), v=$('#dVid'); if(d&&isVidRec(d)&&v){ b.hidden=true; v.hidden=false; if(v.getAttribute('src')!==imgSrc(d)){ v.src=imgSrc(d); v.poster=recPoster(d)||''; } if(!REDUCE) v.play().catch(()=>{}); } else { if(v){ v.pause(); v.hidden=true; } if(b){ b.hidden=false; if(d&&imgSrc(d)) b.src=imgSrc(d); } } document.querySelectorAll('#dThumbs button').forEach((x,k)=>x.setAttribute('aria-current',String(k===i))); document.querySelectorAll('.r-dot').forEach((x,k)=>x.classList.toggle('on',k===i)); const c=$('#dCnt'); if(c&&d) c.textContent=(i+1)+' / '+S.photos.length+' · '+(d.stage||'紀錄')+' · '+fmtDay(d.takenAt); }
 function refreshDetail(first){
   const id=S.pageP, p=S.plants.get(id); if(!p||!$('#dInfo')) return;
@@ -6933,23 +7031,28 @@ function refreshDetail(first){
   const w=$('#dBigWrap'); w.querySelector('.fav')?.remove(); w.append(favBtn(id));
   const days=p.createdAt?Math.max(0,Math.round((Date.now()-toMs(p.createdAt))/864e5)):null;
   const parChip=(x,code,l,ext)=>{ if(!x&&ext){ const M=extMedia(ext); return h('button',{type:'button',class:'pchip xchip',disabled:!M.length,onclick:()=>M.length&&lightbox(M,0)}, extCover(ext)?h('img',{src:extCover(ext),alt:''}):null, h('small',{text:l+' · '+(ext.src||'不在 VEIN')}), h('b',{text:ext.code||ext.name}), ext.code&&ext.name?h('span',{text:ext.name}):null); } return (x||code)?h('button',{type:'button',class:'pchip',disabled:!x,onclick:()=>x&&openPlant(x.id)}, h('small',{text:l}), h('b',{class:'mono',text:x?x.code:code}), x?h('span',{text:short(x.species)}):null):null; };
-  $('#dInfo').replaceChildren(
+  $('#dHead').replaceChildren(
     h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), h('span',{class:'stchip '+st[0],text:st[1]}), h('span',{class:'okchip',text:'✓ 編號已登錄'})),
     h('h1',{class:'pp-name',text:short(p.species)}),
     p.cultivar?h('div',{class:'pp-cv',text:p.cultivar}):null,
-    h('div',{class:'pp-sci'}, h('i',{text:normSp(p.species)}), spCn(p.species)?h('span',{text:'　'+spCn(p.species)}):null),
-    h('div',{class:'pp-code'}, h('span',{class:'mono',text:p.code}), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(p.code),text:'複製'}), h('a',{class:'btn soft sm',href:'#/verify/'+encodeURIComponent(p.code),text:'查驗'}), histBtn(p,'ink sm','履歷'), shareBtn(p,'lime sm')),
+    h('div',{class:'pp-sci'}, h('i',{text:normSp(p.species)}), spCn(p.species)?h('span',{text:'　'+spCn(p.species)}):null));
+  $('#dInfo').replaceChildren(
+    h('div',{class:'pp-code2'}, h('div',{class:'pc-l'}, h('small',{text:'溯源編號'}), h('button',{type:'button',class:'pc-c mono',title:'點一下複製',onclick:()=>copyText(p.code)}, p.code, h('i',{text:'⧉'}))),
+      h('div',{class:'pc-a'}, h('a',{class:'pc-b',href:'#/verify/'+encodeURIComponent(p.code)}, h('i',{text:'🔍'}), '查驗'), h('a',{class:'pc-b',href:'#/history/'+encodeURIComponent(p.id)}, h('i',{text:'📜'}), '履歷'), h('button',{class:'pc-b',type:'button',onclick:()=>shareAny(p)}, h('i',{text:'↗'}), '轉發'))),
     isLocked(p)?h('div',{class:'lockchip',title:LOCK_KEYS+'已鎖定'}, '🔒 已轉手 · 血統資料已鎖定，不能竄改'):null,
     p.grp&&groupMeta(p.shop,p.grp)?h('a',{class:'pp-grp',href:'#/group/'+encodeURIComponent(p.shop+'~'+p.grp)}, h('span',{class:'gt-badge'}, h('i'), '群組'), h('b',{text:groupMeta(p.shop,p.grp).name||'同一批'}), h('small',{text:'同一批還有 '+Math.max(0,groupMembers(p.shop+'~'+p.grp).length-1)+' 株可以挑 →'})):null,
     (M||D||momCode(p)||dadCode(p)||momExt(p)||dadExt(p))?h('div',{class:'pp-par'}, parChip(M,momCode(p),p.kind==='pup'?'分株自母株':'母本 ♀',momExt(p)), (D||dadCode(p)||dadExt(p))?h('em',{text:'×'}):null, parChip(D,dadCode(p),'父本 ♂',dadExt(p))):null,
-    h('div',{class:'pp-facts'}, ...[[p.leaves!=null?p.leaves+' 片':'—','葉片數'],[(p.photoCount||0)+' 筆','成長紀錄'],[days!=null?days+' 天':'—','登錄至今'],[fmtDay(p.lastPhotoAt)||'—','最新紀錄']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
+    h('div',{class:'pp-facts'}, ...[[p.leaves!=null?p.leaves+' 片':'—','葉片數'],[(p.photoCount||0)+' 筆','成長紀錄'],[days!=null?days+' 天':'—','登錄至今'],[(fmtDay(p.lastPhotoAt)||'—').replace(new RegExp('^'+new Date().getFullYear()+'\\.'),''),'最新紀錄']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
     tagsOf(p).length?h('div',{class:'ptags'}, ...tagsOf(p).map(t=>h('button',{type:'button',class:'tg',onclick:()=>{ S.bfPending={tags:[t]}; go('#/store/search'); },text:'#'+t}))):null,
     p.notes?h('p',{class:'pp-notes',text:p.notes}):null,
     p.blocked?h('div',{class:'notice',style:'margin-top:12px',text:'這株已被管理員下架：'+(p.blockedReason||'違反平台規範')}):null);
   const deal=$('#dDeal');
   if (!listed(p)){
     $('#dBid').replaceChildren();
-    deal.replaceChildren(h('div',{class:'deal'}, h('div',{class:'lbl',text:'販售狀態'}), h('div',{class:'bp',style:'font-size:24px',text:'目前不販售'}), h('p',{class:'hint',style:'margin-top:8px',text:'這株沒有標價，只公開成長履歷與血統。想買的話可以在下面直接出價，賣家同意後會成立訂單。'}), !own?h('div',{class:'row',style:'margin-top:12px'}, followBtn(p.shop), h('button',{class:'btn soft',type:'button',onclick:()=>$('#pQaSec')?.scrollIntoView({behavior:'smooth'}),text:'詢問賣家'})):(p.shop===S.me&&hasShop()&&p.status!=='sold'&&!p.blocked?h('div',{class:'row',style:'margin-top:12px'}, h('button',{class:'btn pri',type:'button',onclick:()=>openQuickList(p),text:'🏷 上架這一株'})):null)));
+    if (!typing(deal)){ const mo=S.me?myOffers().find(o=>o.pid===id&&(o.status==='open'||o.status==='rejected')):null, can=!own&&p.status!=='sold'&&!p.blocked;
+    deal.replaceChildren(h('div',{class:'deal buy'}, h('div',{class:'by-top'}, h('span',{class:'lbl',text:'販售狀態'})), h('div',{class:'bp ask',text:'目前不販售'}), h('p',{class:'hint by-note',text:'這株只公開成長履歷與血統。想買可以直接出價，賣家同意後會成立訂單。'}),
+      own?(p.shop===S.me&&hasShop()&&p.status!=='sold'&&!p.blocked?h('div',{class:'by-btns one'}, h('button',{class:'btn pri lg',type:'button',onclick:()=>openQuickList(p),text:'🏷 上架這一株'})):null):h('div',{class:'by-btns'}, chatBtn(p.shop,{pid:id},'soft lg','聊聊'), h('button',{class:'btn soft lg',type:'button',onclick:()=>$('#pQaSec')?.scrollIntoView({behavior:'smooth'}),text:'公開提問'})),
+      can?offerPart(p,mo):null)); }
   } else if (isAuc(p)){
     const bs=bidsFor(id), t=bs[0], L=live(p); resolveNames(bs.map(b=>b.uid));
     deal.replaceChildren(h('div',{class:'deal auc'},
@@ -6968,41 +7071,42 @@ function refreshDetail(first){
       const bv=$('#bidV'); if(bv) bv.replaceChildren(...(hasElig(p)?[eligBox(p,'出價')].filter(Boolean):[]));
       const mb=minBid(p); $('#bidHint').textContent='最低可出價 '+money(mb); const inp=$('#bidAmt'); if(!inp.value||Number(inp.value)<mb) inp.value=mb;
     } else bf.replaceChildren();
-  } else {
-    $('#dBid').replaceChildren(); const c=shopContact(p.shop), inCart=cartIds().includes(id), po=pendingOrderFor(id);
-    let act;
-    if (own) act=h('span',{class:'hint',text:'這是你的商品'});
-    else if (p.status!=='available') act=h('span',{class:'tag grey',style:'font-size:14px;padding:8px 14px',text:STATUS[p.status]||''});
-    else if (po&&!isLot(p)) act=h('span',{class:'tag lime',style:'font-size:14px;padding:8px 14px',text:'已下單 · 等待賣家確認'});
-    else if (p.price&&isLot(p)){ const mx=lotLeft(p); let q=Math.min(cartQty(id),mx); const sub=h('span',{class:'hint',text:'小計 '+money(p.price*q)});
-      act=h('div',{class:'lot-buy'}, h('div',{class:'row',style:'gap:12px;align-items:center;flex-wrap:wrap'}, h('span',{class:'lbl',text:'數量'}), qtyStep(q,mx,v=>{ q=v; sub.textContent='小計 '+money(p.price*q); }), h('span',{class:'hint',text:'剩 '+mx+' 株'}), sub),
-        h('div',{class:'row',style:'margin-top:12px'}, h('button',{class:'btn soft lg',type:'button',onclick:()=>addCart(id,false,q),text:inCart?'更新購物車數量':'加入購物車'}), h('button',{class:'btn pri lg',type:'button',onclick:()=>addCart(id,true,q),text:'立即購買'})),
-        po?h('p',{class:'hint',style:'margin-top:8px',text:'你已經下過一筆訂單，等待賣家確認中；要再多買也可以再下單。'}):null); }
-    else if (p.price) act=h('div',{class:'row'}, inCart?h('button',{class:'btn soft lg',type:'button',onclick:openCart,text:'已在購物車 →'}):h('button',{class:'btn soft lg',type:'button',onclick:()=>addCart(id),text:'加入購物車'}), h('button',{class:'btn pri lg',type:'button',onclick:()=>addCart(id,true),text:'立即購買'}));
-    else act=h('div',{class:'row'}, chatBtn(p.shop,{pid:id},'pri lg','聊聊問價格'), c?h('button',{class:'btn soft lg',type:'button',onclick:()=>copyText(s?.line||s?.contact),text:'LINE'}):null);
-    deal.replaceChildren(h('div',{class:'deal'}, h('div',{class:'lbl',text:p.price?(isLot(p)?'整盤販售 · 每株':'直購價'):'價格'}), h('div',{class:'bp',text:p.price?money(p.price):'洽詢'}), isLot(p)?h('p',{class:'hint',style:'margin-top:6px',text:'同一盤同價，賣家依數量挑選出貨'+((+p.soldN||0)>0?'（已賣出 '+p.soldN+' 株）':'')+'。這一盤的親本與成長紀錄都在這份履歷裡。'}):null, h('div',{style:'margin-top:14px'}, act),
-      p.status==='available'&&p.price&&!own?h('p',{class:'hint',style:'margin-top:10px',text:'下單不需要先付款。賣家確認後，訂單頁會顯示匯款帳號，匯款後填寫後五碼即可。'}):null));
+  } else if (!typing(deal)) {
+    // 直購／洽詢：一張卡片把價格、購買、議價、保障說明放在一起
+    $('#dBid').replaceChildren(); const c=shopContact(p.shop), inCart=cartIds().includes(id), po=pendingOrderFor(id), avail=p.status==='available';
+    const canOffer=!own&&!isLot(p)&&p.status!=='sold'&&!p.blocked&&avail;
+    const mo=S.me?myOffers().find(o=>o.pid===id&&(o.status==='open'||o.status==='rejected')):null;
+    const lot=isLot(p)&&!!p.price&&avail; let q=lot?Math.min(cartQty(id),lotLeft(p)):1;
+    const subEl=h('b',{class:'by-subv',text:money((p.price||0)*q)});
+    const body=[];
+    if (own) body.push(h('div',{class:'by-own'}, h('span',{text:'這是你的商品'}), hasShop()&&holds(p)?h('a',{class:'btn soft sm',href:'#admin/plants/'+encodeURIComponent(id),text:'✏️ 管理這株'}):null));
+    else if (!avail) body.push(h('div',{class:'by-st'}, STATUS[p.status]||'目前無法購買'));
+    else {
+      if (lot) body.push(h('div',{class:'by-qty'}, h('span',{class:'lbl',text:'數量'}), qtyStep(q,lotLeft(p),v=>{ q=v; subEl.textContent=money(p.price*q); }), h('span',{class:'by-left',text:'剩 '+lotLeft(p)+' 株'}), h('span',{class:'by-sub'}, h('small',{text:'小計'}), subEl)));
+      if (po&&!lot) body.push(h('div',{class:'by-st ok'}, '已下單 · 等待賣家確認', h('button',{type:'button',class:'bf-lk',onclick:()=>openMe('orders'),text:'看訂單 →'})));
+      else if (p.price) body.push(h('div',{class:'by-btns'}, inCart&&!lot?h('button',{class:'btn soft lg',type:'button',onclick:openCart,text:'已在購物車 →'}):h('button',{class:'btn soft lg',type:'button',onclick:()=>addCart(id,false,lot?q:undefined),text:lot&&inCart?'更新數量':'加入購物車'}), h('button',{class:'btn pri lg',type:'button',onclick:()=>addCart(id,true,lot?q:undefined),text:'立即購買'})));
+      else body.push(h('div',{class:'by-btns one'}, chatBtn(p.shop,{pid:id},'pri lg','聊聊問價格'), c?h('button',{class:'btn soft lg',type:'button',onclick:()=>copyText(s?.line||s?.contact),text:'複製 LINE'}):null));
+    }
+    const offerEl=canOffer?offerPart(p,mo):null;
+    const trust=!own&&avail&&(p.price||canOffer)?h('ul',{class:'by-trust'}, h('li',{text:'下單不用先付款'}), h('li',{text:'賣家確認後才匯款'}), h('li',{text:'附完整溯源履歷'})):null;
+    deal.replaceChildren(h('div',{class:'deal buy'},
+      h('div',{class:'by-top'}, h('span',{class:'lbl',text:p.price?(isLot(p)?'整盤販售 · 每株':'直購價'):'價格'}), isLot(p)&&avail?h('span',{class:'tag lot',text:'剩 '+lotLeft(p)+' 株'}):null),
+      h('div',{class:'bp'+(p.price?'':' ask'),text:p.price?money(p.price):'洽詢'}),
+      isLot(p)?h('p',{class:'hint by-note',text:'同一盤同價，賣家依數量挑選出貨'+((+p.soldN||0)>0?'，已賣出 '+p.soldN+' 株':'')+'。'}):null,
+      ...body, offerEl, trust));
   }
-  const canOffer=!own&&!isLot(p)&&p.status!=='sold'&&p.mode!=='auction'&&!p.blocked&&(listed(p)?p.status==='available':true);
-  const mo=S.me?myOffers().find(o=>o.pid===id&&(o.status==='open'||o.status==='rejected')):null;
-  if (canOffer){ const ob=h('div',{class:'deal offerbox'});
-    if (mo&&mo.status==='open') ob.append(h('div',{class:'lbl',text:'你的議價'}), h('div',{class:'row',style:'justify-content:space-between'}, h('b',{style:'font-size:22px',text:money(mo.amt)}), h('span',{class:'tag grey',text:'等待賣家回覆'})), mo.msg?h('p',{class:'hint',text:mo.msg}):null, h('button',{class:'bf-lk',type:'button',onclick:()=>S.db.doc('offers/'+mo.id).update({status:'withdrawn',decidedAt:Date.now()}).then(()=>toast('已撤回')),text:'撤回議價'}));
-    else { const amt=h('input',{type:'number',min:1,inputmode:'numeric',placeholder:p.price?'例如 '+Math.round(p.price*0.9):'你的出價 NT$'}), msg=h('input',{maxlength:200,placeholder:'留言給賣家（選填）'});
-      ob.append(h('div',{class:'lbl',text:listed(p)?'想談價格？':'這株沒有標價，可以直接出價'}), mo&&mo.status==='rejected'?h('p',{class:'hint',text:'上次出價 '+money(mo.amt)+' 被婉拒'+(mo.reply?'：'+mo.reply:'')}):null,
-        h('form',{class:'bidform',onsubmit:async e=>{ e.preventDefault(); if(needLogin()||needPhone()) return; const v=Number(amt.value); if(!v||v<1){ toast('請輸入出價金額'); return; }
-          try{ if(!rateOK('offer')) return; const ref=S.db.collection('offers').doc(); await ref.set({buyer:S.me,seller:p.shop,pid:id,code:p.code,amt:v,msg:msg.value.trim(),status:'open',at:Date.now()}); toast('已送出議價，賣家同意後會自動成立訂單'); }catch(ex){ toast('送出失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }}, amt, h('button',{class:'btn ink lg',type:'submit',text:'議價／出價'})), msg,
-        h('p',{class:'hint',style:'margin-top:6px',text:'賣家同意後會自動轉成訂單，再依訂單流程匯款。'})); }
-    $('#dBid').append(ob); }
   const rt=rating(p.shop), n=pub().filter(x=>x.shop===p.shop&&x.status!=='sold').length;
-  $('#dSeller').replaceChildren(h('div',{class:'sellercard'}, avatar(p.shop,48), h('div',{style:'min-width:0'}, h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('b',{text:shopName(p.shop)}), vBadge(p.shop), founderBadge(p.shop,true)), h('div',{class:'hint',text:(rt.n?'★ '+rt.avg.toFixed(1)+' · '+rt.n+' 則評價':'新賣家')+' · '+n+' 株在售'}), badgeRow(p.shop,5,true)),
-    h('div',{class:'row',style:'margin-left:auto;flex-wrap:wrap;justify-content:flex-end'}, !own?followBtn(p.shop):null, !own?chatBtn(p.shop,{pid:id}):null, h('a',{class:'btn soft sm',href:'#/seller/'+p.shop,text:'看賣場'}))),
+  $('#dSeller').replaceChildren(h('div',{class:'sellercard sc2'},
+    h('a',{class:'sc-top',href:'#/seller/'+p.shop}, avatar(p.shop,52), h('div',{class:'sc-m'}, h('div',{class:'sc-n'}, h('b',{text:shopName(p.shop)}), vBadge(p.shop), founderBadge(p.shop,true)), h('div',{class:'sc-s',text:(rt.n?'★ '+rt.avg.toFixed(1)+'（'+rt.n+' 則評價）':'新賣家')+' · '+n+' 株在售'})), h('i',{class:'sc-go',text:'›'})),
+    h('div',{class:'sc-acts'+(own?' one':'')}, !own?followBtn(p.shop):null, !own?chatBtn(p.shop,{pid:id},'soft sm'):null, h('a',{class:'btn soft sm',href:'#/seller/'+p.shop,text:'看賣場'}))),
     s?.ship?h('details',{class:'ship'}, h('summary',{text:'運送與付款'}), h('p',{text:s.ship})):null);
   const g=genusOf(p.species), spec=[['編號',h('span',{class:'mono',text:p.code})],['分類（屬）',h('span',{}, h('i',{text:g||'—'}), genusZh(g)?' '+genusZh(g):'')],['種名',normSp(p.species).slice(g.length).trim()||'—'],['品系',p.cultivar||'—'],['類型',kindLabel(p)],
     ['母本',M?h('a',{href:'#/plant/'+M.id,class:'mono',text:M.code}):momCode(p)||'—'],['父本',D?h('a',{href:'#/plant/'+D.id,class:'mono',text:D.code}):dadCode(p)||'—'],['備註',p.cross||'—'],['葉片數',p.leaves!=null?p.leaves+' 片':'—'],
     ['首次登錄',fmtDate(p.createdAt)||'—'],['最新紀錄',fmtDate(p.lastPhotoAt)||'—'],['紀錄筆數',(p.photoCount||0)+' 筆'],['販售',st[1]],['賣場',h('a',{href:'#/seller/'+p.shop,text:shopName(p.shop)})],['目前所有者',ownerOf(p)===p.shop?shopName(p.shop):(ownerOf(p)===S.me?'你':nameOf(ownerOf(p)))],['標籤',tagsOf(p).map(t=>'#'+t).join(' ')||'—']];
   $('#pSpec').replaceChildren(h('dl',{class:'spec'}, ...spec.map(([k,v])=>h('div',{}, h('dt',{text:k}), h('dd',{}, v)))));
   $('#pTree').replaceChildren(lineageView(p));
-  const po=$('#pOwn'); if(po&&!typing(po)){ const L=ownerLog(p), cur=L[L.length-1]; resolveNames([cur.to]); po.replaceChildren(h('div',{class:'hp-own'}, h('span',{text:'🤝 目前所有者'}), h('b',{text:cur.to===p.shop?shopName(cur.to):cur.to===S.me?'你':nameOf(cur.to)}), h('small',{class:'hint',text:L.length>1?'轉手過 '+(L.length-1)+' 次，經過都在履歷頁':'從登錄至今沒有轉手'})), transferForm(p,()=>refreshDetail(false))); }
+  const po=$('#pOwn'); if(po&&!typing(po)){ const L=ownerLog(p), cur=L[L.length-1]; resolveNames([cur.to]); const tf=transferForm(p,()=>refreshDetail(false)); po.replaceChildren(h('div',{class:'hp-own'}, h('span',{class:'ho-i',text:'🤝'}), h('div',{class:'ho-m'}, h('small',{text:'目前所有者'}), h('b',{text:cur.to===p.shop?shopName(cur.to):cur.to===S.me?'你':nameOf(cur.to)})), h('span',{class:'ho-n',text:L.length>1?'轉手過 '+(L.length-1)+' 次':'登錄至今沒有轉手'})),
+      tf?h('details',{class:'ho-xf'}, h('summary',{}, h('span',{text:'🔁 把這株轉給別人'}), h('small',{text:'私下交易、贈送時使用（只有你看得到）'})), tf):null); }
   const qs=questionsFor(id); resolveNames(qs.map(q=>q.asker));
   $('#dQA').replaceChildren(...(qs.length?qs.map(q=>h('div',{class:'q'}, h('div',{class:'meta'}, h('b',{style:'color:var(--fg)',text:q.asker===S.me?'你':nameOf(q.asker)}), h('span',{text:ago(q.at)})), h('p',{text:q.text}),
     q.answer?h('div',{class:'a'}, h('b',{text:shopName(p.shop)+' 回覆 · '+ago(q.answer.at)}), h('p',{style:'margin-top:2px',text:q.answer.text})):h('p',{class:'hint',style:'margin-top:6px',text:'等待回覆'}))):[h('p',{class:'hint',text:'還沒有提問。問與答是公開的。'})]));
@@ -7315,12 +7419,12 @@ function renderAdmNav(){
   else if (hasShop()) G.push(
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['care','日常管理',careDueN()],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
-    {k:'sell',t:'銷售',ic:'🏷',items:[['plants','商品管理',mine().filter(listed).length],['list','上架販售'],['lot','整盤上架'],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['auc','競標',liveN],['raffle','抽獎',rOpen]]},
+    {k:'sell',t:'銷售',ic:'🏷',items:[['plants','商品管理',mine().filter(listed).length],['list','上架販售'],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['auc','競標',liveN],['raffle','抽獎',rOpen]]},
     {k:'order',t:'訂單與客服',ic:'📦',items:[['orders','訂單',pendO+payN],['offers','議價',offN],['qa','顧客提問',pendingQ]]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
   if (S.admin&&!PM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','商店主頁設計'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
-  const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return S.admTab===base&&(!sub||(S.shopTab||'basic')===sub); };
+  const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return (S.admTab==='lot'||(S.admTab==='new'&&S.newPreset?.list)?'list':S.admTab)===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });
   const btn=it=>{ const [k,l,n]=it, [base,sub]=k.split(':'); return h('button',{type:'button',class:'navi',title:NAV_DESC[k]||'','aria-current':String(curK(it)),onclick:()=>{ S.admTab=base; if(sub) S.shopTab=sub; S.admEdit=null; S.admQ=''; S.batchDone=null; S.newPreset=null; S.userSel=null; S.navMob=false; if(S.rg){ S.rg.path=[]; S.rg.open={}; } S.rgPick=false; S.rgSel?.clear(); S.rgLastKey=null; S.rgScroll={}; if(base==='batch'&&S.batchForm&&!(S.batchForm.cards||[]).length) S.batchForm=null; renderAdmin(true); $('#admMain')?.scrollTo?.(0,0); adm.scrollTo?.(0,0); }}, h('span',{class:'navl'}, h('span',{text:l}), NAV_DESC[k]?h('small',{class:'navd',text:NAV_DESC[k]}):null), n?h('span',{class:'n',text:String(n)}):null); };
@@ -7345,8 +7449,18 @@ const ADM_GUIDE={'總覽':'start','植物管理':'manage','登錄一株':'new','
 function admTop(title, ...right){ const g=ADM_GUIDE[title]; return h('div',{class:'top'}, h('h2',{text:title}), h('div',{class:'row'}, g?h('button',{class:'btn soft help-btn',type:'button',onclick:()=>openGuide(g),title:'這一頁怎麼用'}, h('b',{text:'？'}), '教學'):null, ...right)); }
 function admHome(m){
   const ps=mine(), bidsN=ps.filter(isAuc).reduce((n,p)=>n+bidsFor(p.id).length,0), pend=allQuestions(S.me).filter(q=>!q.answer), os=sellerOrders(S.me), rt=rating(S.me);
-  if (hasShop()) setTimeout(()=>{ const L=badgesOf(S.me), n=L.filter(b=>b.ok).length, next=L.filter(b=>!b.ok&&b.prog).sort((a,b)=>b.prog[0]/b.prog[1]-a.prog[0]/a.prog[1]).slice(0,3); m.insertBefore(h('div',{class:'panel adm-bdg'}, h('div',{class:'row',style:'justify-content:space-between;flex-wrap:wrap;gap:8px'}, h('h3',{text:'🏅 我的徽章 '+n+' / '+L.length}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openBadges(S.me),text:'看全部'})), h('div',{class:'bdg-row',style:'margin:6px 0 10px'}, ...L.filter(b=>b.ok).map(b=>badgeChip(b))), next.length?h('div',{class:'adm-next'}, h('small',{class:'hint',text:'快要拿到：'}), ...next.map(b=>h('div',{class:'adm-nx'}, h('span',{text:b.ic+' '+b.n}), h('i',{}, h('em',{style:'width:'+(b.prog[0]/b.prog[1]*100)+'%'})), h('small',{text:b.prog[0]+' / '+b.prog[1]})))):null), m.children[1]||null); },0);
-  m.append(admTop('總覽', h('button',{class:'btn pri',type:'button','data-tour':'add',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'＋ 登錄植物'})), startChecklist()||'',
+  if (hasShop()) setTimeout(()=>{ if(m.querySelector('.adm-bdg')||!m.isConnected||S.admTab!=='home') return; const L=badgesOf(S.me), n=L.filter(b=>b.ok).length, next=L.filter(b=>!b.ok&&b.prog).sort((a,b)=>b.prog[0]/b.prog[1]-a.prog[0]/a.prog[1]).slice(0,3); m.append(h('div',{class:'panel adm-bdg'}, h('div',{class:'row',style:'justify-content:space-between;flex-wrap:wrap;gap:8px'}, h('h3',{text:'🏅 我的徽章 '+n+' / '+L.length}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openBadges(S.me),text:'看全部'})), h('div',{class:'bdg-row',style:'margin:6px 0 10px'}, ...L.filter(b=>b.ok).map(b=>badgeChip(b))), next.length?h('div',{class:'adm-next'}, h('small',{class:'hint',text:'快要拿到：'}), ...next.map(b=>h('div',{class:'adm-nx'}, h('span',{text:b.ic+' '+b.n}), h('i',{}, h('em',{style:'width:'+(b.prog[0]/b.prog[1]*100)+'%'})), h('small',{text:b.prog[0]+' / '+b.prog[1]})))):null)); },0);
+  const go=(t,sub)=>()=>{ S.admTab=t; if(sub) S.admSub=sub; S.admEdit=null; renderAdmin(true); };
+  const offN=offersIn().filter(o=>o.status==='open').length, aucEnd=ps.filter(p=>isAuc(p)&&!live(p)&&p.status!=='sold'&&topBid(p.id)).length;
+  const TODO=[['📦','待確認的訂單',os.filter(o=>o.status==='pending').length,'買家下單了，按「接受」才會成立',go('orders','pending')],
+    ['💰','待確認收款',os.filter(o=>o.status==='paid').length,'買家已填匯款資訊，對帳後開始備貨',go('orders','pay')],
+    ['🚚','待出貨',os.filter(o=>o.status==='preparing').length,'填物流單號按「出貨」',go('orders','prep')],
+    ['🤝','收到議價',offN,'同意或婉拒',go('offers')],
+    ['⚡','競標結束，待成立訂單',aucEnd,'把商品賣給得標者',go('auc')],
+    ['💬','待回覆的提問',pend.length,'回覆會公開在商品頁',go('qa')]].filter(x=>x[2]>0);
+  const todo=h('div',{class:'panel hm-todo'}, h('h3',{text:TODO.length?'👉 現在要處理（'+TODO.reduce((n,x)=>n+x[2],0)+'）':'✅ 目前沒有要處理的事'}),
+    TODO.length?h('div',{class:'hm-tl'}, ...TODO.map(([ic,t,n,d,fn])=>h('button',{type:'button',class:'hm-ti',onclick:fn}, h('i',{text:ic}), h('span',{}, h('b',{text:t}), h('small',{text:d})), h('em',{text:String(n)}), h('u',{text:'›'})))):h('p',{class:'hint',text:'有新訂單、議價、提問時會出現在這裡。'}));
+  m.append(admTop('總覽', h('button',{class:'btn pri',type:'button','data-tour':'add',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'＋ 登錄植物'})), todo, startChecklist()||'',
     h('div',{class:'kpis'}, ...[['在售',ps.filter(p=>p.status==='available'&&!p.hidden).length],['待確認訂單',os.filter(o=>o.status==='pending').length],['競標中',ps.filter(live).length],['收到出價',bidsN],['待回覆提問',pend.length],['評分',rt.n?rt.avg.toFixed(1)+'★':'—'],['追蹤者',followers(S.me)],['營業額',money(os.filter(o=>OK_ST.includes(o.status)).reduce((n,o)=>n+(o.total||0),0))]].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{text:String(v)})))));
   const recent=[]; for(const p of ps.filter(isAuc)) for(const b of bidsFor(p.id)) recent.push({t:b.at,txt:nameOf(b.uid)+' 出價 '+money(b.amt),go:()=>{ S.admTab='plants'; S.admEdit=p.id; },img:p.thumb});
   pend.forEach(q=>{ const p=S.plants.get(q.pid); recent.push({t:q.at,txt:nameOf(q.asker)+' 提問：'+q.text,go:()=>{ S.admTab='qa'; },img:p?.thumb}); });
@@ -7710,39 +7824,55 @@ function admNew(m, preset){
   const cvIn=h('input',{'data-k':'cultivar',maxlength:60,placeholder:'例如 Red Queen 2.0'}), crIn=h('input',{'data-k':'cross',maxlength:80,placeholder:'例如：Red Queen 2.0 × 銀色襯裙、斑葉、已發根'});
   const momP=parentPicker({value:preset.momId,onChange:()=>sync()}), dadP=parentPicker({value:preset.dadId,onChange:()=>sync()});
   const momX=extParent('母本'), dadX=extParent('父本'); momX.onToggle=()=>sync(); dadX.onToggle=()=>sync();
-  const momLbl=h('span'), momF=h('div',{class:'field'}, momLbl, momP.el), dadF=h('div',{class:'field'}, h('span',{text:'父本 ♂（選填；不在 VEIN 上的親本可以直接打編號或名稱）'}), dadP.el);
+  const momLbl=h('span'), momF=h('div',{class:'field'}, momLbl, momP.el), dadF=h('div',{class:'field'}, h('span',{}, '父本 ♂（不在 VEIN 上可以直接打編號或名稱）', reqTag(false)), dadP.el);
   const tgN=tagInput(preset.kind==='seedling'?['實生苗']:[]);
   const seg=h('div',{class:'segs'}, ...[['mother','母株'],['pup','側芽'],['seedling','實生苗']].map(([k,l])=>h('button',{type:'button','data-t':k,'aria-pressed':String(kind===k),text:l})));
   const kHelp=h('div',{}, kindHelpEl(kind)); seg.addEventListener('click',()=>setTimeout(()=>kHelp.replaceChildren(kindHelpEl(kind)),0));
   const kWarn=h('div',{class:'kwarn',hidden:true}, h('span',{text:'⚠️ 你填了父母本，但類型是「母株」。播種出來的請選「實生苗」，從母株分出來的請選「側芽」。如果這株真的是母株（只是記錄牠的親本），可以不用改。'}), h('button',{type:'button',class:'btn volt sm',onclick:()=>seg.querySelector('[data-t=seedling]').click(),text:'改成實生苗'}));
   const stageSel=h('select',{'data-k':'stage'});
   const show=h('input',{type:'checkbox',class:'sw',checked:true}), privSw=h('input',{type:'checkbox',class:'sw'});
-  const listSw=h('input',{type:'checkbox',class:'sw',checked:!!preset.lot}), saleBox=h('div',{hidden:!preset.lot,style:'margin-top:10px'}, sale.el);
+  const listSw=h('input',{type:'checkbox',class:'sw',checked:!!(preset.lot||preset.list)}), saleBox=h('div',{hidden:!(preset.lot||preset.list),style:'margin-top:10px'}, sale.el);
   if (preset.lot) setTimeout(()=>{ const st=sale.el.querySelector('[data-k=stock]'); if(st){ st.closest('.field')?.classList.add('lot-on'); } },0);
   listSw.addEventListener('change',()=>{ saleBox.hidden=!listSw.checked; sync(); });
   const btn=h('button',{class:'btn pri lg',type:'submit','data-tour':'submit'});
-  const f=h('form',{class:'form',style:'max-width:780px'},
-    h('div',{class:'panel'}, h('div',{class:'row',style:'gap:10px;flex-wrap:wrap','data-tour':'kind'}, h('span',{class:'hint',text:'這株是'}), seg), kHelp,
-      kWarn, h('div',{class:'codebox',style:'margin-top:12px'}, codeLbl, codeEl, codeSub),
-      h('div',{class:'two',style:'margin-top:6px'}, momF, dadF), h('div',{class:'xps'}, momX.el, dadX.el)),
-    h('div',{class:'panel','data-tour':'species'}, h('h3',{text:'植物資料'}),
-      h('div',{class:'two'}, fieldBox('分類（屬）', spC.el), field('種名／品種名', epIn)),
-      field('備註（選填，會顯示在縮圖上）', crIn),
-      h('div',{class:'two'}, field('葉片數', h('input',{type:'number',min:0,max:99,'data-k':'leaves'})), field('這張照片是什麼階段（會寫進履歷）', stageSel)),
-      fieldBox('標籤（可多選，也能自訂）', tgN.el),
-      field('說明（選填，前台顯示）', h('textarea',{'data-k':'notes',maxlength:600,placeholder:'例如：三條白根，約 4 公分'}))),
-    h('div',{class:'panel','data-tour':'photos'}, h('h3',{text:'照片與影片'}), picker.el),
-    h('div',{class:'panel'}, h('h3',{text:'公開與販售'}),
-      h('label',{class:'row',style:'font-size:14px'}, show, SHOPM()?'在商店與溫室牆展示（關掉也一樣能在血統圖、查驗看到）':'公開植物檔案（別人查驗編號、看履歷時看得到）'),
-      h('label',{class:'row',style:'font-size:14px;margin-top:10px'}, privSw, '🔒 鎖住這株（私人：只有我看得到，預覽圖也不給別人看）'),
-      SHOPM()?h('label',{class:'row',style:'font-size:14px;margin-top:10px','data-tour':'listsw'}, listSw, '登錄後直接上架販售（不勾也可以之後再從「上架販售」挑）'):null, SHOPM()?saleBox:null),
+  // 依序填：1 類型 → 2 照片 → 3 名稱 → 4 親本 → 5 上架；每一欄標「必填／選填」，底部固定一條「還差什麼」
+  const fl=(label,req,input,box)=>h(box?'div':'label',{class:'field'}, h('span',{}, label, req==null?null:reqTag(req)), input);
+  const momTag=h('span'); momF.firstChild.after(momTag);
+  const step=(n,title,sub,...body)=>h('div',{class:'panel nf-step'}, h('div',{class:'nf-h'}, h('i',{text:String(n)}), h('div',{}, h('h3',{text:title}), sub?h('small',{text:sub}):null)), ...body);
+  const chk=h('div',{class:'nf-chk'});
+  const f=h('form',{class:'form nf',style:'max-width:780px'},
+    step(1,'這株是什麼？','選對類型，編號和親本會自動幫你接好', h('div',{'data-tour':'kind'}, seg), kHelp, kWarn),
+    h('div',{'data-tour':'photos'}, step(2,'照片或影片','至少一張，第一張會當封面', h('div',{}, reqTag(true)), picker.el)),
+    h('div',{'data-tour':'species'}, step(3,'名稱','分類選好，編號的 XX 會自動換成屬代碼',
+      h('div',{class:'two'}, fl('分類（屬）',true,spC.el,true), fl('種名／品種名',false,epIn)),
+      h('div',{class:'codebox',style:'margin-top:4px'}, codeLbl, codeEl, codeSub))),
+    step(4,'親本','側芽要選母株、實生苗要填母本；母株可以不填',
+      h('div',{class:'two'}, momF, dadF), h('div',{class:'xps'}, momX.el, dadX.el)),
+    SHOPM()?step(5,'要上架嗎？','不上架也可以，之後在「上架販售」挑',
+      h('label',{class:'row nf-sw','data-tour':'listsw'}, listSw, h('span',{}, h('b',{text:'登錄後直接上架販售'}), reqTag(false))), saleBox):null,
+    h('details',{class:'panel nf-more'}, h('summary',{}, h('b',{text:'更多資料'}), reqTag(false), h('small',{text:'備註、葉片數、階段、標籤、說明、公開設定'})),
+      h('div',{class:'form',style:'margin-top:12px'},
+        fl('備註（會顯示在縮圖上）',false,crIn),
+        h('div',{class:'two'}, fl('葉片數',false,h('input',{type:'number',min:0,max:99,'data-k':'leaves'})), fl('這張照片是什麼階段（寫進履歷）',false,stageSel)),
+        fl('標籤',false,tgN.el,true),
+        fl('說明（前台顯示）',false,h('textarea',{'data-k':'notes',maxlength:600,placeholder:'例如：三條白根，約 4 公分'})),
+        h('label',{class:'row',style:'font-size:14px'}, show, SHOPM()?'在商店與溫室牆展示（關掉也一樣能在血統圖、查驗看到）':'公開植物檔案（別人查驗編號、看履歷時看得到）'),
+        h('label',{class:'row',style:'font-size:14px'}, privSw, '🔒 鎖住這株（私人：只有我看得到）'))),
     h('p',{class:'hint',text:'編號、拍攝時間與紀錄照片登錄後不能修改或刪除；其他資料之後都可以編輯。'}),
-    h('div',{class:'err'}), h('div',{}, btn));
+    h('div',{class:'err'}), h('div',{class:'nf-bar'}, chk, btn));
+  // 底部「還差什麼」
+  const need=()=>{ const mo=momP.get(), L=[['照片',picker.get().length>0],['分類（屬）',!!spC.get().trim()||(kind==='pup'&&!!mo?.p)]];
+    if (kind==='pup') L.push(['母株',!!mo?.p||momX.on()]); if (kind==='seedling') L.push(['母本',!!mo||momX.on()]);
+    if (listSw.checked){ const md=sale.el.querySelector('[data-k=mode]')?.value; if(md==='auction') L.push(['起標價',!!sale.el.querySelector('[data-k=startPrice]')?.value]); }
+    return L; };
+  const drawChk=()=>{ const L=need(), miss=L.filter(x=>!x[1]); chk.replaceChildren(miss.length?h('span',{class:'nf-miss'}, '還差：', ...miss.map(x=>h('b',{text:x[0]}))):h('span',{class:'nf-ok',text:'✓ 必填都完成了'})); btn.classList.toggle('dim',!!miss.length); };
+  setTimeout(()=>{ try{ new MutationObserver(drawChk).observe(picker.el,{childList:true,subtree:true}); }catch(e){} },0);
+  f.addEventListener('input',()=>setTimeout(drawChk,0)); f.addEventListener('change',()=>setTimeout(drawChk,0)); f.addEventListener('click',()=>setTimeout(drawChk,30));
   const q=k=>f.querySelector(`[data-k="${k}"]`);
   function sync(){
     const mo=momP.get(), da=dadP.get();
     momF.hidden=false; dadF.hidden=kind==='pup'; dadX.el.hidden=kind==='pup'; kWarn.hidden=!(kind==='mother'&&(mo||da||momX.on()||dadX.on()));
-    momLbl.textContent=kind==='pup'?'從哪一株母株分出（輸入編號或品種搜尋；母株不在 VEIN 上就打開下面的選項）':kind==='mother'?'這株的母本 ♀（選填）':'母本 ♀（輸入編號或品種搜尋；不在 VEIN 上的可直接打編號）';
+    momLbl.textContent=kind==='pup'?'從哪一株母株分出（打編號或品種搜尋）':kind==='mother'?'這株的母本 ♀':'母本 ♀（打編號或品種搜尋；不在 VEIN 上的可直接打）'; momTag.replaceChildren(reqTag(kind!=='mother'));
     let code;
     if (kind==='pup'&&!mo?.p&&momX.on()){ code=fmtCode(genusCode(spC.get()||'XX'),serial); codeLbl.textContent='側芽編號 · 母株不在 VEIN，用流水號'; codeSub.textContent='屬代碼 '+genusCode(spC.get()||'XX')+' · 賣家代碼 '+shopCode()+' · 流水號 '+String(serial).padStart(5,'0'); }
     else if (kind==='pup'){ code=mo?.p?nextPup(mo.p):'— 先選母株 —'; codeLbl.textContent='側芽編號 · 接在母株後面'; codeSub.textContent=mo?.p?'母株 '+mo.p.code+' · '+short(mo.p.species):'側芽的母株要是已經登錄的植株';
@@ -7752,13 +7882,15 @@ function admNew(m, preset){
       code=fmtCode(genusCode(spC.get()||'XX'),serial); codeLbl.textContent=(kind==='seedling'?'實生苗':'母株')+'編號 · 流水號自動往下編'; codeSub.textContent='屬代碼 '+genusCode(spC.get()||'XX')+' · 賣家代碼 '+shopCode()+' · 流水號 '+String(serial).padStart(5,'0'); }
     spC.lock(kind==='pup'&&!!mo?.p); epIn.readOnly=kind==='pup'&&!!mo?.p;
     const cur=stageSel.value; stageSel.replaceChildren(...stagesFor(kind).map(x=>h('option',{value:x,text:x,selected:x===cur})));
-    if (!spC.get()&&!(kind==='pup'&&mo?.p)) codeSub.textContent='👉 先在下面「植物資料」選分類（屬），XX 會自動換成屬代碼（例如花燭是 AN）。編號登錄後不能改。';
+    if (!spC.get()&&!(kind==='pup'&&mo?.p)) codeSub.textContent='👉 選好上面的分類（屬），XX 會自動換成屬代碼（例如花燭是 AN）。編號登錄後不能改。';
     codeEl.textContent=code; f.dataset.code=code; btn.textContent=preset.lot&&listSw.checked?'整盤上架':'登錄'+KIND[kind]+(listSw.checked?'並上架':'');
+    try{ drawChk(); }catch(e){}
   }
   crIn.addEventListener('input',()=>{ crIn.dataset.touched='1'; });
   seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ kind=b.dataset.t; seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); if(kind==='seedling'&&!tgN.get().includes('實生苗')){} sync(); }));
   sync();
   f.addEventListener('submit',async e=>{ e.preventDefault(); const err=f.querySelector('.err'); err.textContent='';
+    const miss=need().filter(x=>!x[1]); if(miss.length){ err.textContent='還沒填：'+miss.map(x=>x[0]).join('、'); chk.classList.remove('shake'); void chk.offsetWidth; chk.classList.add('shake'); return; }
     const mo=momP.get(), da=dadP.get();
     if (kind==='pup'&&!mo?.p&&!momX.get()){ err.textContent='請選擇側芽的母株；母株不在 VEIN 上的話，打開「母本不在 VEIN 上」填名稱或上傳照片。'; return; }
     if (kind==='seedling'&&!mo&&!momX.get()){ err.textContent='請填實生苗的母本。'; return; }
@@ -7776,15 +7908,19 @@ function admNew(m, preset){
       await ref.set(data); for(const x of phs) await ref.collection('photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:stageSel.value,note:'',registeredAt:reg});
       S.plants.set(ref.id,{id:ref.id,...data,shop:S.me}); if(kind!=='pup'||pupExt) await bumpSerial(serial+1); toast(code+' 已登錄'+(L?'並上架':'')); S.newPreset=null; S.admTab='reg'; S.admEdit=ref.id; renderAdmin(true);
     }catch(ex){ btn.disabled=false; btn.textContent=label; err.textContent=ex?.code==='invalid_argument'?'登錄失敗：沒有權限，或照片太大。':'登錄失敗，請稍後再試。'; } });
-  if (preset.lot) m.append(admTop('整盤上架'), h('div',{class:'panel lot-intro'}, h('b',{text:'🪴 一盤同價的實生苗，一次上架'}), h('p',{class:'hint',text:'整盤共用一個編號和一份履歷（親本、播種日、成長照片都記在這裡）。在下方「整盤販售：可賣數量」填這盤有幾株、售價填每株的價格。買家可以選要買幾株，接受訂單時自動扣數量，賣完自動顯示售完；之後要補貨，回商品改數量就好。'}), h('p',{class:'hint',text:'想讓買家挑「某一株」？那種請用「批量登錄」每株一個編號，再做成群組販售。'})), f);
-  else m.append(admTop('登錄一株', h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='batch'; renderAdmin(true); },text:'改用批量登錄'})), regChooser('new'), f);
+  if (preset.lot||preset.list) m.append(admTop('上架販售'), listWays(preset.lot?'lot':'new'), preset.list?'':h('div',{class:'panel lot-intro'}, h('b',{text:'🪴 一盤同價的實生苗，一次上架'}), h('p',{class:'hint',text:'整盤共用一個編號和一份履歷（親本、播種日、成長照片都記在這裡）。在下方「整盤販售：可賣數量」填這盤有幾株、售價填每株的價格。買家可以選要買幾株，接受訂單時自動扣數量，賣完自動顯示售完；之後要補貨，回商品改數量就好。'}), h('p',{class:'hint',text:'想讓買家挑「某一株」？那種請用「批量登錄」每株一個編號，再做成群組販售。'})), f);
+  else m.append(admTop('登錄一株', h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='batch'; renderAdmin(true); },text:'一次很多株？批量登錄 →'})), f);
 }
 /* ---- 上架販售：從植物檔案挑植株 ---- */
+// 上架的三種方式放在同一頁最上面，挑一個就好
+const reqTag=req=>h('span',{class:'rq '+(req?'must':'opt'),text:req?'必填':'選填'});
+function listWays(cur){ const W=[['list','🏷','從已登錄的植物挑','一次可以勾很多株，每株一個編號'],['lot','🪴','整盤上架','一盤同價，只填數量，不用一株一株建'],['new','🌱','新的植物：登錄並上架','還沒登錄過的，邊登錄邊上架']];
+  return h('div',{class:'lw'}, ...W.map(([k,ic,t,d])=>h('button',{type:'button',class:'lw-o'+(cur===k?' on':''),'aria-pressed':String(cur===k),onclick:()=>{ if(cur===k) return; S.admTab=k; S.newPreset=k==='new'?{list:true}:null; S.admEdit=null; renderAdmin(true); }}, h('i',{text:ic}), h('span',{}, h('b',{text:t}), h('small',{text:d})), cur===k?h('em',{text:'目前'}):null))); }
 function admList(m){
   const sel=S.listSel||(S.listSel=new Set()), F=S.lsF||(S.lsF={q:'',g:''});
   const cand=mine().filter(p=>!listed(p)&&p.status!=='sold'&&!p.blocked);
   const shown=cand.filter(p=>(!F.g||spKey(p)===F.g)&&(!F.q||[p.code,p.species,p.cultivar,...tagsOf(p)].join(' ').toLowerCase().includes(F.q.toLowerCase()))).sort((a,b)=>(a.code||'').localeCompare(b.code||'',undefined,{numeric:true}));
-  const sale=saleFields(null), show=h('input',{type:'checkbox',class:'sw',checked:true});
+  const sale=saleFields(null), show=h('input',{type:'checkbox',class:'sw',checked:true}); sale.el.querySelector('[data-k=stock]')?.closest('.field')?.remove(); sale.el.querySelector('.lot-hint')?.remove();
   const prices={};
   const q=h('input',{type:'search',placeholder:'搜尋編號、品種、標籤',value:F.q}); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); F.q=q.value.trim(); renderAdmin(true); } });
   const gSel=h('select',{class:'chip',onchange:e=>{ F.g=e.target.value; renderAdmin(true); }}, h('option',{value:'',text:'全部分類'}), ...[...new Set(cand.map(spKey))].map(g=>h('option',{value:g,text:(genusZh(g)||g)+' '+(TAX_BY.get(g)?.sci||''),selected:F.g===g})));
@@ -7798,12 +7934,12 @@ function admList(m){
     go.disabled=true; let n=0; try{ for(const p of ps){ const s2={...s}, v=prices[p.id]; if(v!==undefined&&v!==''){ if(s2.mode==='auction') s2.startPrice=Number(v); else s2.price=Number(v); }
         await S.db.doc(pPath(p)).update({listed:true,status:'available',listedAt:Date.now(),hidden:!show.checked,...s2}); Object.assign(p,{listed:true,status:'available',hidden:!show.checked,...s2}); n++; go.textContent='上架中 '+n+' / '+ps.length+'…'; }
       toast('已上架 '+n+' 株'); sel.clear(); S.admTab='plants'; renderAdmin(true); }catch(ex){ go.disabled=false; err.textContent='上架到第 '+(n+1)+' 株時失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } }});
-  m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('上架販售'),
-    h('div',{class:'panel','data-tour':'pick'}, h('h3',{text:'1. 挑選植株'}), h('p',{class:'hint',text:'從植物管理裡還沒上架的植株挑，可以一次選很多株。'}),
+  m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('上架販售'), listWays('list'),
+    h('div',{class:'panel','data-tour':'pick'}, h('h3',{}, '1. 挑選植株 ', reqTag(true)), h('p',{class:'hint',text:'從植物管理裡還沒上架的植株挑，可以一次選很多株。'}),
       h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin:10px 0'}, h('label',{class:'search',style:'max-width:320px'}, svg('i-search'), q), gSel, h('button',{class:'btn soft sm',type:'button',onclick:()=>{ shown.forEach(p=>sel.add(p.id)); renderAdmin(true); },text:'全選這些'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ sel.clear(); renderAdmin(true); },text:'清除'}), h('span',{class:'hint'}, '已選 ', selN, ' 株')),
       shown.length?h('div',{class:'ls-list'}, ...rows):h('div',{class:'empty'}, h('h3',{text:cand.length?'沒有符合的植株':(mine().length?'目前沒有還沒上架的植株':'還沒有登錄任何植株')}), h('p',{text:cand.length?'換個關鍵字或分類試試。':(mine().length?'你的植物都已經上架或售出了。要賣新的，先登錄植株；要改價格或下架，到「商品管理」。':'上架前要先把植株登錄成植物檔案（含照片與編號）。')}), h('div',{class:'row',style:'justify-content:center;gap:8px'}, h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'登錄植物'}), mine().length?h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='plants'; renderAdmin(true); },text:'到商品管理'}):null))),
-    h('div',{class:'panel','data-tour':'sale'}, h('h3',{text:'2. 販售方式'}), sale.el, h('label',{class:'row',style:'font-size:14px;margin-top:10px'}, show, '上架後立即在前台顯示')),
-    h('div',{class:'panel'}, h('h3',{text:'3. 逐株價格（選填）'}), pTbl),
+    h('div',{class:'panel','data-tour':'sale'}, h('h3',{}, '2. 價格與販售方式 ', reqTag(true)), sale.el, h('label',{class:'row',style:'font-size:14px;margin-top:10px'}, show, '上架後立即在前台顯示')),
+    h('div',{class:'panel'}, h('h3',{}, '3. 每株不同價 ', reqTag(false)), h('p',{class:'hint',style:'margin:-4px 0 8px',text:'每株價格都一樣就不用填，會用上面的價格。'}), pTbl),
     err, h('div',{class:'row'}, go)));
   drawP();
 }
@@ -9261,7 +9397,7 @@ function admLabels(m){
     list.length?h('div',{class:'tblwrap'}, h('table',{class:'tbl'}, h('thead',{}, h('tr',{}, ...['','','編號','品種','類型','狀態'].map(t=>h('th',{text:t})))), h('tbody',{}, ...rows))):h('div',{class:'empty'}, h('h3',{text:'還沒有植株'})));
 }
 
-async function setPrivate(ps,on){ let n=0; for(const p of ps){ if(!holds(p)&&!S.admin) continue; try{ await S.db.doc(pPath(p)).update({private:on}); p.private=on; const c=S.plants.get(p.id); if(c) c.private=on; n++; }catch(e){} } return n; }
+async function setPrivate(ps,on){ let n=0; for(const p of ps){ if(!holds(p)) continue; try{ await S.db.doc(pPath(p)).update({private:on}); p.private=on; const c=S.plants.get(p.id); if(c) c.private=on; n++; }catch(e){} } return n; }
 function privPanel(p){ const on=!!p.private;
   const sw=h('input',{type:'checkbox',class:'sw',checked:on,'aria-label':'鎖住這株'});
   sw.addEventListener('change',async()=>{ sw.disabled=true; const n=await setPrivate([p],sw.checked); sw.disabled=false; if(!n){ sw.checked=!sw.checked; toast('更新失敗'); return; } toast(sw.checked?'已鎖住：別人看不到這株':'已開啟：別人看得到這株'); renderAdmin(true); });

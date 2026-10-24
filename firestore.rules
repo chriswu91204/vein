@@ -4,7 +4,8 @@ rules_version = '2';
 // - 每個人只能寫自己的資料：social/{自己}、shops/{自己}/…、data/users/{自己}/…、profiles/{自己}
 // - 被封禁的帳號（site/bans）不能再寫入任何公開資料
 // - 網站設定開啟「要求手機驗證」時，出價、下單、報名抽獎、開店與上架前必須先完成手機驗證
-// - 管理員：擁有者 Google 帳號（isOwner）＋ site/admins 名單；可以審核、下架、刪除任何人的內容、封禁帳號
+// - 管理員：擁有者 Google 帳號（isOwner）＋ site/admins 名單；只能做「管理」的事：審核、下架／恢復、刪除違規內容、清除過期影片、封禁帳號
+//   管理員不能替別人出價、下單、改價格、改訂單、轉移所有權，也讀不到別人的私訊、匯款資料
 service cloud.firestore {
   match /databases/{database}/documents {
     // 只接受 Google 帳號登入（Google 帳號一定有 email）；手機號碼只用來「驗證」，不能拿來登入或開新帳號
@@ -41,6 +42,9 @@ service cloud.firestore {
     function staffDoc(uid) { return /databases/$(database)/documents/shops/$(uid)/staff/$(request.auth.uid); }
     function staff(uid, perm) { return signedIn() && notBanned() && exists(staffDoc(uid)) && get(staffDoc(uid)).data.get('perms', {}).get(perm, false) == true; }
     function shopper(uid, perm) { return seller(uid) || staff(uid, perm); }
+    function onlyKeys(ks) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(ks); }
+    // 管理員下架／恢復時只能動這幾個欄位
+    function modOnly(extra) { return isAdmin() && resource != null && onlyKeys(['blocked', 'blockedReason', 'blockedAt', 'updatedAt'].concat(extra)); }
     // 轉移過所有權的植株：血統資料（品種、父母本、外部親本、編號、登錄時間）鎖定，成長紀錄只能新增不能改刪
     function ownDoc(pid) { return /databases/$(database)/documents/owners/$(pid); }
     function locked(pid) { return exists(ownDoc(pid)) && get(ownDoc(pid)).data.get('log', []).size() > 0; }
@@ -83,14 +87,16 @@ service cloud.firestore {
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['bids', 'orders', 'raffles']);
       }
       allow read: if true;
-      allow create, update: if (isMe(uid) && notBanned() && (phoneOK() || noTrade() || tradeUnchanged())) || isAdmin();
+      allow create, update: if (isMe(uid) && notBanned() && (phoneOK() || noTrade() || tradeUnchanged()))
+        || (isAdmin() && resource != null && onlyKeys(['qa', 'reviews']));
       allow delete: if isMe(uid) || isAdmin();
     }
 
     // 賣場
     match /shops/{uid} {
       allow read: if true;
-      allow write: if seller(uid) || isAdmin();
+      allow create, update: if seller(uid) || modOnly(['store', 'avatar', 'banner']);
+      allow delete: if seller(uid) || isAdmin();
       // 小編：有「賣場設定與裝修」權限可以改賣場資料；有「植物與商品」權限只能動群組與統計欄位
       allow update: if (staff(uid, 'design') && blockedUnchanged())
         || (staff(uid, 'plants') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['groups', 'serialNext', 'nPlants', 'stats', 'updatedAt']));
@@ -103,7 +109,7 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['perms', 'inv', 'name', 'at'])
           && exists(/databases/$(database)/documents/shops/$(uid)/invites/$(request.resource.data.inv))
           && inv().usedBy == null && inv().expiresAt > request.time.toMillis() && request.resource.data.perms == inv().perms);
-      allow update: if seller(uid) || isAdmin();
+      allow update: if seller(uid);
       allow delete: if seller(uid) || (signedIn() && request.auth.uid == sid) || isAdmin();
     }
     match /shops/{uid}/invites/{tok} {
@@ -118,39 +124,43 @@ service cloud.firestore {
     }
     match /shops/{uid}/plants/{pid} {
       allow read: if true;
-      allow create: if (shopper(uid, 'plants') && blockedUnchanged()) || isAdmin();
+      allow create: if shopper(uid, 'plants') && blockedUnchanged();
       // 植物轉給別人之後，原賣家就不能再改；改由現在的主人照顧（只能動紀錄相關欄位）
       allow update: if (shopper(uid, 'plants') && holder(uid, pid) && blockedUnchanged() && (!locked(pid) || lineageSame()))
         || (holder(uid, pid) && request.auth.uid != uid && !staff(uid, 'plants') && blockedUnchanged() && ownerFieldsOnly())
         // 只有「訂單」權限的小編：接受／取消訂單時只能改售出狀態與整盤庫存
         || (staff(uid, 'orders') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'buyer', 'soldPrice', 'stock', 'soldN', 'updatedAt']))
-        || isAdmin();
+        || modOnly(['media', 'vid']);
       allow delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/plants/{pid}/photos/{photoId} {
       allow read: if true;
-      allow create: if holder(uid, pid) || isAdmin();
-      allow update, delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
+      allow create: if holder(uid, pid);
+      allow update: if shopper(uid, 'plants') && !locked(pid);
+      allow delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/raffles/{rid} {
       allow read: if true;
-      allow write: if (shopper(uid, 'raffles') && blockedUnchanged()) || isAdmin();
+      allow write: if shopper(uid, 'raffles') && blockedUnchanged();
+      allow update: if modOnly(['img']);
+      allow delete: if isAdmin();
     }
     match /shops/{uid}/orders/{oid} {
       allow read: if true;
-      allow write: if shopper(uid, 'orders') || isAdmin();
+      allow write: if shopper(uid, 'orders');
     }
     match /shops/{uid}/answers/{aid} {
       allow read: if true;
-      allow write: if shopper(uid, 'orders') || isAdmin();
+      allow write: if shopper(uid, 'orders');
+      allow delete: if isAdmin();
     }
 
-    // 議價：只有買賣雙方（與管理員）看得到；買家建立，賣家同意／婉拒，買家可撤回
+    // 議價：只有買賣雙方看得到；買家建立，賣家同意／婉拒，買家可撤回
     match /offers/{id} {
       function party() { return signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid); }
       function same() { return request.resource.data.buyer == resource.data.buyer && request.resource.data.seller == resource.data.seller
         && request.resource.data.amt == resource.data.amt && request.resource.data.pid == resource.data.pid; }
-      allow read: if party() || staff(resource.data.seller, 'orders') || isAdmin();
+      allow read: if party() || staff(resource.data.seller, 'orders');
       allow create: if signedIn() && notBanned() && request.resource.data.buyer == request.auth.uid
         && request.resource.data.seller != request.auth.uid && request.resource.data.status == 'open'
         && request.resource.data.get('msg', '').size() <= 500 && request.resource.data.size() <= 12;
@@ -162,13 +172,13 @@ service cloud.firestore {
     // 即時聊天：對話編號是兩個人的帳號用 ~ 連起來，只有這兩個人讀寫得到
     match /chats/{cid} {
       function mem() { return signedIn() && request.auth.uid in cid.split('~'); }
-      allow get: if mem() || isAdmin();
+      allow get: if mem();
       allow list: if signedIn() && request.auth.uid in resource.data.members;
       allow create: if mem() && notBanned() && cid.split('~').size() == 2
         && request.resource.data.members.hasAll(cid.split('~')) && request.resource.data.members.size() == 2;
       allow update: if mem() && request.resource.data.members == resource.data.members;
       match /messages/{mid} {
-        allow read: if mem() || isAdmin();
+        allow read: if mem();
         allow create: if mem() && notBanned() && request.resource.data.from == request.auth.uid
           && request.resource.data.size() <= 20
           && (!('text' in request.resource.data) || (request.resource.data.text is string && request.resource.data.text.size() <= 2000));
@@ -178,7 +188,7 @@ service cloud.firestore {
     }
     // 交易私密資料（匯款帳號、匯款後五碼、物流、收貨）：只有該筆訂單的買賣雙方看得到
     match /deals/{id} {
-      allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid || staff(resource.data.seller, 'orders')) || isAdmin();
+      allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid || staff(resource.data.seller, 'orders'));
       allow create: if signedIn() && ((request.resource.data.seller == request.auth.uid && id.matches(request.auth.uid + '_.*'))
         || (staff(request.resource.data.seller, 'orders') && id.matches(request.resource.data.seller + '_.*')));
       allow update: if signedIn() && (request.auth.uid == resource.data.seller || request.auth.uid == resource.data.buyer || staff(resource.data.seller, 'orders'))
@@ -224,15 +234,14 @@ service cloud.firestore {
       allow read: if true;
       allow create: if signedIn() && notBanned()
         && exists(/databases/$(database)/documents/shops/$(request.resource.data.shop)/plants/$(pid))
-        && (request.auth.uid == request.resource.data.shop || staff(request.resource.data.shop, 'plants')
+        // 所有權只能由現在的主人本人轉出，或買家憑訂單／轉移連結領取；管理員、小編都不能直接改
+        && (request.auth.uid == request.resource.data.shop
           || (claimOk() && request.resource.data.claim.shop == request.resource.data.shop)
-          || xferOk(request.resource.data.shop)
-          || isAdmin());
+          || xferOk(request.resource.data.shop));
       allow update: if signedIn() && notBanned() && request.resource.data.shop == resource.data.shop
-        && (request.auth.uid == resource.data.current || (resource.data.current == resource.data.shop && staff(resource.data.shop, 'plants'))
+        && (request.auth.uid == resource.data.current
           || (claimOk() && request.resource.data.claim.shop == resource.data.current)
-          || xferOk(resource.data.current)
-          || isAdmin());
+          || xferOk(resource.data.current));
       allow delete: if isAdmin();
     }
 
