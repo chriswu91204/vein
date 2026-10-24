@@ -3391,6 +3391,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></symbol>
   <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></symbol>
+  <symbol id="i-gavel" viewBox="0 0 24 24"><path d="M13.5 4.5l6 6M11 7l6 6M12.2 5.8l-3.4 3.4M18.2 11.8l-3.4 3.4M10.5 12.5L4 19M3.5 21h9"/></symbol>
   <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></symbol>
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
@@ -3419,7 +3420,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 <nav class="tabbar" aria-label="主要">
   <a href="#/" data-pg="home"><svg class="i"><use href="#i-home"/></svg>首頁</a>
   <a href="#/store" data-pg="shop"><svg class="i"><use href="#i-bag"/></svg>商店</a>
-  <a href="#/raffle" data-pg="raffle"><svg class="i"><use href="#i-gift"/></svg>抽獎</a>
+  <a href="#/store/auction" data-pg="auction"><svg class="i"><use href="#i-gavel"/></svg>競標</a>
   <a href="#/verify" data-pg="verify"><svg class="i"><use href="#i-scan"/></svg>溯源</a>
   <a href="#/me" id="tabMe" data-pg="me"><svg class="i"><use href="#i-user"/></svg>我的</a>
 </nav>
@@ -3790,7 +3791,7 @@ let lastY=scrollY;
 function navFrame(){ const y=scrollY; nav.classList.toggle('solid', y>30); nav.classList.toggle('hide', y>lastY+4 && y>innerHeight*1.2); if(y<lastY-4) nav.classList.remove('hide'); lastY=y;
   let on=null; if(PAGE==='home') ['collection','trace'].forEach(id=>{ const r=document.getElementById(id).getBoundingClientRect(); if(r.top<innerHeight*.4 && r.bottom>innerHeight*.4) on=id; });
   document.querySelectorAll('.nav nav a').forEach(a=>a.classList.toggle('on', a.dataset.pg?a.dataset.pg===PAGE:a.dataset.sec===on));
-  document.querySelectorAll('.tabbar a[data-pg]').forEach(a=>a.classList.toggle('on', a.dataset.pg===PAGE)); }
+  const TP=PAGE==='shop'&&/^#\/store\/auction/.test(location.hash)?'auction':PAGE; document.querySelectorAll('.tabbar a[data-pg]').forEach(a=>a.classList.toggle('on', a.dataset.pg===TP)); }
 let ticking=false;
 function frame(){ ticking=false; if(PAGE==='home'){ heroFrame(); hsFrame(); wallFrame(); finalFrame(); toneFrame(); stmtFrame(); } else if(PAGE==='verify'){ storyFrame(); toneFrame(); } else if(document.body.dataset.tone!=='light') document.body.dataset.tone='light'; navFrame(); }
 function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(frame); } }
