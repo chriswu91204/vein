@@ -7180,7 +7180,7 @@ function admHash(){ const t=S.admTab||'home', ed=S.admEdit&&typeof S.admEdit==='
 function syncAdmHash(){ if(!adm.open||S.admFromRoute) return; const want=admHash(); if(location.hash===want) return; if(!isAdmHash(location.hash)){ S.admReturn=location.hash||'#/'; S.admDepth=0; S.admBaseVi=NAV.idx(); } S.admDepth=(S.admDepth||0)+1; history.pushState({adm:S.admDepth},'',want); }
 async function openAdmin(tab){ if(!isSeller()){ if(S.me) openApply(); else openLogin(); return; } if(needPhone()) return; if(sheet.open) sheet.close(); S.admMode='shop'; if(tab){ S.admTab=tab; S.admEdit=null; } renderAdmin(true); if(!adm.open) adm.showModal(); syncAdmHash(); }
 // 植物管理：只管植物（登錄、批量、履歷、標籤），不碰商店；買家、收藏家也能用
-const PLANT_TABS=['reg','care','new','batch','labels'];
+const PLANT_TABS=['reg','care','new','batch','labels','bulked'];
 async function openPlants(tab){ if(needLogin()) return; if(sheet.open) sheet.close(); if(dlg.open) dlg.close(); S.admMode='plant'; S.admTab=PLANT_TABS.includes(tab)?tab:(PLANT_TABS.includes(S.admTab)?S.admTab:'reg'); S.admEdit=null; S.batchDone=null; renderAdmin(true); if(!adm.open) adm.showModal(); syncAdmHash(); }
 const SHOPM=()=>S.admMode!=='plant'&&hasShop();
 const hasShop=()=>!!S.me&&!!shopOf(S.me);
