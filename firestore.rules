@@ -122,6 +122,8 @@ service cloud.firestore {
       // 植物轉給別人之後，原賣家就不能再改；改由現在的主人照顧（只能動紀錄相關欄位）
       allow update: if (shopper(uid, 'plants') && holder(uid, pid) && blockedUnchanged() && (!locked(pid) || lineageSame()))
         || (holder(uid, pid) && request.auth.uid != uid && !staff(uid, 'plants') && blockedUnchanged() && ownerFieldsOnly())
+        // 只有「訂單」權限的小編：接受／取消訂單時只能改售出狀態與整盤庫存
+        || (staff(uid, 'orders') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'buyer', 'soldPrice', 'stock', 'soldN', 'updatedAt']))
         || isAdmin();
       allow delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
     }
