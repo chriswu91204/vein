@@ -279,6 +279,11 @@ service cloud.firestore {
     }
 
     // 私人資料（收藏、購物車）：只有本人看得到
+    // 一頁式廣告：大家都能看；只有管理員能建立、修改、刪除
+    match /landings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
     match /data/users/{uid}/{rest=**} {
       allow read, write: if isMe(uid);
     }
