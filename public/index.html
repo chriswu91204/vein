@@ -2717,6 +2717,74 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .lot-hint{grid-column:1/-1;margin:-4px 0 0}
 .field.lot-on input{outline:2px solid #D2FF00;outline-offset:1px}
 .lot-intro p{margin-top:6px}
+/* ---- 植物管理 v2：⋯ 動作選單、選取模式、固定的底部動作列、層級標頭 ---- */
+.rg:not(.picking) .rg-rck,.rg:not(.picking) .rg-ck{display:none!important}
+.rg.picking .tv-row,.rg.picking .rg-row,.rg.picking .rg-card,.rg.picking .rg-tn{cursor:copy}
+.rg-bar{gap:8px}.rg-bar .bf-q{flex:1 1 220px;min-width:0}
+.rg-tools{display:flex;gap:8px;align-items:center;flex:none;margin-left:auto}
+.rg-tools .chip{padding:8px 10px}
+.rg-pk{white-space:nowrap}
+.rg-pkh{margin-top:10px;background:#D2FF00;color:#111;border-radius:12px;padding:9px 12px;font-size:13px;font-weight:600}
+.tv-row{flex-wrap:wrap;align-items:flex-start;position:relative}
+.tv-row .tv-img{margin-top:2px}
+.tv-row .rg-rck,.tv-stack .rg-rck{align-self:center}
+.tv-row .rg-rm{gap:4px}
+.tv-more{flex:none;margin:0!important;width:40px;height:40px;border:0;border-radius:12px;background:var(--paper);color:var(--fg);font:inherit;font-size:20px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .15s}
+.tv-more:hover{background:#D2FF00}
+.tv-more span{transform:translateY(-3px)}
+.tv-kids2{flex:1 0 100%;display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:#111;color:#fff;border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;cursor:pointer;text-align:left;margin-top:2px}
+.tv-kids2 b{color:#D2FF00;font-size:16px}.tv-kids2 small{opacity:.75;font-size:12px}.tv-kids2 i{font-style:normal;font-size:22px;color:#D2FF00;line-height:1}
+.tv-kids2:hover{background:#222}
+.tv-stack{flex-wrap:wrap;align-items:flex-start}
+.tv-stack .tv-pile{margin-top:2px}
+.tv-sbar{flex:1 0 100%;display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:4px}
+.tv-sb{border:0;border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;background:var(--paper);color:var(--fg);text-align:left}
+.tv-sb.add{background:#D2FF00;color:#111;text-align:center;font-weight:800}
+.tv-sb:hover{filter:brightness(.97)}
+.tv-more2{margin-top:10px}
+.tv-gc{border:0;font:inherit;text-align:left}
+.tv-ctx{position:sticky;top:0;z-index:7;background:var(--surface);border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 0 0 2px #D2FF00,0 14px 24px -20px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:10px}
+.tv-cr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.tv-up{border:0;background:#111;color:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex:none}
+.tv-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;min-width:0;color:var(--fg2)}
+.tv-cm{display:flex;align-items:center;gap:12px}
+.tv-cm>img,.tv-cm>.tv-img{width:52px;height:52px;border-radius:12px;object-fit:cover;flex:none}
+.tv-cn{font-size:18px;display:block;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tv-ca{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.tv-ca .btn{justify-content:center;white-space:nowrap}
+.rg-bulk2{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9;margin:16px auto 0;max-width:760px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#111;color:#fff;border-radius:18px;padding:10px 12px 10px 16px;box-shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+.rg-bn{display:flex;flex-direction:column;line-height:1.25;min-width:0;flex:1}
+.rg-bn>span{font-size:15px;white-space:nowrap}.rg-bn b{color:#D2FF00;font-size:18px}.rg-bn small{font-size:11.5px;opacity:.65}
+.rg-ba{display:flex;gap:6px;flex-wrap:wrap}
+.rg-ba .btn.soft{background:rgba(255,255,255,.14);color:#fff}
+.rg-ba .btn.ink{background:#fff;color:#111}
+.rg-bulk2.empty .rg-ba .btn:not(.ink){opacity:.45}
+#admMain select{max-width:100%}#admMain form,#admMain .panel{min-width:0}
+#admin:has(.rg-bulk2) #chDock,#admin:has(.rs-ov) #chDock{display:none}
+.rs-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,11,.45);display:flex;align-items:flex-end;justify-content:center;animation:rsF .18s ease}
+.rs{width:min(520px,100%);max-height:86vh;max-height:86dvh;overflow:auto;background:var(--surface,#fff);border-radius:22px 22px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 50px -20px rgba(0,0,0,.5);animation:rsU .22s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:760px){ .rs-ov{align-items:center} .rs{border-radius:22px;padding-bottom:14px} }
+.rs-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:2px 6px 10px}
+.rs-h b{display:block;font-size:17px;line-height:1.3}.rs-h small{display:block;color:var(--fg2);font-size:12.5px;margin-top:2px}
+.rs-x{border:0;background:var(--paper);border-radius:999px;width:34px;height:34px;font-size:14px;cursor:pointer;flex:none}
+.rs-l{display:flex;flex-direction:column;gap:2px}
+.rs-sec{font-size:11.5px;font-weight:700;color:var(--fg2);letter-spacing:.04em;padding:10px 10px 4px}
+.rs-l hr{border:0;border-top:1px solid var(--line);margin:6px 4px}
+.rs-i{display:flex;align-items:center;gap:12px;border:0;background:transparent;border-radius:14px;padding:11px 10px;font:inherit;text-align:left;cursor:pointer;color:inherit;width:100%}
+.rs-i:hover,.rs-i:focus-visible{background:var(--paper);outline:none}
+.rs-i>i{font-style:normal;font-size:20px;width:30px;text-align:center;flex:none}
+.rs-i span{display:flex;flex-direction:column;min-width:0}.rs-i b{font-size:15px}.rs-i small{color:var(--fg2);font-size:12.5px;line-height:1.35}
+.rs-i.danger b{color:#C0362C}
+@keyframes rsU{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}@keyframes rsF{from{opacity:0}to{opacity:1}}
+@media (max-width:900px){
+  .tv-ctx{top:calc(58px + env(safe-area-inset-top,0px));border-radius:16px;padding:10px}
+  .tv-ca{grid-template-columns:1fr 1fr 1fr}
+  .tv-ca .btn{padding-left:6px;padding-right:6px;font-size:13px}
+  .rg-tools .rg-view{max-width:118px}
+  .rg-bulk2{border-radius:16px;padding:8px 8px 8px 12px;gap:8px}
+  .rg-bn small{display:none}
+  .tv-cn{font-size:16px}
+}
 #workBar b{color:#D2FF00}#workBar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #workBar button{border:0;border-radius:999px;background:#D2FF00;color:#050605;font:inherit;font-weight:800;padding:7px 12px;cursor:pointer;white-space:nowrap}
 .stf-list{display:flex;flex-direction:column;gap:12px;margin-top:12px}
@@ -5711,7 +5779,8 @@ function route(){
   if (am){ const mode=am[1]==='plants'?'plant':'shop', [tab,sub]=(am[2]||'').split(':'), ed=am[3]?decodeURIComponent(am[3]):null;
     if (mode==='shop'&&!isSeller()){ if(S.me&&!S.shopsReady){ S.admPend=true; return; } if(S.booted) history.replaceState(null,'','#/'); return; }
     if (mode==='plant'&&!S.me){ if(S.booted){ history.replaceState(null,'','#/'); openLogin(); } return; }
-    S.admFromRoute=true; S.admMode=mode; if(tab) S.admTab=tab; if(sub) S.shopTab=sub; S.admEdit=ed; if(S.admTab==='users'){ S.userSel=ed; S.admEdit=null; } S.batchDone=null; S.newPreset=null; S.admDepth=history.state?.adm||0;
+    S.admFromRoute=true; S.admMode=mode; if(tab) S.admTab=tab; if(sub) S.shopTab=sub; S.admEdit=ed; if(S.admTab==='users'){ S.userSel=ed; S.admEdit=null; }
+    if (S.admTab==='reg'){ const R0=S.rg||(S.rg={q:'',g:'',kind:'',sale:'',tag:'',sort:'code',view:'tier',path:[],open:{}}); if(ed&&ed[0]==='~'){ R0.path=ed.slice(1).split(',').map(decodeURIComponent).filter(Boolean); R0.view='tier'; S.admEdit=null; } else if(!ed) R0.path=[]; } S.batchDone=null; S.newPreset=null; S.admDepth=history.state?.adm||0;
     try{ if(!adm.open){ S.admBaseVi=S.prevHash!=null&&!isAdmHash(S.prevHash)&&NAV.idx()>0?NAV.idx()-1:null; renderAdmin(true); adm.showModal(); } else renderAdmin(true); } finally { S.admFromRoute=false; } if(location.hash!==admHash()) history.replaceState(history.state,'',admHash()); return; }
   if (adm.open){ S.admClosingByRoute=true; try{ adm.close(); }catch(e){} S.admClosingByRoute=false; }
   let pg='home', sec=null, arg='';
@@ -5919,12 +5988,12 @@ const GUIDES=[
   ['下架','「商品管理」打開那株按「下架（保留履歷）」，植物檔案和履歷都會保留。']],
   tips:['只展示不賣的植株，買家也能出價議價，你同意後會自動轉成訂單。'],go:[['上架販售','adm:list']]},
  {id:'manage',cat:'seller',ic:'🗂',t:'植物管理：分層、堆疊、批量操作',min:3,steps:[
-  ['分層','第一層只列母本與源頭。有後代的右邊有黑色按鈕（例如「13｜1 側芽 · 12 實生苗」），點進去看側芽與每一批實生苗。'],
-  ['勾選','單株勾選；母本旁「連同後代」一次勾整個家族；每一批有「全選這批」；上方「販售群組」可以整組勾選。'],
-  ['堆疊','名字一樣、父母本也一樣的會自動疊成一疊。也可以勾選後按「疊在一起」或「取消堆疊」。疊上可以直接設定「這疊是：實生苗／側芽／母株」。'],
-  ['批量操作','底下的黑色功能列：上架販售、列印標籤、下載 Excel 標籤、做成群組、改類型。'],
-  ['搜尋','輸入編號、品種、親本編號或標籤，會列出所有符合的植株。']],
-  tips:['點沒有後代的植株會直接打開「管理」編輯。'],go:[['植物管理','adm:reg']]},
+  ['每一列的「⋯」','每一株、每一疊右邊都有「⋯」，要做的事都在裡面：管理這株、看後代、看履歷、＋分出側芽、＋加實生苗、選取。不用再捲回最上面找按鈕。'],
+  ['分層與後代','第一層是母本與源頭。有後代的植株下方有黑色「🌿 看後代」，點進去後最上面會固定一條：返回上一層、✏️ 管理這株、＋ 側芽、＋ 實生苗。手機返回鍵也會回到上一層。'],
+  ['堆疊','同名同親本的會疊成一疊。點「打開這疊」看裡面每一株；點螢光綠「＋ 加進這疊」就能接著登錄同一組親本的實生苗，編號自動往下接。'],
+  ['選取與批量操作','按搜尋列旁的「☑ 選取」進入選取模式，點植物就會選起來；下方黑色動作列可以上架、印標籤，「更多 ⋯」裡有 Excel、移區域、疊在一起、改類型、鎖住、刪除。按「完成」離開。'],
+  ['回到最上層','左邊選單點「植物管理」一定回到第一層；從某一株的管理頁返回，會回到剛剛看的位置。']],
+  tips:['＋ 新增植物：一株一株（登錄一株）、一整批（批量登錄）、一盤同價（整盤上架）三選一。'],go:[['植物管理','adm:reg']]},
  {id:'labels',cat:'seller',ic:'🖨',t:'標籤：Excel、GoLabel／BarTender、QR',min:3,steps:[
   ['選植株','植物管理勾選，或批量登錄完成頁、「植物 → 標籤列印」。'],
   ['下載 Excel 標籤檔','每株一列：編號、品種、備註、母本、父本、群組、售價、查驗網址…'],
@@ -7095,7 +7164,7 @@ const isAdmHash=hs=>/^#(admin|plants)(\/|$)/.test(hs||'');
 // 後台的「←」＝真正的上一頁；「回到前台」＝回到進後台前的那一頁（之後按下一頁還能回來）
 function admBack(fallback){ if(NAV.idx()>0) history.back(); else if(fallback) fallback(); else admExit(); }
 function admExit(){ const b=S.admBaseVi, n=NAV.idx(); if(b!=null&&b>=0&&n>b) history.go(b-n); else adm.close(); }
-function admHash(){ const t=S.admTab||'home', ed=S.admEdit&&typeof S.admEdit==='string'?'/'+encodeURIComponent(S.admEdit):(t==='users'&&S.userSel?'/'+encodeURIComponent(S.userSel):''); return (S.admMode==='plant'?'#plants':'#admin')+'/'+t+(t==='shop'?':'+(S.shopTab||'basic'):'')+ed; }
+function admHash(){ const t=S.admTab||'home', ed=S.admEdit&&typeof S.admEdit==='string'?'/'+encodeURIComponent(S.admEdit):(t==='users'&&S.userSel?'/'+encodeURIComponent(S.userSel):t==='reg'&&S.rg?.path?.length&&S.rg.view==='tier'?'/~'+S.rg.path.map(encodeURIComponent).join(','):''); return (S.admMode==='plant'?'#plants':'#admin')+'/'+t+(t==='shop'?':'+(S.shopTab||'basic'):'')+ed; }
 function syncAdmHash(){ if(!adm.open||S.admFromRoute) return; const want=admHash(); if(location.hash===want) return; if(!isAdmHash(location.hash)){ S.admReturn=location.hash||'#/'; S.admDepth=0; S.admBaseVi=NAV.idx(); } S.admDepth=(S.admDepth||0)+1; history.pushState({adm:S.admDepth},'',want); }
 async function openAdmin(tab){ if(!isSeller()){ if(S.me) openApply(); else openLogin(); return; } if(needPhone()) return; if(sheet.open) sheet.close(); S.admMode='shop'; if(tab){ S.admTab=tab; S.admEdit=null; } renderAdmin(true); if(!adm.open) adm.showModal(); syncAdmHash(); }
 // 植物管理：只管植物（登錄、批量、履歷、標籤），不碰商店；買家、收藏家也能用
@@ -7179,6 +7248,8 @@ function meStaffCard(){ const L=(S.prefs.staffOf||[]).filter(u=>shopOf(u)); if(!
 
 function renderAdmin(force){
   if (!adm.open && !force) return;
+  // 換頁就回到頂端；從某一株的管理頁回到清單時，回到剛剛捲到的位置
+  if (force){ const vk=(S.admMode||'')+'|'+S.admTab+'|'+(S.admEdit||''), was=S.admView; if(vk!==was){ S.admMem=S.admMem||{}; if(was) S.admMem[was]=adm.scrollTop; S.admView=vk; const back=!S.admEdit&&was&&was.split('|')[1]===S.admTab&&was.split('|')[2]; const y=back?(S.admMem[vk]||0):0; requestAnimationFrame(()=>{ adm.scrollTop=y; $('#admMain')?.scrollTo?.(0,y); }); } }
   if (force) requestAnimationFrame(()=>requestAnimationFrame(()=>{ try{ tourRender(); }catch(e){} }));
   if (force) queueMicrotask(syncAdmHash);
   const main=$('#admMain');
@@ -7190,7 +7261,7 @@ function renderAdmin(force){
   if (S.admMode==='plant'){ if(!PLANT_TABS.includes(S.admTab)) S.admTab='reg'; }
   else if (!hasShop()&&SELLER_TABS.includes(S.admTab||'home')) S.admTab=S.admin?'sellers':'home';
   if (hasShop()&&!approved(S.me)&&!S.admin&&SELLER_TABS.includes(S.admTab||'home')) main.append(h('div',{class:'panel',style:'background:#FFF8E1'}, h('b',{text:'賣場審核中'}), h('p',{class:'hint',text:'你可以先上架與設定賣場，審核通過後商品、抽獎才會在前台公開。'})));
-  const T=S.admTab, scrollKey=T+'|'+(S.admEdit||''); if(S._admScrollKey!==scrollKey){ S._admScrollKey=scrollKey; requestAnimationFrame(()=>{ try{ adm.scrollTop=0; main.scrollTop=0; }catch(e){} }); }
+  const T=S.admTab;
   if (!tabOK(T)){ S.admTab='home'; return admHome(main); }
   if (T==='staff') return admStaff(main);
   if (T==='home') return admHome(main);
@@ -7238,7 +7309,7 @@ function renderAdmNav(){
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return S.admTab===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });
-  const btn=it=>{ const [k,l,n]=it, [base,sub]=k.split(':'); return h('button',{type:'button',class:'navi',title:NAV_DESC[k]||'','aria-current':String(curK(it)),onclick:()=>{ S.admTab=base; if(sub) S.shopTab=sub; S.admEdit=null; S.admQ=''; S.batchDone=null; S.newPreset=null; S.userSel=null; S.navMob=false; renderAdmin(true); $('#admMain')?.scrollTo?.(0,0); adm.scrollTo?.(0,0); }}, h('span',{class:'navl'}, h('span',{text:l}), NAV_DESC[k]?h('small',{class:'navd',text:NAV_DESC[k]}):null), n?h('span',{class:'n',text:String(n)}):null); };
+  const btn=it=>{ const [k,l,n]=it, [base,sub]=k.split(':'); return h('button',{type:'button',class:'navi',title:NAV_DESC[k]||'','aria-current':String(curK(it)),onclick:()=>{ S.admTab=base; if(sub) S.shopTab=sub; S.admEdit=null; S.admQ=''; S.batchDone=null; S.newPreset=null; S.userSel=null; S.navMob=false; if(S.rg){ S.rg.path=[]; S.rg.open={}; } S.rgPick=false; S.rgSel?.clear(); S.rgLastKey=null; S.rgScroll={}; if(base==='batch'&&S.batchForm&&!(S.batchForm.cards||[]).length) S.batchForm=null; renderAdmin(true); $('#admMain')?.scrollTo?.(0,0); adm.scrollTo?.(0,0); }}, h('span',{class:'navl'}, h('span',{text:l}), NAV_DESC[k]?h('small',{class:'navd',text:NAV_DESC[k]}):null), n?h('span',{class:'n',text:String(n)}):null); };
   const group=g=>{ if(!g.t) return g.items.map(btn); const open=!!S.navOpen[g.k], tot=g.items.reduce((x,it)=>x+(+it[2]||0),0);
     return [h('button',{type:'button',class:'navg'+(open?' open':''),'aria-expanded':String(open),onclick:()=>{ S.navOpen[g.k]=!open; renderAdmNav(); }}, h('span',{}, h('i',{text:g.ic}), g.t), h('span',{class:'row',style:'gap:6px'}, !open&&tot?h('span',{class:'n',text:String(tot)}):null, h('em',{text:'›'}))), h('div',{class:'navsub',hidden:!open}, ...g.items.map(btn))]; };
   const curItem=G.flatMap(g=>g.items).find(curK), aside=$('#admNav');
@@ -7329,6 +7400,25 @@ async function unlistPlant(p){ await updatePlant(p.id,{listed:false,status:'keep
 const parLbl=(p,w)=>{ const id=w==='m'?momId(p):dadId(p), x=id&&S.plants.get(id), e=w==='m'?p.momExt:p.dadExt; return x?x.code:e?(e.name||e.code):(w==='m'?momCode(p):dadCode(p))||''; };
 async function setKinds(ps,k){ let n=0, skip=0; for(const p of ps){ if((p.kind||'mother')===k) continue; if(isLocked(p)||(k==='pup'&&!(momId(p)||p.momExt||momCode(p)))){ skip++; continue; } const patch={kind:k}; if(k==='pup'){ patch.parentId=momId(p)||null; patch.parentCode=momCode(p)||(p.momExt?(p.momExt.code||p.momExt.name):null); patch.dadId=null; patch.dadCode=null; } else if(p.kind==='pup'){ patch.parentId=null; patch.parentCode=null; } try{ await S.db.doc(pPath(p)).update(patch); Object.assign(p,patch); const cur=S.plants.get(p.id); if(cur&&cur!==p) Object.assign(cur,patch); n++; }catch(x){ skip++; } } return {n,skip}; }
 function stackKey(p){ if(p.stack) return String(p.stack).startsWith('x:')?null:'s:'+p.stack; const m=parLbl(p,'m'), d=parLbl(p,'d'); if(!m&&!d) return null; return 'a:'+[normSp(p.species).toLowerCase(),String(p.cultivar||'').toLowerCase(),m.toLowerCase(),d.toLowerCase()].join('|'); }
+/* ---- 植物管理（分層／堆疊）：每一列只有一個「⋯」動作選單、要做什麼都在手邊；多選改成「選取模式」＋底部動作列 ---- */
+function rgSheet(title,sub,items){
+  const close=()=>{ ov.remove(); };
+  const ov=h('div',{class:'rs-ov',onclick:e=>{ if(e.target===ov) close(); }},
+    h('div',{class:'rs',role:'menu'}, h('div',{class:'rs-h'}, h('div',{style:'min-width:0'}, h('b',{text:title}), sub?h('small',{text:sub}):null), h('button',{type:'button',class:'rs-x','aria-label':'關閉',onclick:close,text:'✕'})),
+      h('div',{class:'rs-l'}, ...items.filter(Boolean).map(it=>it==='-'?h('hr'):typeof it==='string'?h('div',{class:'rs-sec',text:it}):h('button',{type:'button',class:'rs-i'+(it[4]?' '+it[4]:''),role:'menuitem',onclick:()=>{ close(); it[3](); }}, h('i',{text:it[0]}), h('span',{}, h('b',{text:it[1]}), it[2]?h('small',{text:it[2]}):null))))));
+  (adm.open?adm:document.body).append(ov); ov.querySelector('.rs-i')?.focus({preventScroll:true}); return close;
+}
+function rgAddMenu(){
+  rgSheet('新增植物','選一種最符合的方式',[
+    ['🌱','登錄一株','一株一個編號，資料最完整',()=>{ S.admTab='new'; S.newPreset=null; S.admEdit=null; renderAdmin(true); }],
+    ['🌾','批量登錄（同一批）','同一組親本的實生苗、同一株的側芽，親本只填一次',()=>{ S.admTab='batch'; S.batchForm=null; S.admEdit=null; renderAdmin(true); }],
+    SHOPM()?['🪴','整盤上架','一盤同價，只填數量，不用一株一株建',()=>{ S.admTab='lot'; S.admEdit=null; renderAdmin(true); }]:null]);
+}
+// 接續一批／一疊：直接開「批量登錄 → 接續」並帶好親本與品種
+function rgAddTo(L,label){ L=[...L].sort(codeSort); const f=L[0]; if(!f) return;
+  const k=f.grp&&L.every(p=>p.grp===f.grp)?'g:'+f.grp:f.batch&&L.every(p=>p.batch===f.batch)?'b:'+f.batch:'p:'+f.id;
+  S.batchForm={mode:'cont',kind:f.kind||'seedling',cont:k,contL:L.map(p=>p.id),contName:label||'',cards:[],sh:{}}; S.batchDone=null; S.admTab='batch'; S.admEdit=null; renderAdmin(true); }
+function rgAddKids(p,kind){ if(kind==='pup'){ S.admTab='new'; S.admEdit=null; S.newPreset={kind:'pup',momId:p.id}; } else { S.admTab='batch'; S.batchDone=null; S.batchForm={mode:'new',kind:'seedling',cont:'',cards:[],sh:{momId:p.id}}; } renderAdmin(true); }
 function admReg(m){
   const F=S.rg||(S.rg={q:'',g:'',kind:'',sale:'',tag:'',sort:'code',view:'tier',path:[],open:{}}), sel=S.rgSel||(S.rgSel=new Set()); F.path=F.path||[]; F.open=F.open||{};
   const all0=myPlants(), saleK=p=>saleState(p)[0]==='on'&&p.status==='available'?'on':saleState(p)[0];
@@ -7343,119 +7433,165 @@ function admReg(m){
   const genera=[...new Set(all0.map(spKey))].sort((a,b)=>gC(b)-gC(a)).map(g=>[g,(genusZh(g)||'')+' '+(TAX_BY.get(g)?.sci||g),gC(g)]);
   const tags=[...new Set(all0.flatMap(tagsOf))].map(t=>[t,'#'+t,tL.filter(p=>tagsOf(p).includes(t)).length]).sort((a,b)=>b[2]-a[2]);
   const nAct=['g','kind','sale','tag'].filter(k=>F[k]).length;
+  const sortSel=h('select',{class:'chip',onchange:e=>set({sort:e.target.value})}, ...[['code','依編號'],['rec','最新紀錄'],['new','最新登錄'],['cnt','紀錄最多']].map(([k,l])=>h('option',{value:k,text:l,selected:F.sort===k})));
   const side=h('div',{class:'rg-side'+(S.rgOpen?' open':'')},
+    h('div',{class:'bf-sec'}, h('h4',{text:'排序'}), sortSel),
     facet('分類（屬）','g',genera), facet('類型','kind',[['mother','母株',kC('mother')],['pup','側芽',kC('pup')],['seedling','實生苗',kC('seedling')]]),
     facet('販售','sale',[['off','未上架',sC('off')],['on','販售中',sC('on')],['live','競標中',sC('live')],['sold','已售／結束',sC('sold')]]), facet('標籤','tag',tags.slice(0,20)));
-  const q=h('input',{type:'search',placeholder:'搜尋編號、品種、品系、親本編號、標籤',value:F.q}); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); set({q:q.value.trim()}); } }); q.addEventListener('search',()=>set({q:q.value.trim()}));
-  const sortSel=h('select',{class:'chip',onchange:e=>set({sort:e.target.value})}, ...[['code','依編號'],['rec','最新紀錄'],['new','最新登錄'],['cnt','紀錄最多']].map(([k,l])=>h('option',{value:k,text:l,selected:F.sort===k})));
-  const VDESC={tier:'分層：先列母本，有後代的點進去看',table:'全部清單：所有植株一列一列，方便比對',card:'卡片：大圖瀏覽',tree:'族譜：用樹狀看誰是誰的後代'};
-  const views=h('div',{class:'segs'}, ...[['tier','分層'],['table','全部清單'],['card','卡片'],['tree','族譜']].map(([k,l])=>h('button',{type:'button',title:VDESC[k],'aria-pressed':String(F.view===k),onclick:()=>set({view:k}),text:l})));
+  const q=h('input',{type:'search',placeholder:'搜尋編號、品種、親本、標籤',value:F.q}); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); set({q:q.value.trim()}); } }); q.addEventListener('search',()=>set({q:q.value.trim()}));
+  const VDESC={tier:'分層：母本在最上層，點進去看後代',table:'全部清單：所有植株一列一列',card:'卡片：大圖瀏覽',tree:'族譜：樹狀看誰是誰的後代'};
+  const viewSel=h('select',{class:'chip rg-view','aria-label':'檢視方式',title:VDESC[F.view],onchange:e=>set({view:e.target.value})}, ...[['tier','🗂 分層'],['table','☰ 全部清單'],['card','▦ 卡片'],['tree','🌳 族譜']].map(([k,l])=>h('option',{value:k,text:l,selected:F.view===k})));
+  const picking=!!S.rgPick||sel.size>0;
   const selN=h('b',{text:String(sel.size)});
-  const pick=p=>{ const c=h('input',{type:'checkbox',checked:sel.has(p.id),onclick:e=>e.stopPropagation(),onchange:e=>{ e.target.checked?sel.add(p.id):sel.delete(p.id); selN.textContent=String(sel.size); bulk.hidden=!sel.size; }}); return c; };
+  const pickTog=h('button',{type:'button',class:'btn sm rg-pk '+(picking?'ink':'soft'),'aria-pressed':String(picking),onclick:()=>{ if(picking){ S.rgPick=false; sel.clear(); } else S.rgPick=true; renderAdmin(true); },text:picking?'✓ 完成選取':'☑ 選取'});
+  let bulk;
+  const refreshSel=()=>{ selN.textContent=String(sel.size); bulk?.classList.toggle('empty',!sel.size); };
+  const pick=p=>h('input',{type:'checkbox','aria-label':'選取 '+p.code,checked:sel.has(p.id),onclick:e=>e.stopPropagation(),onchange:e=>{ e.target.checked?sel.add(p.id):sel.delete(p.id); e.target.closest('.tv-row,.rg-row,.rg-card,.rg-tn,.rg-tr')?.classList.toggle('sel',e.target.checked); if(!S.rgPick&&sel.size){ S.rgPick=true; renderAdmin(true); return; } refreshSel(); }});
+  const toggleSel=(p,el)=>{ sel.has(p.id)?sel.delete(p.id):sel.add(p.id); el.classList.toggle('sel',sel.has(p.id)); const c=el.querySelector('.rg-rck input'); if(c) c.checked=sel.has(p.id); refreshSel(); };
+  const selAll=(L,on)=>{ L.forEach(p=>on?sel.add(p.id):sel.delete(p.id)); if(on) S.rgPick=true; renderAdmin(true); };
   const openE=p=>{ S.admEdit=p.id; renderAdmin(true); };
   const parTxt=p=>[momCode(p),dadCode(p)].filter(Boolean).join(' × ')||'—';
+  // 每一株的動作選單
+  const byIdAll=new Map(all0.map(p=>[p.id,p])), kidAll=new Map();
+  all0.forEach(c=>{ for(const x of new Set([momId(c),dadId(c)])) if(x&&byIdAll.has(x)){ if(!kidAll.has(x)) kidAll.set(x,[]); kidAll.get(x).push(c); } });
+  const famOf=p=>{ const out=[p], st=[p], seen=new Set([p.id]); while(st.length){ const x=st.pop(); for(const c of all0) if(momId(c)===x.id&&!seen.has(c.id)){ seen.add(c.id); out.push(c); st.push(c); } } return out; };
+  const drillTo=p=>{ S.rgScroll=S.rgScroll||{}; S.rgScroll[F.path.join(',')]=adm.scrollTop; F.view='tier'; if(F.q||F.g||F.kind||F.sale||F.tag) Object.assign(F,{q:'',g:'',kind:'',sale:'',tag:''}); F.path=[...F.path.filter(id=>id!==p.id),p.id]; renderAdmin(true); };
+  const plantMenu=p=>{ const ks=kidAll.get(p.id)||[];
+    rgSheet(p.cultivar||short(p.species)||'未命名', p.code+' · '+kindLabel(p), [
+      ['✏️','管理這株','照片、成長紀錄、資料、販售設定',()=>openE(p)],
+      ks.length?['🌿','看後代（'+ks.length+' 株）','側芽與實生苗都在裡面',()=>drillTo(p)]:null,
+      ['📜','看履歷','買家看到的溯源頁',()=>openHistory(p.id)],
+      '新增後代',
+      ['🌱','＋ 分出側芽','從這株分出來的，一次登錄一株',()=>rgAddKids(p,'pup')],
+      ['🌾','＋ 加實生苗（這株當母本）','一批實生苗一次建好',()=>rgAddKids(p,'seedling')],
+      '選取',
+      ['☑️',sel.has(p.id)?'取消選取這株':'選取這株','之後可以一起上架、印標籤、移動區域…',()=>{ sel.has(p.id)?sel.delete(p.id):sel.add(p.id); S.rgPick=true; renderAdmin(true); }],
+      ks.length?['👪','選取全家','這株和所有側芽、實生苗',()=>selAll(famOf(p),true)]:null]); };
+  const stackMenu=(L,title)=>rgSheet(title, L.length+' 株 · '+L[0].code+' → '+L[L.length-1].code, [
+      ['➕','加更多到這疊','接著同一組親本，繼續編號',()=>rgAddTo(L,title)],
+      ['☑️','選取這疊 '+L.length+' 株','之後可以一起上架、印標籤…',()=>selAll(L,true)],
+      SHOPM()?['🧺','做成販售群組','商店只顯示一張卡，買家點進去挑編號',()=>{ S.grpNew=new Set(L.map(p=>p.id)); S.admTab='groups'; renderAdmin(true); }]:null,
+      '這疊是…',
+      ...[['seedling','🌾','實生苗'],['pup','🌱','側芽'],['mother','🪴','母株']].map(([k,ic,l])=>{ const on=L.every(p=>(p.kind||'mother')===k); return [ic,(on?'✓ ':'')+'改成「'+l+'」',on?'目前就是':'整疊一起改',async()=>{ if(on) return; const r=await setKinds(L,k); toast('已把 '+r.n+' 株改成「'+KIND[k]+'」'+(r.skip?'（'+r.skip+' 株略過）':'')); renderAdmin(true); }]; })]);
+  const moreBtn=fn=>h('button',{type:'button',class:'tv-more','aria-label':'更多動作',title:'更多動作',onclick:e=>{ e.stopPropagation(); fn(); }}, h('span',{text:'⋯'}));
+  const rowClick=(el,p,fn)=>{ el.addEventListener('click',e=>{ if(e.target.closest('input,button,label,a')) return; if(picking) toggleSel(p,el); else fn(); }); return el; };
   let body;
   const filtering=!!(F.q||F.g||F.kind||F.sale||F.tag);
   if (F.view==='tier'&&!filtering&&all0.length) body=tierView();
-  else if (!list.length) body=h('div',{class:'empty'}, h('h3',{text:all0.length?'沒有符合條件的植物':'還沒有登錄植物'}), h('p',{text:all0.length?'放寬篩選條件試試。':'先登錄一株母株，之後側芽、實生苗都能接上它。'}), h('div',{class:'row',style:'justify-content:center'}, h('button',{class:'btn pri',type:'button',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'登錄一株'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='batch'; renderAdmin(true); },text:'批量登錄'})));
-  else if (F.view==='card') body=h('div',{class:'rg-cards'}, ...list.map(p=>activate(h('div',{class:'rg-card'+(sel.has(p.id)?' sel':'')}, h('div',{class:'rg-ci'}, p.thumb?h('img',{src:p.thumb,alt:'',loading:'lazy'}):h('i',{text:'無照片'}), h('span',{class:'rg-ck'}, pick(p))), h('b',{class:'mono',text:p.code}), h('span',{text:short(p.species)+(p.cultivar?' · '+p.cultivar:'')}), memoEl(p,'sm'), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), h('span',{class:'hint',text:(p.photoCount||0)+' 筆'}))), ()=>openE(p))));
+  else if (!list.length) body=h('div',{class:'empty'}, h('h3',{text:all0.length?'沒有符合條件的植物':'還沒有登錄植物'}), h('p',{text:all0.length?'放寬篩選條件試試。':'先登錄一株母株，之後側芽、實生苗都能接上它。'}), h('div',{class:'row',style:'justify-content:center'}, h('button',{class:'btn pri',type:'button',onclick:rgAddMenu,text:'＋ 新增植物'})));
+  else if (F.view==='card') body=h('div',{class:'rg-cards'}, ...list.map(p=>rowClick(h('div',{class:'rg-card'+(sel.has(p.id)?' sel':'')}, h('div',{class:'rg-ci'}, p.thumb?h('img',{src:p.thumb,alt:'',loading:'lazy'}):h('i',{text:'無照片'}), h('span',{class:'rg-ck rg-rck'}, pick(p)), moreBtn(()=>plantMenu(p))), h('b',{class:'mono',text:p.code}), h('span',{text:short(p.species)+(p.cultivar?' · '+p.cultivar:'')}), memoEl(p,'sm'), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), h('span',{class:'hint',text:(p.photoCount||0)+' 筆'}))),p,()=>openE(p))));
   else if (F.view==='tree'){
     const inList=new Set(list.map(p=>p.id)), kids=x=>list.filter(c=>momId(c)===x.id);
     const roots=list.filter(p=>!inList.has(momId(p)));
-    const node=(p,d)=>[activate(h('div',{class:'rg-tn',style:'--d:'+d}, d?h('i',{class:'rg-tl'}):null, pick(p), p.thumb?h('img',{src:p.thumb,alt:''}):h('span',{class:'rg-ph'}), h('b',{class:'mono',text:p.code}), h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), h('span',{class:'rg-sp',text:short(p.species)+(dadCode(p)?' · ×'+dadCode(p):'')+(memoOf(p)?' · '+memoOf(p):'')}), saleChip(p), h('span',{class:'hint',text:(p.photoCount||0)+' 筆'})), ()=>openE(p)), ...(d<4?kids(p).flatMap(k=>node(k,d+1)):[])];
+    const node=(p,d)=>[rowClick(h('div',{class:'rg-tn'+(sel.has(p.id)?' sel':''),style:'--d:'+d}, d?h('i',{class:'rg-tl'}):null, h('span',{class:'rg-rck'}, pick(p)), p.thumb?h('img',{src:p.thumb,alt:''}):h('span',{class:'rg-ph'}), h('b',{class:'mono',text:p.code}), h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), h('span',{class:'rg-sp',text:short(p.species)+(dadCode(p)?' · ×'+dadCode(p):'')+(memoOf(p)?' · '+memoOf(p):'')}), saleChip(p), moreBtn(()=>plantMenu(p))),p,()=>openE(p)), ...(d<4?kids(p).flatMap(k=>node(k,d+1)):[])];
     body=h('div',{class:'rg-tree'}, ...roots.flatMap(r=>node(r,0)));
-  } else body=h('div',{class:'tblwrap'}, h('table',{class:'tbl rg-tbl'}, h('thead',{}, h('tr',{}, h('th',{}, h('input',{type:'checkbox','aria-label':'全選',checked:list.length&&list.every(p=>sel.has(p.id)),onchange:e=>{ list.forEach(p=>e.target.checked?sel.add(p.id):sel.delete(p.id)); renderAdmin(true); }})), ...['','編號','品種','類型','親本','紀錄','最新紀錄','販售','展示',''].map(t=>h('th',{text:t})))),
-    h('tbody',{}, ...list.map(p=>{ const tr=h('tr',{class:'rg-tr'}, h('td',{}, pick(p)), h('td',{}, p.thumb?h('img',{src:p.thumb,alt:''}):h('span',{class:'hint',text:'—'})), h('td',{class:'mono',text:p.code}), h('td',{}, h('div',{text:short(p.species)}), p.cultivar?h('div',{class:'hint',text:p.cultivar}):null, memoEl(p,'sm')), h('td',{}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)})), h('td',{class:'mono hint',text:parTxt(p)}), h('td',{text:String(p.photoCount||0)}), h('td',{class:'hint',text:fmtDay(p.lastPhotoAt)||'—'}), h('td',{}, saleChip(p)), h('td',{}, h('input',{type:'checkbox',class:'sw',title:'在商店與溫室牆展示',checked:!p.hidden,onclick:e=>e.stopPropagation(),onchange:e=>updatePlant(p.id,{hidden:!e.target.checked},e.target.checked?'已展示':'已改成不展示（血統與查驗仍看得到）')})), h('td',{}, h('button',{class:'btn soft sm',type:'button',onclick:e=>{ e.stopPropagation(); openE(p); },text:'管理'})));
-      tr.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; openE(p); }); return tr; }))),
+  } else body=h('div',{class:'tblwrap'}, h('table',{class:'tbl rg-tbl'}, h('thead',{}, h('tr',{}, h('th',{}, h('input',{type:'checkbox','aria-label':'全選',checked:list.length&&list.every(p=>sel.has(p.id)),onchange:e=>selAll(list,e.target.checked)})), ...['','編號','品種','類型','親本','紀錄','最新紀錄','販售','展示',''].map(t=>h('th',{text:t})))),
+    h('tbody',{}, ...list.map(p=>{ const tr=h('tr',{class:'rg-tr'+(sel.has(p.id)?' sel':'')}, h('td',{}, pick(p)), h('td',{}, p.thumb?h('img',{src:p.thumb,alt:''}):h('span',{class:'hint',text:'—'})), h('td',{class:'mono',text:p.code}), h('td',{}, h('div',{text:short(p.species)}), p.cultivar?h('div',{class:'hint',text:p.cultivar}):null, memoEl(p,'sm')), h('td',{}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)})), h('td',{class:'mono hint',text:parTxt(p)}), h('td',{text:String(p.photoCount||0)}), h('td',{class:'hint',text:fmtDay(p.lastPhotoAt)||'—'}), h('td',{}, saleChip(p)), h('td',{}, h('input',{type:'checkbox',class:'sw',title:'在商店與溫室牆展示',checked:!p.hidden,onclick:e=>e.stopPropagation(),onchange:e=>updatePlant(p.id,{hidden:!e.target.checked},e.target.checked?'已展示':'已改成不展示（血統與查驗仍看得到）')})), h('td',{}, moreBtn(()=>plantMenu(p))));
+      return rowClick(tr,p,()=>openE(p)); }))),
     h('div',{class:'rg-rows'}, ...list.map(p=>{ const nm=p.cultivar||short(p.species)||'未命名', sub=p.cultivar&&short(p.species)!==p.cultivar?short(p.species):(genusZh(spKey(p))||'');
       const r=h('div',{class:'rg-row'+(sel.has(p.id)?' sel':'')}, h('span',{class:'rg-rck'}, pick(p)),
         p.thumb?h('img',{class:'rg-rimg',src:p.thumb,alt:'',loading:'lazy'}):h('span',{class:'rg-rimg rg-noimg',text:'🌱'}),
-        h('div',{class:'rg-rm'}, h('b',{class:'rg-rn'+(String(nm).length>24?' long':''),text:nm}), h('div',{class:'rg-rc mono',text:p.code+(sub?'':'')}), sub?h('div',{class:'rg-rs',text:sub}):null, memoEl(p,'sm'),
+        h('div',{class:'rg-rm'}, h('b',{class:'rg-rn'+(String(nm).length>24?' long':''),text:nm}), h('div',{class:'rg-rc mono',text:p.code}), sub?h('div',{class:'rg-rs',text:sub}):null, memoEl(p,'sm'),
           h('div',{class:'rg-rt'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.hidden?h('span',{class:'tag',text:'不展示'}):null, p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null),
           h('div',{class:'rg-rx'}, (p.photoCount||0)+' 筆紀錄'+(p.lastPhotoAt?' · '+fmtDay(p.lastPhotoAt):'')+(parTxt(p)!=='—'?' · 親本 '+parTxt(p):''))),
-        h('span',{class:'rg-rgo',text:'›'}));
-      r.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; openE(p); }); return r; })));
+        moreBtn(()=>plantMenu(p)));
+      return rowClick(r,p,()=>openE(p)); })));
   function tierView(){
-    const byId=new Map(all0.map(p=>[p.id,p])), kidMap=new Map(), dadMap=new Map();
+    const byId=byIdAll, kidMap=new Map(), dadMap=new Map();
     all0.forEach(c=>{ const m=momId(c), d=dadId(c); if(m&&byId.has(m)){ if(!kidMap.has(m)) kidMap.set(m,[]); kidMap.get(m).push(c); } if(d&&byId.has(d)&&d!==m){ if(!dadMap.has(d)) dadMap.set(d,[]); dadMap.get(d).push(c); } });
     const descN=p=>{ let n=0; const st=[p], seen=new Set([p.id]); while(st.length){ for(const c of kidMap.get(st.pop().id)||[]){ if(seen.has(c.id)) continue; seen.add(c.id); n++; st.push(c); } } return n; };
     F.path=F.path.filter(id=>byId.has(id));
-    const drill=p=>{ F.path=[...F.path,p.id]; renderAdmin(true); $('#admMain')?.scrollTo?.(0,0); document.getElementById('admin')?.scrollTo?.({top:0}); };
-    const selAll=(L,on)=>{ L.forEach(p=>on?sel.add(p.id):sel.delete(p.id)); renderAdmin(true); };
-    const descL=p=>{ const out=[], st=[p], seen=new Set([p.id]); while(st.length){ for(const c of kidMap.get(st.pop().id)||[]){ if(seen.has(c.id)) continue; seen.add(c.id); out.push(c); st.push(c); } } return out; };
-    const row=p=>{ const ks=kidMap.get(p.id)||[], dk=dadMap.get(p.id)||[], np=ks.filter(k=>k.kind==='pup').length, ns=ks.length-np, all=descN(p);
+    const row=p=>{ const ks=kidMap.get(p.id)||[], dk=dadMap.get(p.id)||[], np=ks.filter(k=>k.kind==='pup').length, ns=ks.length-np, all=descN(p), has=ks.length||dk.length;
       const kidsTxt=[np?np+' 側芽':'',ns?ns+' 實生苗':'',dk.length?dk.length+' 當父本':''].filter(Boolean).join(' · ');
-      const r=h('div',{class:'tv-row'+(sel.has(p.id)?' sel':'')+(ks.length||dk.length?' has':'')}, h('span',{class:'rg-rck'}, pick(p)),
+      const nm=p.cultivar||short(p.species)||'未命名';
+      const r=h('div',{class:'tv-row'+(sel.has(p.id)?' sel':'')+(has?' has':'')}, h('span',{class:'rg-rck'}, pick(p)),
         p.thumb?h('img',{class:'tv-img',src:p.thumb,alt:'',loading:'lazy'}):h('span',{class:'tv-img rg-noimg',text:'🌱'}),
-        h('div',{class:'rg-rm'}, h('div',{class:'tv-t'}, h('b',{class:'rg-rn'+(String(p.cultivar||short(p.species)||'未命名').length>24?' long':''),text:p.cultivar||short(p.species)||'未命名'}), h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.hidden?h('span',{class:'tag',text:'不展示'}):null, p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null, isLocked(p)?h('span',{class:'tag',text:'已轉手'}):null),
-          h('div',{class:'rg-rc mono',text:p.code}), memoEl(p,'sm'), h('div',{class:'rg-rx',text:(p.photoCount||0)+' 筆紀錄'+(p.lastPhotoAt?' · '+fmtDay(p.lastPhotoAt):'')})),
-        ks.length?(()=>{ const fam=[p,...descL(p)], on=fam.every(x=>sel.has(x.id)); return h('label',{class:'tv-fam'+(on?' on':''),title:'勾選這株和牠所有的側芽、實生苗',onclick:e=>e.stopPropagation()}, h('input',{type:'checkbox',checked:on,onchange:e=>selAll(fam,e.target.checked)}), h('span',{text:'勾選全家 '+fam.length+' 株'})); })():null,
-        (ks.length||dk.length)?h('button',{type:'button',class:'tv-kids',onclick:e=>{ e.stopPropagation(); drill(p); }}, h('span',{class:'tv-kl'}, h('small',{text:'看後代'}), h('span',{}, h('b',{text:String(all+dk.length)}), ' 株 · '+kidsTxt)), h('i',{text:'›'})):null,
-        h('button',{type:'button',class:'btn soft sm tv-m',onclick:e=>{ e.stopPropagation(); openE(p); },text:'編輯'}));
-      r.addEventListener('click',e=>{ if(e.target.closest('input,button')) return; (ks.length||dk.length)?drill(p):openE(p); }); return r; };
+        h('div',{class:'rg-rm'}, h('b',{class:'rg-rn'+(String(nm).length>24?' long':''),text:nm}), h('div',{class:'rg-rc mono',text:p.code}),
+          h('div',{class:'tv-t'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.hidden?h('span',{class:'tag',text:'不展示'}):null, p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null, isLocked(p)?h('span',{class:'tag',text:'已轉手'}):null),
+          memoEl(p,'sm'), h('div',{class:'rg-rx',text:(p.photoCount||0)+' 筆紀錄'+(p.lastPhotoAt?' · '+fmtDay(p.lastPhotoAt):'')})),
+        moreBtn(()=>plantMenu(p)),
+        has?h('button',{type:'button',class:'tv-kids2',onclick:e=>{ e.stopPropagation(); drillTo(p); }}, h('span',{}, '🌿 看後代 ', h('b',{text:String(all+dk.length)}), ' 株', h('small',{text:kidsTxt?' · '+kidsTxt:''})), h('i',{text:'›'})):null);
+      return rowClick(r,p,()=>has?drillTo(p):openE(p)); };
     const stackRow=(k,L)=>{ L.sort(codeSort); const p0=L[0], key='st:'+k, open=!!F.open[key], allOn=L.every(p=>sel.has(p.id)), pics=L.filter(p=>p.thumb).slice(0,3);
       const kinds=[...new Set(L.map(p=>KIND[p.kind||'mother']))].join('、'), par=[parLbl(p0,'m'),parLbl(p0,'d')].filter(Boolean).join(' × ');
+      const title=p0.cultivar||short(p0.species)||'未命名';
+      const tog=()=>{ F.open[key]=!open; renderAdmin(true); };
       const head=h('div',{class:'tv-stack'+(open?' open':'')+(allOn?' sel':'')},
-        h('label',{class:'rg-rck',onclick:e=>e.stopPropagation()}, h('input',{type:'checkbox',checked:allOn,onchange:e=>selAll(L,e.target.checked)})),
+        h('label',{class:'rg-rck',onclick:e=>e.stopPropagation()}, h('input',{type:'checkbox','aria-label':'選取這疊',checked:allOn,onchange:e=>selAll(L,e.target.checked)})),
         h('span',{class:'tv-pile'}, ...pics.map((p,i)=>h('img',{src:p.thumb,alt:'',style:'--k:'+i})), !pics.length?h('span',{class:'tv-img rg-noimg',text:'🌱'}):null, h('em',{text:L.length})),
-        h('div',{class:'rg-rm'}, h('div',{class:'tv-t'}, h('b',{class:'rg-rn'+(String(p0.cultivar||short(p0.species)||'未命名').length>24?' long':''),text:p0.cultivar||short(p0.species)||'未命名'}), h('span',{class:'tag dark',text:(kinds.includes('、')?'一疊':kinds+'群組')+' · '+L.length+' 株'}), kinds.includes('、')?h('span',{class:'tag',text:kinds}):null),
-          h('div',{class:'rg-rc mono',text:p0.code+' → '+L[L.length-1].code}), par?h('div',{class:'memo sm'}, h('i',{text:'親本'}), h('span',{text:par+(p0.momId&&S.plants.has(p0.momId)?'':'（不在 VEIN 上）')})):null, memoEl(p0,'sm'),
-          h('div',{class:'tv-stctl',onclick:e=>e.stopPropagation()}, h('span',{class:'hint',text:'這疊是：'}),
-            ...[['seedling','實生苗'],['pup','側芽'],['mother','母株']].map(([k,l])=>{ const on=L.every(p=>(p.kind||'mother')===k); return h('button',{type:'button',class:'tv-kb'+(on?' on':''),onclick:async e=>{ if(on) return; e.currentTarget.disabled=true; const r=await setKinds(L,k); toast('已把 '+r.n+' 株改成「'+KIND[k]+'」'+(r.skip?'（'+r.skip+' 株略過：已轉手鎖定，或改側芽但沒有母株）':'')); renderAdmin(true); },text:l}); }),
-            SHOPM()?h('button',{type:'button',class:'tv-kb sale',onclick:()=>{ S.grpNew=new Set(L.map(p=>p.id)); S.admTab='groups'; renderAdmin(true); },text:'做成販售群組 →'}):null)),
-        h('button',{type:'button',class:'tv-kids',onclick:e=>{ e.stopPropagation(); F.open[key]=!open; renderAdmin(true); }}, h('b',{text:String(L.length)}), h('span',{text:open?'收起':'展開這疊'}), h('i',{text:open?'⌃':'⌄'})));
-      head.addEventListener('click',e=>{ if(e.target.closest('input,button,label')) return; F.open[key]=!open; renderAdmin(true); });
+        h('div',{class:'rg-rm'}, h('b',{class:'rg-rn'+(String(title).length>24?' long':''),text:title}), h('div',{class:'rg-rc mono',text:p0.code+' → '+L[L.length-1].code}),
+          h('div',{class:'tv-t'}, h('span',{class:'tag dark',text:(kinds.includes('、')?'一疊':kinds)+' · '+L.length+' 株'})),
+          par?h('div',{class:'memo sm'}, h('i',{text:'親本'}), h('span',{text:par+(p0.momId&&S.plants.has(p0.momId)?'':'（不在 VEIN 上）')})):null),
+        moreBtn(()=>stackMenu(L,title)),
+        h('div',{class:'tv-sbar'}, h('button',{type:'button',class:'tv-sb',onclick:e=>{ e.stopPropagation(); tog(); }}, open?'⌃ 收起這疊':'⌄ 打開這疊 '+L.length+' 株'), h('button',{type:'button',class:'tv-sb add',onclick:e=>{ e.stopPropagation(); rgAddTo(L,title); }}, '＋ 加進這疊')));
+      head.addEventListener('click',e=>{ if(e.target.closest('input,button,label')) return; if(picking) selAll(L,!allOn); else tog(); });
       return h('div',{class:'tv-stw'}, head, open?h('div',{class:'tv-stk'}, ...L.map(row)):null); };
     const groupsOf=L=>{ const m=new Map(); L.forEach(c=>{ const G=c.grp&&groupMeta(c.shop,c.grp); const k=c.kind==='pup'?'pup':G?'g:'+c.grp:c.batch?'b:'+c.batch+'|'+(c.kind||''):'one:'+(c.kind||''); if(!m.has(k)) m.set(k,[]); m.get(k).push(c); });
       return [...m].map(([k,L2])=>{ L2.sort(codeSort); const c0=L2[0], G=c0.grp&&groupMeta(c0.shop,c0.grp); return {k,L:L2,title:k==='pup'?'側芽':G?'群組：'+G.name:k.startsWith('b:')?KIND[c0.kind||'mother']+'（同一批）':KIND[c0.kind||'mother'],range:c0.code+(L2.length>1?' → '+L2[L2.length-1].code:''),at:Math.min(...L2.map(x=>toMs(x.createdAt)||0))}; })
         .sort((a,b)=>(a.k==='pup'?-1:b.k==='pup'?1:a.at-b.at)); };
-    const section=(g,prefix)=>{ const key=prefix+g.k, open=F.open[key], N=g.L.length, cut=open||N<=24?N:12, allOn=g.L.every(p=>sel.has(p.id));
+    const section=(g,prefix,cur)=>{ const key=prefix+g.k, open=F.open[key], N=g.L.length, cut=open||N<=24?N:12, allOn=g.L.every(p=>sel.has(p.id));
+      const addFn=g.k==='pup'?()=>rgAddKids(cur,'pup'):()=>rgAddTo(g.L,g.title);
       return h('div',{class:'tv-sec'}, h('div',{class:'tv-sh'}, h('div',{style:'min-width:0'}, h('b',{text:g.title+' · '+N+' 株'}), h('small',{class:'mono hint',text:g.range})),
-          h('button',{type:'button',class:'btn sm '+(allOn?'ink':'soft'),onclick:()=>selAll(g.L,!allOn),text:allOn?'取消全選':'全選這批'})),
+          h('div',{class:'row',style:'gap:6px;flex-wrap:wrap;justify-content:flex-end'}, h('button',{type:'button',class:'btn sm soft',onclick:addFn,text:g.k==='pup'?'＋ 再分側芽':'＋ 加進這批'}), h('button',{type:'button',class:'btn sm '+(allOn?'ink':'soft'),onclick:()=>selAll(g.L,!allOn),text:allOn?'取消選取':'☑ 選取這批'}))),
         h('div',{class:'tv-list'}, ...g.L.slice(0,cut).map(row)),
-        N>cut?h('button',{type:'button',class:'btn soft sm tv-more',onclick:()=>{ F.open[key]=true; renderAdmin(true); },text:'顯示全部 '+N+' 株'}):null); };
+        N>cut?h('button',{type:'button',class:'btn soft sm tv-more2',onclick:()=>{ F.open[key]=true; renderAdmin(true); },text:'顯示全部 '+N+' 株'}):null); };
     if (!F.path.length){
       const roots=all0.filter(p=>!momId(p)||!byId.has(momId(p))).sort((a,b)=>((a.kind||'mother')==='mother'?0:1)-((b.kind||'mother')==='mother'?0:1)||codeSort(a,b));
-      // 堆疊：手動疊在一起的（stack 欄位），或「名字一樣＋父母本一樣」的自動疊成一疊
       const stacks=new Map(), items=[];
       roots.forEach(p=>{ const k=stackKey(p); if(!k){ items.push(p); return; } if(!stacks.has(k)){ stacks.set(k,[]); items.push(k); } stacks.get(k).push(p); });
       const out=items.map(x=>typeof x==='string'?(stacks.get(x).length>1?stackRow(x,stacks.get(x)):row(stacks.get(x)[0])):row(x));
       const nSt=[...stacks.values()].filter(L=>L.length>1).length;
       const gEnt=Object.entries(shopOf(S.me)?.groups||{}).map(([gid,G])=>({gid,G,L:all0.filter(p=>p.grp===gid)})).filter(x=>x.L.length);
-      const gStrip=gEnt.length&&SHOPM()?h('div',{class:'tv-groups'}, h('b',{text:'販售群組'}), ...gEnt.map(x=>{ const on=x.L.every(p=>sel.has(p.id)); return h('label',{class:'tv-gc'+(on?' on':'')}, h('input',{type:'checkbox',checked:on,onchange:e=>selAll(x.L,e.target.checked)}), x.G.cover?.url?h('img',{src:x.G.cover.type==='video'?(x.G.cover.poster||''):x.G.cover.url,alt:''}):null, h('span',{}, h('b',{text:x.G.name||'群組'}), h('small',{text:x.L.length+' 株'}))); })):null;
-      return h('div',{}, gStrip, h('div',{class:'tv-crumb'}, h('b',{text:'母本與源頭'}), h('span',{class:'hint',text:roots.length+' 株'+(nSt?'（'+nSt+' 疊）':'')+' · 有後代的點進去看；父母本不在 VEIN 上的同一批會疊在這裡（共 '+all0.length+' 株）'})), h('div',{class:'tv-list'}, ...out));
+      const gStrip=gEnt.length&&SHOPM()?h('div',{class:'tv-groups'}, h('b',{text:'販售群組'}), ...gEnt.map(x=>{ const on=x.L.every(p=>sel.has(p.id)); return h('button',{type:'button',class:'tv-gc'+(on?' on':''),onclick:()=>rgSheet(x.G.name||'群組',x.L.length+' 株',[['➕','加更多到這個群組','接著編號，自動加入群組',()=>rgAddTo(x.L,x.G.name)],['☑️',on?'取消選取':'選取這個群組 '+x.L.length+' 株','',()=>selAll(x.L,!on)],['⚙️','群組設定','名稱、主圖、解散',()=>{ S.admTab='groups'; renderAdmin(true); }]])}, x.G.cover?.url?h('img',{src:x.G.cover.type==='video'?(x.G.cover.poster||''):x.G.cover.url,alt:''}):null, h('span',{}, h('b',{text:x.G.name||'群組'}), h('small',{text:x.L.length+' 株'}))); })):null;
+      return h('div',{}, gStrip, h('div',{class:'tv-crumb'}, h('b',{text:'母本與源頭'}), h('span',{class:'hint',text:roots.length+' 株'+(nSt?'（'+nSt+' 疊）':'')+' · 共 '+all0.length+' 株'})), h('div',{class:'tv-list'}, ...out));
     }
     const cur=byId.get(F.path[F.path.length-1]), ks=kidMap.get(cur.id)||[], dk=dadMap.get(cur.id)||[];
-    const crumb=h('div',{class:'tv-crumb'}, h('button',{type:'button',class:'bf-lk',onclick:()=>{ F.path=[]; renderAdmin(true); },text:'← 母本與源頭'}), ...F.path.map((id,i)=>{ const x=byId.get(id); return [h('span',{class:'hint',text:'›'}), i<F.path.length-1?h('button',{type:'button',class:'bf-lk mono',onclick:()=>{ F.path=F.path.slice(0,i+1); renderAdmin(true); },text:x.code}):h('b',{class:'mono',text:x.code})]; }).flat());
-    const head=h('div',{class:'tv-head'}, cur.thumb?h('img',{src:cur.thumb,alt:''}):h('span',{class:'tv-img rg-noimg',text:'🌱'}),
-      h('div',{style:'min-width:0;flex:1'}, h('div',{class:'tv-t'}, h('b',{style:'font-size:20px',text:cur.cultivar||short(cur.species)}), h('span',{class:'tag '+kindTag(cur),text:kindLabel(cur)}), saleChip(cur)), h('div',{class:'mono hint',text:cur.code}), memoEl(cur,'sm'),
-        h('div',{class:'row',style:'gap:6px;flex-wrap:wrap;margin-top:10px'}, h('label',{class:'row',style:'font-size:13px;gap:6px'}, pick(cur), '選這株'), h('button',{class:'btn pri sm',type:'button',onclick:()=>openE(cur),text:'管理這株'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openHistory(cur.id),text:'履歷'}),
-          h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.admTab='new'; S.admEdit=null; S.newPreset={kind:'pup',momId:cur.id}; renderAdmin(true); },text:'＋ 分出側芽'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.admTab='batch'; S.batchForm={mode:'new',kind:'seedling',cont:'',cards:[],sh:{momId:cur.id}}; renderAdmin(true); },text:'＋ 批量登錄實生苗'}),
-          (ks.length||dk.length)?h('button',{class:'btn ink sm',type:'button',onclick:()=>selAll([...ks,...dk],!([...ks,...dk].every(p=>sel.has(p.id)))),text:[...ks,...dk].every(p=>sel.has(p.id))?'取消全選後代':'全選所有後代 '+(ks.length+dk.length)}):null)));
-    return h('div',{}, crumb, head, ...groupsOf(ks).map(g=>section(g,cur.id+'|')), ...(dk.length?[h('h4',{class:'tv-h4',text:'這株當父本的後代（母本在別株底下）'}), ...groupsOf(dk).map(g=>section(g,cur.id+'|d|'))]:[]),
-      !ks.length&&!dk.length?h('p',{class:'hint',style:'margin-top:16px',text:'這株還沒有後代。'}):null);
+    const up=()=>{ F.path=F.path.slice(0,-1); renderAdmin(true); };
+    const ctx=h('div',{class:'tv-ctx'},
+      h('div',{class:'tv-cr'}, h('button',{type:'button',class:'tv-up',onclick:up}, '← ', F.path.length>1?'上一層':'母本與源頭'),
+        h('span',{class:'tv-path'}, h('button',{type:'button',class:'bf-lk',onclick:()=>{ F.path=[]; renderAdmin(true); },text:'全部'}), ...F.path.map((id,i)=>{ const x=byId.get(id); return [h('span',{class:'hint',text:'›'}), i<F.path.length-1?h('button',{type:'button',class:'bf-lk mono',onclick:()=>{ F.path=F.path.slice(0,i+1); renderAdmin(true); },text:x.code}):h('b',{class:'mono',text:x.code})]; }).flat())),
+      h('div',{class:'tv-cm'}, cur.thumb?h('img',{src:cur.thumb,alt:''}):h('span',{class:'tv-img rg-noimg',text:'🌱'}),
+        h('div',{style:'min-width:0;flex:1'}, h('b',{class:'tv-cn',text:cur.cultivar||short(cur.species)}), h('div',{class:'mono hint',text:cur.code+' · '+kindLabel(cur)+' · 後代 '+(ks.length+dk.length)+' 株'})),
+        moreBtn(()=>plantMenu(cur))),
+      h('div',{class:'tv-ca'}, h('button',{class:'btn pri sm',type:'button',onclick:()=>openE(cur),text:'✏️ 管理這株'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>rgAddKids(cur,'pup'),text:'＋ 側芽'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>rgAddKids(cur,'seedling'),text:'＋ 實生苗'})));
+    return h('div',{}, ctx, ...groupsOf(ks).map(g=>section(g,cur.id+'|',cur)), ...(dk.length?[h('h4',{class:'tv-h4',text:'這株當父本的後代（母本在別株底下）'}), ...groupsOf(dk).map(g=>section(g,cur.id+'|d|',cur))]:[]),
+      !ks.length&&!dk.length?h('div',{class:'empty',style:'margin-top:16px'}, h('h3',{text:'這株還沒有後代'}), h('p',{text:'分出側芽或播了實生苗，用上面的「＋ 側芽」「＋ 實生苗」登錄，就會出現在這裡。'})):null);
   }
-  const bulk=h('div',{class:'rg-bulk',hidden:!sel.size}, h('span',{}, '已選 ', selN, ' 株'),
-    SHOPM()?h('button',{class:'btn pri sm',type:'button',onclick:()=>{ S.listSel=new Set([...sel].filter(id=>{ const p=S.plants.get(id); return p&&!listed(p)&&p.status!=='sold'; })); S.admTab='list'; renderAdmin(true); },text:'上架販售'}):null,
-    h('button',{class:'btn ink sm',type:'button',onclick:()=>printLabels([...sel].map(id=>S.plants.get(id)),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}),text:'列印標籤'}),
-    h('button',{class:'btn volt sm',type:'button',onclick:()=>downloadXLSX([...sel].map(id=>S.plants.get(id))),text:'下載 Excel 標籤'}),
-    h('button',{class:'btn soft sm',type:'button',onclick:()=>downloadCSV([...sel].map(id=>S.plants.get(id))),text:'CSV'}),
-    ...[[true,'🔒 鎖住'],[false,'🔓 開啟']].map(([on,l])=>h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const n=await setPrivate([...sel].map(id=>S.plants.get(id)).filter(Boolean),on); toast((on?'已鎖住 ':'已開啟 ')+n+' 株'); sel.clear(); renderAdmin(true); },text:l})),
-    SHOPM()?h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.grpNew=new Set(sel); S.admTab='groups'; renderAdmin(true); },text:'做成群組'}):null,
-    h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); if(ps.length<2){ toast('至少選 2 株才能疊在一起'); return; } const sid=ps.sort(codeSort)[0].id; let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:sid}); p.stack=sid; n++; }catch(x){} } toast('已把 '+n+' 株疊在一起'); sel.clear(); renderAdmin(true); },text:'疊在一起'}),
-    h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean); let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:'x:'+p.id}); p.stack='x:'+p.id; n++; }catch(x){} } toast('已把 '+n+' 株從疊裡拿出來'); sel.clear(); renderAdmin(true); },text:'取消堆疊'}),
-    S.care.zones.length?h('select',{class:'chip rg-kind','aria-label':'加入區域',onchange:e=>{ const zid=e.target.value; if(!zid) return; [...sel].forEach(id=>{ if(zid==='-') delete S.care.pz[id]; else S.care.pz[id]=zid; }); careSave(true); toast(zid==='-'?'已移出區域':'已把 '+sel.size+' 株加到「'+careZone(zid).name+'」'); sel.clear(); renderAdmin(true); }}, h('option',{value:'',text:'📍 加入區域…'}), ...S.care.zones.map(z=>h('option',{value:z.id,text:'→ '+(z.icon||'')+' '+z.name})), h('option',{value:'-',text:'移出區域'})):h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.admTab='care'; renderAdmin(true); },text:'📍 建立區域'}),
-    h('select',{class:'chip rg-kind','aria-label':'改類型',onchange:async e=>{ const k=e.target.value; if(!k) return; e.target.disabled=true; const r=await setKinds([...sel].map(id=>S.plants.get(id)).filter(Boolean),k);
-      toast('已把 '+r.n+' 株改成「'+KIND[k]+'」'+(r.skip?'（'+r.skip+' 株略過：已轉手鎖定，或改側芽但沒有母株）':'')); renderAdmin(true); }}, h('option',{value:'',text:'改類型…'}), h('option',{value:'seedling',text:'→ 實生苗'}), h('option',{value:'pup',text:'→ 側芽'}), h('option',{value:'mother',text:'→ 母株'})),
-    h('button',{class:'btn soft sm danger',type:'button',onclick:async e=>{ const ps=[...sel].map(id=>S.plants.get(id)).filter(Boolean), lk=ps.filter(isLocked).length; if(!confirm('確定永久刪除 '+(ps.length-lk)+' 株？植物檔案、成長紀錄、照片都會刪掉，無法復原。'+(lk?'\n（'+lk+' 株已轉手鎖定，不會刪除）':''))) return; e.currentTarget.disabled=true; const r=await deletePlants(ps); toast('已刪除 '+r.n+' 株'+(r.skip?'，'+r.skip+' 株略過':'')); sel.clear(); renderAdmin(true); },text:'🗑 刪除'}),
-    h('button',{class:'btn soft sm',type:'button',onclick:()=>{ sel.clear(); renderAdmin(true); },text:'清除選取'}));
+  const P=()=>[...sel].map(id=>S.plants.get(id)).filter(Boolean);
+  const doneSel=()=>{ sel.clear(); S.rgPick=false; renderAdmin(true); };
+  const bulkMore=()=>rgSheet('已選 '+sel.size+' 株','要對這些植物做什麼？',[
+      '印標籤與匯出',
+      ['🏷','列印標籤','QR 標籤直接印',()=>printLabels(P(),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)})],
+      ['📗','下載 Excel 標籤','給標籤機用',()=>downloadXLSX(P())],
+      ['📄','下載 CSV','',()=>downloadCSV(P())],
+      '整理',
+      ['📍','移到區域…',S.care.zones.length?'日常管理的分區':'還沒有區域，先去建立',()=>{ if(!S.care.zones.length){ S.admTab='care'; renderAdmin(true); return; } rgSheet('移到哪個區域？',sel.size+' 株',[...S.care.zones.map(z=>[z.icon||'📍',z.name,'',()=>{ [...sel].forEach(id=>{ S.care.pz[id]=z.id; }); careSave(true); toast('已把 '+sel.size+' 株加到「'+z.name+'」'); doneSel(); }]),['↩️','移出區域','',()=>{ [...sel].forEach(id=>delete S.care.pz[id]); careSave(true); toast('已移出區域'); doneSel(); }]]); }],
+      ['🗂','疊在一起','在分層裡疊成一疊',async()=>{ const ps=P(); if(ps.length<2){ toast('至少選 2 株才能疊在一起'); return; } const sid=ps.sort(codeSort)[0].id; let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:sid}); p.stack=sid; n++; }catch(x){} } toast('已把 '+n+' 株疊在一起'); doneSel(); }],
+      ['📤','從疊裡拿出來','',async()=>{ let n=0; for(const p of P()){ try{ await S.db.doc(pPath(p)).update({stack:'x:'+p.id}); p.stack='x:'+p.id; n++; }catch(x){} } toast('已把 '+n+' 株從疊裡拿出來'); doneSel(); }],
+      ['🔁','改類型…','實生苗／側芽／母株',()=>rgSheet('改成哪一種？',sel.size+' 株',[['seedling','🌾','實生苗'],['pup','🌱','側芽'],['mother','🪴','母株']].map(([k,ic,l])=>[ic,l,'',async()=>{ const r=await setKinds(P(),k); toast('已把 '+r.n+' 株改成「'+KIND[k]+'」'+(r.skip?'（'+r.skip+' 株略過：已轉手鎖定，或改側芽但沒有母株）':'')); doneSel(); }]))],
+      ['🔒','鎖住（私人）','只有你看得到',async()=>{ const n=await setPrivate(P(),true); toast('已鎖住 '+n+' 株'); doneSel(); }],
+      ['🔓','取消鎖住','',async()=>{ const n=await setPrivate(P(),false); toast('已開啟 '+n+' 株'); doneSel(); }],
+      SHOPM()?'販售':null,
+      SHOPM()?['🛒','上架販售','',()=>{ S.listSel=new Set([...sel].filter(id=>{ const p=S.plants.get(id); return p&&!listed(p)&&p.status!=='sold'; })); S.admTab='list'; renderAdmin(true); }]:null,
+      SHOPM()?['🧺','做成販售群組','',()=>{ S.grpNew=new Set(sel); S.admTab='groups'; renderAdmin(true); }]:null,
+      '-',
+      ['🗑','刪除','永久刪除，無法復原',async()=>{ const ps=P(), lk=ps.filter(isLocked).length; if(!confirm('確定永久刪除 '+(ps.length-lk)+' 株？植物檔案、成長紀錄、照片都會刪掉，無法復原。'+(lk?'\n（'+lk+' 株已轉手鎖定，不會刪除）':''))) return; const r=await deletePlants(ps); toast('已刪除 '+r.n+' 株'+(r.skip?'，'+r.skip+' 株略過':'')); doneSel(); },'danger']]);
+  bulk=picking?h('div',{class:'rg-bulk2'+(sel.size?'':' empty')},
+    h('div',{class:'rg-bn'}, h('span',{}, '已選 ', selN, ' 株'), h('small',{text:'點植物來選取或取消'})),
+    h('div',{class:'rg-ba'}, SHOPM()?h('button',{class:'btn lime sm',type:'button',onclick:()=>{ if(!sel.size) return toast('先點選植物'); S.listSel=new Set([...sel].filter(id=>{ const p=S.plants.get(id); return p&&!listed(p)&&p.status!=='sold'; })); S.admTab='list'; renderAdmin(true); },text:'上架'}):null,
+      h('button',{class:'btn soft sm',type:'button',onclick:()=>{ if(!sel.size) return toast('先點選植物'); printLabels(P(),{size:lsGet('vein.lsize','50x30'),qr:lsGet('vein.lqr',true),sp:lsGet('vein.lsp',true),price:lsGet('vein.lprice',false)}); },text:'印標籤'}),
+      h('button',{class:'btn soft sm',type:'button',onclick:()=>{ if(!sel.size) return toast('先點選植物'); bulkMore(); },text:'更多 ⋯'}),
+      h('button',{class:'btn ink sm',type:'button',onclick:doneSel,text:'完成'}))):null;
   const chips=[F.g&&['g',genusZh(F.g)||F.g],F.kind&&['kind',KIND[F.kind]],F.sale&&['sale',{off:'未上架',on:'販售中',live:'競標中',sold:'已售／結束'}[F.sale]],F.tag&&['tag','#'+F.tag],F.q&&['q','「'+F.q+'」']].filter(Boolean);
-  m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('植物管理', h('button',{class:'btn soft',type:'button',onclick:()=>{ S.admTab='batch'; renderAdmin(true); },text:'批量登錄'}), h('button',{class:'btn pri',type:'button',onclick:()=>{ S.admTab='new'; S.newPreset=null; renderAdmin(true); },text:'＋ 登錄一株'})),
-    h('p',{class:'hint',style:'margin:-6px 0 14px',text:'所有登錄過的植株（不論有沒有上架）都在這裡。「分層」先列母本，有側芽或實生苗的點進去看、可以整批勾選；搜尋或篩選時會列出所有符合的植株。'}),
-    h('div',{class:'rg'}, side, h('div',{class:'rg-main'},
-      h('div',{class:'bf-bar'}, h('label',{class:'search bf-q'}, svg('i-search'), q), h('button',{type:'button',class:'btn soft sm rg-ftog','aria-expanded':String(!!S.rgOpen),onclick:()=>{ S.rgOpen=!S.rgOpen; renderAdmin(true); },text:(S.rgOpen?'收起篩選':'篩選')+(nAct?'（'+nAct+'）':'')}), h('div',{class:'row bf-r'}, h('span',{class:'hint',text:list.length+' / '+all0.length+' 株'}), sortSel, views)),
-      chips.length?h('div',{class:'bf-chips'}, ...chips.map(([k,l])=>h('button',{type:'button',class:'bf-chip',onclick:()=>set({[k]:''})}, l, h('span',{text:'✕'}))), h('button',{type:'button',class:'bf-lk',onclick:()=>set({q:'',g:'',kind:'',sale:'',tag:''}),text:'全部清除'})):null,
-      bulk, h('div',{style:'margin-top:14px'}, body)))));
+  m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('植物管理', h('button',{class:'btn pri',type:'button',onclick:rgAddMenu,text:'＋ 新增植物'})),
+    h('div',{class:'rg'+(picking?' picking':'')}, side, h('div',{class:'rg-main'},
+      h('div',{class:'bf-bar rg-bar'}, h('label',{class:'search bf-q'}, svg('i-search'), q), h('div',{class:'rg-tools'}, h('button',{type:'button',class:'btn soft sm rg-ftog','aria-expanded':String(!!S.rgOpen),onclick:()=>{ S.rgOpen=!S.rgOpen; renderAdmin(true); },text:'篩選'+(nAct?'（'+nAct+'）':'')}), viewSel, pickTog)),
+      chips.length?h('div',{class:'bf-chips'}, h('span',{class:'hint',text:list.length+' / '+all0.length+' 株'}), ...chips.map(([k,l])=>h('button',{type:'button',class:'bf-chip',onclick:()=>set({[k]:''})}, l, h('span',{text:'✕'}))), h('button',{type:'button',class:'bf-lk',onclick:()=>set({q:'',g:'',kind:'',sale:'',tag:''}),text:'全部清除'})):null,
+      picking&&!sel.size?h('p',{class:'rg-pkh',text:'☑ 選取模式：點植物就會選起來，選好後用下方的按鈕一起上架、印標籤或整理。'}):null,
+      h('div',{style:'margin-top:12px'}, body)))), bulk);
+  // 換層時捲回該層上次的位置（第一次進去就從頂端開始）
+  const pk=F.view+'|'+F.path.join(',');
+  if (S.rgLastKey!==pk){ const y=(S.rgScroll||{})[F.path.join(',')]; S.rgLastKey=pk; requestAnimationFrame(()=>{ adm.scrollTop=y||0; }); }
 }
 /* ---- 父母本選擇器：用編號或品種搜尋所有已登錄的植株 ---- */
 function parentPicker(o){
@@ -7626,6 +7762,8 @@ function admBatch(m){
   const batches=(()=>{ const map=new Map(); mine().forEach(p=>{ const k=p.grp?'g:'+p.grp:p.batch?'b:'+p.batch:null; if(!k) return; if(!map.has(k)) map.set(k,[]); map.get(k).push(p); });
     return [...map].map(([k,L])=>{ L.sort(codeSort); const G=L[0].grp&&groupMeta(S.me,L[0].grp); return {k,L,first:L[0],G,name:G?.name||(short(L[0].species)+(L[0].cultivar?' '+L[0].cultivar:'')+' '+KIND[L[0].kind||'mother']),range:L[0].code+(L.length>1?' → '+L[L.length-1].code:'')}; })
       .filter(x=>x.G||x.L.length>1).sort((a,b)=>Math.max(...b.L.map(p=>toMs(p.createdAt)))-Math.max(...a.L.map(p=>toMs(p.createdAt)))); })();
+  // 從植物管理的「加進這疊／這批」來的：用那一疊當作要接續的一批
+  if (B.cont&&!batches.some(x=>x.k===B.cont)&&B.contL?.length){ const L=B.contL.map(id=>S.plants.get(id)).filter(Boolean).sort(codeSort); if(L.length) batches.unshift({k:B.cont,L,first:L[0],G:null,name:B.contName||(short(L[0].species)+(L[0].cultivar?' '+L[0].cultivar:'')+' '+KIND[L[0].kind||'mother']),range:L[0].code+(L.length>1?' → '+L[L.length-1].code:'')}); }
   if (B.mode==='cont'&&!batches.length) B.mode='new';
   const cont=()=>B.mode==='cont'?batches.find(x=>x.k===B.cont)||null:null;
   let kind=B.kind;
@@ -7692,7 +7830,7 @@ function admBatch(m){
   goBtn.addEventListener('click',async()=>{ err.textContent=''; const c=cont(), n=B.cards.length;
     if (B.cards.some(cd=>cd.picker.busy())){ err.textContent='還有照片或影片在上傳，請稍候。'; return; }
     let base;
-    if (c){ const f=c.first; base={kind:f.kind||'mother',species:f.species,cultivar:f.cultivar||'',cross:f.cross||'',momId:f.momId||null,momCode:f.momCode||null,dadId:f.dadId||null,dadCode:f.dadCode||null,parentId:f.parentId||null,parentCode:f.parentCode||null,momExt:f.momExt||null,dadExt:f.dadExt||null,tags:tagsOf(f),grp:f.grp||null,batch:f.batch||f.code,notes0:'',stage:f.lastStage||stagesFor(f.kind)[0],L:c.L.some(p=>listed(p))||!!f.grp,sale:{mode:'fixed',price:f.price??null,endsAtMs:null},hidden:false}; }
+    if (c){ const f=c.first; base={kind:f.kind||'mother',species:f.species,cultivar:f.cultivar||'',cross:f.cross||'',momId:f.momId||null,momCode:f.momCode||null,dadId:f.dadId||null,dadCode:f.dadCode||null,parentId:f.parentId||null,parentCode:f.parentCode||null,momExt:f.momExt||null,dadExt:f.dadExt||null,tags:tagsOf(f),grp:f.grp||null,batch:f.batch||f.code,stack:f.stack&&!String(f.stack).startsWith('x:')?f.stack:null,notes0:'',stage:f.lastStage||stagesFor(f.kind)[0],L:c.L.some(p=>listed(p))||!!f.grp,sale:{mode:'fixed',price:f.price??null,endsAtMs:null},hidden:false}; }
     else { const mo=momP.get(), da=dadP.get();
       if (kind==='pup'&&!mo?.p&&!momX.get()){ err.textContent='請選擇母株；母株不在 VEIN 上的話，打開「母本不在 VEIN 上」填名稱或上傳照片。'; return; }
       if (kind==='seedling'&&!mo&&!momX.get()){ err.textContent='請填母本。'; return; }
@@ -7711,7 +7849,7 @@ function admBatch(m){
         const s2={...base.sale}; if(base.L&&cd.price.value!==''){ if(s2.mode==='auction') s2.startPrice=Number(cd.price.value); else s2.price=Number(cd.price.value); }
         const data={code:codes[i],kind:base.kind,species:base.species,cultivar:base.cultivar,cross:base.cross,leaves:cd.leaves.value?Number(cd.leaves.value):null,status:base.L?'available':'keep',listed:base.L,listedAt:base.L?Date.now():null,notes:[common,cd.note.value.trim()].filter(Boolean).join('\n'),
           momId:base.momId,momCode:base.momCode,dadId:base.dadId,dadCode:base.dadCode,parentId:base.parentId,parentCode:base.parentCode,momExt:base.momExt||null,dadExt:base.dadExt||null,
-          thumb:ph?ph.thumb:null,coverThumb:ph?ph.thumb:null,createdAt:reg,lastPhotoAt:ph?phs.map(x=>x.takenAt).sort().pop():null,lastStage:base.stage,photoCount:phs.length,media:mediaOf(phs),hidden:base.hidden||!ph,tags:base.tags,batch:base.batch,grp:base.grp,...(base.L?s2:{mode:'fixed',price:null,endsAtMs:null})};
+          thumb:ph?ph.thumb:null,coverThumb:ph?ph.thumb:null,createdAt:reg,lastPhotoAt:ph?phs.map(x=>x.takenAt).sort().pop():null,lastStage:base.stage,photoCount:phs.length,media:mediaOf(phs),hidden:base.hidden||!ph,tags:base.tags,batch:base.batch,grp:base.grp,...(base.stack?{stack:base.stack}:{}),...(base.L?s2:{mode:'fixed',price:null,endsAtMs:null})};
         if (!ph) noPhoto++;
         await ref.set(data); for(const x of phs) await ref.collection('photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:base.stage,note:'',registeredAt:reg});
         S.plants.set(ref.id,{id:ref.id,...data,shop:S.me}); ids.push(ref.id); }
