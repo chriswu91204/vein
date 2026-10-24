@@ -2707,6 +2707,26 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .pe-iw{position:relative;flex:none}
 .pe-cvb{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);border:0;border-radius:999px;background:#050605;color:#D2FF00;font:inherit;font-size:12px;font-weight:700;padding:4px 10px;white-space:nowrap;cursor:pointer}
 .cb-clr b{color:#C2281F}
+#workBar{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);transform:translateX(-50%);z-index:10001;background:#050605;color:#fff;border-radius:999px;padding:8px 8px 8px 16px;display:flex;gap:10px;align-items:center;font-size:13px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);max-width:calc(100% - 24px)}
+#admNav .navtop .stf-chip{border:0;border-radius:999px;background:#D2FF00;color:#050605;font:inherit;font-size:11px;font-weight:800;padding:4px 9px;cursor:pointer;white-space:nowrap;max-width:9em;overflow:hidden;text-overflow:ellipsis;flex:none}
+#workBar b{color:#D2FF00}#workBar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#workBar button{border:0;border-radius:999px;background:#D2FF00;color:#050605;font:inherit;font-weight:800;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.stf-list{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.stf-it{background:var(--paper);border-radius:16px;padding:12px}
+.stf-perms{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-top:10px}
+.stf-p{display:flex;gap:10px;align-items:flex-start;background:var(--surface,#fff);border-radius:12px;padding:10px;cursor:pointer}
+.stf-p input{margin-top:3px;width:18px;height:18px;accent-color:#1F5C42}
+.stf-p b{display:block;font-size:14px}.stf-p small{font-size:12px;color:var(--fg2);line-height:1.4}
+.stf-pc{display:flex;gap:6px;flex-wrap:wrap}
+.stf-inv{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.stf-ii{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--paper);border-radius:12px;padding:10px}
+.stf-new{margin-top:12px;background:#E9F7B5;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.stf-new code{word-break:break-all;font-size:12px;background:#fff;border-radius:8px;padding:8px}
+.stf-acc{max-width:520px;margin:30px auto;background:var(--surface,#fff);border-radius:24px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.stf-acc .stf-ic{font-size:44px}
+.stf-ul{text-align:left;align-self:stretch;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.stf-ul li{background:var(--paper);border-radius:12px;padding:10px 12px}.stf-ul b{display:block}.stf-ul small{color:var(--fg2)}
+.stf-mine{border:2px solid #D2FF00}
 .me{display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-areas:'side main' 'extra main';grid-template-rows:auto 1fr;column-gap:28px;align-items:start;padding-bottom:40px}
 .me-side{grid-area:side}.me-main{grid-area:main}.me-extra{grid-area:extra;align-self:start}
 .me-card{background:var(--surface,#fff);border-radius:22px;padding:16px;margin-bottom:14px}
@@ -3431,6 +3451,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
   </section>
 
   </div>
+  <div class="page" id="pgStaff" hidden><section class="sec wrap page-top"><div id="staffPage"></div></section></div>
   <div class="page" id="pgMe" hidden><section class="sec wrap page-top" id="me"><div id="mePage"></div></section></div>
   <div class="page" id="pgRaffle" hidden>
   <section class="sec wrap page-top" id="raffle">
@@ -4048,8 +4069,8 @@ function openPhone(reason){
   ok.addEventListener('click',async()=>{ err.textContent=''; ok.disabled=true; try{ await conf.confirm(code.value); S.meInfo={...S.meInfo,phoneVerified:true}; toast('手機驗證完成'); dlg.close(); renderAll(); }catch(e){ err.textContent=msg(e); ok.disabled=false; } });
   openDialog('驗證手機', h('div',{class:'form'}, h('h3',{style:'font-size:28px;font-weight:600',text:'驗證手機號碼'}), reason?h('p',{class:'ph-why',text:reason}):null, h('p',{class:'hint',text:'驗證一次就好。一支手機只能綁定一個帳號，號碼不會公開。'}), field('手機號碼',num), h('div',{}, send), qbox, step2, err), true);
 }
-function saveSocial(patch){ if(!S.socialReady){ toast('資料還在載入，請稍候'); return Promise.reject(new Error('nr')); } const cur={...mySocial(),...patch}; S.social.set(S.me,cur); S.socialAll.set(S.me,cur); renderAll(); return socialQ(()=>S.db.doc('social/'+S.me).set(cur)).catch(e=>{ toast('儲存失敗，請稍後再試'); throw e; }); }
-function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsQ(()=>S.db.doc(`data/users/${S.me}/prefs`).set(S.prefs)).catch(()=>toast('沒有存成功，請稍後再試')); }
+function saveSocial(patch){ if(S.work){ toast('小編模式不能用賣場的身分出價、追蹤、下單或抽獎，請先切回自己的帳號'); return Promise.reject(new Error('work')); } if(!S.socialReady){ toast('資料還在載入，請稍候'); return Promise.reject(new Error('nr')); } const cur={...mySocial(),...patch}; S.social.set(S.me,cur); S.socialAll.set(S.me,cur); renderAll(); return socialQ(()=>S.db.doc('social/'+S.me).set(cur)).catch(e=>{ toast('儲存失敗，請稍後再試'); throw e; }); }
+function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>toast('沒有存成功，請稍後再試')); }
 function toggleFav(id){ if(needLogin()) return; const f=new Set(S.prefs.favs||[]); const on=!f.has(id); on?f.add(id):f.delete(id); savePrefs({favs:[...f]},on?'已加入收藏':'已取消收藏'); }
 function favBtn(id){ const on=(S.prefs.favs||[]).includes(id); return h('button',{class:'fav'+(on?' on':''),type:'button','aria-label':on?'取消收藏':'加入收藏','aria-pressed':String(on),onclick:e=>{ e.stopPropagation(); toggleFav(id); }}, svg('i-heart')); }
 function toggleFollow(shop){ if(needLogin()) return; if(shop===S.me){ toast('這是你自己的賣場'); return; } const f=new Set(mySocial().follows||[]); const on=!f.has(shop); on?f.add(shop):f.delete(shop); saveSocial({follows:[...f]}).then(()=>toast(on?'已追蹤 '+shopName(shop):'已取消追蹤')).catch(()=>{}); }
@@ -5402,9 +5423,9 @@ function recentList(){ const a=lsGet(RV_KEY(),[]), R=Array.isArray(S.prefs?.rece
   for (const x of [...(Array.isArray(a)?a:[]),...R]) if(x&&x.id&&(!m.has(x.id)||m.get(x.id).at<x.at)) m.set(x.id,x);
   return [...m.values()].sort((x,y)=>y.at-x.at).slice(0,80); }
 function noteView(id){ if(!id||String(id).startsWith('g:')) return; const L=recentList().filter(x=>x.id!==id); L.unshift({id,at:Date.now()}); lsSet(RV_KEY(),L.slice(0,80)); rvDirty=true; clearTimeout(rvT); rvT=setTimeout(rvSync,45e3); }
-function rvSync(){ if(!rvDirty||!S.me||!S.prefsReady||!S.db) return; rvDirty=false; S.prefs={...S.prefs,recent:recentList().slice(0,40)}; prefsQ(()=>S.db.doc(`data/users/${S.me}/prefs`).set(S.prefs)).catch(()=>{}); }
+function rvSync(){ if(!rvDirty||!S.me||!S.prefsReady||!S.db) return; rvDirty=false; S.prefs={...S.prefs,recent:recentList().slice(0,40)}; prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>{}); }
 addEventListener('visibilitychange',()=>{ if(document.hidden) rvSync(); });
-function clearRecent(){ lsSet(RV_KEY(),[]); if(S.me&&S.prefsReady){ S.prefs={...S.prefs,recent:[]}; prefsQ(()=>S.db.doc(`data/users/${S.me}/prefs`).set(S.prefs)).catch(()=>{}); } toast('已清除瀏覽紀錄'); renderMe(true); }
+function clearRecent(){ lsSet(RV_KEY(),[]); if(S.me&&S.prefsReady){ S.prefs={...S.prefs,recent:[]}; prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>{}); } toast('已清除瀏覽紀錄'); renderMe(true); }
 const recentPlants=()=>recentList().map(x=>({x,p:S.plants.get(x.id)})).filter(o=>o.p&&!o.p.hidden&&!o.p.blocked);
 // 為你推薦：追蹤的賣家、收藏與最近看過的品種、競標與新品
 function meRecs(n){ const fol=new Set(mySocial().follows||[]), favIds=new Set(S.prefs.favs||[]), favs=[...favIds].map(i=>S.plants.get(i)).filter(Boolean), rv=recentPlants().slice(0,30).map(o=>o.p);
@@ -5454,7 +5475,7 @@ function renderMe(force){
     !S.meBdgAll&&next?h('div',{class:'mp-next'}, h('span',{text:'下一個：'+next.ic+' '+next.n}), h('i',{}, h('em',{style:'width:'+Math.round(Math.min(1,next.prog[0]/next.prog[1])*100)+'%'})), h('small',{text:next.prog[0]+' / '+next.prog[1]})):null);
   const acc=h('div',{class:'mp-acc'}, h('div',{class:'mp-id'}, h('small',{text:'會員 ID（別人轉移植物給你時用）'}), h('code',{text:S.me})), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(S.me),text:'複製'}),
     window.__veinAuth?h('button',{class:'btn soft sm mp-out',type:'button',onclick:()=>window.__veinAuth.signOut(),text:'登出'}):null);
-  const side=h('aside',{class:'me-side'}, h('div',{class:'me-card'}, head, stats), acts), extra=h('div',{class:'me-extra'}, bdg, acc);
+  const side=h('aside',{class:'me-side'}, h('div',{class:'me-card'}, head, stats), meStaffCard(), acts), extra=h('div',{class:'me-extra'}, bdg, acc);
   // ---- 右欄：分頁 ----
   const TABS=[['home','總覽'],['recent','瀏覽紀錄',rv.length],['orders','訂單',ords.length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['offers','議價',offs.length],['favs','收藏',favs.length],['follows','追蹤',fol.length],['mine','我的植物',owned.length],['qs','提問',qs.length]];
   const tabs=h('div',{class:'htabs scroll mp-tabs me-tabs',id:'meTabs',role:'tablist'}, ...TABS.map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(T===k),onclick:()=>go2(k)}, l, n?h('span',{class:'n',text:String(n)}):null)));
@@ -5621,14 +5642,17 @@ function syncSubs(){
     L.push(S.db.collection(b+'/answers').onSnapshot(sn=>{ for(const [k,a] of S.answers) if(a.shop===u) S.answers.delete(k); sn.docs.forEach(d=>S.answers.set(d.id,{...d.data(),shop:u})); renderAll(); },()=>{}));
     subs.set(u,L); }
 }
-function checkReady(){ if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
+function checkReady(){ if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
 async function boot(){
   const c=window.claude;
   if (!c?.use){ S.failed=true; renderAll(); return; }
   const [db,user,assets]=await Promise.all([c.use('db'),c.use('user'),c.use('assets')]);
   S.db=db; S.user=user; S.assets=assets;
-  if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write'); }
-  S.booted=true; renderNav(); setTimeout(()=>{ try{ installNudge(); }catch(e){} },1500); setTimeout(()=>{ try{ verWatch(); }catch(e){} },4000); setTimeout(()=>{ try{ guardBoot(); }catch(e){} },2500);
+  if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.realMe=S.me; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write');
+    // 小編模式：用自己的帳號登入，但以受邀賣場的身分管理（資料庫規則會依權限把關）
+    let act=null; try{ act=sessionStorage.getItem('vein.actAs'); }catch(e){}
+    if (act&&act!==S.realMe&&db){ try{ const d=await db.doc(`shops/${act}/staff/${S.realMe}`).get(); if(d.exists){ S.work={shop:act,perms:d.data().perms||{}}; S.me=act; S.admin=false; S.isOwner=false; } else { sessionStorage.removeItem('vein.actAs'); setTimeout(()=>toast('你已經不是這個賣場的小編'),1500); } }catch(e){ try{ sessionStorage.removeItem('vein.actAs'); }catch(x){} } } }
+  S.booted=true; renderNav(); try{ workBar(); }catch(e){} setTimeout(()=>{ try{ installNudge(); }catch(e){} },1500); setTimeout(()=>{ try{ verWatch(); }catch(e){} },4000); setTimeout(()=>{ try{ guardBoot(); }catch(e){} },2500);
   if (db&&S.admin) db.collection('upreq').onSnapshot(sn=>{ S.upreqN=sn.size; if(adm.open) renderAdmNav(); }, ()=>{});
   if (db&&S.admin) db.collection('abuse').onSnapshot(sn=>{ S.abuseN=sn.docs.filter(d=>d.id!=='_budget').length; if(adm.open) renderAdmNav(); }, ()=>{});
   if (!db){ S.failed=true; renderAll(); return; }
@@ -5654,22 +5678,22 @@ async function boot(){
     const sub=(col,field)=>db.collection(col).where(field,'==',S.me).onSnapshot(sn=>{ const M=col==='offers'?S.offers:S.deals; for(const [k,v] of M) if(v[field]===S.me) M.delete(k); sn.docs.forEach(d=>{ const v=d.data(); if(v[field]===S.me) M.set(d.id,{id:d.id,...v}); }); renderAll(); },()=>{});
     sub('offers','buyer'); sub('offers','seller'); sub('deals','buyer'); sub('deals','seller');
     db.doc(`data/users/${S.me}/bank`).onSnapshot(d=>{ S.bank=d.exists?d.data():null; },()=>{});
-    chatBoot(db); careBoot(db);
+    if(!S.work) chatBoot(db); careBoot(db);
   }
-  if (S.me) db.doc(`data/users/${S.me}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); }, ()=>{});
+  if (S.me) db.doc(`data/users/${ME()}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); }, ()=>{});
   setTimeout(()=>{ if(!S.ready){ S.ready=true; renderAll(); } }, 4000);
-  if (location.hash==='#admin') route();
+  if (isAdmHash(location.hash)) route();
 }
 
 /* ---------- router ---------- */
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed','sell','about','rules','me'];
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed','sell','about','rules','me','staff'];
 function go(hash){ if(location.hash===hash) route(); else if((history.state?.bl||0)>(window.__BL?.length||0)){ history.replaceState(null,'',hash); route(); } /* 剛關掉的視窗留下的那筆紀錄直接換掉，按上一頁才不會多按一次 */ else location.hash=hash; }
 function route(){
   if (PREVIEW&&!/^#\/seller\//.test(location.hash||'')) history.replaceState(null,'',PV_HASH);
   const hs=location.hash||'#/'; if(hs!==S.curHash){ S.prevHash=S.curHash??null; S.curHash=hs; }
   const am=hs.match(/^#(admin|plants)(?:\/([^/]*))?(?:\/(.+))?$/);
   if (am){ const mode=am[1]==='plants'?'plant':'shop', [tab,sub]=(am[2]||'').split(':'), ed=am[3]?decodeURIComponent(am[3]):null;
-    if (mode==='shop'&&!isSeller()){ if(S.booted) history.replaceState(null,'','#/'); return; }
+    if (mode==='shop'&&!isSeller()){ if(S.me&&!S.shopsReady){ S.admPend=true; return; } if(S.booted) history.replaceState(null,'','#/'); return; }
     if (mode==='plant'&&!S.me){ if(S.booted){ history.replaceState(null,'','#/'); openLogin(); } return; }
     S.admFromRoute=true; S.admMode=mode; if(tab) S.admTab=tab; if(sub) S.shopTab=sub; S.admEdit=ed; if(S.admTab==='users'){ S.userSel=ed; S.admEdit=null; } S.batchDone=null; S.newPreset=null; S.admDepth=history.state?.adm||0;
     try{ if(!adm.open){ S.admBaseVi=S.prevHash!=null&&!isAdmHash(S.prevHash)&&NAV.idx()>0?NAV.idx()-1:null; renderAdmin(true); adm.showModal(); } else renderAdmin(true); } finally { S.admFromRoute=false; } if(location.hash!==admHash()) history.replaceState(history.state,'',admHash()); return; }
@@ -5695,7 +5719,7 @@ function route(){
   const changed=pg!==PAGE||(pg==='seller')||tabChanged||plantChanged||groupChanged||histChanged;
   const apply=()=>{
     PAGE=pg; document.body.dataset.page=pg;
-    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgMe').hidden=pg!=='me'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim'; $('#pgGuide').hidden=pg!=='guide';
+    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgMe').hidden=pg!=='me'; $('#pgStaff').hidden=pg!=='staff'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim'; $('#pgGuide').hidden=pg!=='guide';
     if (pg==='home'&&window.__hsSize) __hsSize();
     if (pg==='home') renderCommunity();
     if (pg==='verify'&&arg){ $('#vcode').value=arg; renderVerify(arg); }
@@ -5710,6 +5734,7 @@ function route(){
     if (pg==='guide') renderGuide(arg);
     if (pg==='chats') renderChats(arg);
     if (pg==='feed') renderFeed();
+    if (pg==='staff') renderStaffPage(arg);
     if (pg==='me'){ if(!S.me){ if(S.booted){ history.replaceState(null,'','#/'); openLogin(); } } else { S.meTab=arg||'home'; renderMe(true); } }
     if (pg==='plant'&&(plantChanged||!$('#dInfo'))) buildPlantPage(arg);
     if (pg==='shop') renderShop(true);
@@ -7062,6 +7087,76 @@ const SELLER_TABS=['home','reg','care','plants','new','batch','list','groups','l
 adm.addEventListener('close',()=>{ tourStop(false); if(!S.admClosingByRoute&&isAdmHash(location.hash)) history.replaceState(null,'',S.admReturn&&!isAdmHash(S.admReturn)?S.admReturn:'#/'); });
 function field(label,input){ return h('label',{class:'field'}, h('span',{text:label}), input); }
 function fieldBox(label,el){ return h('div',{class:'field'}, h('span',{text:label}), el); }
+/* ================= 小編：多人共同管理賣場（認證賣家） =================
+   賣場主人產生邀請連結 → 小編用自己的帳號打開、接受 → 之後在「我的」切到「小編模式」管理賣場。
+   權限分四類，資料庫規則也照這四類把關（沒權限的動作會直接被擋下）。 */
+const STAFF_PERMS=[['plants','🌱 植物與商品','登錄植物、成長紀錄、日常照顧、上架、競標、群組、標籤'],['orders','📦 訂單與客服','訂單、收款、出貨、議價、回覆提問'],['raffles','🎁 抽獎','建立抽獎、開獎'],['design','🎨 賣場設定與裝修','賣場資料、橫幅、裝修版面']];
+const STAFF_MAX=5;
+const ME=()=>S.realMe||S.me;
+const canDo=k=>!S.work||!!S.work.perms?.[k];
+const TAB_PERM={reg:'plants',care:'plants',new:'plants',batch:'plants',labels:'plants',plants:'plants',list:'plants',groups:'plants',auc:'plants',raffle:'raffles',orders:'orders',offers:'orders',qa:'orders',shop:'design'};
+const tabOK=t=>!S.work||(t==='home'||(TAB_PERM[t]?canDo(TAB_PERM[t]):false));
+function staffEnter(owner){ try{ sessionStorage.setItem('vein.actAs',owner); }catch(e){} history.replaceState(null,'',location.pathname+'#admin'); location.reload(); }
+function staffExit(){ try{ sessionStorage.removeItem('vein.actAs'); }catch(e){} history.replaceState(null,'',location.pathname+'#/me'); location.reload(); }
+const permChips=perms=>h('div',{class:'stf-pc'}, ...STAFF_PERMS.filter(([k])=>perms?.[k]).map(([k,l])=>h('span',{class:'tag grey',text:l})));
+function workBar(){ if(!S.work||$('#workBar')) return; document.body.classList.add('in-work');
+  document.body.append(h('div',{id:'workBar',role:'status'}, h('span',{}, '🧑‍💼 小編模式：正在管理「', h('b',{text:shopName(S.work.shop)}), '」'), h('button',{type:'button',onclick:staffExit,text:'切回自己的帳號'}))); }
+// ---- 賣場主人：小編管理 ----
+function admStaff(m){
+  if (S.work){ m.append(h('div',{class:'empty'}, h('h3',{text:'只有賣場主人可以管理小編'}))); return; }
+  m.append(admTop('小編管理'));
+  if (!proOf(S.me)&&!S.admin){ m.append(h('div',{class:'panel lockp'}, h('div',{class:'lock-i',text:'🔒'}), h('h3',{text:'小編共同管理是認證賣家專屬功能'}), h('p',{class:'hint',text:'認證賣家可以邀請最多 '+STAFF_MAX+' 位小編，用他們自己的帳號一起管理賣場，並且分別設定每個人能做什麼。'}), h('button',{class:'btn pri',type:'button',onclick:()=>openUpgrade('staff'),text:'📩 申請成為認證賣家'}))); return; }
+  const box=h('div',{}); m.append(h('p',{class:'hint',style:'margin:-6px 0 14px',text:'產生邀請連結傳給小編，他用自己的帳號登入、打開連結按「接受」，就能一起管理賣場。每位小編的權限可以隨時調整或移除；小編不會看到你的登入資訊，也不能管理其他小編。'}), box);
+  const draw=()=>{ const L=S.staffL||[], I=(S.staffInv||[]).filter(x=>!x.usedBy&&x.expiresAt>Date.now()); resolveNames(L.map(x=>x.id));
+    const used=L.length+I.length;
+    const perm=(x)=>h('div',{class:'stf-perms'}, ...STAFF_PERMS.map(([k,l,d])=>h('label',{class:'stf-p',title:d}, (()=>{ const c=h('input',{type:'checkbox',checked:!!x.perms?.[k]}); c.addEventListener('change',async()=>{ const p={...(x.perms||{}),[k]:c.checked}; try{ await S.db.doc(`shops/${S.me}/staff/${x.id}`).update({perms:p}); toast('已更新權限'); }catch(e){ c.checked=!c.checked; toast('更新失敗'); } }); return c; })(), h('span',{}, h('b',{text:l}), h('small',{text:d})))));
+    box.replaceChildren(
+      h('div',{class:'panel'}, h('div',{class:'row',style:'justify-content:space-between;align-items:center'}, h('h3',{style:'margin:0',text:'小編（'+L.length+' / '+STAFF_MAX+'）'}), h('span',{class:'hint',text:'勾選或取消就會立刻生效'})),
+        L.length?h('div',{class:'stf-list'}, ...L.map(x=>h('div',{class:'stf-it'}, h('div',{class:'row',style:'gap:10px;align-items:center'}, avatar(x.id,40), h('div',{style:'flex:1;min-width:0'}, h('b',{text:x.name||nameOf(x.id)}), h('small',{class:'hint',style:'display:block',text:'加入於 '+fmtDay(tsLocal(x.at||0))})), confirmBtn('移除','soft',async()=>{ try{ await S.db.doc(`shops/${S.me}/staff/${x.id}`).delete(); toast('已移除小編'); }catch(e){ toast('移除失敗'); } })), perm(x)))):h('p',{class:'hint',text:'還沒有小編。'})),
+      h('div',{class:'panel'}, h('h3',{text:'邀請新的小編'}),
+        used>=STAFF_MAX?h('p',{class:'hint',text:'已達 '+STAFF_MAX+' 位上限（包含還沒被接受的邀請）。'}):newInvite(),
+        I.length?h('div',{class:'stf-inv'}, h('b',{text:'還沒被接受的邀請'}), ...I.map(x=>h('div',{class:'stf-ii'}, h('div',{style:'flex:1;min-width:0'}, permChips(x.perms), h('small',{class:'hint',text:'到 '+fmtDay(tsLocal(x.expiresAt))+' 前有效 · 只能用一次'})), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(staffLink(x.id)),text:'複製連結'}), confirmBtn('作廢','soft',async()=>{ try{ await S.db.doc(`shops/${S.me}/invites/${x.id}`).delete(); toast('已作廢'); }catch(e){ toast('操作失敗'); } })))):null)); };
+  const newInvite=()=>{ const sel={plants:true,orders:true,raffles:false,design:false}; const days=h('select',{}, ...[['1','1 天'],['3','3 天'],['7','7 天']].map(([v,l])=>h('option',{value:v,text:l,selected:v==='3'}))); const out=h('div',{});
+    const showNew=url=>out.replaceChildren(h('div',{class:'stf-new'}, h('b',{text:'✅ 邀請連結已產生（只能用一次）'}), h('code',{class:'mono',text:url}), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('button',{class:'btn lime sm',type:'button',onclick:()=>copyText(url),text:'複製連結'}), h('a',{class:'btn line sm',href:'https://line.me/R/share?text='+encodeURIComponent('邀請你一起管理「'+shopName(S.me)+'」的 VEIN 賣場，用你自己的帳號登入後打開：\n'+url),target:'_blank',rel:'noopener',text:'用 LINE 傳'})))); if(S.staffNew) showNew(S.staffNew);
+    return h('div',{class:'form'}, h('div',{class:'stf-perms'}, ...STAFF_PERMS.map(([k,l,d])=>h('label',{class:'stf-p'}, (()=>{ const c=h('input',{type:'checkbox',checked:sel[k]}); c.addEventListener('change',()=>{ sel[k]=c.checked; }); return c; })(), h('span',{}, h('b',{text:l}), h('small',{text:d}))))),
+      field('連結有效期限',days), h('button',{class:'btn pri',type:'button',onclick:async e=>{ if(!Object.values(sel).some(Boolean)){ toast('至少勾一項權限'); return; } const b=e.currentTarget; b.disabled=true;
+        const tok=Array.from(crypto.getRandomValues(new Uint8Array(18)),x=>x.toString(16).padStart(2,'0')).join('');
+        try{ await S.db.doc(`shops/${S.me}/invites/${tok}`).set({perms:{...sel},createdAt:Date.now(),expiresAt:Date.now()+(+days.value)*864e5,usedBy:null}); const url=staffLink(tok); S.staffNew=url; showNew(url); copyText(url); }
+        catch(ex){ toast('產生失敗：'+(ex?.code==='invalid_argument'?'目前不是認證賣家，或認證已過期':'請稍後再試')); } finally{ b.disabled=false; } },text:'產生邀請連結'}), out); };
+  if (!S.staffSub){ S.staffSub=[S.db.collection(`shops/${S.me}/staff`).onSnapshot(sn=>{ S.staffL=sn.docs.map(d=>({id:d.id,...d.data()})); if(adm.open&&S.admTab==='staff') draw(); },()=>{}),
+    S.db.collection(`shops/${S.me}/invites`).onSnapshot(sn=>{ S.staffInv=sn.docs.map(d=>({id:d.id,...d.data()})); if(adm.open&&S.admTab==='staff') draw(); },()=>{})]; }
+  draw();
+}
+const staffLink=tok=>siteUrl()+'#/staff/'+encodeURIComponent(S.me+'~'+tok);
+// ---- 小編：打開邀請連結 ----
+async function renderStaffPage(arg){
+  const box=$('#staffPage'); const [owner,tok]=String(arg||'').split('~');
+  const shell=(...k)=>box.replaceChildren(h('div',{class:'stf-acc'}, ...k));
+  if (!owner||!tok){ shell(h('h2',{text:'邀請連結不完整'}), h('p',{class:'hint',text:'請跟賣場主人要一個新的連結。'})); return; }
+  if (!S.booted||!S.db){ shell(h('p',{class:'hint',text:'載入中…'})); return; }
+  if (!S.me){ shell(h('div',{class:'stf-ic',text:'🧑‍💼'}), h('h2',{text:'受邀一起管理「'+shopName(owner)+'」'}), h('p',{class:'hint',text:'請先用你自己的 Google 帳號登入，再按接受。'}), h('button',{class:'btn pri lg',type:'button',onclick:openLogin,text:'登入'})); return; }
+  if (S.work){ shell(h('h2',{text:'你正在小編模式'}), h('p',{class:'hint',text:'請先切回自己的帳號，再打開這個邀請連結。'}), h('button',{class:'btn pri',type:'button',onclick:()=>{ try{ sessionStorage.removeItem('vein.actAs'); }catch(e){} location.reload(); },text:'切回自己的帳號'})); return; }
+  if (owner===S.me){ shell(h('h2',{text:'這是你自己賣場的邀請連結'}), h('p',{class:'hint',text:'把它傳給你的小編，請他用自己的帳號打開。'}), h('button',{class:'btn soft',type:'button',onclick:()=>copyText(location.href),text:'複製連結'})); return; }
+  shell(h('p',{class:'hint',text:'確認邀請中…'}));
+  let inv=null, mine=null; try{ const d=await S.db.doc(`shops/${owner}/invites/${tok}`).get(); inv=d.exists?d.data():null; }catch(e){}
+  try{ const d=await S.db.doc(`shops/${owner}/staff/${S.me}`).get(); mine=d.exists?d.data():null; }catch(e){}
+  const enter=h('button',{class:'btn lime lg',type:'button',onclick:()=>staffEnter(owner),text:'進入小編模式，開始管理 →'});
+  if (mine){ addStaffOf(owner); shell(h('div',{class:'stf-ic',text:'✅'}), h('h2',{text:'你已經是「'+shopName(owner)+'」的小編'}), permChips(mine.perms), enter); return; }
+  if (!inv||inv.usedBy||inv.expiresAt<Date.now()){ shell(h('div',{class:'stf-ic',text:'⌛'}), h('h2',{text:'這個邀請連結已失效'}), h('p',{class:'hint',text:'可能已經被使用、過期或被作廢，請跟賣場主人要一個新的連結。'})); return; }
+  shell(h('div',{class:'stf-ic',text:'🧑‍💼'}), h('div',{class:'row',style:'gap:12px;align-items:center;justify-content:center'}, avatar(owner,56), h('h2',{style:'margin:0',text:shopName(owner)})),
+    h('p',{text:'邀請你成為小編，用你自己的帳號一起管理這個賣場。你可以：'}),
+    h('ul',{class:'stf-ul'}, ...STAFF_PERMS.filter(([k])=>inv.perms?.[k]).map(([,l,d])=>h('li',{}, h('b',{text:l}), h('small',{text:d})))),
+    h('p',{class:'hint',text:'你的收藏、訂單與聊天仍是你自己的；切到小編模式時才會以賣場的身分做事，隨時可以切回來或退出。'}),
+    h('button',{class:'btn pri lg',type:'button',onclick:async e=>{ const b=e.currentTarget; b.disabled=true;
+      try{ await S.db.doc(`shops/${owner}/staff/${S.me}`).set({perms:inv.perms,inv:tok,name:(S.meInfo?.name||'').slice(0,40),at:Date.now()}); try{ await S.db.doc(`shops/${owner}/invites/${tok}`).update({usedBy:S.me,usedAt:Date.now()}); }catch(x){} addStaffOf(owner); toast('已加入，可以開始管理了'); renderStaffPage(arg); }
+      catch(ex){ b.disabled=false; toast('接受失敗：'+(ex?.code==='invalid_argument'?'連結已失效':'請稍後再試')); } },text:'接受邀請'}));
+}
+function addStaffOf(owner){ const L=new Set(S.prefs.staffOf||[]); if(L.has(owner)) return; L.add(owner); savePrefs({staffOf:[...L]}); }
+async function leaveStaff(owner){ if(!confirm('退出「'+shopName(owner)+'」的小編？之後要再加入需要新的邀請連結。')) return; try{ await S.db.doc(`shops/${owner}/staff/${ME()}`).delete(); }catch(e){} savePrefs({staffOf:(S.prefs.staffOf||[]).filter(x=>x!==owner)},'已退出'); }
+// ---- 「我的」頁：我協助管理的賣場 ----
+function meStaffCard(){ const L=(S.prefs.staffOf||[]).filter(u=>shopOf(u)); if(!L.length||S.work) return null;
+  return h('div',{class:'me-card stf-mine'}, h('b',{text:'🧑‍💼 我協助管理的賣場'}), ...L.map(u=>h('div',{class:'row',style:'gap:10px;align-items:center;margin-top:10px'}, avatar(u,36), h('span',{style:'flex:1;min-width:0;font-weight:700',text:shopName(u)}), h('button',{class:'btn lime sm',type:'button',onclick:()=>staffEnter(u),text:'進入'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>leaveStaff(u),text:'退出'})))); }
+
 function renderAdmin(force){
   if (!adm.open && !force) return;
   if (force) requestAnimationFrame(()=>requestAnimationFrame(()=>{ try{ tourRender(); }catch(e){} }));
@@ -7076,6 +7171,8 @@ function renderAdmin(force){
   else if (!hasShop()&&SELLER_TABS.includes(S.admTab||'home')) S.admTab=S.admin?'sellers':'home';
   if (hasShop()&&!approved(S.me)&&!S.admin&&SELLER_TABS.includes(S.admTab||'home')) main.append(h('div',{class:'panel',style:'background:#FFF8E1'}, h('b',{text:'賣場審核中'}), h('p',{class:'hint',text:'你可以先上架與設定賣場，審核通過後商品、抽獎才會在前台公開。'})));
   const T=S.admTab, scrollKey=T+'|'+(S.admEdit||''); if(S._admScrollKey!==scrollKey){ S._admScrollKey=scrollKey; requestAnimationFrame(()=>{ try{ adm.scrollTop=0; main.scrollTop=0; }catch(e){} }); }
+  if (!tabOK(T)){ S.admTab='home'; return admHome(main); }
+  if (T==='staff') return admStaff(main);
   if (T==='home') return admHome(main);
   if (T==='care') return admCare(main);
   if ((T==='plants'||T==='reg')&&S.admEdit) return admEditor(main, S.admEdit);
@@ -7114,7 +7211,8 @@ function renderAdmNav(){
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['care','日常管理',careDueN()],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
     {k:'sell',t:'銷售',ic:'🏷',items:[['plants','商品管理',mine().filter(listed).length],['list','上架販售'],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['auc','競標',liveN],['raffle','抽獎',rOpen]]},
     {k:'order',t:'訂單與客服',ic:'📦',items:[['orders','訂單',pendO+payN],['offers','議價',offN],['qa','顧客提問',pendingQ]]},
-    {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')]]});
+    {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
+  if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
   if (S.admin&&!PM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','商店主頁設計'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return S.admTab===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
@@ -7125,7 +7223,7 @@ function renderAdmNav(){
   const curItem=G.flatMap(g=>g.items).find(curK), aside=$('#admNav');
   aside.classList.toggle('open',!!S.navMob);
   aside.replaceChildren(
-    h('div',{class:'navtop'}, h('button',{type:'button',class:'navclose','aria-label':'上一頁',title:'上一頁',onclick:()=>admBack(),text:'←'}), h('a',{class:'brand',href:'#/',title:'回到首頁',onclick:e=>{ e.preventDefault(); adm.close(); go('#/'); }}, 'VEIN'), h('span',{class:'navcur',text:curItem?curItem[1]:''}),
+    h('div',{class:'navtop'}, h('button',{type:'button',class:'navclose','aria-label':'上一頁',title:'上一頁',onclick:()=>admBack(),text:'←'}), h('a',{class:'brand',href:'#/',title:'回到首頁',onclick:e=>{ e.preventDefault(); adm.close(); go('#/'); }}, 'VEIN'), S.work?h('button',{type:'button',class:'stf-chip',title:'小編模式：正在管理「'+shopName(S.work.shop)+'」，點一下切回自己的帳號',onclick:()=>{ if(confirm('切回自己的帳號？')) staffExit(); },text:'小編 · '+shopName(S.work.shop)}):null, h('span',{class:'navcur',text:curItem?curItem[1]:''}),
       h('button',{type:'button',class:'navtoggle','aria-expanded':String(!!S.navMob),onclick:()=>{ S.navMob=!S.navMob; renderAdmNav(); }}, S.navMob?'✕ 關閉':'☰ 選單')),
     h('div',{class:'navtree'},
       (hasShop()||S.admin)?h('div',{class:'modesw'}, h('button',{type:'button','aria-pressed':String(!PM),onclick:()=>{ S.admMode='shop'; S.admTab='home'; S.admEdit=null; S.navMob=false; renderAdmin(true); }},'🏪 商店管理'), h('button',{type:'button','aria-pressed':String(PM),onclick:()=>{ S.admMode='plant'; S.admTab='reg'; S.admEdit=null; S.navMob=false; renderAdmin(true); }},'🌱 植物管理')):h('div',{class:'modehd'}, h('b',{text:'🌱 植物管理'}), h('small',{text:'登錄你的植物、記錄成長、印標籤'})),
@@ -8021,7 +8119,7 @@ function chatRefresh(cid){ CH.views.forEach(v=>{ if(!v.el.isConnected){ CH.views
 
 /* ---- 對外入口 ---- */
 function chatBtn(u,ctx,cls,label){ if(!u||u===S.me) return null; return h('button',{class:'btn '+(cls||'soft sm')+' ch-btn',type:'button',onclick:e=>{ e.stopPropagation(); openChat(u,ctx); }}, h('i',{class:'ch-bi'}), label||'聊聊'); }
-function openChat(u,ctx){ if(needLogin()) return; if(u===S.me){ toast('這是你自己'); return; } const cid=chatId(S.me,u); if(ctx) CH.ctx[cid]=ctx; resolveNames([u]);
+function openChat(u,ctx){ if(S.work){ toast('小編模式還不能用賣場身分聊天，請切回自己的帳號，或請賣場主人回覆'); return; } if(needLogin()) return; if(u===S.me){ toast('這是你自己'); return; } const cid=chatId(S.me,u); if(ctx) CH.ctx[cid]=ctx; resolveNames([u]);
   if (isDesk()){ chatOpenWin(cid); return; }
   try{ if(dlg.open) dlg.close(); if(sheet.open) sheet.close(); if(adm.open) adm.close(); }catch(e){}
   go('#/chats/'+encodeURIComponent(cid)); }
@@ -8246,12 +8344,12 @@ const listedNow=u=>all().filter(p=>p.shop===u&&listed(p)&&p.status!=='sold').len
 function capOK(n){ if(!S.me||!n) return true; const cap=capOf(S.me), cur=listedNow(S.me); if(cur+n<=cap) return true; openUpgrade('list',{cur,cap,n}); return false; }
 function videoGate(){ if(canVideo(S.me)) return true; openUpgrade('video'); return false; }
 function openUpgrade(why,o={}){ if(!S.me){ openLogin(); return; }
-  const head={list:['已達上架上限','一般賣家同時最多上架 '+(o.cap===Infinity?'∞':o.cap)+' 株，你目前在售 '+(o.cur||0)+' 株'+(o.n?'，這次要再上架 '+o.n+' 株':'')+'。'],video:['影片上傳是認證會員功能','認證賣家與認證買家才能上傳植物影片（每支最多 6 秒）。'],design:['賣場裝修是認證賣家功能','認證賣家可以用拖拉方式設計自己的賣場。']}[why]||['升級成認證會員',''];
+  const head={list:['已達上架上限','一般賣家同時最多上架 '+(o.cap===Infinity?'∞':o.cap)+' 株，你目前在售 '+(o.cur||0)+' 株'+(o.n?'，這次要再上架 '+o.n+' 株':'')+'。'],video:['影片上傳是認證會員功能','認證賣家與認證買家才能上傳植物影片（每支最多 6 秒）。'],design:['賣場裝修是認證賣家功能','認證賣家可以用拖拉方式設計自己的賣場。'],staff:['小編共同管理是認證賣家功能','認證賣家可以邀請最多 5 位小編，用各自的帳號一起管理賣場，並分別設定權限。']}[why]||['升級成認證會員',''];
   const sent=h('p',{class:'hint',hidden:true,text:'✅ 已經通知管理員，開通後會再通知你。'}), err=h('div',{class:'err'});
   const ask=async btn=>{ btn.disabled=true; try{ await S.db.doc('upreq/'+S.me).set({uid:S.me,name:(S.meInfo?.name||'').slice(0,40),shop:hasShop()?shopName(S.me).slice(0,40):'',kind:hasShop()?'seller':'buyer',why:String(why).slice(0,10),cur:o.cur||0,at:Date.now()}); sent.hidden=false; btn.textContent='已送出申請'; toast('已通知管理員'); }catch(e){ btn.disabled=false; err.textContent='送出失敗，請稍後再試或用下方聯絡方式。'; } };
   openDialog(head[0], h('div',{class:'up'}, h('div',{class:'up-ic',text:why==='list'?'📦':why==='video'?'🎬':'✨'}), h('h3',{text:head[0]}), h('p',{class:'hint',text:head[1]}),
     h('div',{class:'up-cards'},
-      h('div',{class:'up-c'}, h('b',{text:'🏪 認證賣家'}), h('ul',{}, h('li',{text:'上架數量無上限'}), h('li',{text:'賣場裝修（拖拉設計）'}), h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'認證賣家徽章'}))),
+      h('div',{class:'up-c'}, h('b',{text:'🏪 認證賣家'}), h('ul',{}, h('li',{text:'上架數量無上限'}), h('li',{text:'賣場裝修（拖拉設計）'}), h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'小編共同管理（最多 5 人）'}), h('li',{text:'認證賣家徽章'}))),
       h('div',{class:'up-c'}, h('b',{text:'🛍 認證買家'}), h('ul',{}, h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'認證買家標示，賣家更信任'})))),
     h('p',{class:'hint',text:'目前開通請先聯繫管理員，之後會開放線上升級。'}),
     h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('button',{class:'btn pri',type:'button',onclick:e=>ask(e.currentTarget),text:'📩 通知管理員幫我開通'}), S.site?.line?h('a',{class:'btn soft',href:'https://line.me/R/ti/p/'+encodeURIComponent(S.site.line),target:'_blank',rel:'noopener',text:'LINE 聯絡 '+S.site.line}):null),
