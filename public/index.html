@@ -128,7 +128,7 @@ body[data-tone="dark"] .link{color:var(--sprout)}
 .tabbar{display:none}
 @media (max-width:860px){
   body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
-  .tabbar{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:60;grid-template-columns:repeat(5,1fr);background:var(--glass);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid var(--line);padding:6px var(--gr) calc(6px + env(safe-area-inset-bottom,0px)) var(--gl)}
+  .tabbar{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:60;grid-template-columns:repeat(6,1fr);background:var(--glass);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid var(--line);padding:6px var(--gr) calc(6px + env(safe-area-inset-bottom,0px)) var(--gl)}
   .tabbar a{display:grid;justify-items:center;gap:2px;text-decoration:none;font-size:10.5px;color:var(--fg2);padding:4px 0}
   .tabbar svg.i{width:22px;height:22px}
 }
@@ -3501,6 +3501,15 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .ins-qr{width:180px;height:180px;background:#fff;border-radius:16px;padding:10px;align-self:center}.ins-qr svg{width:100%;height:100%;display:block}
 .btn.on{background:#EEF6CF;color:#2E5B10}
 .me-app{display:flex;gap:8px;flex-wrap:wrap;margin:-8px 0 14px}
+.pg{display:flex;flex-direction:column;align-items:stretch;gap:14px;text-align:center}
+.pg-bell{font-size:44px;line-height:1;animation:pgRing 1.6s ease-in-out infinite;transform-origin:50% 0}
+@keyframes pgRing{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%,40%{transform:rotate(-14deg)}}
+.pg-why{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pg-why span{display:flex;flex-direction:column;gap:2px;align-items:center;background:var(--paper);border-radius:14px;padding:10px 4px}.pg-why b{font-size:22px}.pg-why small{font-size:12px;font-weight:700}
+.pg-steps{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}.pg-steps>i{font-style:normal;color:var(--fg3,#999)}
+.pg-s{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;background:var(--paper);border-radius:999px;padding:6px 10px}.pg-s em{font-style:normal;width:20px;height:20px;border-radius:50%;background:#111;color:#D2FF00;display:grid;place-items:center;font-size:11px}.pg-s.now{background:#D2FF00;color:#111}
+.pg-p{margin:0;font-size:14px;font-weight:600}.pg-p.sm{font-size:12.5px;color:var(--fg2);font-weight:500}
+.pg-ol{text-align:left;margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.pg .ins-art{text-align:left}.pg-go{font-size:18px}.pg-alt{margin:0;font-size:12.5px;color:var(--fg2)}
 .nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147482700;display:flex;align-items:center;gap:10px;background:#111312;color:#fff;border-radius:20px;padding:12px 12px 12px 16px;box-shadow:0 20px 44px -14px rgba(0,0,0,.55);transform:translateY(140%);transition:transform .45s cubic-bezier(.2,1.2,.3,1)}
 .nudge.in{transform:none}.nudge-i{font-size:24px}.nudge b{flex:1;font-size:14px;line-height:1.35}.nudge-x{border:0;background:rgba(255,255,255,.12);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}
 @media (min-width:700px){.nudge{left:auto;right:96px;bottom:24px;max-width:420px}}
@@ -3526,9 +3535,11 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 <header class="nav" id="nav"><div class="wrap">
   <a class="brand" href="#/"><i></i>VEIN</a>
   <nav>
-    <a href="#/store" data-pg="shop">植物商店</a>
+    <a href="#/" data-pg="home">首頁</a>
+    <a href="#/store" data-pg="shop">商店</a>
+    <a href="#/store/auction" data-pg="auction">競標</a>
     <a href="#/raffle" data-pg="raffle">抽獎</a>
-    <a href="#/verify" data-pg="verify">溯源查驗</a>
+    <a href="#/verify" data-pg="verify">溯源</a>
     <a href="#/sell" data-pg="sell" class="nav-sell" id="navSell">免費開店</a>
   </nav>
   <div class="right">
@@ -3545,6 +3556,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
   <a href="#/" data-pg="home"><svg class="i"><use href="#i-home"/></svg>首頁</a>
   <a href="#/store" data-pg="shop"><svg class="i"><use href="#i-bag"/></svg>商店</a>
   <a href="#/store/auction" data-pg="auction"><svg class="i"><use href="#i-gavel"/></svg>競標</a>
+  <a href="#/raffle" data-pg="raffle"><svg class="i"><use href="#i-gift"/></svg>抽獎</a>
   <a href="#/verify" data-pg="verify"><svg class="i"><use href="#i-scan"/></svg>溯源</a>
   <a href="#/me" id="tabMe" data-pg="me"><svg class="i"><use href="#i-user"/></svg>我的</a>
 </nav>
@@ -3914,8 +3926,8 @@ function stmtFrame(){ const r=stmt.getBoundingClientRect(); const p=clamp((inner
 let lastY=scrollY;
 function navFrame(){ const y=scrollY; nav.classList.toggle('solid', y>30); nav.classList.toggle('hide', y>lastY+4 && y>innerHeight*1.2); if(y<lastY-4) nav.classList.remove('hide'); lastY=y;
   let on=null; if(PAGE==='home') ['collection','trace'].forEach(id=>{ const r=document.getElementById(id).getBoundingClientRect(); if(r.top<innerHeight*.4 && r.bottom>innerHeight*.4) on=id; });
-  document.querySelectorAll('.nav nav a').forEach(a=>a.classList.toggle('on', a.dataset.pg?a.dataset.pg===PAGE:a.dataset.sec===on));
-  const TP=PAGE==='shop'&&/^#\/store\/auction/.test(location.hash)?'auction':PAGE; document.querySelectorAll('.tabbar a[data-pg]').forEach(a=>a.classList.toggle('on', a.dataset.pg===TP)); }
+  const TP=PAGE==='shop'&&/^#\/store\/auction/.test(location.hash)?'auction':PAGE;
+  document.querySelectorAll('.nav nav a').forEach(a=>a.classList.toggle('on', a.dataset.pg?a.dataset.pg===TP:a.dataset.sec===on)); document.querySelectorAll('.tabbar a[data-pg]').forEach(a=>a.classList.toggle('on', a.dataset.pg===TP)); }
 let ticking=false;
 function frame(){ ticking=false; if(PAGE==='home'){ heroFrame(); hsFrame(); wallFrame(); finalFrame(); toneFrame(); stmtFrame(); } else if(PAGE==='verify'){ storyFrame(); toneFrame(); } else if(document.body.dataset.tone!=='light') document.body.dataset.tone='light'; navFrame(); }
 function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(frame); } }
@@ -5549,7 +5561,7 @@ function playDraw(r){
     roll.firstChild.textContent=names[i++%names.length]; t=setTimeout(step, 40+e*e*220); };
   step();
 }
-async function joinRaffle(r){ if(needLogin()||needPhone()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(eligBlock(r,'raffle')) return; try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
+async function joinRaffle(r){ if(needLogin()||needPhone()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(!pushGate('raffle')) return; if(eligBlock(r,'raffle')) return; try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
 async function leaveRaffle(r){ const x={...mySocial().raffles}; delete x[rKey(r)]; try{ await saveSocial({raffles:x}); toast('已取消參加'); }catch(e){} }
 
 /* ---------- verify ---------- */
@@ -7157,7 +7169,7 @@ function refreshDetail(first){
     const same=pub().filter(x=>x.id!==p.id&&spKey(x)===gk&&x.status!=='sold'), shopMore=pub().filter(x=>x.id!==p.id&&x.shop===p.shop&&x.status!=='sold');
     rel.replaceChildren(...[fam,techRow({kicker:'SAME GENUS',title:'同屬的其他植株',items:same.slice(0,16)}),techRow({kicker:'SAME GREENHOUSE',title:shopName(p.shop)+' 的其他植株',items:shopMore.slice(0,16)})].filter(Boolean)); }
 }
-async function placeBid(id,amt){ if(needLogin()||needPhone()) return false; const p=S.plants.get(id), e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return false; if(!live(p)){ err.textContent='競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ const now=Date.now(), pv=mySocial().bids?.[id], ts=[...(Array.isArray(pv?.ts)?pv.ts:pv?.at?[pv.at]:[]),now].slice(-12); await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:now,shop:p.shop,ts}}}); try{ applySnipe(); }catch(e){} const sn=snipeOf(p); toast('已出價 '+money(amt)+(sn&&p.endsAtMs-now<sn.ext*6e4+2000&&p.endsAtRaw&&p.endsAtMs>p.endsAtRaw?'，結標延長到 '+fmtMD(p.endsAtMs):'')); return true; }catch(e){ return false; } }
+async function placeBid(id,amt){ if(needLogin()||needPhone()) return false; if(!pushGate('bid')) return false; const p=S.plants.get(id), e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(hasElig(p)&&eligBlock(p,'bid')) return false; if(!live(p)){ err.textContent='競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ const now=Date.now(), pv=mySocial().bids?.[id], ts=[...(Array.isArray(pv?.ts)?pv.ts:pv?.at?[pv.at]:[]),now].slice(-12); await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:now,shop:p.shop,ts}}}); try{ applySnipe(); }catch(e){} const sn=snipeOf(p); toast('已出價 '+money(amt)+(sn&&p.endsAtMs-now<sn.ext*6e4+2000&&p.endsAtRaw&&p.endsAtMs>p.endsAtRaw?'，結標延長到 '+fmtMD(p.endsAtMs):'')); return true; }catch(e){ return false; } }
 async function askQ(id,text,inp){ if(needLogin()||!text||!rateOK('qa')) return; const p=S.plants.get(id); const qa=[...mySocial().qa,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:id,shop:p?.shop,text,at:Date.now()}].slice(-200); try{ await saveSocial({qa}); inp.value=''; toast('已送出提問'); }catch(e){} }
 
 /* ---------- viewer ---------- */
@@ -8944,6 +8956,7 @@ function openInstall(reason){ lsSet('vein.installTipAt',Date.now());
   else if (isIOS) body=[reason==='push'?h('p',{class:'ins-why',text:'iPhone 要先把 VEIN 加到主畫面，從主畫面打開後才能開啟推播通知。'}):null, /CriOS|FxiOS|EdgiOS/.test(UA)?h('p',{class:'hint',text:'💡 建議用 Safari 打開這一頁再加入主畫面（iOS 16.4 以上）。'}):null, phoneArt('ios')];
   else if (isAndroid) body=[h('button',{class:'btn volt lg ins-one',type:'button',hidden:!bip,onclick:async()=>{ if(!bip) return; bip.prompt(); const r=await bip.userChoice; bip=null; if(r.outcome==='accepted') dlg.close(); }},'📲 一鍵安裝 VEIN'), phoneArt('android')];
   else body=[h('p',{class:'hint',text:'用手機掃描下面的 QR code 打開 VEIN，再照手機上的步驟加到主畫面。電腦版 Chrome 也可以按網址列右邊的「安裝」圖示。'}), (()=>{ const q=h('div',{class:'ins-qr'}); loadQR().then(Q=>{ if(!Q) return; const o=Q(0,'M'); o.addData(location.origin+'/'); o.make(); q.innerHTML=o.createSvgTag(5,0); }); return q; })(), h('button',{class:'btn volt lg ins-one',type:'button',hidden:!bip,onclick:async()=>{ if(!bip) return; bip.prompt(); await bip.userChoice; bip=null; }},'💻 安裝到這台電腦')];
+  if (reason==='start'&&!isStandalone()&&!INAPP) body.unshift(h('p',{class:'ins-why',text:isIOS?'⚠️ 你現在是用瀏覽器打開。iPhone 要加到主畫面、從主畫面打開，才能收到抽獎與競標通知。':'⚠️ 你現在是用瀏覽器打開。加到主畫面後，之後請從主畫面的 VEIN 圖示打開。'}));
   openDialog('把 VEIN 加到主畫面', h('div',{class:'ins'}, h('div',{class:'ins-hero'}, h('div',{class:'ins-app'}, h('i')), h('div',{}, h('b',{text:'VEIN'}), h('small',{text:'給所有植物玩家的溯源市集'}))), perks, ...body.filter(Boolean)), true);
 }
 function pushBtn(cls){ if(!S.me) return null; const on=lsGet('vein.pushOn',false)&&'Notification' in window&&Notification.permission==='granted';
@@ -8958,11 +8971,25 @@ async function enablePush(btn){ if(needLogin()) return;
     toast('已開啟手機通知 🔔'); if(btn){ btn.textContent='🔔 手機通知已開啟'; btn.classList.add('on'); } }
   catch(e){ toast(e.code==='denied'?'通知被拒絕了：到手機「設定 → 通知 → VEIN」（或瀏覽器的網站設定）打開':'開啟失敗：'+(e.message||'請稍後再試')); }
   finally{ if(btn) btn.disabled=false; } }
+// 手機要開通知才能報名抽獎、出價競標（開獎、被超標要能即時通知）；電腦版不限制
+const isMobile=()=>isIOS||isAndroid;
+const pushReady=()=>!isMobile()||(lsGet('vein.pushOn',false)&&'Notification' in window&&Notification.permission==='granted');
+function pushGate(what){ if(PREVIEW||pushReady()) return true;
+  const denied='Notification' in window&&Notification.permission==='denied';
+  const why=h('div',{class:'pg-why'}, ...[['🎉',what==='raffle'?'中獎馬上通知':'被超標馬上通知'],['⏱','結標前提醒'],['💬','賣家訊息不漏接']].map(([i,t])=>h('span',{}, h('b',{text:i}), h('small',{text:t}))));
+  let body;
+  if (INAPP) body=[h('p',{class:'pg-p',text:'請先用 '+(isIOS?'Safari':'Chrome')+' 打開 VEIN'}), h('button',{class:'btn pri lg',type:'button',onclick:openExternal,text:'用'+(isIOS?' Safari ':'瀏覽器')+'打開'})];
+  else if (isIOS&&!isStandalone()) body=[h('div',{class:'pg-steps'}, h('span',{class:'pg-s now'}, h('em',{text:'1'}), '加到主畫面'), h('i',{text:'→'}), h('span',{class:'pg-s'}, h('em',{text:'2'}), '從主畫面打開'), h('i',{text:'→'}), h('span',{class:'pg-s'}, h('em',{text:'3'}), '開啟通知')), phoneArt('ios')];
+  else if (denied) body=[h('p',{class:'pg-p',text:'通知被封鎖了，要先打開：'}), h('ol',{class:'pg-ol'}, ...(isIOS?['手機「設定」','往下找到「VEIN」','點「通知」→ 打開「允許通知」']:['點網址列左邊的 🔒（或 App 資訊）','「權限」→「通知」','改成「允許」，再回來按一次']).map(t=>h('li',{text:t}))), h('button',{class:'btn pri lg',type:'button',onclick:async e=>{ await enablePush(e.currentTarget); if(pushReady()){ dlg.close(); toast('✅ 好了，可以參加了'); } },text:'🔔 我改好了，再試一次'})];
+  else body=[h('button',{class:'btn pri lg pg-go',type:'button',onclick:async e=>{ await enablePush(e.currentTarget); if(pushReady()){ dlg.close(); toast('✅ 通知已開啟，可以參加了'); } },text:'🔔 開啟通知'}), h('p',{class:'pg-p sm',text:'跳出「允許通知」時按「允許」'})];
+  openDialog(what==='raffle'?'開啟通知才能報名抽獎':'開啟通知才能出價', h('div',{class:'pg'}, h('div',{class:'pg-bell',text:'🔔'}), why, ...body, h('p',{class:'pg-alt',text:'💻 不想開通知？用電腦版也可以參加'})), true);
+  return false; }
 // 一開始的引導：手機第一次來、還沒加到主畫面 → 底部小卡；從主畫面打開、還沒開通知 → 提醒開通知
 function installNudge(){ if(PREVIEW||POPUP) return; const mob=isIOS||isAndroid; if(!mob) return;
   if (isStandalone()){ if(S.me&&!lsGet('vein.pushOn',false)&&!lsGet('vein.pushAsk',false)&&'Notification' in window&&Notification.permission==='default'){ lsSet('vein.pushAsk',true); setTimeout(()=>nudge('🔔','開啟通知，聊天和日常管理不漏接','開啟',()=>enablePush()),4000); } return; }
-  const last=+lsGet('vein.installTipAt',0)||0, n=+lsGet('vein.installTipN',0)||0; if(lsGet('vein.installed',false)||n>=3||Date.now()-last<14*864e5) return;
-  setTimeout(()=>{ if(dlg.open||adm.open) return; lsSet('vein.installTipN',n+1); lsSet('vein.installTipAt',Date.now()); nudge('📲','把 VEIN 加到主畫面，像 App 一樣用','教我',()=>openInstall()); },7000); }
+  let seen=false; try{ seen=!!sessionStorage.getItem('vein.insAsk'); }catch(e){} if(seen) return;
+  const tryShow=(k=0)=>{ if(dlg.open||adm.open||document.querySelector('dialog[open]')){ if(k<10) setTimeout(()=>tryShow(k+1),3000); return; } try{ sessionStorage.setItem('vein.insAsk','1'); }catch(e){} openInstall('start'); };
+  setTimeout(tryShow,2500); }
 function nudge(ic,t,cta,fn){ const el=h('div',{class:'nudge'}, h('span',{class:'nudge-i',text:ic}), h('b',{text:t}), h('button',{type:'button',class:'btn lime sm',onclick:()=>{ el.remove(); fn(); },text:cta}), h('button',{type:'button',class:'nudge-x','aria-label':'之後再說',onclick:()=>el.remove(),text:'✕'})); document.body.append(el); setTimeout(()=>el.classList.add('in'),30); setTimeout(()=>el.remove(),20000); }
 
 /* ================= 滑滑看（像 IG Reels 一樣一直往上滑） ================= */
