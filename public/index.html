@@ -3792,7 +3792,7 @@ const pPath=p=>`shops/${p.shop}/plants/${p.id}`;
 /* 防尾刀：結束前幾分鐘內有人出價，結標時間自動往後延（每個人看到的時間都一樣，由出價紀錄算出來） */
 const SNIPE_DEF={on:true,win:5,ext:5,max:120};
 const snipeOf=p=>p?.snipe&&p.snipe.on!==false?{...SNIPE_DEF,...p.snipe}:null;
-function bidEvents(p){ const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[p.id]; if(!b||typeof b.amt!=='number') continue; if(hasElig(p)&&!eligCheck(uid,p).ok) continue; const ts=Array.isArray(b.ts)&&b.ts.length?b.ts:[b.at]; for(const t of ts) if(typeof t==='number') out.push(t); } return out.sort((a,b)=>a-b); }
+function bidEvents(p){ const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[p.id]; if(!b||typeof b.amt!=='number') continue; const ts=Array.isArray(b.ts)&&b.ts.length?b.ts:[b.at]; for(const t of ts) if(typeof t==='number') out.push(t); } return out.sort((a,b)=>a-b); }
 function snipeEnd(p,raw){ const sn=snipeOf(p); if(!sn||!raw) return raw; let end=raw; const W=sn.win*6e4, E=sn.ext*6e4, cap=raw+sn.max*6e4; for(const t of bidEvents(p)){ if(t>end) break; if(t>end-W) end=Math.min(cap,Math.max(end,t+E)); } return end; }
 const snipeSeen=new Map();
 function applySnipe(){ for(const p of S.plants.values()){ if(p.mode!=='auction') continue; if(!('endsAtRaw' in p)) p.endsAtRaw=p.endsAtMs; if(!p.endsAtRaw) continue;
@@ -3801,7 +3801,13 @@ function applySnipe(){ for(const p of S.plants.values()){ if(p.mode!=='auction')
 const snipeNote=p=>{ const sn=snipeOf(p); if(!sn) return null; const ext=p.endsAtRaw&&p.endsAtMs>p.endsAtRaw; return h('p',{class:'snipe'+(ext?' on':'')}, h('b',{text:'⏱ 防尾刀'}), ' 結束前 '+sn.win+' 分鐘內有人出價，會延長到出價後 '+sn.ext+' 分鐘'+(ext?'。已延長 '+Math.round((p.endsAtMs-p.endsAtRaw)/6e4)+' 分鐘（原定 '+fmtMD(p.endsAtRaw)+'）':'。')); };
 const isAuc=p=>p.mode==='auction'&&p.endsAtMs;
 const live=p=>isAuc(p)&&Date.now()<p.endsAtMs&&p.status!=='sold';
-function bidsFor(id){ const p=S.plants.get(id); const end=p?.endsAtMs||Infinity; const out=[]; for(const [uid,doc] of S.social){ const b=doc.bids?.[id]; if(b&&typeof b.amt==='number'&&b.at<=end&&(!hasElig(p)||eligCheck(uid,p).ok)) out.push({uid,amt:b.amt,at:b.at}); } return out.sort((a,b)=>b.amt-a.amt||a.at-b.at); }
+// 出價：照時間順序重算一次，只有「比當時最高價更高」的出價才算數（起標價以上）。
+// 每個人的畫面都用同一套規則，就算有人畫面還沒更新、出了比較低或一樣的價，也不會被列進去。
+function bidsFor(id){ const p=S.plants.get(id); const end=p?.endsAtMs||Infinity, start=Number(p?.startPrice)||0, raw=[];
+  for(const [uid,doc] of S.social){ const b=doc.bids?.[id]; if(b&&typeof b.amt==='number'&&b.at<=end) raw.push({uid,amt:b.amt,at:b.at}); }
+  raw.sort((a,b)=>a.at-b.at||b.amt-a.amt); const out=[]; let top=0;
+  for(const b of raw){ if(b.amt<start||(out.length&&b.amt<=top)) continue; out.push(b); top=b.amt; }
+  return out.sort((a,b)=>b.amt-a.amt||a.at-b.at); }
 const topBid=id=>bidsFor(id)[0]||null;
 const minBid=p=>{ const t=topBid(p.id); return t?t.amt+(p.step||100):(p.startPrice||0); };
 const ansKey=(uid,qid)=>uid+'~'+qid;
