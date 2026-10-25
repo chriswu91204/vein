@@ -341,6 +341,8 @@ dialog.narrow{width:min(620px,100vw - 24px)}
   dialog.narrow .db{padding:16px 18px 22px}
 }
 @keyframes dlgUp{from{transform:translateY(100%)}to{transform:none}}
+/* iPhone：輸入框字小於 16px 時 Safari 會自動放大整頁且不縮回，手機上一律用 16px */
+@media (max-width:860px){ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px!important} }
 @media (max-width:640px){dialog.narrow #chDock{display:none!important}}
 dialog[open]{animation:dlgin .5s var(--ease)}
 @keyframes dlgin{from{transform:translateY(30px) scale(.98);opacity:0}}
@@ -2907,8 +2909,8 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 @media (max-width:520px){ .by-btns .btn.lg{padding-left:10px;padding-right:10px} .sc-acts .btn{padding-left:6px;padding-right:6px;font-size:13px} }
 #admMain select{max-width:100%}#admMain form,#admMain .panel{min-width:0}
 #admin:has(.rg-bulk2) #chDock,#admin:has(.be) #chDock,#admin:has(.rs-ov) #chDock{display:none}
-.rs-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,11,.45);display:flex;align-items:flex-end;justify-content:center;animation:rsF .18s ease}
-.rs{width:min(520px,100%);max-height:86vh;max-height:86dvh;overflow:auto;background:var(--surface,#fff);border-radius:22px 22px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 50px -20px rgba(0,0,0,.5);animation:rsU .22s cubic-bezier(.2,.8,.2,1)}
+.rs-ov{position:fixed;inset:0;z-index:2147483000;overscroll-behavior:contain;background:rgba(10,12,11,.45);display:flex;align-items:flex-end;justify-content:center;animation:rsF .18s ease}
+.rs{width:min(520px,100%);max-height:86vh;max-height:86dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:var(--surface,#fff);border-radius:22px 22px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 50px -20px rgba(0,0,0,.5);animation:rsU .22s cubic-bezier(.2,.8,.2,1)}
 @media (min-width:760px){ .rs-ov{align-items:center} .rs{border-radius:22px;padding-bottom:14px} }
 .rs-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:2px 6px 10px}
 .rs-h b{display:block;font-size:17px;line-height:1.3}.rs-h small{display:block;color:var(--fg2);font-size:12.5px;margin-top:2px}
@@ -7932,7 +7934,8 @@ function admBulkEdit(m){
 }
 /* ---- 植物管理（分層／堆疊）：每一列只有一個「⋯」動作選單、要做什麼都在手邊；多選改成「選取模式」＋底部動作列 ---- */
 function rgSheet(title,sub,items){
-  const close=()=>{ ov.remove(); };
+  const host=adm.open?adm:document.documentElement, prevOv=host.style.overflow; host.style.overflow='hidden';
+  const close=()=>{ ov.remove(); host.style.overflow=prevOv; };
   const ov=h('div',{class:'rs-ov',onclick:e=>{ if(e.target===ov) close(); }},
     h('div',{class:'rs',role:'menu'}, h('div',{class:'rs-h'}, h('div',{style:'min-width:0'}, h('b',{text:title}), sub?h('small',{text:sub}):null), h('button',{type:'button',class:'rs-x','aria-label':'關閉',onclick:close,text:'✕'})),
       h('div',{class:'rs-l'}, ...items.filter(Boolean).map(it=>it==='-'?h('hr'):typeof it==='string'?h('div',{class:'rs-sec',text:it}):h('button',{type:'button',class:'rs-i'+(it[4]?' '+it[4]:''),role:'menuitem',onclick:()=>{ close(); it[3](); }}, h('i',{text:it[0]}), h('span',{}, h('b',{text:it[1]}), it[2]?h('small',{text:it[2]}):null))))));
@@ -8008,7 +8011,7 @@ function admReg(m){
   const rowClick=(el,p,fn)=>{ el.addEventListener('click',e=>{ if(e.target.closest('input,button,label,a')) return; if(picking) toggleSel(p,el); else fn(); }); return el; };
   let body;
   const filtering=!!(F.q||F.g||F.kind||F.sale||F.tag);
-  if (F.view==='tier'&&!filtering&&all0.length) body=tierView();
+  if (F.view==='tier'&&all0.length&&(!filtering||list.length)) body=tierView();
   else if (!list.length) body=h('div',{class:'empty'}, h('h3',{text:all0.length?'沒有符合條件的植物':'還沒有登錄植物'}), h('p',{text:all0.length?'放寬篩選條件試試。':'先登錄一株母株，之後側芽、實生苗都能接上它。'}), h('div',{class:'row',style:'justify-content:center'}, h('button',{class:'btn pri',type:'button',onclick:rgAddMenu,text:'＋ 新增植物'})));
   else if (F.view==='card') body=h('div',{class:'rg-cards'}, ...list.map(p=>rowClick(h('div',{class:'rg-card'+(sel.has(p.id)?' sel':'')}, h('div',{class:'rg-ci'}, p.thumb?h('img',{src:p.thumb,alt:'',loading:'lazy'}):h('i',{text:'無照片'}), h('span',{class:'rg-ck rg-rck'}, pick(p)), moreBtn(()=>plantMenu(p))), h('b',{class:'mono',text:p.code}), h('span',{text:short(p.species)+(p.cultivar?' · '+p.cultivar:'')}), memoEl(p,'sm'), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), h('span',{class:'hint',text:(p.photoCount||0)+' 筆'}))),p,()=>openE(p))));
   else if (F.view==='tree'){
@@ -8066,6 +8069,13 @@ function admReg(m){
           h('div',{class:'row',style:'gap:6px;flex-wrap:wrap;justify-content:flex-end'}, h('button',{type:'button',class:'btn sm soft',onclick:addFn,text:g.k==='pup'?'＋ 再分側芽':'＋ 加進這批'}), h('button',{type:'button',class:'btn sm soft',onclick:()=>openBulkEdit(g.L,g.title+' · '+N+' 株'),text:'✏️ 批量修改'}), h('button',{type:'button',class:'btn sm '+(allOn?'ink':'soft'),onclick:()=>selAll(g.L,!allOn),text:allOn?'取消選取':'☑ 選取這批'}))),
         h('div',{class:'tv-list'}, ...g.L.slice(0,cut).map(row)),
         N>cut?h('button',{type:'button',class:'btn soft sm tv-more2',onclick:()=>{ F.open[key]=true; renderAdmin(true); },text:'顯示全部 '+N+' 株'}):null); };
+    // 搜尋／篩選時：符合的植株一樣疊成一疊（同一批、同一株母株的側芽、同一個群組、同名同親本）
+    if (filtering){ const gk=p=>{ const k=p.kind||'mother'; if(p.grp) return 'g:'+p.grp; if(k==='pup') return 'p:'+(momId(p)||momCode(p)||p.id); if(p.batch) return 'b:'+p.batch; return stackKey(p); };
+      const items=[], gm=new Map(); list.forEach(p=>{ const k=gk(p); if(!k){ items.push(p); return; } if(!gm.has(k)){ gm.set(k,[]); items.push(k); } gm.get(k).push(p); });
+      const nSt=[...gm.values()].filter(L=>L.length>1).length;
+      if (nSt===1&&items.length===1) F.open['st:f:'+items[0]]=F.open['st:f:'+items[0]]??true;
+      return h('div',{}, h('div',{class:'tv-crumb'}, h('b',{text:'搜尋結果'}), h('span',{class:'hint',text:list.length+' 株'+(nSt?'（'+nSt+' 疊）':'')})),
+        h('div',{class:'tv-list'}, ...items.map(x=>typeof x==='string'?(gm.get(x).length>1?stackRow('f:'+x,gm.get(x)):row(gm.get(x)[0])):row(x)))); }
     if (!F.path.length){
       const roots=all0.filter(p=>!momId(p)||!byId.has(momId(p))).sort((a,b)=>((a.kind||'mother')==='mother'?0:1)-((b.kind||'mother')==='mother'?0:1)||codeSort(a,b));
       const stacks=new Map(), items=[];
