@@ -138,13 +138,35 @@ exports.pushRaffle = onDocumentUpdated('shops/{shop}/raffles/{rid}', async ev =>
   const link = '/#/raffle/' + ev.params.shop + '~' + ev.params.rid, sn = await displayName(ev.params.shop);
   for (const w of a.drawn.winners || []) await push(w, '🎉 恭喜你中獎了', '「' + sn + '」的「' + a.title + '」：' + (a.prize || ''), link, 'raf-' + ev.params.rid);
 });
-// 每 5 分鐘：剛結標的競標 → 得標者、賣家（記錄在 sysnotes，不重複推）
+// 收藏了這株的人（快結標提醒用）
+async function favoredBy(pid) { const out = [];
+  for (const col of await db.doc('data/users').listCollections()) { try { const d = await col.doc('prefs').get(); if (d.exists && (d.data().favs || []).includes(pid)) out.push(col.id); } catch (e) {} }
+  return out; }
+// 快結標提醒：剩 30 分鐘通知所有出過價和收藏的人；剩 5 分鐘再提醒「沒有領先」的出價者
+async function endingSoon(p, now) {
+  const bids = await allBids(p.id), end = effEnd(p, bids), left = end - now; if (left <= 0 || left > 31 * 6e4) return;
+  const top = leaderAt(p, bids, end), price = top ? top.amt : (+p.startPrice || 0), link = '/#/plant/' + p.id;
+  const mk30 = db.doc('sysnotes/soon30-' + p.id + '-' + p.endsAtMs);
+  if (!(await mk30.get()).exists) {
+    const who = new Set([...bids.map(b => b.uid), ...(await favoredBy(p.id))]); who.delete(p.shop);
+    for (const u of who) {
+      const lead = top && top.uid === u;
+      await push(u, lead ? '⏰ 剩 30 分鐘，你目前領先' : '⏰ 競標剩 30 分鐘', pLabel(p) + (top ? ' 目前最高 ' + nt(price) : ' 起標 ' + nt(price)) + (lead ? '，守住它！' : '，要出價把握時間'), link, 'soon-' + p.id);
+    }
+    await mk30.set({ at: now });
+  }
+  if (left <= 7 * 6e4) { const mk5 = db.doc('sysnotes/soon5-' + p.id + '-' + p.endsAtMs);
+    if (!(await mk5.get()).exists) { for (const b of bids) if (b.uid !== p.shop && (!top || top.uid !== b.uid)) await push(b.uid, '🔥 最後 5 分鐘！', pLabel(p) + ' 目前最高 ' + nt(price) + '，你被超越了，最後機會', link, 'soon-' + p.id); await mk5.set({ at: now }); } }
+}
+// 每 5 分鐘：快結標提醒＋剛結標的競標 → 得標者、賣家（記錄在 sysnotes，不重複推）
 exports.pushAuctionEnd = onSchedule({ schedule: 'every 5 minutes', timeZone: 'Asia/Taipei' }, async () => {
   const now = Date.now();
   for (const sd of await db.collection('shops').listDocuments()) {
     let snap; try { snap = await sd.collection('plants').where('mode', '==', 'auction').get(); } catch (e) { continue; }
     for (const d of snap.docs) {
-      const p = { id: d.id, shop: sd.id, ...d.data() }; if (!p.endsAtMs || p.endsAtMs > now || p.endsAtMs < now - 2 * 864e5) continue;
+      const p = { id: d.id, shop: sd.id, ...d.data() };
+      if (p.endsAtMs && p.status !== 'sold' && p.endsAtMs + 120 * 6e4 > now) { try { await endingSoon(p, now); } catch (e) { logger.warn('ending soon failed', d.id, String(e)); } }
+      if (!p.endsAtMs || p.endsAtMs > now || p.endsAtMs < now - 2 * 864e5) continue;
       const mk = db.doc('sysnotes/auc-' + d.id + '-' + p.endsAtMs); if ((await mk.get()).exists) continue;
       const bids = await allBids(d.id), end = effEnd(p, bids); if (end > now) continue;
       const win = leaderAt(p, bids, end);
