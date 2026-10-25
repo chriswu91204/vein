@@ -1,6 +1,6 @@
 // VEIN 手機推播（Firebase Cloud Messaging）：聊天新訊息、議價、日常管理到期提醒
 // 不需要任何密碼或金鑰（用專案本身的權限送出）；網站端的 Web Push 公開金鑰在「網站設定」填寫。
-const { onDocumentCreated } = require('firebase-functions/v2/firestore');
+const { onDocumentCreated, onDocumentWritten, onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onMessagePublished } = require('firebase-functions/v2/pubsub');
 const { setGlobalOptions } = require('firebase-functions/v2');
@@ -67,6 +67,92 @@ exports.pushCare = onSchedule({ schedule: 'every 15 minutes', timeZone: 'Asia/Ta
       for (const z of v.zones || []) for (const t of z.tasks || []) { const at = dueAt(t); if (at && at <= now && at > now - win) hits.push(z.name + '：' + t.name); }
       if (hits.length) await push(col.id, '🌱 日常管理提醒', hits.slice(0, 4).join('、') + (hits.length > 4 ? ' 等 ' + hits.length + ' 項' : '') + ' 該做了', '/#plants/care', 'care');
     } catch (e) { logger.warn('care check failed', col.id, String(e)); }
+  }
+});
+
+// ---------- 交易通知：新訂單、新出價、被超標、提問、訂單狀態、開獎、結標 ----------
+const nt = n => 'NT$ ' + Number(n || 0).toLocaleString('zh-TW');
+async function getPlant(shop, pid) { try { const s = await db.doc(`shops/${shop}/plants/${pid}`).get(); return s.exists ? { id: pid, shop, ...s.data() } : null; } catch (e) { return null; } }
+async function findPlant(pid, hintShop) {
+  if (hintShop) { const p = await getPlant(hintShop, pid); if (p) return p; }
+  for (const d of await db.collection('shops').listDocuments()) { const p = await getPlant(d.id, pid); if (p) return p; }
+  return null;
+}
+const pLabel = p => (p.code || '') + (p.species ? ' ' + String(p.species).split(' ').slice(1).join(' ') : '');
+// 所有人的出價（含每次出價時間），用來算防尾刀後的真正結標時間與目前最高者
+async function allBids(pid) {
+  const out = []; (await db.collection('social').get()).forEach(d => { const b = (d.data().bids || {})[pid]; if (b && typeof b.amt === 'number') out.push({ uid: d.id, ...b }); }); return out;
+}
+function effEnd(p, bids) {
+  const sn = p && p.snipe && p.snipe.on !== false ? { win: 5, ext: 5, max: 120, ...p.snipe } : null;
+  if (!sn || !p.endsAtMs) return p ? p.endsAtMs : 0;
+  const ts = []; bids.forEach(b => (Array.isArray(b.ts) && b.ts.length ? b.ts : [b.at]).forEach(t => typeof t === 'number' && ts.push(t))); ts.sort((a, b) => a - b);
+  let end = p.endsAtMs; const W = sn.win * 6e4, E = sn.ext * 6e4, cap = p.endsAtMs + sn.max * 6e4;
+  for (const t of ts) { if (t > end) break; if (t > end - W) end = Math.min(cap, Math.max(end, t + E)); }
+  return end;
+}
+// 跟網站一樣的規則：照時間排序，出價必須高於當下最高價才算數
+function leaderAt(p, bids, until) {
+  let top = null; const start = +p.startPrice || 0;
+  bids.filter(b => b.at <= until).sort((a, b) => a.at - b.at).forEach(b => { if (b.amt >= start && (!top || b.amt > top.amt)) top = b; });
+  return top;
+}
+exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
+  const uid = ev.params.uid, before = ev.data.before.exists ? ev.data.before.data() : {}, after = ev.data.after.exists ? ev.data.after.data() : null;
+  if (!after) return;
+  const me = await displayName(uid);
+  // 新訂單 → 賣家
+  for (const [oid, o] of Object.entries(after.orders || {})) {
+    if ((before.orders || {})[oid] || !o.seller) continue;
+    const n = (o.items || []).length, q = Object.values(o.qty || {}).reduce((a, b) => a + b, 0);
+    await push(o.seller, '📦 新訂單', me + ' 下單 ' + (q ? q + ' 株' : n + ' 件') + '，共 ' + nt(o.total) + '，請到訂單接受', '/#admin/orders', 'order-' + oid);
+  }
+  // 新出價 → 賣家；被超標 → 原本最高的人
+  for (const [pid, bid] of Object.entries(after.bids || {})) {
+    const prev = (before.bids || {})[pid];
+    if (!bid || typeof bid.amt !== 'number' || (prev && prev.amt >= bid.amt)) continue;
+    const p = await findPlant(pid, bid.shop); if (!p || p.mode !== 'auction' || !p.endsAtMs) continue;
+    const bids = await allBids(pid), end = effEnd(p, bids); if (bid.at > end) continue;
+    const others = bids.filter(b => b.uid !== uid), prevTop = leaderAt(p, others, bid.at - 1), nowTop = leaderAt(p, bids, bid.at);
+    if (nowTop && nowTop.uid === uid) {
+      await push(p.shop, '⚡ 新出價 ' + nt(bid.amt), me + ' 出價 ' + pLabel(p) + '，目前 ' + bids.length + ' 人出價', '/#/plant/' + pid, 'bid-' + pid);
+      if (prevTop && prevTop.uid !== uid) await push(prevTop.uid, '😮 你的出價被超越了', pLabel(p) + ' 目前最高 ' + nt(bid.amt) + '（你出 ' + nt(prevTop.amt) + '），回來加價吧', '/#/plant/' + pid, 'outbid-' + pid);
+    }
+  }
+  // 新提問 → 賣家
+  const oldQ = new Set((before.qa || []).map(q => q.id));
+  for (const q of after.qa || []) { if (oldQ.has(q.id)) continue; const p = await findPlant(q.pid, q.shop); if (p) await push(p.shop, '💬 有人提問', me + '：「' + String(q.text || '').slice(0, 60) + '」（' + p.code + '）', '/#admin/qa', 'qa-' + q.id); }
+});
+// 訂單狀態 → 買家
+exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
+  const a = ev.data.after.exists ? ev.data.after.data() : null, b = ev.data.before.exists ? ev.data.before.data() : null;
+  if (!a || !a.buyer || (b && b.status === a.status)) return;
+  const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
+  const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
+  if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', 'ord-' + ev.params.oid);
+  if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#admin/orders', 'paid-' + ev.params.oid);
+});
+// 開獎 → 中獎者、賣家
+exports.pushRaffle = onDocumentUpdated('shops/{shop}/raffles/{rid}', async ev => {
+  const b = ev.data.before.data(), a = ev.data.after.data(); if (b.drawn || !a.drawn) return;
+  const link = '/#/raffle/' + ev.params.shop + '~' + ev.params.rid, sn = await displayName(ev.params.shop);
+  for (const w of a.drawn.winners || []) await push(w, '🎉 恭喜你中獎了', '「' + sn + '」的「' + a.title + '」：' + (a.prize || ''), link, 'raf-' + ev.params.rid);
+});
+// 每 5 分鐘：剛結標的競標 → 得標者、賣家（記錄在 sysnotes，不重複推）
+exports.pushAuctionEnd = onSchedule({ schedule: 'every 5 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now();
+  for (const sd of await db.collection('shops').listDocuments()) {
+    let snap; try { snap = await sd.collection('plants').where('mode', '==', 'auction').get(); } catch (e) { continue; }
+    for (const d of snap.docs) {
+      const p = { id: d.id, shop: sd.id, ...d.data() }; if (!p.endsAtMs || p.endsAtMs > now || p.endsAtMs < now - 2 * 864e5) continue;
+      const mk = db.doc('sysnotes/auc-' + d.id + '-' + p.endsAtMs); if ((await mk.get()).exists) continue;
+      const bids = await allBids(d.id), end = effEnd(p, bids); if (end > now) continue;
+      const win = leaderAt(p, bids, end);
+      if (win) { await push(win.uid, '🏆 恭喜得標！', pLabel(p) + ' 以 ' + nt(win.amt) + ' 得標，等賣家成立訂單', '/#/plant/' + d.id, 'won-' + d.id);
+        await push(p.shop, '🔨 競標結束', pLabel(p) + ' 由 ' + (await displayName(win.uid)) + ' 以 ' + nt(win.amt) + ' 得標，記得成立訂單', '/#admin/auc', 'end-' + d.id); }
+      else await push(p.shop, '🔨 競標結束（沒人出價）', pLabel(p) + ' 可以改成直購或重新競標', '/#admin/auc', 'end-' + d.id);
+      await mk.set({ at: now, pid: d.id, shop: sd.id });
+    }
   }
 });
 

@@ -4280,6 +4280,8 @@ const money=n=>'NT$ '+Number(n||0).toLocaleString('zh-TW');
 function toast(msg){ const t=h('div',{class:'toast',text:msg}); document.body.append(t); setTimeout(()=>t.remove(),2800); }
 const imgSrc=d=>d?.asset?(/^https?:/.test(d.asset)?d.asset:'/_blob/'+d.asset):(d?.img||'');
 function activate(el,fn){ el.tabIndex=0; el.setAttribute('role','button'); el.addEventListener('click',fn); el.addEventListener('keydown',e=>{ if(e.target===el&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); fn(e); } }); return el; }
+// 每張圖都有自己的檔名（VEIN-20261025-150912.jpg），存很多張也不會互相蓋掉
+const vfn=()=>{ const d=new Date(), z=n=>String(n).padStart(2,'0'); return 'VEIN-'+d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())+'.jpg'; };
 function quietCopy(text,msg){ try{ navigator.clipboard?.writeText(text).then(()=>msg&&toast(msg),()=>{}); }catch(e){} }
 function copyText(text,el){ if(!navigator.clipboard){ toast('請手動複製：'+text); return; } navigator.clipboard.writeText(text).then(()=>toast('已複製 '+text),()=>{ if(el){ const r=document.createRange(); r.selectNodeContents(el); getSelection().removeAllRanges(); getSelection().addRange(r); } toast('已選取，請手動複製'); }); }
 
@@ -6547,7 +6549,7 @@ async function shareImage(p,o={}){
 /* 存圖：手機存到相簿（iPhone 走分享選單 →「儲存影像」；Android 直接下載進相簿的 Download；LINE／IG 內建瀏覽器改成長按存圖），電腦就是下載 */
 const UA0=navigator.userAgent, IOS0=/iPhone|iPad|iPod/.test(UA0)||(/Macintosh/.test(UA0)&&navigator.maxTouchPoints>1), MOB0=IOS0||/Android/i.test(UA0);
 const saveLabel=()=>MOB0?'存到相簿':'下載圖片';
-async function saveImg(blob,name){ if(!blob){ toast('圖片產生失敗'); return; } name='VEIN.jpg';
+async function saveImg(blob,name){ if(!blob){ toast('圖片產生失敗'); return; } name=vfn();
   const file=new File([blob],name,{type:blob.type||'image/jpeg',lastModified:Date.now()}), url=URL.createObjectURL(blob);
   const longPress=()=>{ const ov=h('div',{class:'sv-ov',role:'dialog','aria-label':'存到相簿',onclick:e=>{ if(e.target===ov) ov.remove(); }}, h('img',{src:url,alt:'分享圖'}), h('p',{text:IOS0?'長按圖片 → 選「加入照片」或「儲存到照片」':'長按圖片 → 選「下載圖片」，就會存進相簿'}), h('button',{class:'btn lime',type:'button',onclick:()=>ov.remove(),text:'好了'})); document.body.append(ov); };
   if (MOB0&&INAPP){ longPress(); return; }
@@ -6566,7 +6568,7 @@ async function shareDialog(o){
     prev.className='sh-prev'+(m.aspect?' a-'+m.aspect:''); txt.value=m.text; tip.hidden=!m.tip; tip.textContent=m.tip||''; note.textContent=''; btns.replaceChildren();
     prev.replaceChildren(h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
     if (!cache.has(m.k)) cache.set(m.k,m.image()); const {blob,photo}=await cache.get(m.k); if(!prev.isConnected||my!==tok) return;
-    const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],'VEIN.jpg',{type:'image/jpeg',lastModified:Date.now()}):null;
+    const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],vfn(),{type:'image/jpeg',lastModified:Date.now()}):null;
     prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',style:'color:#fff',text:'分享圖產生失敗，可以先傳文字與連結。'}));
     if (!photo) note.textContent='分享圖暫時放不進植物照片，先用圖示代替；文字和連結不受影響。';
     const canFile=file&&navigator.canShare&&navigator.canShare({files:[file]});
@@ -6831,7 +6833,7 @@ function openShare(p,start){ lsSet('vein.didShare',true);
     panel.replaceChildren(tb, h('div',{class:'sd-body'}, ...body), h('div',{class:'row',style:'justify-content:space-between;gap:8px;flex-wrap:wrap'}, saved, h('button',{type:'button',class:'bf-lk',onclick:()=>{ delete store.m[mode]; sdSave(store); c=build(mode); drawPanel(); toast('已恢復「'+modeDef(mode)[2]+'」的預設'); },text:'恢復這個模式的預設'})));
     redraw(); };
   const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,2); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.93); }catch(e){ r(null); } }); return {blob,ok}; };
-  const fileName=()=>'VEIN.jpg';
+  const fileName=()=>vfn();
   const dl=blob=>saveImg(blob,fileName());
   const doShare=async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg',lastModified:Date.now()}); const story=c.fmt==='story';
     if (navigator.canShare&&navigator.canShare({files:[file]})){ quietCopy(story?plantUrl(p):txt.value,story?'網址已複製，可以貼到限動連結':'文字已複製，傳出圖片後可以直接貼上'); try{ await navigator.share({files:[file]}); }catch(e){} } else { copyText(txt.value); dl(blob); } };
