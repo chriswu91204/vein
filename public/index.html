@@ -4280,6 +4280,7 @@ const money=n=>'NT$ '+Number(n||0).toLocaleString('zh-TW');
 function toast(msg){ const t=h('div',{class:'toast',text:msg}); document.body.append(t); setTimeout(()=>t.remove(),2800); }
 const imgSrc=d=>d?.asset?(/^https?:/.test(d.asset)?d.asset:'/_blob/'+d.asset):(d?.img||'');
 function activate(el,fn){ el.tabIndex=0; el.setAttribute('role','button'); el.addEventListener('click',fn); el.addEventListener('keydown',e=>{ if(e.target===el&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); fn(e); } }); return el; }
+function quietCopy(text,msg){ try{ navigator.clipboard?.writeText(text).then(()=>msg&&toast(msg),()=>{}); }catch(e){} }
 function copyText(text,el){ if(!navigator.clipboard){ toast('請手動複製：'+text); return; } navigator.clipboard.writeText(text).then(()=>toast('已複製 '+text),()=>{ if(el){ const r=document.createRange(); r.selectNodeContents(el); getSelection().removeAllRanges(); getSelection().addRange(r); } toast('已選取，請手動複製'); }); }
 
 /* ---------- state ---------- */
@@ -6546,8 +6547,8 @@ async function shareImage(p,o={}){
 /* 存圖：手機存到相簿（iPhone 走分享選單 →「儲存影像」；Android 直接下載進相簿的 Download；LINE／IG 內建瀏覽器改成長按存圖），電腦就是下載 */
 const UA0=navigator.userAgent, IOS0=/iPhone|iPad|iPod/.test(UA0)||(/Macintosh/.test(UA0)&&navigator.maxTouchPoints>1), MOB0=IOS0||/Android/i.test(UA0);
 const saveLabel=()=>MOB0?'存到相簿':'下載圖片';
-async function saveImg(blob,name){ if(!blob){ toast('圖片產生失敗'); return; } name=name||'vein.jpg';
-  const file=new File([blob],name,{type:blob.type||'image/jpeg'}), url=URL.createObjectURL(blob);
+async function saveImg(blob,name){ if(!blob){ toast('圖片產生失敗'); return; } name='VEIN.jpg';
+  const file=new File([blob],name,{type:blob.type||'image/jpeg',lastModified:Date.now()}), url=URL.createObjectURL(blob);
   const longPress=()=>{ const ov=h('div',{class:'sv-ov',role:'dialog','aria-label':'存到相簿',onclick:e=>{ if(e.target===ov) ov.remove(); }}, h('img',{src:url,alt:'分享圖'}), h('p',{text:IOS0?'長按圖片 → 選「加入照片」或「儲存到照片」':'長按圖片 → 選「下載圖片」，就會存進相簿'}), h('button',{class:'btn lime',type:'button',onclick:()=>ov.remove(),text:'好了'})); document.body.append(ov); };
   if (MOB0&&INAPP){ longPress(); return; }
   if (IOS0){ if(navigator.canShare&&navigator.canShare({files:[file]})){ toast('在選單裡選「儲存影像」就會存到相簿'); try{ await navigator.share({files:[file]}); }catch(e){} return; } longPress(); return; }
@@ -6565,12 +6566,12 @@ async function shareDialog(o){
     prev.className='sh-prev'+(m.aspect?' a-'+m.aspect:''); txt.value=m.text; tip.hidden=!m.tip; tip.textContent=m.tip||''; note.textContent=''; btns.replaceChildren();
     prev.replaceChildren(h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
     if (!cache.has(m.k)) cache.set(m.k,m.image()); const {blob,photo}=await cache.get(m.k); if(!prev.isConnected||my!==tok) return;
-    const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],m.file+'.jpg',{type:'image/jpeg'}):null;
+    const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],'VEIN.jpg',{type:'image/jpeg',lastModified:Date.now()}):null;
     prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',style:'color:#fff',text:'分享圖產生失敗，可以先傳文字與連結。'}));
     if (!photo) note.textContent='分享圖暫時放不進植物照片，先用圖示代替；文字和連結不受影響。';
     const canFile=file&&navigator.canShare&&navigator.canShare({files:[file]});
     const copyAll=async()=>{ try{ if(blob&&window.ClipboardItem&&navigator.clipboard?.write){ const png=await new Promise(r=>{ const c=document.createElement('canvas'), i=new Image(); i.onload=()=>{ c.width=i.width; c.height=i.height; c.getContext('2d').drawImage(i,0,0); c.toBlob(r,'image/png'); }; i.onerror=()=>r(null); i.src=url; }); if(png){ await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([txt.value],{type:'text/plain'}),'image/png':png})]); toast('已複製圖片＋文字，貼到聊天室就好'); return; } } }catch(e){} copyText(txt.value); };
-    const share=async(withText)=>{ try{ if(canFile) await navigator.share(withText?{files:[file],text:txt.value}:{files:[file]}); else await navigator.share({text:txt.value}); }catch(e){} };
+    const share=async(withText)=>{ try{ if(canFile){ if(withText) quietCopy(txt.value,'文字已複製，傳出圖片後可以直接貼上'); await navigator.share({files:[file]}); } else await navigator.share({text:txt.value}); }catch(e){} };
     btns.replaceChildren(
       m.k==='story'?(navigator.share&&canFile?h('button',{class:'btn volt lg',type:'button',onclick:()=>{ copyText(txt.value); share(false); }},'📲 分享到 IG 限動'):null):navigator.share?h('button',{class:'btn volt lg',type:'button',onclick:()=>share(true)},canFile?(m.k==='sale'?'📤 分享到 IG／FB':'📤 分享圖片＋文字'):'📤 分享'):null,
       h('button',{class:'btn ink',type:'button',onclick:m.k==='sale'||m.k==='story'?()=>copyText(txt.value):copyAll,text:m.k==='sale'?'複製貼文文字（含 hashtag）':m.k==='story'?'複製網址文字':m.k==='post'||m.k==='square'?'複製圖片＋文字':'複製文字＋連結'}),
@@ -6649,6 +6650,14 @@ const SD_FONTS=[['sans','黑體'],['serif','襯線'],['round','圓體'],['mono',
 const SD_FILTERS=[['none','原色'],['bright','明亮'],['warm','暖色'],['cool','冷調'],['mono','黑白'],['film','電影感']];
 const SD_FILTER_CSS={none:'none',bright:'brightness(1.08) saturate(1.12)',warm:'sepia(.18) saturate(1.2) brightness(1.03)',cool:'saturate(.9) hue-rotate(-10deg) brightness(1.02)',mono:'grayscale(1) contrast(1.08)',film:'contrast(1.12) saturate(.85) brightness(.96)'};
 const sdImgCache=new Map();
+// 分享圖用原圖（1600px），不要用 640px 縮圖放大；照片紀錄有存 thumb 的直接對應，舊資料用最新一張或依順序對應
+const HI=new Map();
+function hiPhoto(p,want){ want=want||p?.coverThumb||p?.thumb; if(!p||!S.db||!p.id) return Promise.resolve(want); const k=p.id+'|'+want; if(HI.has(k)) return HI.get(k);
+  const pr=(async()=>{ try{ const sn=await S.db.collection(pPath(p)+'/photos').get(); const D=sn.docs.map(d=>d.data()).filter(d=>!d.ev&&!isVidRec(d)&&imgSrc(d)).sort((a,b)=>String(b.takenAt||'').localeCompare(String(a.takenAt||'')));
+      const hit=D.find(d=>d.thumb&&d.thumb===want); if(hit) return imgSrc(hit);
+      if (want===p.thumb||!p.coverThumb||p.coverThumb===p.thumb){ if(D[0]) return imgSrc(D[0]); }
+      const i=(p.media||[]).filter(m=>m.type!=='video').findIndex(m=>m.url===want); if(i>=0&&D[i]) return imgSrc(D[i]);
+    }catch(e){} return want; })(); HI.set(k,pr); return pr; }
 const sdImg=src=>{ if(!src) return Promise.resolve(null); if(!sdImgCache.has(src)) sdImgCache.set(src,loadImg(src,!sameOrigin(src))); return sdImgCache.get(src); };
 function sdPhotos(p){ const L=[]; (p.media||[]).forEach(m=>{ if(!m?.url) return; const u=m.type==='video'?(m.poster||''):m.url; if(u&&!L.includes(u)) L.push(u); }); [p.coverThumb,p.thumb].forEach(u=>{ if(u&&!L.includes(u)) L.push(u); }); return L.slice(0,12); }
 function sdTags(p,c){ const t=[]; if(c.showKind) t.push(kindLabel(p)); if(c.showStatus&&onSale(p)) t.push(live(p)?'競標中':'販售中'); if(c.showTags) tagsOf(p).slice(0,2).forEach(x=>t.push('#'+x)); return t; }
@@ -6656,7 +6665,7 @@ async function sdRender(cv,p,c,scale=1){
   const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080, s=u*(c.size||1), rd=c.round??1, TX=c.ink||'#fff'; cv.width=W; cv.height=H; const g=cv.getContext('2d');
   const FF={sans:'"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif',serif:'"Noto Serif TC","Songti TC",Georgia,serif',round:'"Arial Rounded MT Bold","Yuanti TC","PingFang TC",system-ui,sans-serif',mono:'"JetBrains Mono",ui-monospace,Menlo,monospace'}, F=FF[c.font]||FF.sans, MONO=FF.mono;
   const A=c.color||VOLT, INK='#050605', dark=A==='#111312', onA=['#FFFFFF','#D2FF00','#FFB4C8','#8CF5C0','#7FD4FF','#FF8A3D'].includes(A)?INK:'#fff';
-  const im=await sdImg(c.photo||sdPhotos(p)[0]||cover(p)), shopImg=c.showShop&&shopOf(p.shop)?.avatar?await sdImg(shopOf(p.shop).avatar):null;
+  const ph0=c.photo||sdPhotos(p)[0]||cover(p), im=(scale>=1?await sdImg(await hiPhoto(p,ph0)):null)||(await sdImg(ph0)), shopImg=c.showShop&&shopOf(p.shop)?.avatar?await sdImg(shopOf(p.shop).avatar):null;
   // ---- 照片滿版 ----
   g.fillStyle=INK; g.fillRect(0,0,W,H);
   if (im){ const z=c.zoom||1, r=Math.max(W/im.width,H/im.height)*z, w=im.width*r, hh=im.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; try{ g.filter=(SD_FILTER_CSS[c.filter||'none']==='none'?'':SD_FILTER_CSS[c.filter])+(c.bright&&c.bright!==1?' brightness('+c.bright+')':'')||'none'; }catch(e){} g.drawImage(im,(W-w)/2,(H-hh)*fy,w,hh); try{ g.filter='none'; }catch(e){} }
@@ -6821,11 +6830,11 @@ function openShare(p,start){ lsSet('vein.didShare',true);
     }
     panel.replaceChildren(tb, h('div',{class:'sd-body'}, ...body), h('div',{class:'row',style:'justify-content:space-between;gap:8px;flex-wrap:wrap'}, saved, h('button',{type:'button',class:'bf-lk',onclick:()=>{ delete store.m[mode]; sdSave(store); c=build(mode); drawPanel(); toast('已恢復「'+modeDef(mode)[2]+'」的預設'); },text:'恢復這個模式的預設'})));
     redraw(); };
-  const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,1); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.92); }catch(e){ r(null); } }); return {blob,ok}; };
-  const fileName=()=>p.code+'-'+mode+'.jpg';
+  const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,2); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.93); }catch(e){ r(null); } }); return {blob,ok}; };
+  const fileName=()=>'VEIN.jpg';
   const dl=blob=>saveImg(blob,fileName());
-  const doShare=async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg'}); const story=c.fmt==='story';
-    if (navigator.canShare&&navigator.canShare({files:[file]})){ if(story) copyText(plantUrl(p)); try{ await navigator.share(story?{files:[file]}:{files:[file],text:txt.value}); }catch(e){} } else { copyText(txt.value); dl(blob); } };
+  const doShare=async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg',lastModified:Date.now()}); const story=c.fmt==='story';
+    if (navigator.canShare&&navigator.canShare({files:[file]})){ quietCopy(story?plantUrl(p):txt.value,story?'網址已複製，可以貼到限動連結':'文字已複製，傳出圖片後可以直接貼上'); try{ await navigator.share({files:[file]}); }catch(e){} } else { copyText(txt.value); dl(blob); } };
   btns.append(h('button',{class:'btn volt lg',type:'button',onclick:doShare},'📤 分享圖片'), h('button',{class:'btn ink',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
     h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); },text:saveLabel()}),
     h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'));
@@ -6848,7 +6857,8 @@ const fmtMD=ms=>{ const d=new Date(ms); return (d.getMonth()+1)+'/'+d.getDate()+
 const fmtLeftZh=ms=>{ if(ms<=0) return '已結束'; const m=Math.floor(ms/6e4), d=Math.floor(m/1440), hh=Math.floor(m%1440/60), mm=m%60; return d?d+' 天 '+hh+' 小時':hh?hh+' 小時 '+mm+' 分':Math.max(1,mm)+' 分鐘'; };
 const pName=p=>(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,c=>c.toUpperCase());
 function pkCanvas(fmt){
-  const W=1080, H=fmt==='story'?1920:fmt==='square'?1080:1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  // 以 1080 寬排版，但實際用 2 倍解析度輸出（2160px），手機 Retina 螢幕上文字和照片才清楚
+  const W=1080, H=fmt==='story'?1920:fmt==='square'?1080:1350, SC=2, cv=document.createElement('canvas'); cv.width=W*SC; cv.height=H*SC; const g=cv.getContext('2d'); g.scale(SC,SC); g.imageSmoothingQuality='high';
   const F='"PingFang TC","Noto Sans TC","Noto Sans CJK TC","Inter",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,Menlo,monospace', INK='#050605';
   const K={cv,g,W,H,F,MONO,INK,fmt,story:fmt==='story',sq:fmt==='square',T:fmt==='story'?230:56,B:fmt==='story'?H-270:H-56,L:56,R:W-56};
   K.wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; const T=String(txt||''); for(const ch of T){ if(ch==='\n'){ out.push(line); line=''; if(out.length===maxLines) break; continue; } if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line);
@@ -6862,7 +6872,7 @@ function pkCanvas(fmt){
   K.stats=(x,y,w,items)=>{ const n=items.length, gap=14, cw=(w-gap*(n-1))/n; items.forEach(([lbl,val],i)=>{ const X=x+i*(cw+gap); g.fillStyle='rgba(255,255,255,.07)'; g.beginPath(); g.roundRect(X,y,cw,112,16); g.fill(); g.fillStyle=VOLT; g.fillRect(X+18,y,46,5); K.text(lbl,X+20,y+44,'700 23px '+F,'rgba(255,255,255,.62)'); const s=K.fitSize(String(val),cw-40,'900',40,24); K.text(String(val),X+20,y+92,'900 '+s+'px '+F,'#fff'); }); };
   K.fitSize=(t,maxW,wt,size,min)=>{ let s=size; g.font=wt+' '+s+'px '+F; while(s>min&&g.measureText(t).width>maxW){ s-=2; g.font=wt+' '+s+'px '+F; } return s; };
   K.qr=async(url,x,y,S0,bg,fg)=>{ const Q=await loadQR(); if(!Q) return false; try{ const q=Q(0,'M'); q.addData(url); q.make(); const n=q.getModuleCount(), pad=S0*.08, cell=(S0-pad*2)/n; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,S0,S0,S0*.1); g.fill(); g.fillStyle=fg; for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) g.fillRect(x+pad+c*cell,y+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); return true; }catch(e){ return false; } };
-  K.done=()=>new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.92); }catch(e){ res(null); } });
+  K.done=()=>new Promise(res=>{ try{ cv.toBlob(b=>res(b),'image/jpeg',.93); }catch(e){ res(null); } });
   return K;
 }
 // 底部：QR＋一句行動呼籲＋網域（所有分享圖共用，位置在安全區內）
@@ -6873,7 +6883,7 @@ async function pkFoot(K,url,cap,left){ const {g,W}=K, QS=K.sq?180:200, qx=K.R-QS
 /* ---- 競標 ---- */
 async function aucPoster(p,fmt){
   const K=pkCanvas(fmt), {g,W,H,INK,F,MONO}=K; try{ await document.fonts?.ready; }catch(e){}
-  const src=(p.media||[]).find(m=>m.type!=='video')?.url||cover(p), im=await sdImg(src);
+  const src=(p.media||[]).find(m=>m.type!=='video')?.url||cover(p), im=(await sdImg(await hiPhoto(p,src)))||(await sdImg(src));
   const bs=bidsFor(p.id), t=bs[0], L=live(p), amt=t?t.amt:p.startPrice, par=parList(p);
   const PH=K.story?1080:K.sq?500:740;
   g.fillStyle=INK; g.fillRect(0,0,W,H); K.img(im,0,0,W,PH);
@@ -6905,7 +6915,7 @@ function aucText(p,fmt){ const bs=bidsFor(p.id), t=bs[0], L=live(p), par=parList
 /* ---- 抽獎（邀請／得獎名單／我中獎了） ---- */
 async function rafPoster(r,fmt,variant){
   const K=pkCanvas(fmt), {g,W,H,INK,F}=K; try{ await document.fonts?.ready; }catch(e){}
-  const im=await sdImg(rImg(r)), st=rState(r), w=r.drawn?.winners||[], n=r.drawn?.entrants??entrants(r).length; resolveNames(w);
+  const rp=!r.img&&S.plants.get(r.plantId), im=(rp?await sdImg(await hiPhoto(rp)):null)||(await sdImg(rImg(r))), st=rState(r), w=r.drawn?.winners||[], n=r.drawn?.entrants??entrants(r).length; resolveNames(w);
   const PH=K.story?1000:K.sq?460:690;
   g.fillStyle=INK; g.fillRect(0,0,W,H); K.img(im,0,0,W,PH);
   K.grad(0,K.T+260,'rgba(0,0,0,.66)','rgba(0,0,0,0)'); K.grad(PH-280,PH,'rgba(5,6,5,0)',INK);
@@ -7202,7 +7212,7 @@ function renderHistory(force){
       composer=h('form',{class:'form ht-new',onsubmit:async x=>{ x.preventDefault(); er.textContent=''; const title=ti.value.trim(); if(!title){ er.textContent='請填這個事件的標題（可以自己取）。'; return; } if(picker.busy()){ er.textContent='還在上傳，請稍候。'; return; }
           const phs=picker.get(), reg=nowLocal(), when=dt.dataset.touched?dt.value:null, btn=x.submitter||composer.querySelector('button[type=submit]'); btn.disabled=true;
           try{ if(!phs.length) await S.db.collection(pPath(p)+'/photos').doc().set({ev:true,title,stage:title,note:no.value.trim(),takenAt:when||reg,takenSource:'manual',registeredAt:reg});
-            else { for(const m0 of phs) await S.db.collection(pPath(p)+'/photos').doc().set({...m0.full,poster:m0.video?m0.thumb:null,takenAt:when||m0.takenAt,takenSource:when?'manual':m0.takenSource,title,stage:title,note:no.value.trim(),registeredAt:reg});
+            else { for(const m0 of phs) await S.db.collection(pPath(p)+'/photos').doc().set({...m0.full,thumb:m0.thumb||null,poster:m0.video?m0.thumb:null,takenAt:when||m0.takenAt,takenSource:when?'manual':m0.takenSource,title,stage:title,note:no.value.trim(),registeredAt:reg});
               const cur=S.plants.get(p.id), latest=phs.map(z=>when||z.takenAt).sort().pop(), upd={photoCount:(cur.photoCount||0)+phs.length,media:[...mediaOf(phs),...(cur.media||[])].slice(0,12)}; if(!cur.coverThumb) upd.coverThumb=cur.thumb||phs[0].thumb; if(!cur.lastPhotoAt||latest>=cur.lastPhotoAt){ upd.thumb=phs[phs.length-1].thumb; upd.lastPhotoAt=latest; upd.lastStage=title; } if(lv.value) upd.leaves=Number(lv.value); await S.db.doc(pPath(p)).update(upd); }
             S.histNew=false; toast('已加入履歷'); renderHistory(true); }catch(ex){ btn.disabled=false; er.textContent='加入失敗，請稍後再試。'; } }},
         h('h3',{text:'新增一個時間點'}), h('div',{class:'two'}, field('標題（可自訂，也可以從建議挑）',ti), field('發生時間（沒改的話用照片拍攝時間）',dt)), field('說明',no), fieldBox('照片或影片（選填，可多張；影片 6 秒內（認證會員））',picker.el), h('div',{class:'two'}, field('目前葉片數（選填）',lv), h('div')), er,
@@ -8253,7 +8263,7 @@ function admNew(m, preset){
       const data={code,kind,species:[spC.get().trim(),epIn.value.trim()].filter(Boolean).join(' '),cultivar:kind==='pup'?(momP.get()?.p?.cultivar||''):'',cross:crIn.value.trim(),leaves:q('leaves').value?Number(q('leaves').value):null,status:L?'available':'keep',listed:L,listedAt:L?Date.now():null,notes:q('notes').value.trim(),
         momId:mo?.id||null,momCode:mo?.code||(mX?(mX.code||mX.name):null),dadId:kind!=='pup'?(da?.id||null):null,dadCode:kind!=='pup'?(da?.code||(dX?(dX.code||dX.name):null)):null,parentId:kind==='pup'?(mo?.id||null):null,parentCode:kind==='pup'?(mo?.code||(mX?(mX.code||mX.name):null)):null,momExt:mX,dadExt:dX,
         thumb:ph.thumb,coverThumb:ph.thumb,createdAt:reg,lastPhotoAt:phs.map(x=>x.takenAt).sort().pop(),lastStage:stageSel.value,photoCount:phs.length,media:mediaOf(phs),hidden:!show.checked,private:privSw.checked,tags:tgN.get(),...s};
-      await ref.set(data); for(const x of phs) await ref.collection('photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:stageSel.value,note:'',registeredAt:reg});
+      await ref.set(data); for(const x of phs) await ref.collection('photos').doc().set({...x.full,thumb:x.thumb||null,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:stageSel.value,note:'',registeredAt:reg});
       S.plants.set(ref.id,{id:ref.id,...data,shop:S.me}); if(kind!=='pup'||pupExt) await bumpSerial(serial+1); toast(code+' 已登錄'+(L?'並上架':'')); S.newPreset=null; S.admTab='reg'; S.admEdit=ref.id; renderAdmin(true);
     }catch(ex){ btn.disabled=false; btn.textContent=label; err.textContent=ex?.code==='invalid_argument'?'登錄失敗：沒有權限，或照片太大。':'登錄失敗，請稍後再試。'; } });
   if (preset.lot||preset.list) m.append(admTop('上架販售'), listWays(preset.lot?'lot':'new'), preset.list?'':h('div',{class:'lot-flow'}, ...[['🪴','1 盤 = 1 個編號'],['🔢','填數量'],['🛒','買家選幾株'],['📉','自動扣庫存']].map(([ic,t],i)=>[i?h('i',{class:'lf-ar',text:'→'}):null, h('span',{class:'lf'}, h('b',{text:ic}), h('small',{text:t}))]).flat().filter(Boolean)), f);
@@ -8433,7 +8443,7 @@ function admBatch(m){
           momId:base.momId,momCode:base.momCode,dadId:base.dadId,dadCode:base.dadCode,parentId:base.parentId,parentCode:base.parentCode,momExt:base.momExt||null,dadExt:base.dadExt||null,
           thumb:ph?ph.thumb:null,coverThumb:ph?ph.thumb:null,createdAt:reg,lastPhotoAt:ph?phs.map(x=>x.takenAt).sort().pop():null,lastStage:base.stage,photoCount:phs.length,media:mediaOf(phs),hidden:base.hidden||!ph,tags:base.tags,batch:base.batch,grp:base.grp,...(base.stack?{stack:base.stack}:{}),...(base.L?s2:{mode:'fixed',price:null,endsAtMs:null})};
         if (!ph) noPhoto++;
-        await ref.set(data); for(const x of phs) await ref.collection('photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:base.stage,note:'',registeredAt:reg});
+        await ref.set(data); for(const x of phs) await ref.collection('photos').doc().set({...x.full,thumb:x.thumb||null,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:base.stage,note:'',registeredAt:reg});
         S.plants.set(ref.id,{id:ref.id,...data,shop:S.me}); ids.push(ref.id); }
       { const m0=codes[n-1].match(/^[A-Z]{2}-[A-Z0-9]+-(\d{5})$/); if(m0) await bumpSerial(+m0[1]+1); }
       if (!c&&grpSw.checked){ prog.textContent='上傳群組主圖…'; let cov=null; if(gFile.files[0]){ try{ cov=await uploadMediaFile(gFile.files[0],x=>{ prog.textContent='上傳群組主圖 '+Math.round(x*100)+'%'; }); }catch(e2){ toast('主圖沒上傳成功，先用第一株的照片'); } }
@@ -9805,7 +9815,7 @@ function admEditor(m, id){
     if(!phs.length){ b.disabled=true; try{ const reg=nowLocal(); await S.db.collection(pPath(p)+'/photos').doc().set({ev:true,title:stage,stage,note,takenAt:reg,takenSource:'manual',registeredAt:reg}); toast('已加入履歷'); renderAdmin(true); }catch(ex){ b.disabled=false; err.textContent='加入失敗，請稍後再試。'; } return; }
     b.disabled=true; b.textContent='上傳中…';
     try{ const reg=nowLocal();
-      for (const x of phs) await S.db.collection(pPath(p)+'/photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage,title:stage,note,registeredAt:reg});
+      for (const x of phs) await S.db.collection(pPath(p)+'/photos').doc().set({...x.full,thumb:x.thumb||null,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage,title:stage,note,registeredAt:reg});
       const cur=S.plants.get(p.id), latest=phs.map(x=>x.takenAt).sort().pop(), upd={photoCount:(cur.photoCount||0)+phs.length,media:[...mediaOf(phs),...(cur.media||[])].slice(0,12)}; if(!cur.coverThumb) upd.coverThumb=cur.thumb||phs[0].thumb; if(!cur.lastPhotoAt||latest>=cur.lastPhotoAt){ upd.thumb=phs[phs.length-1].thumb; upd.lastPhotoAt=latest; upd.lastStage=stage; } const lv=rec.querySelector('[data-r=leaves]').value; if(lv) upd.leaves=Number(lv);
       await S.db.doc(pPath(p)).update(upd); toast('已加入 '+phs.length+' 筆紀錄'); renderAdmin(true); }catch(ex){ b.disabled=false; b.textContent='加入履歷'; err.textContent='上傳失敗，請稍後再試。'; } });
   const g0=genusOf(p.species), tgE=tagInput(tagsOf(p)), spE=combo({items:taxaItems,value:TAX_BY.get(g0.toLowerCase())?.sci||g0,allowCustom:true,placeholder:'屬',searchPh:'搜尋學名或中文'}), epE=h('input',{maxlength:80,value:[normSp(p.species).slice(g0.length).trim(),p.cultivar].filter(Boolean).join(' '),placeholder:'種名／品種名'});
@@ -9905,7 +9915,7 @@ function coverPanel(p){
           h('img',{src:vid?recPoster(d):src,alt:'',loading:'lazy'}), vid?h('span',{class:'cvp-v',text:'▶'}):null, h('small',{text:fmtDay(d.takenAt)||''})); })):h('p',{class:'hint',text:'還沒有照片類的成長紀錄。先在下面「加入成長紀錄」拍照，新的照片會自動加進商品照片。'})); }
   save.addEventListener('click',async()=>{ if(up.some(u=>!u.err)){ msg.textContent='照片還在上傳，請稍候'; return; } save.disabled=true; save.textContent='儲存中…'; const c0=M[0]; const fresh=M.filter(m=>m.fresh).map(m=>m.fresh);
     const upd={media:M.map(({src,fresh,...m})=>src&&m.type==='image'?{...m,src}:m),coverThumb:c0?mThumb(c0):null};
-    try{ if(fresh.length){ const reg=nowLocal(); for(const x of fresh) await S.db.collection(pPath(p)+'/photos').doc().set({...x.full,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:'商品照片',title:'商品照片',note:'',registeredAt:reg});
+    try{ if(fresh.length){ const reg=nowLocal(); for(const x of fresh) await S.db.collection(pPath(p)+'/photos').doc().set({...x.full,thumb:x.thumb||null,poster:x.video?x.thumb:null,takenAt:x.takenAt,takenSource:x.takenSource,stage:'商品照片',title:'商品照片',note:'',registeredAt:reg});
         const cur=S.plants.get(p.id)||p, latest=fresh.map(x=>x.takenAt).sort().pop(); upd.photoCount=(cur.photoCount||0)+fresh.length; if(!cur.lastPhotoAt||latest>=cur.lastPhotoAt){ upd.lastPhotoAt=latest; upd.thumb=fresh[fresh.length-1].thumb; } }
       await S.db.doc(pPath(p)).update(upd); M.forEach(m=>delete m.fresh); Object.assign(p,upd); dirty=false; undo.hidden=true; msg.textContent='✓ 已儲存，商店與商品頁會用新的封面'; toast('封面與照片已更新'); }catch(e){ save.disabled=false; msg.textContent='儲存失敗：'+(e?.code==='invalid_argument'||/permission/i.test(e?.message||'')?'沒有權限（植物已轉給別人時，由新主人管理）':'請稍後再試'); } finally{ save.textContent='儲存封面與照片'; } });
   undo.addEventListener('click',()=>{ M=(p.media||[]).slice(0,12).map(m=>({...m})); dirty=false; save.disabled=true; undo.hidden=true; msg.textContent=''; draw(); });
