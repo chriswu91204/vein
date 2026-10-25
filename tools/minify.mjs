@@ -24,5 +24,11 @@ out = out.replace(/<style>([\s\S]*?)<\/style>/g, (m, css) => {
   try { const min = run(css, 'css'); if (!min) throw new Error('empty'); done++; return '<style>' + min + '</style>'; }
   catch (e) { kept++; console.warn('[minify] 保留原始 style：', String(e.message).slice(0, 200)); return m; }
 });
+// 最後再檢查一次：壓縮完的每一段 script 都必須能被解析，否則整份放棄壓縮、用原始檔（寧可大一點也不能讓網站壞掉）
+const bad = [];
+out.replace(/<script>([\s\S]*?)<\/script>/g, (m, code) => { try { new vm.Script(code); } catch (e) { bad.push(String(e.message).slice(0, 160)); } return m; });
+const srcBad = [];
+src.replace(/<script>([\s\S]*?)<\/script>/g, (m, code) => { try { new vm.Script(code); } catch (e) { srcBad.push(1); } return m; });
+if (bad.length > srcBad.length) { console.warn('[minify] 壓縮後有 script 解析失敗，改用原始檔：', bad.join(' | ')); out = src; }
 fs.writeFileSync(file, out);
 console.log(`[minify] ${file}: ${src.length} → ${out.length} bytes（壓縮 ${done} 段、保留 ${kept} 段）`);

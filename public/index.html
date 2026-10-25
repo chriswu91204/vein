@@ -5699,7 +5699,7 @@ function admStorefront(m){
     if (b.k!=='code'&&b.k!=='_page'){ const code=(k,l,rows)=>{ const i=h('textarea',{rows,class:'mono sfe-code',spellcheck:'false',maxlength:60000,placeholder:k==='_html'?'<a class="card" href="{{link}}">…</a>':''}); i.value=c[k]||''; i.addEventListener('input',()=>{ c[k]=i.value; mark(); }); i.addEventListener('change',()=>draw()); return field(l,i); };
       out.push(h('details',{class:'sfe-adv',open:!!(c._html||c._js)}, h('summary',{text:'🧑‍💻 自訂 HTML（用自己的設計取代這個元件）'}),
         sel('_hmode','放在哪裡',[['','取代原本的元件'],['above','加在元件上面'],['below','加在元件下面']]),
-        code('_html','HTML（可以直接貼整段，含 <style> 和 <script>）',8), code('_css','CSS（選填）',4), code('_js','JavaScript（選填）',3),
+        code('_html','HTML（可以直接貼整段，含 style 和 script 標籤）',8), code('_css','CSS（選填）',4), code('_js','JavaScript（選填）',3),
         h('p',{class:'hint',text:'寫 {{link}} 會自動換成這個元件設定的連結（例如一頁式入口選的廣告），{{title}} 換成標題。連結用 #/… 會在網站內換頁。清空 HTML 就恢復原本樣子。'}))); }
     return h('div',{class:'form sfe-cfg'}, ...out); };
   // ---- 區塊列表 ----
