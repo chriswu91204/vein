@@ -129,7 +129,7 @@ exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
   if (!a || !a.buyer || (b && b.status === a.status)) return;
   const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
   const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
-  if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', 'ord-' + ev.params.oid);
+  if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', auc ? 'won-' + String(ev.params.oid).slice(4) : 'ord-' + ev.params.oid);
   if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#admin/orders', 'paid-' + ev.params.oid);
 });
 // 開獎 → 中獎者、賣家
@@ -167,11 +167,20 @@ exports.pushAuctionEnd = onSchedule({ schedule: 'every 5 minutes', timeZone: 'As
       const p = { id: d.id, shop: sd.id, ...d.data() };
       if (p.endsAtMs && p.status !== 'sold' && p.endsAtMs + 120 * 6e4 > now) { try { await endingSoon(p, now); } catch (e) { logger.warn('ending soon failed', d.id, String(e)); } }
       if (!p.endsAtMs || p.endsAtMs > now || p.endsAtMs < now - 2 * 864e5) continue;
-      const mk = db.doc('sysnotes/auc-' + d.id + '-' + p.endsAtMs); if ((await mk.get()).exists) continue;
       const bids = await allBids(d.id), end = effEnd(p, bids); if (end > now) continue;
       const win = leaderAt(p, bids, end);
-      if (win) { await push(win.uid, '🏆 恭喜得標！', pLabel(p) + ' 以 ' + nt(win.amt) + ' 得標，等賣家成立訂單', '/#/plant/' + d.id, 'won-' + d.id);
-        await push(p.shop, '🔨 競標結束', pLabel(p) + ' 由 ' + (await displayName(win.uid)) + ' 以 ' + nt(win.amt) + ' 得標，記得成立訂單', '/#admin/auc', 'end-' + d.id); }
+      // 有得標者：自動成立訂單（跟賣家按「成立訂單給得標者」一樣），附上賣家的匯款帳號，植株標記售出
+      let made = false;
+      if (win && p.status !== 'sold') { const oref = db.doc(`shops/${sd.id}/orders/auc-${d.id}`);
+        try { if (!(await oref.get()).exists) {
+          const bank = await db.doc(`data/users/${sd.id}/bank`).get();
+          await oref.set({ buyer: win.uid, items: [d.id], total: win.amt, note: '競標得標（自動成立）', status: 'confirmed', payMethod: 'transfer', src: 'auction', at: now });
+          await db.doc(`deals/${sd.id}_auc-${d.id}`).set({ seller: sd.id, buyer: win.uid, orderId: 'auc-' + d.id, payMethod: 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true });
+          await d.ref.update({ status: 'sold', buyer: win.uid, soldPrice: win.amt });
+          made = true; logger.info('auction order created', { pid: d.id, winner: win.uid, amt: win.amt }); } } catch (e) { logger.error('auction order failed', d.id, String(e)); } }
+      const mk = db.doc('sysnotes/auc-' + d.id + '-' + p.endsAtMs); if ((await mk.get()).exists) continue;
+      if (win) { await push(win.uid, '🏆 恭喜得標！', pLabel(p) + ' 以 ' + nt(win.amt) + ' 得標，訂單已成立，到訂單頁看匯款資訊', '/#/me/orders', 'won-' + d.id);
+        await push(p.shop, '🔨 競標結束，訂單已自動成立', pLabel(p) + ' 由 ' + (await displayName(win.uid)) + ' 以 ' + nt(win.amt) + ' 得標', '/#admin/orders', 'end-' + d.id); }
       else await push(p.shop, '🔨 競標結束（沒人出價）', pLabel(p) + ' 可以改成直購或重新競標', '/#admin/auc', 'end-' + d.id);
       await mk.set({ at: now, pid: d.id, shop: sd.id });
     }
