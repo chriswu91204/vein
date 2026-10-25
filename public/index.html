@@ -3619,6 +3619,95 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .ls-st{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}.ls-st.off{background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--line)}.ls-st.on{background:#E3F5C8;color:#2E6B12}.ls-st.auc{background:#FFE4DE;color:#B4361F}
 .ls-row.is-on{background:#F6FBEC}.ls-row.lk{opacity:.55;cursor:not-allowed}.ls-lk{font-size:12px;color:#B4361F}
 .ls-chg{background:#FFF6D6;color:#6B5200;border-radius:12px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-bottom:10px}
+/* ===== 主頁（密集版面：每塊白底卡片、間距小） ===== */
+#shopBody>.sfh:is(.hzq,.hzb,.hzf,.hzd,.hzs,.hzm){margin:10px 0}
+.hzq{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:4px;background:var(--surface);border-radius:18px;padding:12px 8px}
+.hzq-i{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:inherit;padding:4px 2px;border-radius:12px;transition:transform .15s}
+.hzq-i:hover{transform:translateY(-2px)}
+.hzq-ic{position:relative;width:52px;height:52px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-size:24px;box-shadow:inset 0 0 0 1px var(--line)}
+.hzq-ic i{font-style:normal}.hzq-ic img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.hzq-ic em{position:absolute;top:-6px;right:-10px;font-style:normal;font-size:9.5px;font-weight:800;background:#FF3D3D;color:#fff;border-radius:999px;padding:1px 6px;white-space:nowrap}
+.hzq-i small{font-size:12px;text-align:center;line-height:1.25}
+.hzq.st-card .hzq-ic{border-radius:14px}
+.hzq.st-scroll{display:flex;overflow-x:auto;scrollbar-width:none}.hzq.st-scroll .hzq-i{flex:0 0 78px}
+@media (max-width:640px){ .hzq{grid-template-columns:repeat(5,1fr);padding:10px 4px} .hzq-ic{width:44px;height:44px;font-size:21px} .hzq-i small{font-size:11px} }
+.hzb{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.hzb.st-full{grid-template-columns:1fr}.hzb.st-triple{grid-template-columns:repeat(3,1fr)}
+.hzb-main{position:relative;border-radius:18px;overflow:hidden;min-width:0}
+.hzb-tr{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;height:100%}.hzb-tr::-webkit-scrollbar{display:none}
+.hzb-c{position:relative;display:block;overflow:hidden;border-radius:18px;text-decoration:none;color:#fff;background:linear-gradient(135deg,#1F5C42,#0C0E0D)}
+.hzb-c.big{flex:0 0 100%;scroll-snap-align:start;border-radius:0;aspect-ratio:16/7}
+.hzb-m,.hzb-ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hzb-ph{background:linear-gradient(135deg,#1F5C42,#9BE600)}
+.hzb-t{position:absolute;left:0;right:0;bottom:0;padding:14px 16px;background:linear-gradient(transparent,rgba(0,0,0,.6));display:flex;flex-direction:column}
+.hzb-t b{font-size:clamp(16px,2.2vw,24px)}.hzb-t small{opacity:.85;font-size:13px}
+.hzb-side{display:grid;grid-template-rows:1fr 1fr;gap:8px}.hzb-c.sm .hzb-t b{font-size:15px}
+.hzb.st-triple .hzb-c{aspect-ratio:4/3}
+.hzb-dots{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:5px}.hzb-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);transition:width .2s}.hzb-dots i.on{width:16px;border-radius:4px;background:#fff}
+@media (max-width:640px){ .hzb{grid-template-columns:1fr} .hzb-side{grid-template-rows:none;grid-template-columns:1fr 1fr} .hzb-c.sm{aspect-ratio:2/1} .hzb.st-triple{grid-template-columns:1fr 1fr} .hzb.st-triple .hzb-c:first-child{grid-column:1/-1;aspect-ratio:16/8} }
+.hzf,.hzs,.hzm{background:var(--surface);border-radius:18px;padding:12px}
+.hzf-h,.hzm-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hzf-t{font-size:17px;color:#E8452C;font-style:italic;font-weight:900}.hzs .hzf-t{color:var(--fg);font-style:normal}
+.hzf-cd{display:flex;align-items:center;gap:2px}.hzf-cd b{background:#111;color:#fff;border-radius:5px;padding:2px 5px;font-size:13px}.hzf-cd i{font-style:normal;font-weight:800}
+.hzf-more{margin-left:auto;font-size:13px;color:var(--fg2);text-decoration:none}
+.hzf-l{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.hzf-l::-webkit-scrollbar{display:none}
+.hzf.st-grid .hzf-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));overflow:visible}
+.hzf-i{flex:0 0 118px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.hzf-im{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--paper)}.hzf-im img{width:100%;height:100%;object-fit:cover;transition:transform .3s}.hzf-i:hover .hzf-im img{transform:scale(1.05)}
+.hzf-im em{position:absolute;left:4px;top:4px;font-style:normal;font-size:10.5px;font-weight:800;background:rgba(0,0,0,.65);color:#fff;border-radius:6px;padding:1px 6px}
+.hzf-p{color:#E8452C;font-size:16px;text-align:center}
+.hzf-bar{position:relative;height:16px;border-radius:999px;background:#FFE1D9;overflow:hidden;display:block}.hzf-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#FF7A59,#E8452C);border-radius:inherit}.hzf-bar small{position:relative;display:block;text-align:center;font-size:10.5px;line-height:16px;color:#fff;font-weight:700;text-shadow:0 0 2px rgba(0,0,0,.3)}
+.hzd{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hzd-s{background:var(--surface);border-radius:18px;padding:10px}
+.hzd-h{display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:inherit;margin-bottom:8px}.hzd-h b{font-size:15px;color:#E8452C}.hzd-h i{font-style:normal;color:var(--fg2)}
+.hzd-g{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hzd-i{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;cursor:pointer;background:var(--paper)}.hzd-i img{width:100%;height:100%;object-fit:cover}
+@media (min-width:861px){ .hzd-i{aspect-ratio:16/9} .hzb-c.big{aspect-ratio:16/6} }
+.hzd-i em{position:absolute;left:4px;top:4px;font-style:normal;font-size:10px;font-weight:800;background:#E8452C;color:#fff;border-radius:5px;padding:1px 5px}
+.hzd-i small{position:absolute;left:0;right:0;bottom:0;padding:16px 6px 5px;font-size:11.5px;font-weight:700;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.7));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzs-row{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none}.hzs-row::-webkit-scrollbar{display:none}
+.hzs-c{flex:0 0 220px;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--paper);text-decoration:none;color:inherit;transition:transform .2s,box-shadow .2s}.hzs-c:hover{transform:translateY(-3px);box-shadow:0 16px 28px -20px rgba(0,0,0,.5)}
+.hzs.st-wide .hzs-c{flex-basis:320px}
+.hzs-b{position:relative;height:70px;background:linear-gradient(135deg,#1F5C42,#9BE600)}.hzs-b img{width:100%;height:100%;object-fit:cover}.hzs-b em,.hzs-l em{position:absolute;right:6px;top:6px;font-style:normal;font-size:10px;font-weight:800;background:#D2FF00;color:#111;border-radius:5px;padding:1px 6px}
+.hzs-w{display:flex;align-items:center;gap:8px;padding:0 10px;margin-top:-16px;position:relative}.hzs-w .av{box-shadow:0 0 0 3px var(--paper)}.hzs-w>span{display:flex;flex-direction:column;min-width:0;padding-top:16px}.hzs-w b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hzs-w small{font-size:11px;color:var(--fg2)}
+.hzs-ps{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px 10px 10px}.hzs-ps img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
+.hzs-l{position:relative;flex:0 0 76px;display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;color:inherit}.hzs-l small{font-size:11.5px;text-align:center;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hzm-h b{font-size:17px}
+.hzm-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.hzm.st-masonry .hzm-g{display:block;columns:5 160px;column-gap:8px}.hzm.st-masonry .hzm-i{break-inside:avoid;margin-bottom:8px}
+@media (max-width:640px){ .hzm-g{grid-template-columns:1fr 1fr} .hzm.st-masonry .hzm-g{columns:2} .hzf,.hzs,.hzm{padding:10px;border-radius:14px} }
+.hzm-i{display:flex;flex-direction:column;background:var(--paper);border-radius:12px;overflow:hidden;cursor:pointer;text-decoration:none;color:inherit;transition:transform .18s,box-shadow .18s}.hzm-i:hover{transform:translateY(-2px);box-shadow:0 12px 24px -18px rgba(0,0,0,.5)}
+.hzm-im{position:relative;aspect-ratio:1;background:#e7ebe4}.hzm-im.r1{aspect-ratio:4/5}.hzm-im.r2{aspect-ratio:3/4}.hzm-im img{width:100%;height:100%;object-fit:cover;display:block}
+.hzm-im em{position:absolute;left:6px;top:6px;font-style:normal;font-size:10.5px;font-weight:800;background:#fff;color:#111;border-radius:6px;padding:1px 6px}.hzm-im em.live{background:#E8452C;color:#fff}
+.hzm-t{display:flex;flex-direction:column;gap:4px;padding:8px}.hzm-t b{font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hzm-pr{display:flex;align-items:baseline;justify-content:space-between;gap:6px}.hzm-pr strong{color:#E8452C;font-size:15px;white-space:nowrap;flex:none}.hzm-pr small{font-size:10.5px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
+.hzm-shop{background:linear-gradient(160deg,#F2FFD0,var(--paper))}.hzm-sg{display:grid;grid-template-columns:1fr 1fr;gap:2px}.hzm-sg img{width:100%;aspect-ratio:1;object-fit:cover}
+.hzm-sw{display:flex;align-items:center;gap:6px}.hzm-shop small{font-size:11px;color:var(--fg2)}
+.hzm-ad{position:relative}.hzm-adm{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.hzm-adl{font-style:normal;font-size:10px;font-weight:800;background:#111;color:#D2FF00;border-radius:4px;padding:1px 5px;align-self:flex-start}
+.hzm-more{display:block;margin:12px auto 2px}
+/* 區塊之間不要太寬 */
+.tr{margin-top:18px;padding-top:14px}.tr.dark{padding:20px 0 16px}.sfh{margin:14px 0}.fx{margin:12px auto}.cdw,.lpv,.lpg,.lpq,.lpf,.lbtns{margin:12px auto}
+@media (max-width:640px){ .tr{margin-top:12px;padding-top:10px} .sfh{margin:10px 0} }
+/* ---- 更多進場動畫 ---- */
+.sx-a-rise{transform:translateY(40px) scale(.96)}.sx-a-pop{transform:scale(.85)}.sx-a-pop.sx-on{transition-timing-function:cubic-bezier(.34,1.56,.64,1)}
+.sx-a-drop{transform:translateY(-40px)}.sx-a-drop.sx-on{transition-timing-function:cubic-bezier(.34,1.4,.64,1)}
+.sx-a-skew{transform:translateX(-40px) skewX(-8deg)}
+.sx-a-mask{opacity:1;transform:none;clip-path:inset(100% 0 0 0);transition:clip-path 1s cubic-bezier(.7,0,.2,1)}.sx-a-mask.sx-on{clip-path:inset(0 0 0 0)}
+.sx-a-curtain{opacity:1;transform:none;clip-path:inset(0 50% 0 50%);transition:clip-path 1s cubic-bezier(.7,0,.2,1)}.sx-a-curtain.sx-on{clip-path:inset(0 0 0 0)}
+.sx-a-wipe{opacity:1;transform:none;clip-path:inset(0 100% 0 0);transition:clip-path .9s cubic-bezier(.7,0,.2,1)}.sx-a-wipe.sx-on{clip-path:inset(0 0 0 0)}
+/* ---- 互動／持續效果 ---- */
+.sxf-tilt{transform:perspective(1100px) rotateX(var(--rx,0)) rotateY(var(--ry,0));transition:transform .25s ease-out;transform-style:preserve-3d;position:relative}
+.sxf-tilt::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.22),transparent 45%);opacity:0;transition:opacity .25s}.sxf-tilt:hover::after{opacity:1}
+.sxf-lift{transition:transform .25s,box-shadow .25s}.sxf-lift:hover{transform:translateY(-6px);box-shadow:0 26px 50px -28px rgba(0,0,0,.45)}
+.sxf-shine{position:relative;overflow:hidden}.sxf-shine::before{content:'';position:absolute;top:0;bottom:0;width:40%;left:-60%;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent,rgba(255,255,255,.35),transparent);animation:sxShine 3.8s ease-in-out infinite}
+@keyframes sxShine{0%,55%{left:-60%}100%{left:130%}}
+.sxf-glow{border-radius:20px;animation:sxGlow 2.6s ease-in-out infinite}@keyframes sxGlow{50%{box-shadow:0 0 0 2px #D2FF00,0 0 28px -2px rgba(210,255,0,.7)}}
+.sxf-float{animation:sxFloat 4s ease-in-out infinite}@keyframes sxFloat{50%{transform:translateY(-8px)}}
+.sxf-parallax :is(img,video){transform:translateY(var(--py,0)) scale(1.12);transition:transform .1s linear}
+.sxf-grain{position:relative}.sxf-grain::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:.12;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+.sxf-gradient{background:linear-gradient(120deg,#E9FFB0,#B8F3E0,#E2DBFF,#FFD9E4,#E9FFB0)!important;background-size:300% 300%!important;animation:sxGrad 12s ease infinite}@keyframes sxGrad{50%{background-position:100% 50%}}
+.sxf-sticky{position:sticky;top:64px;z-index:20}
+@media (prefers-reduced-motion:reduce){.sxf{animation:none!important;transform:none!important}}
 .es{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .es li{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:14px;padding:12px 14px}
 .es li>i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800}
@@ -4868,7 +4957,8 @@ function shelf(title,hint,content,more){ return h('div',{class:'shelf'}, h('h3',
 let shopRSig='';
 function shopSignature(){ return JSON.stringify([S.ready,S.failed,S.filter,pub().map(p=>p.id+p.status+(p.price||'')+(topBid(p.id)?.amt||'')),[...S.raffles.values()].map(r=>rKey(r)+rState(r)+entrants(r).length),[...S.shops.keys()].map(u=>u+approved(u)+shopName(u)),mySocial().follows,S.prefs.favs,[...S.social.values()].reduce((n,d)=>n+Object.keys(d.orders||{}).length+Object.keys(d.bids||{}).length,0),[...S.sorders.values()].map(o=>o.status).join()]); }
 /* ================= 植物商店 v15：主頁／競標／直購／商家，科技感輪播 ================= */
-const STORE_TABS=[['home','主頁','HOME'],['auction','競標','LIVE'],['buy','直購','BUY'],['sellers','商家','SELLERS']];
+const STORE_TABS=[['hub','主頁','HOME'],['home','商城','MALL'],['auction','競標','LIVE'],['sellers','商家','SELLERS']];
+const storeHref=k=>k==='hub'?'#/store':'#/store/'+(k==='home'?'mall':k);
 const pad2=n=>String(n).padStart(2,'0');
 function recentIds(){ return lsGet('vein.rv',[]).filter(id=>S.plants.has(id)); }
 function trackView(id){ const a=lsGet('vein.rv',[]).filter(x=>x!==id); a.unshift(id); lsSet('vein.rv',a.slice(0,16)); }
@@ -5070,7 +5160,10 @@ const sfhName=k=>k==='_page'?'原本的頁面內容':SFH_COMP[k]?.n||SFH_BUILTIN
 const sfhIcon=k=>k==='_page'?'📄':SFH_COMP[k]?.ic||SFH_BUILTIN.find(x=>x[0]===k)?.[1]||'▫️';
 // ---- 頁面設計：商店主頁、競標頁、抽獎頁、一頁式廣告共用同一套區塊 ----
 const PD_ORIG=k=>[{id:'_page',k:'_page',on:true,cfg:{}}];
-const PD_PAGES={store:{n:'商店主頁',ic:'🏪',d:'植物商店首頁',hash:'#/store',doc:'site/storefront',builtin:SFH_BUILTIN,def:()=>SFH_DEFAULT()},
+const HUB_DEFAULT=()=>[['qicons','round'],['bannerx','split'],['flash','strip'],['duo',''],['shopstrip','cards'],['mixfeed','masonry']].map(([k,st])=>({id:'hub-'+k,k,on:true,cfg:{...SFH_COMP[k].def(),_st:st}}));
+const PD_PAGES={hub:{n:'主頁',ic:'🏠',d:'商店第一頁：入口、廣告、限時競標、商家、推薦',hash:'#/store',doc:'site/pg_hub',builtin:[],def:()=>HUB_DEFAULT()},
+  store:{n:'商城',ic:'🏪',d:'植物商城（原本的商店主頁）',hash:'#/store/mall',doc:'site/storefront',builtin:SFH_BUILTIN,def:()=>SFH_DEFAULT()},
+  sellers:{n:'商家頁',ic:'🏡',d:'商店的「商家」分頁',hash:'#/store/sellers',doc:'site/pg_sellers',builtin:[['_page','🏡','原本的商家頁']],def:PD_ORIG},
   auction:{n:'競標頁',ic:'⚡',d:'商店的「競標」分頁',hash:'#/store/auction',doc:'site/pg_auction',builtin:[['_page','⚡','原本的競標頁']],def:PD_ORIG},
   raffle:{n:'抽獎頁',ic:'🎁',d:'抽獎列表頁',hash:'#/raffle',doc:'site/pg_raffle',builtin:[['_page','🎁','原本的抽獎頁']],def:PD_ORIG},
   lp:{n:'一頁式廣告',ic:'📣',d:'獨立的活動／廣告頁',builtin:[],def:()=>[
@@ -5080,13 +5173,29 @@ const PD_PAGES={store:{n:'商店主頁',ic:'🏪',d:'植物商店首頁',hash:'#
     {id:scId(),k:'countdown',on:true,cfg:{...SFH_COMP.countdown.def(),_st:'flip',at:tsLocal(Date.now()+3*864e5).slice(0,16)}},
     {id:scId(),k:'faq',on:true,cfg:{...SFH_COMP.faq.def(),_st:'acc'}},
     {id:scId(),k:'btns',on:true,cfg:{...SFH_COMP.btns.def(),_st:'sticky'}}]}};
+// ---- 版面模板：一鍵套用整頁（之後每個區塊都還能改） ----
+const pdB=(k,cfg)=>({id:scId(),k,on:true,cfg:{...(SFH_COMP[k]?.def?.()||{}),...(cfg||{})}});
+const PG_ORIG=()=>({id:'_page',k:'_page',on:true,cfg:{}});
+const PD_TPL={
+  hub:[['🛍','蝦皮式促銷首頁','入口、主橫幅、限時競標、雙欄、商家、推薦',()=>HUB_DEFAULT()],
+    ['🎊','節慶大促','跑馬公告＋倒數＋三格橫幅＋競標格子',()=>[pdB('notice',{_st:'marquee',tone:'warn',text:'🎉 雙十一植物祭｜全站競標 NT$1 起標，限時三天！'}),pdB('countdown',{_st:'flip',title:'活動倒數',at:tsLocal(Date.now()+3*864e5).slice(0,16)}),pdB('bannerx',{_st:'triple',_anim:'pop'}),pdB('flash',{_st:'grid'}),pdB('qicons',{_st:'card'}),pdB('mixfeed',{_st:'grid',_anim:'stagger'})]],
+    ['🍎','精品極簡（Apple 風）','大字標題、乾淨大圖、圓形商家頭像',()=>[pdB('fx',{_st:'rise',tone:'light',size:'l',_anim:'rise'}),pdB('bannerx',{_st:'full',_anim:'mask'}),pdB('shopstrip',{_st:'logos'}),pdB('picks',{src:'new',title:'本週新品',_view:'rail',_anim:'stagger'}),pdB('mixfeed',{_st:'masonry'})]],
+    ['💰','商家廣告版','贊助商家放最上面，適合收廣告費',()=>[pdB('bannerx',{_st:'split'}),pdB('shopstrip',{_st:'wide',label:'贊助',_fx:'shine'}),pdB('flash',{_st:'strip'}),pdB('duo',{ls:'shops',lt:'人氣商家',ll:'#/store/sellers'}),pdB('mixfeed',{_st:'masonry',every:'4'})]],
+    ['🌱','新手友善','入口＋溯源介紹＋特色＋推薦',()=>[pdB('qicons',{_st:'round'}),pdB('imgtext',{_st:'left',_anim:'up'}),pdB('features',{_st:'cards',_anim:'stagger'}),pdB('flash',{_st:'strip'}),pdB('mixfeed',{_st:'masonry'})]]],
+  store:[['🏪','原本版面','網站預設的商城',()=>SFH_DEFAULT()],['📢','頂部加廣告輪播','最上面放一組廣告，其他維持原樣',()=>[pdB('ads',{_st:'peek'}),...SFH_DEFAULT()]],['🎪','活動優先','活動主視覺＋倒數放最上面',()=>[pdB('event',{_st:'full',_anim:'rise'}),pdB('countdown',{_st:'bar'}),...SFH_DEFAULT()]]],
+  _page:[['📄','原本版面','只有原本的內容',()=>[PG_ORIG()]],['🪧','頂部廣告','主橫幅＋側欄放在最上面',()=>[pdB('bannerx',{_st:'split'}),PG_ORIG()]],['⏳','活動倒數','霓虹標題＋倒數，再接原本內容',()=>[pdB('fx',{_st:'neon',size:'m'}),pdB('countdown',{_st:'flip'}),PG_ORIG()]],['💰','贊助商家','贊助商家卡＋賣場專版，再接原本內容',()=>[pdB('shopstrip',{_st:'wide',label:'贊助'}),pdB('shopfeat',{_st:'strip'}),PG_ORIG()]]],
+  lp:[['⚡','限時開賣','預設範本',()=>PD_PAGES.lp.def()],
+    ['🍎','新品發表（Apple 風）','大字浮現、手機框影片、大數字亮點',()=>[pdB('fx',{_st:'rise',tone:'light',size:'l',kicker:'NEW',lines:'全新品種，首次公開',_anim:'rise'}),pdB('video',{_st:'phone',_anim:'up'}),pdB('features',{_st:'nums',_anim:'stagger'}),pdB('gallery',{_st:'carousel'}),pdB('btns',{_st:'stack'})]],
+    ['🎁','抽獎活動','波浪標題、大倒數、規則與問答',()=>[pdB('fx',{_st:'wave',kicker:'FREE RAFFLE',lines:'免費抽稀有花燭\n追蹤就能參加',cta:'立即參加',link:'#/raffle'}),pdB('countdown',{_st:'big',title:'開獎倒數',at:tsLocal(Date.now()+5*864e5).slice(0,16)}),pdB('features',{_st:'list',title:'參加方式',items:[{icon:'1',title:'登入 VEIN',text:'用 Google 帳號'},{icon:'2',title:'追蹤賣場',text:'按「追蹤」'},{icon:'3',title:'按參加',text:'等開獎通知'}]}),pdB('faq',{_st:'acc'}),pdB('btns',{_st:'sticky',items:[{text:'立即參加',link:'#/raffle',tone:'lime'}]})]],
+    ['🏪','賣場招募','流光標題、開店好處、問答',()=>[pdB('fx',{_st:'grad',kicker:'OPEN YOUR SHOP',lines:'在 VEIN 免費開店',sub:'每一株都有履歷，買家更放心',cta:'免費開店',link:'#/sell'}),pdB('features',{_st:'cards',title:'開店好處',items:[{icon:'🆓',title:'免費',text:'上架不抽成'},{icon:'🏷',title:'QR 標籤',text:'一鍵列印'},{icon:'⚡',title:'競標＋抽獎',text:'內建防尾刀'}]}),pdB('imgtext',{_st:'overlay'}),pdB('faq',{_st:'cards'}),pdB('btns',{_st:'row',items:[{text:'免費開店',link:'#/sell',tone:'lime'}]})]],
+    ['🛒','雙十一特賣','跑馬燈、故障風標題、競標格子、便宜好物',()=>[pdB('notice',{_st:'marquee',tone:'warn',text:'🔥 11/11 限定，最後倒數！'}),pdB('fx',{_st:'glitch',tone:'dark',lines:'11.11 植物祭',cta:'搶先逛',link:'#/store/auction'}),pdB('flash',{_st:'grid'}),pdB('picks',{src:'cheap',title:'千元以下好入手',_view:'grid'}),pdB('countdown',{_st:'bar',at:tsLocal(Date.now()+2*864e5).slice(0,16)}),pdB('btns',{_st:'sticky'})]]]};
 const pdKind=key=>String(key).startsWith('lp:')?'lp':key;
 S.pg=S.pg||{}; S.lpCache=S.lpCache||{};
 const lpTitle=id=>S.lpCache[id]?.title||(S.lpList||[]).find(x=>x.id===id)?.title||'';
 function pdBlocks(key){ try{ if(PREVIEW&&window.parent!==window){ const d=window.parent.__veinPdDraft; if(d&&d.key===key&&Array.isArray(d.blocks)) return d.blocks; } }catch(e){}
   if (key==='store'){ const L=S.sf?.blocks; return Array.isArray(L)&&L.length?L:SFH_DEFAULT(); }
   if (key.startsWith('lp:')) return S.lpCache[key.slice(3)]?.blocks||[];
-  const L=S.pg[key]?.blocks; return Array.isArray(L)&&L.length?L:PD_ORIG(); }
+  const L=S.pg[key]?.blocks; return Array.isArray(L)&&L.length?L:(key==='hub'?HUB_DEFAULT():PD_ORIG()); }
 function sfhBlocks(){ return pdBlocks('store'); }
 // 競標頁、抽獎頁、一頁式：依區塊排出來；「_page」就是原本的頁面內容
 function pdRender(key,body,orig){ const L=pdBlocks(key), now=Date.now();
@@ -5175,6 +5284,62 @@ const SFH_COMP={
   spacer:{n:'留白／分隔',ic:'➖',g:'content',d:'區塊之間的空間或裝飾線',styles:SFH_ST([['line','細線'],['dots','圓點'],['space','純留白'],['leaf','葉子']]),
     def:()=>({size:'m'}), f:[['select','size','高度',[['s','小'],['m','中'],['l','大']]]],
     r:(c)=>{ const st=sfhStyle(c,'spacer'); return h('div',{class:'sc-sp sfh-sp s-'+st+' z-'+(c.size||'m')}, st==='leaf'?h('span',{text:'🌿'}):null); }},
+  // ===== 主頁（像蝦皮那樣密集、好放廣告） =====
+  qicons:{n:'快捷入口',ic:'🔘',g:'hub',d:'一排圖示按鈕：競標、抽獎、新品、分類…也可以放廣告入口',styles:SFH_ST([['round','圓形圖示'],['card','方卡'],['scroll','橫向滑動']]),
+    def:()=>({items:[{icon:'⚡',label:'限時競標',link:'#/store/auction',badge:'LIVE'},{icon:'🎁',label:'免費抽獎',link:'#/raffle',badge:''},{icon:'🛒',label:'直購',link:'#/store/buy',badge:''},{icon:'✨',label:'本週新品',link:'#/store/mall',badge:'NEW'},{icon:'🏡',label:'推薦商家',link:'#/store/sellers',badge:''},{icon:'🔍',label:'溯源查驗',link:'#/verify',badge:''},{icon:'🎞',label:'滑滑看',link:'#/feed',badge:''},{icon:'🏪',label:'免費開店',link:'#/sell',badge:'免費'}]}),
+    f:[['items','items','入口',[['text','icon','圖示（emoji）'],['media','media','或上傳圖示圖片'],['text','label','文字'],['link','link','連到'],['text','badge','角標（選填，例如 NEW、LIVE）']]]],
+    r:(c)=>{ const L=(c.items||[]).filter(x=>x.label); if(!L.length) return PREVIEW?scPh('快捷入口：新增入口'):null; const st=sfhStyle(c,'qicons');
+      return h('section',{class:'hzq st-'+st}, ...L.map(x=>h('a',{class:'hzq-i',...linkAttrs(x.link)}, h('span',{class:'hzq-ic'}, x.media?.url?h('img',{src:mediaThumb(x.media),alt:''}):h('i',{text:x.icon||'✦'}), x.badge?h('em',{text:x.badge}):null), h('small',{text:x.label})))); }},
+  bannerx:{n:'主橫幅＋側欄',ic:'🪧',g:'hub',d:'大輪播配兩個小橫幅（電腦在右邊、手機在下面），最適合賣廣告',styles:SFH_ST([['split','大圖＋右側兩格'],['triple','三格並排'],['full','只要大輪播']]),
+    def:()=>({auto:5,slides:[{title:'限時競標開跑',sub:'稀有花燭 NT$1 起標',link:'#/store/auction'}],side:[{title:'免費抽獎',sub:'每週開獎',link:'#/raffle'},{title:'免費開店',sub:'上架不抽成',link:'#/sell'}]}),
+    f:[['select','auto','自動換下一張',[['5','每 5 秒'],['3','每 3 秒'],['8','每 8 秒'],['0','不自動']]],['items','slides','大輪播',[['media','media','照片或影片'],['text','title','標題'],['text','sub','副標'],['link','link','點了連到']]],['items','side','側邊小橫幅（建議 2 個）',[['media','media','照片'],['text','title','標題'],['text','sub','副標'],['link','link','點了連到']]]],
+    r:(c)=>{ const st=sfhStyle(c,'bannerx'), L=(c.slides||[]).filter(x=>x.media?.url||x.title), R=(c.side||[]).filter(x=>x.media?.url||x.title); if(!L.length&&!R.length) return PREVIEW?scPh('主橫幅：新增橫幅'):null;
+      const card=(x,cls)=>h('a',{class:'hzb-c '+cls,...linkAttrs(x.link)}, x.media?.url?sfMedia(x.media,'hzb-m'):h('span',{class:'hzb-ph'}), (x.title||x.sub)?h('span',{class:'hzb-t'}, x.title?h('b',{text:x.title}):null, x.sub?h('small',{text:x.sub}):null):null);
+      if (st==='triple') return h('section',{class:'hzb st-triple'}, ...[...L,...R].slice(0,3).map(x=>card(x,'')));
+      const track=h('div',{class:'hzb-tr'}, ...L.map(x=>card(x,'big'))), dots=h('div',{class:'hzb-dots'}, ...L.map(()=>h('i')));
+      const main=h('div',{class:'hzb-main'}, track, L.length>1?dots:null); let i=0;
+      const goI=k=>{ i=(k+L.length)%L.length; track.scrollTo({left:track.clientWidth*i,behavior:REDUCE?'auto':'smooth'}); dots.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===i)); };
+      track.addEventListener('scroll',()=>{ const k=Math.round(track.scrollLeft/Math.max(1,track.clientWidth)); if(k!==i){ i=k; dots.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===i)); } },{passive:true});
+      const sec=+c.auto||0; if(sec&&L.length>1&&!REDUCE){ const tm=setInterval(()=>{ if(!main.isConnected){ clearInterval(tm); return; } if(document.hidden||main.matches(':hover')) return; goI(i+1); },sec*1000); }
+      requestAnimationFrame(()=>dots.firstChild?.classList.add('on'));
+      return h('section',{class:'hzb st-'+st}, main, st==='split'&&R.length?h('div',{class:'hzb-side'}, ...R.slice(0,2).map(x=>card(x,'sm'))):null); }},
+  flash:{n:'限時競標條',ic:'⏰',g:'hub',d:'像「限時特賣」：倒數計時＋快結標的競標，一排滑過去',styles:SFH_ST([['strip','橫向一排'],['grid','兩排格子']]),
+    def:()=>({title:'限時競標',more:'看全部',n:12}),
+    f:[['text','title','標題'],['text','more','右上連結文字'],['select','n','最多幾株',[['8','8'],['12','12'],['20','20']]]],
+    r:(c)=>{ const L=pub().filter(live).sort((a,b)=>a.endsAtMs-b.endsAtMs).slice(0,+c.n||12); if(!L.length) return PREVIEW?scPh('限時競標條：目前沒有進行中的競標'):null; const st=sfhStyle(c,'flash');
+      const cd=h('span',{class:'hzf-cd mono'}), end=L[0].endsAtMs; const tick=()=>{ const ms=Math.max(0,end-Date.now()); cd.replaceChildren(...[Math.floor(ms/36e5),Math.floor(ms/6e4)%60,Math.floor(ms/1e3)%60].map((v,j)=>[j?h('i',{text:':'}):null, h('b',{text:String(Math.min(99,v)).padStart(2,'0')})]).flat().filter(Boolean)); };
+      tick(); const iv=setInterval(()=>{ if(!cd.isConnected){ clearInterval(iv); return; } tick(); },1000);
+      const card=p=>{ const n=bidsFor(p.id).length, pl=priceLabel(p); return activate(h('div',{class:'hzf-i'}, h('span',{class:'hzf-im'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('em',{text:fmtLeft(p.endsAtMs-Date.now())})), h('b',{class:'hzf-p',text:pl.main}), h('span',{class:'hzf-bar'}, h('i',{style:'width:'+Math.min(100,12+n*9)+'%'}), h('small',{text:n?n+' 次出價':'還沒人出價'}))),()=>openPlant(p.id)); };
+      return h('section',{class:'hzf st-'+st}, h('div',{class:'hzf-h'}, h('b',{class:'hzf-t'}, '⏰ ', c.title||'限時競標'), cd, h('a',{class:'hzf-more',href:'#/store/auction',text:(c.more||'看全部')+' ›'})), h('div',{class:'hzf-l'}, ...L.map(card))); }},
+  duo:{n:'雙欄小卡',ic:'🀄',g:'hub',d:'兩個並排的小區塊（像「直播」「限時特賣」），各放兩張縮圖',styles:[],
+    def:()=>({lt:'抽獎進行中',ls:'raffle',ll:'#/raffle',rt:'本週新品',rs:'new',rl:'#/store/mall'}),
+    f:[['text','lt','左邊標題'],['select','ls','左邊內容',[['raffle','抽獎'],['live','競標'],['new','新品'],['cheap','便宜好入手'],['mother','母株'],['shops','推薦商家']]],['link','ll','左邊連到'],['text','rt','右邊標題'],['select','rs','右邊內容',[['raffle','抽獎'],['live','競標'],['new','新品'],['cheap','便宜好入手'],['mother','母株'],['shops','推薦商家']]],['link','rl','右邊連到']],
+    r:(c)=>{ const pick=src=>{ if(src==='raffle') return pubRaffles().filter(r=>rState(r)==='open').slice(0,2).map(r=>({img:rImg(r),t:r.title,go:()=>go('#/raffle/'+rKey(r)),tag:'免費'}));
+        if(src==='shops') return shopList().slice(0,2).map(u=>({img:shopOf(u)?.banner||shopOf(u)?.avatar||cover(newestOf(u)[0]||{}),t:shopName(u),go:()=>go('#/seller/'+u),tag:onSaleOf(u).length+' 株'}));
+        return sfhPlantsFor({src,max:2}).slice(0,2).map(p=>({img:cover(p),t:priceLabel(p).main,go:()=>openPlant(p.id),tag:live(p)?'競標':''})); };
+      const side=(t,src,l)=>{ const L=pick(src); return h('div',{class:'hzd-s'}, h('a',{class:'hzd-h',...linkAttrs(l)}, h('b',{text:t}), h('i',{text:'›'})), h('div',{class:'hzd-g'}, ...(L.length?L:[{img:'',t:'即將推出'}]).map(x=>activate(h('div',{class:'hzd-i'}, x.img?h('img',{src:x.img,alt:'',loading:'lazy'}):h('span',{class:'hzb-ph'}), x.tag?h('em',{text:x.tag}):null, h('small',{text:x.t})),x.go||(()=>{}))))); };
+      return h('section',{class:'hzd'}, side(c.lt||'',c.ls,c.ll), side(c.rt||'',c.rs,c.rl)); }},
+  shopstrip:{n:'推薦商家',ic:'🏡',g:'hub',d:'一排商家卡：橫幅、頭像、三張商品；可以指定贊助商家排前面',styles:SFH_ST([['cards','商家卡'],['logos','圓形頭像'],['wide','大卡（廣告位）']]),
+    def:()=>({title:'推薦商家',label:'',shops:''}),
+    f:[['text','title','標題'],['text','label','角標（贊助／推薦，選填）'],['shop','s1','指定第 1 家（選填）'],['shop','s2','指定第 2 家（選填）'],['shop','s3','指定第 3 家（選填）']],
+    r:(c)=>{ const pin=[c.s1,c.s2,c.s3].filter(u=>u&&shopOf(u)), rest=shopList().filter(u=>!pin.includes(u)).sort((a,b)=>onSaleOf(b).length-onSaleOf(a).length), L=[...pin,...rest].slice(0,12); if(!L.length) return PREVIEW?scPh('推薦商家：還沒有商家'):null; const st=sfhStyle(c,'shopstrip');
+      const card=u=>{ const s=shopOf(u)||{}, ps=newestOf(u).slice(0,3), ad=pin.includes(u)&&c.label;
+        if (st==='logos') return h('a',{class:'hzs-l',href:'#/seller/'+u}, avatar(u,64), h('small',{text:s.name||'賣場'}), ad?h('em',{text:c.label}):null);
+        return h('a',{class:'hzs-c',href:'#/seller/'+u}, h('span',{class:'hzs-b'}, s.banner?h('img',{src:s.banner,alt:'',loading:'lazy'}):null, ad?h('em',{text:c.label}):null), h('span',{class:'hzs-w'}, avatar(u,40), h('span',{}, h('b',{text:s.name||'賣場'}), h('small',{text:onSaleOf(u).length+' 株在售 · '+ratingTxt(u)}))), h('span',{class:'hzs-ps'}, ...ps.map(p=>h('img',{src:cover(p),alt:'',loading:'lazy'})))); };
+      return h('section',{class:'hzs st-'+st}, h('div',{class:'hzf-h'}, h('b',{class:'hzf-t',text:c.title||'推薦商家'}), h('a',{class:'hzf-more',href:'#/store/sellers',text:'全部商家 ›'})), h('div',{class:'hzs-row'}, ...L.map(card))); }},
+  mixfeed:{n:'為你推薦（商品＋商家）',ic:'🧺',g:'hub',d:'像蝦皮首頁下面那樣：兩欄瀑布流，商品裡穿插商家卡與廣告卡',styles:SFH_ST([['masonry','瀑布流'],['grid','整齊格子']]),
+    def:()=>({title:'為你推薦',every:6,ads:[]}),
+    f:[['text','title','標題'],['select','every','每幾張穿插一張商家卡',[['6','6'],['4','4'],['8','8'],['0','不穿插']]],['items','ads','穿插的廣告卡（選填）',[['media','media','圖片'],['text','title','標題'],['text','sub','副標'],['link','link','連到']]]],
+    r:(c)=>{ const rc=recommend().list||[], seen=new Set(), L=[]; [...rc,...pub().filter(p=>p.status==='available').sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt))].forEach(p=>{ if(!seen.has(p.id)){ seen.add(p.id); L.push(p); } });
+      if (!L.length) return PREVIEW?scPh('為你推薦：還沒有商品'):null; const st=sfhStyle(c,'mixfeed'), ev=+c.every||0, shops=shopList().sort(()=>Math.random()-.5), ads=(c.ads||[]).filter(x=>x.media?.url||x.title);
+      const pcard=p=>{ const pl=priceLabel(p), L2=live(p); return activate(h('div',{class:'hzm-i'}, h('span',{class:'hzm-im'+(st==='masonry'?' r'+(p.code||'').length%3:'')}, h('img',{src:cover(p),alt:'',loading:'lazy'}), L2?h('em',{class:'live',text:'競標中'}):p.kind==='seedling'?h('em',{text:'實生苗'}):null),
+        h('span',{class:'hzm-t'}, h('b',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('span',{class:'hzm-pr'}, h('strong',{text:pl.main}), h('small',{text:shopName(p.shop)})))),()=>openPlant(p.id)); };
+      const scard=u=>{ const s=shopOf(u)||{}, ps=newestOf(u).slice(0,4); return h('a',{class:'hzm-i hzm-shop',href:'#/seller/'+u}, h('span',{class:'hzm-sg'}, ...ps.map(p=>h('img',{src:cover(p),alt:'',loading:'lazy'}))), h('span',{class:'hzm-t'}, h('span',{class:'hzm-sw'}, avatar(u,28), h('b',{text:s.name||'賣場'})), h('small',{text:'🏡 推薦商家 · '+onSaleOf(u).length+' 株'}))); };
+      const acard=x=>h('a',{class:'hzm-i hzm-ad',...linkAttrs(x.link)}, x.media?.url?sfMedia(x.media,'hzm-adm'):h('span',{class:'hzb-ph'}), h('span',{class:'hzm-t'}, h('em',{class:'hzm-adl',text:'廣告'}), x.title?h('b',{text:x.title}):null, x.sub?h('small',{text:x.sub}):null));
+      const grid=h('div',{class:'hzm-g'}); let shown=0, si=0, ai=0;
+      const more=()=>{ const next=L.slice(shown,shown+24); next.forEach((p,k)=>{ grid.append(pcard(p)); const n=shown+k+1; if(ev&&n%ev===0){ if(ads.length&&(n/ev)%2===0) grid.append(acard(ads[ai++%ads.length])); else if(shops.length) grid.append(scard(shops[si++%shops.length])); } }); shown+=next.length; btn.hidden=shown>=L.length; };
+      const btn=h('button',{type:'button',class:'btn soft hzm-more',onclick:more,text:'看更多'}); more();
+      return h('section',{class:'hzm st-'+st}, h('div',{class:'hzm-h'}, h('b',{text:c.title||'為你推薦'})), grid, btn); }},
   // ===== 一頁式／特效元件（商店、競標、抽獎、一頁式廣告都能用） =====
   fx:{n:'文字特效標題',ic:'✨',g:'lp',d:'大標題配動態特效：打字機、流光漸層、故障風、波浪、霓虹、逐字浮現',styles:SFH_ST([['type','打字機'],['grad','流光漸層'],['glitch','故障風'],['wave','波浪跳字'],['neon','霓虹燈'],['rise','逐字浮現']]),
     def:()=>({kicker:'LIMITED',lines:'稀有花燭限時開賣\n每一株都有完整履歷\n今晚 9 點準時開搶',sub:'掃碼查驗編號，買得安心',cta:'立即搶購',link:'#/store/auction',cta2:'',link2:'',size:'l',align:'center',tone:'dark'}),
@@ -5277,7 +5442,7 @@ function pdHome(m){ lpSub();
   const st=k=>{ const x=k==='store'?S.sf:S.pg[k]; return x?.at?'已發布 · '+ago(x.at):'預設版面'; };
   const L=S.lpList||[];
   m.append(admTop('頁面設計'),
-    h('div',{class:'pdh-g'}, card('store','🏪','商店主頁','植物商店首頁',st('store')), card('auction','⚡','競標頁','商店的「競標」分頁',st('auction')), card('raffle','🎁','抽獎頁','抽獎列表',st('raffle'))),
+    h('div',{class:'pdh-g'}, card('hub','🏠','主頁','商店第一頁（像蝦皮首頁）',st('hub')), card('store','🏪','商城','植物商城（原本的商店主頁）',st('store')), card('auction','⚡','競標頁','商店的「競標」分頁',st('auction')), card('sellers','🏡','商家頁','商店的「商家」分頁，適合賣廣告',st('sellers')), card('raffle','🎁','抽獎頁','抽獎列表',st('raffle'))),
     h('div',{class:'pdh-lh'}, h('h3',{text:'📣 一頁式廣告'}), h('button',{class:'btn pri sm',type:'button',onclick:()=>{ const id='lp'+Date.now().toString(36); S.pdDrafts=S.pdDrafts||{}; S.pdDrafts['lp:'+id]={blocks:PD_PAGES.lp.def(),dirty:true,title:'新的活動頁',on:true,isNew:true}; S.pdKey='lp:'+id; S.sfOpen=null; renderAdmin(true); },text:'＋ 新增一頁式廣告'})),
     L.length?h('div',{class:'pdh-g'}, ...L.map(x=>card('lp:'+x.id,'📣',x.title||'未命名',(x.on===false?'🙈 已下架 · ':'')+'#/lp/'+x.id,x.at?'更新於 '+ago(x.at):''))):h('p',{class:'hint',text:'還沒有一頁式廣告。做好後可以用「一頁式入口」元件放在商店、競標或抽獎頁，或直接把連結傳出去。'}));
 }
@@ -5332,8 +5497,8 @@ function admStorefront(m){
     if (b.k==='code') out.push(h('p',{class:'hint',text:'程式在獨立的沙盒裡執行，讀不到會員的登入資料，也改不到網站其他地方；連結用 #/… 會在網站內換頁，也可以呼叫 VEIN.go("#/store")。'}));
     const sel=(k,l,opts)=>{ const i=h('select',{}, ...opts.map(([v,t])=>h('option',{value:v,text:t,selected:(c[k]||'')===v}))); i.addEventListener('change',()=>{ c[k]=i.value; mark(); }); return field(l,i); };
     const dt=(k,l)=>{ const i=h('input',{type:'datetime-local',value:c[k]||''}); i.addEventListener('input',()=>{ c[k]=i.value; mark(); draw(); }); return field(l,i); };
-    out.push(h('details',{class:'sfe-adv',open:!!(c._from||c._to||c._bg||c._w||c._anim||c._dev)}, h('summary',{text:'🎛 外觀、顯示裝置與上架時段'}),
-      h('div',{class:'two'}, sel('_bg','背景',SX_BG), sel('_w','寬度',SX_W)), h('div',{class:'two'}, sel('_anim','進場動畫',SX_A), sel('_dev','顯示在',SX_D)),
+    out.push(h('details',{class:'sfe-adv',open:!!(c._from||c._to||c._bg||c._w||c._anim||c._dev||c._fx)}, h('summary',{text:'🎛 外觀、動畫效果、顯示裝置與上架時段'}),
+      h('div',{class:'two'}, sel('_bg','背景',SX_BG), sel('_w','寬度',SX_W)), h('div',{class:'two'}, sel('_anim','進場動畫',SX_A), sel('_fx','互動／持續效果',SX_FX)), sel('_dev','顯示在',SX_D),
       h('div',{class:'two'}, dt('_from','開始顯示（選填）'), dt('_to','結束顯示（選填）')), h('p',{class:'hint',text:'廣告或活動可以設定時段，時間到自動上架、到期自動下架。'})));
     return h('div',{class:'form sfe-cfg'}, ...out); };
   // ---- 區塊列表 ----
@@ -5363,7 +5528,7 @@ function admStorefront(m){
   function draw(){
     list.replaceChildren(...D.blocks.map(row));
     const missing=PDEF.builtin.filter(([k])=>!D.blocks.some(b=>b.k===k));
-    const G=[['lp','✨ 特效與一頁式'],['ad','💰 廣告與專版'],['news','📰 活動與消息'],['content','🧩 內容'],['adv','🧑‍💻 進階']];
+    const G=[['hub','🏠 主頁元件（密集、好放廣告）'],['lp','✨ 特效與一頁式'],['ad','💰 廣告與專版'],['news','📰 活動與消息'],['content','🧩 內容'],['adv','🧑‍💻 進階']];
     pal.replaceChildren(...G.map(([g,t])=>h('div',{class:'sfe-pg'}, h('b',{text:t}), h('div',{class:'sfe-pgl'}, ...Object.entries(SFH_COMP).filter(([,d])=>d.g===g).map(([k,d])=>h('button',{type:'button',class:'sfe-pi',onclick:()=>addComp(k)}, h('i',{text:d.ic}), h('span',{}, h('b',{text:d.n}), h('small',{text:d.d}))))))),
       missing.length?h('div',{class:'sfe-pg'}, h('b',{text:'↩︎ 加回原本的區塊'}), h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, ...missing.map(([k,ic,n])=>h('button',{type:'button',class:'chip',onclick:()=>{ D.blocks.push({id:k,k,on:true,cfg:{}}); mark(); draw(); },text:ic+' '+n})))):null);
     st0(); }
@@ -5382,7 +5547,7 @@ function admStorefront(m){
       h('div',{class:'row',style:'justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:8px'}, h('label',{class:'row',style:'gap:8px;font-size:14px'}, on, '上架中（關掉＝前台看不到）'), D.isNew?null:h('button',{class:'btn soft sm danger',type:'button',onclick:async()=>{ if(!confirm('刪除這個一頁式廣告？連到它的入口會失效。')) return; try{ await S.db.doc('landings/'+LPID).delete(); delete S.lpCache[LPID]; delete S.pdDrafts[KEY]; S.pdKey=null; toast('已刪除'); renderAdmin(true); }catch(e){ toast('刪除失敗'); } },text:'🗑 刪除這一頁'}))); })():null;
   m.append(admTop(PDEF.ic+' '+(KIND==='lp'?(D.title||'一頁式廣告'):PDEF.n), h('button',{class:'btn soft',type:'button',onclick:backHome,text:'← 選其他頁面'})), lpBar||'',
     h('div',{class:'sfe'},
-      h('div',{class:'sfe-l'}, h('div',{class:'sfe-bar'}, flag, h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('button',{class:'btn soft sm',type:'button',onclick:revert,text:'放棄修改'}), h('button',{class:'btn soft sm',type:'button',onclick:reset,text:'恢復預設'}), h('button',{class:'btn pri sm',type:'button',onclick:e=>publish(e.currentTarget),text:'發布'}))),
+      h('div',{class:'sfe-l'}, h('div',{class:'sfe-bar'}, flag, h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, h('button',{class:'btn lime sm',type:'button',onclick:()=>{ const T=PD_TPL[KIND]||PD_TPL._page; rgSheet('🎨 套用模板','會換掉目前草稿的整頁版面（發布前不影響前台）',T.map(([ic,n,d,fn])=>[ic,n,d,()=>{ D.blocks.splice(0,D.blocks.length,...fn()); S.sfOpen=null; mark(); draw(); toast('已套用「'+n+'」，每個區塊都還能再改'); }])); },text:'🎨 模板'}), h('button',{class:'btn soft sm',type:'button',onclick:revert,text:'放棄修改'}), h('button',{class:'btn soft sm',type:'button',onclick:reset,text:'恢復預設'}), h('button',{class:'btn pri sm',type:'button',onclick:e=>publish(e.currentTarget),text:'發布'}))),
         h('h4',{class:'sfe-h',text:'版面區塊（拖曳或用 ↑↓ 排序，點名稱展開設定）'}), list, h('h4',{class:'sfe-h',text:'＋ 新增元件（加在目前選取的區塊下面）'}), pal),
       h('div',{class:'sfe-r'}, h('div',{class:'sfe-pvh'}, h('b',{text:'即時預覽'}), devBtns, h('a',{class:'btn soft sm',href:LPID?'#/lp/'+LPID:PDEF.hash,target:'_blank',text:'開新分頁看前台'})), stage, h('p',{class:'hint',text:'在預覽裡點任何區塊，左邊就會跳到它的設定。'}))));
   draw();
@@ -5580,14 +5745,14 @@ function catHead(g){ const t=TAX_BY.get(g), ps=pub().filter(p=>spKey(p)===g&&p.s
 }
 
 function renderStoreTabs(){
-  const T=S.storeTab||'home', box=$('#storeTabs');
-  box.replaceChildren(...STORE_TABS.map(([k,zh,en])=>h('a',{href:'#/store'+(k==='home'?'':'/'+k),class:T===k?'on':'','aria-current':T===k?'page':null}, h('small',{class:'mono',text:en}), zh)), (feedOn()?h('a',{href:'#/feed',class:'reel-tab'}, h('small',{class:'mono',text:'REELS'}), '滑滑看'):''));
-  const sub={home:'競標、直購與溫室，一次逛完',auction:'倒數結束時最高出價者得標',buy:'標價直購，賣家確認後私訊付款',sellers:'認證溫室，每一株都可追溯',search:'搜尋與篩選',cat:'分類瀏覽'}[T];
+  const T=S.storeTab||'hub', box=$('#storeTabs');
+  box.replaceChildren(...STORE_TABS.map(([k,zh,en])=>h('a',{href:storeHref(k),class:T===k?'on':'','aria-current':T===k?'page':null}, h('small',{class:'mono',text:en}), zh)), (feedOn()?h('a',{href:'#/feed',class:'reel-tab'}, h('small',{class:'mono',text:'REELS'}), '滑滑看'):''));
+  const sub={hub:'活動、競標、商家與推薦，一眼看完',home:'植物商城：精選、新品、直購一次逛完',auction:'倒數結束時最高出價者得標',buy:'標價直購，賣家確認後私訊付款',sellers:'認證溫室，每一株都可追溯',search:'搜尋與篩選',cat:'分類瀏覽'}[T];
   $('#storeSub').textContent=sub;
 }
 let lastTab='', bfKey='';
 function renderShop(force){
-  const T=S.storeTab||'home';
+  const T=S.storeTab||'hub';
   const bk=T+'|'+(T==='cat'?S.storeCat:''); if (bk!==bfKey){ bfKey=bk; bfReset(); S.bf.view=lsGet('vein.view','grid'); S.bfOpen={}; }
   if (S.bfPending){ const v=S.bf.view; bfReset(); S.bf.view=v; Object.assign(S.bf,S.bfPending); S.bfPending=null; }
   const sig=shopSignature()+'|'+T+'|'+JSON.stringify([S.bf,S.storeCat,S.azOpen,S.bfOpen]); if(!force&&sig===shopRSig) return; shopRSig=sig;
@@ -5612,7 +5777,7 @@ function renderShop(force){
     const ev0=body.querySelector('.empty-shop video'); if(ev0) ev0.muted=true; return;
   }
   setTimeout(()=>storeMoreSentinel(body),0);
-  if (T==='home') storeHome(body); else if (T==='auction') pdRender('auction',body,storeAuction); else if (T==='buy') storeBuy(body); else if (T==='sellers') storeSellers(body); else if (T==='cat') browse(body,{cat:S.storeCat,base:pub().filter(p=>spKey(p)===S.storeCat),head:catHead(S.storeCat)}); else storeSearch(body);
+  if (T==='hub') pdRender('hub',body,null); else if (T==='home') storeHome(body); else if (T==='auction') pdRender('auction',body,storeAuction); else if (T==='buy') storeBuy(body); else if (T==='sellers') pdRender('sellers',body,storeSellers); else if (T==='cat') browse(body,{cat:S.storeCat,base:pub().filter(p=>spKey(p)===S.storeCat),head:catHead(S.storeCat)}); else storeSearch(body);
 }
 
 
@@ -6151,6 +6316,8 @@ async function boot(){
   db.doc('site/home').onSnapshot(d=>{ S.home=d.exists?d.data():{}; wallSig=''; renderWall(); }, ()=>{});
   db.doc('site/storefront').onSnapshot(d=>{ S.sf=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
   db.doc('site/pg_auction').onSnapshot(d=>{ S.pg.auction=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
+  db.doc('site/pg_hub').onSnapshot(d=>{ S.pg.hub=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
+  db.doc('site/pg_sellers').onSnapshot(d=>{ S.pg.sellers=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
   db.doc('site/pg_raffle').onSnapshot(d=>{ S.pg.raffle=d.exists?d.data():null; if(PAGE==='raffle') renderRafflePage(); }, ()=>{});
   db.doc('site/text').onSnapshot(d=>{ applyText(d.exists?d.data():{}); }, ()=>{});
   db.doc('site/blocks').onSnapshot(d=>{ setBlocks(d.exists?(d.data().items||[]):[]); }, ()=>{});
@@ -6186,7 +6353,7 @@ function route(){
   else if (hs==='#shop'||hs==='#verify'){ pg=hs.slice(1); history.replaceState(null,'','#/'+pg); }
   else if (hs.length>2&&hs[1]!=='/') sec=hs.slice(1);
   let tabChanged=false;
-  if (pg==='shop'||pg==='store'){ if(pg==='shop') history.replaceState(null,'','#/store'); let t=pg==='shop'?'home':(['auction','buy','sellers','search'].includes(arg)?arg:'home'); if(pg==='store'&&arg.startsWith('c/')){ t='cat'; const g=arg.slice(2).toLowerCase(); tabChanged=g!==S.storeCat; S.storeCat=g; } tabChanged=tabChanged||t!==S.storeTab; S.storeTab=t; pg='shop'; }
+  if (pg==='shop'||pg==='store'){ if(pg==='shop') history.replaceState(null,'','#/store'); let t=pg==='shop'?'hub':arg==='mall'?'home':(['auction','buy','sellers','search'].includes(arg)?arg:'hub'); if(pg==='store'&&arg.startsWith('c/')){ t='cat'; const g=arg.slice(2).toLowerCase(); tabChanged=g!==S.storeCat; S.storeCat=g; } tabChanged=tabChanged||t!==S.storeTab; S.storeTab=t; pg='shop'; }
   let sTab=null; if(pg==='seller'){ const i=arg.indexOf('/'); if(i>0){ sTab=arg.slice(i+1); arg=arg.slice(0,i); } }
   if (pg==='seller'&&arg!==S.sellerId){ S.sellerId=arg; S.sellerTab='home'; S.sfF=null; }
   if (pg==='seller'){ const nt=sTab||'home'; if(nt!==S.sellerTab){ if(nt!=='all') S.sfF=S.sfF; S.sellerTab=nt; } }
@@ -9528,12 +9695,16 @@ SF_TPL.push(
   {k:'festival',n:'節慶活動',d:'公告＋倒數＋優惠券＋精選＋LINE',accent:'#F2B84B',s:['notice','countdown','coupon','picks','tagtabs','linecard']},
   {k:'pro',n:'專業溫室',d:'大事記＋徽章＋數據＋出貨須知',accent:'#2E7D5B',s:['hero','stats','badgewall','milestones','hot','shipinfo','faq']});
 // 每個區塊都能調的外觀
-const SX_BG=[['','透明'],['paper','淺色卡片'],['dark','深色'],['accent','主題色'],['glass','毛玻璃']], SX_W=[['','一般'],['narrow','窄版置中'],['wide','滿版']], SX_A=[['','淡入'],['up','往上浮現'],['slide','由左滑入'],['right','由右滑入'],['zoom','放大進場'],['flip','3D 翻轉'],['blur','模糊對焦'],['stagger','卡片依序跳出'],['none','不要動畫']], SX_D=[['','電腦與手機'],['desk','只在電腦'],['mob','只在手機']];
+const SX_BG=[['','透明'],['paper','淺色卡片'],['dark','深色'],['accent','主題色'],['glass','毛玻璃']], SX_W=[['','一般'],['narrow','窄版置中'],['wide','滿版']], SX_A=[['','淡入'],['up','往上浮現'],['rise','Apple 式浮起放大'],['slide','由左滑入'],['right','由右滑入'],['zoom','放大進場'],['pop','彈跳進場'],['drop','從上掉下'],['flip','3D 翻轉'],['skew','斜切滑入'],['blur','模糊對焦'],['mask','由下往上揭開'],['curtain','由中間打開'],['wipe','由左往右擦出'],['stagger','卡片依序跳出'],['none','不要動畫']],
+  SX_FX=[['','不要'],['tilt','滑鼠 3D 傾斜（Apple TV 卡片）'],['lift','滑上去浮起陰影'],['shine','光澤掃過'],['glow','螢光呼吸邊框'],['float','輕輕漂浮'],['parallax','捲動視差（照片慢一點）'],['grain','膠片顆粒'],['gradient','流動漸層背景'],['sticky','捲動時黏在上方']], SX_D=[['','電腦與手機'],['desk','只在電腦'],['mob','只在手機']];
 let sxIO=null;
 function applySx(el,c){ if(!el||!c) return el; const add=x=>x&&el.classList.add(x);
   add(c._bg&&'sx-bg-'+c._bg); add(c._w&&'sx-w-'+c._w); add(c._dev&&'sx-dev-'+c._dev);
   if (c._anim&&c._anim!=='none'&&!REDUCE){ el.classList.add('sx-a','sx-a-'+c._anim); if(!sxIO) sxIO=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('sx-on'); sxIO.unobserve(e.target); } }),{rootMargin:'0px 0px -8% 0px'}); sxIO.observe(el); }
   if (c._anim==='none'){ el.classList.add('on','sx-noanim'); }
+  if (c._fx&&!REDUCE){ el.classList.add('sxf','sxf-'+c._fx);
+    if (c._fx==='tilt'&&matchMedia('(hover:hover)').matches){ el.addEventListener('pointermove',e=>{ const r=el.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; el.style.setProperty('--rx',(-y*6)+'deg'); el.style.setProperty('--ry',(x*8)+'deg'); el.style.setProperty('--mx',((x+.5)*100)+'%'); el.style.setProperty('--my',((y+.5)*100)+'%'); }); el.addEventListener('pointerleave',()=>{ el.style.setProperty('--rx','0deg'); el.style.setProperty('--ry','0deg'); }); }
+    if (c._fx==='parallax'){ const upd=()=>{ if(!el.isConnected){ removeEventListener('scroll',upd); return; } const r=el.getBoundingClientRect(), k=(r.top+r.height/2-innerHeight/2)/innerHeight; el.style.setProperty('--py',(k*-40).toFixed(1)+'px'); }; addEventListener('scroll',upd,{passive:true}); requestAnimationFrame(upd); } }
   return el; }
 
 const scName=k=>SF_COMP[k]?.n||(SF_SECTIONS.find(x=>x[0]===k)||[])[1]||k;
