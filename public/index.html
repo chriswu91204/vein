@@ -4305,12 +4305,13 @@ const codeSort=(a,b)=>(a.code||'').localeCompare(b.code||'',undefined,{numeric:t
 const groupMeta=(shop,gid)=>shopOf(shop)?.groups?.[gid]||null;
 function collapseGroups(list){
   const out=[], seen=new Map();
-  for (const p of list){ if(!p.grp||p.__g||!groupMeta(p.shop,p.grp)){ out.push(p); continue; } const key=p.shop+'~'+p.grp; if(seen.has(key)){ seen.get(key).push(p); continue; } seen.set(key,[p]); out.push(key); }
+  // 正在競標（或競標過）的植株一定單獨顯示，不收進群組卡（群組卡只給直購）
+  for (const p of list){ if(!p.grp||p.__g||isAuc(p)||!groupMeta(p.shop,p.grp)){ out.push(p); continue; } const key=p.shop+'~'+p.grp; if(seen.has(key)){ seen.get(key).push(p); continue; } seen.set(key,[p]); out.push(key); }
   return out.map(x=>typeof x==='string'?groupPseudo(x,seen.get(x)):x);
 }
 // 同一批實生苗、同一株母株分出的側芽：在「全部商品」「依特色挑」折疊成一張卡，顯示還有幾株，點開再挑
 function collapseFam(list){ const out=[], seen=new Map();
-  const keyOf=p=>{ if(p.__g||p.__c) return null; const k=p.kind||'mother'; if(k==='seedling'){ if(p.batch) return 'b:'+p.shop+':'+p.batch; const m=momId(p)||momCode(p); return m?'a:'+p.shop+':'+m+':'+(dadId(p)||dadCode(p)||'')+':'+normSp(p.species||'').toLowerCase():null; } if(k==='pup'){ const m=momId(p)||momCode(p); return m?'m:'+p.shop+':'+m:null; } return null; };
+  const keyOf=p=>{ if(p.__g||p.__c||isAuc(p)) return null; const k=p.kind||'mother'; if(k==='seedling'){ if(p.batch) return 'b:'+p.shop+':'+p.batch; const m=momId(p)||momCode(p); return m?'a:'+p.shop+':'+m+':'+(dadId(p)||dadCode(p)||'')+':'+normSp(p.species||'').toLowerCase():null; } if(k==='pup'){ const m=momId(p)||momCode(p); return m?'m:'+p.shop+':'+m:null; } return null; };
   for (const p of list){ const k=keyOf(p); if(!k){ out.push(p); continue; } if(seen.has(k)){ seen.get(k).push(p); continue; } seen.set(k,[p]); out.push(k); }
   return out.map(x=>{ if(typeof x!=='string') return x; const M=seen.get(x); if(M.length<2) return M[0]; return famPseudo(x,M); }); }
 function famPseudo(key,members){ members=[...members].sort(codeSort); const av=members.filter(p=>p.status==='available'), rep=av[0]||members[0], pr=av.map(p=>isAuc(p)?(topBid(p.id)?.amt||p.startPrice):p.price).filter(v=>v!=null);
