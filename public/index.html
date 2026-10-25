@@ -6117,7 +6117,11 @@ function socialProof(){
 async function renderLp(id){ const box=$('#lpPage'); if(!box) return; S.lpId=id;
   let draft=false; try{ draft=PREVIEW&&window.parent!==window&&window.parent.__veinPdDraft?.key==='lp:'+id; }catch(e){}
   if (!draft&&!S.lpCache[id]){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'載入中…'})));
-    try{ const d=await S.db.doc('landings/'+id).get(); S.lpCache[id]=d.exists?{id,...d.data()}:{id,missing:true}; }catch(e){ S.lpCache[id]={id,missing:true}; } if(S.lpId!==id) return; }
+    // 直接打開網址時資料庫可能還沒連好：等一下再試，不要直接判定「不存在」
+    if (!S.db){ renderLp._t=(renderLp._t||0)+1; if(renderLp._t<80){ setTimeout(()=>{ if(S.lpId===id&&PAGE==='lp') renderLp(id); },250); return; } }
+    let err=null; try{ const d=await S.db.doc('landings/'+id).get(); S.lpCache[id]=d.exists?{id,...d.data()}:{id,missing:true}; }catch(e){ err=e; }
+    if (S.lpId!==id) return;
+    if (err){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'活動頁載入失敗'}), h('p',{text:'網路可能不穩，請稍後再試。'}), h('button',{class:'btn soft',type:'button',text:'重新載入',onclick:()=>renderLp(id)}))); return; } }
   const lp=S.lpCache[id]; box.replaceChildren();
   if (!draft&&(lp?.missing||lp?.on===false)){ box.append(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'這個活動頁不存在或已結束'}), h('a',{class:'btn soft',href:'#/store',text:'回植物商店'}))); return; }
   if (lp?.title) document.title=lp.title+' · VEIN';
