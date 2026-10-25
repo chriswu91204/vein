@@ -4330,14 +4330,14 @@ window.VEIN={go:function(h){ parent.postMessage({veinBlock:id,go:h},'*'); }};
 }
 addEventListener('message',e=>{ const d=e.data; if(!d||typeof d!=='object'||!d.veinBlock) return;
   document.querySelectorAll('iframe[data-block]').forEach(f=>{ if(f.contentWindow!==e.source) return;
-    if (typeof d.h==='number') f.style.height=Math.min(Math.max(d.h,20),4000)+'px';
-    if (typeof d.go==='string'&&/^#[\w\/\-%.]*$/.test(d.go)){ document.querySelector('.cpop')?.remove(); go(d.go); } }); });
+    if (typeof d.h==='number') f.style.height=Math.min(Math.max(d.h,20),30000)+'px';
+    if (typeof d.go==='string'&&/^#[\w\/\-%.]*$/.test(d.go)){ document.querySelector('.cpop')?.remove(); if(typeof go==='function') go(d.go); else location.hash=d.go; } }); });
 function blockLive(b,now=Date.now()){ if(!b.on) return false; if(b.start&&now<b.start) return false; if(b.end&&now>b.end) return false; return true; }
 function blockEl(b){
   if (b.mode==='inline'){
     const box=document.createElement('div'); box.className='cblock inline'; box.dataset.blockId=b.id;
     box.innerHTML=(b.css?'<style>'+b.css+'</style>':'')+(b.html||'');
-    if (b.js) setTimeout(()=>{ try{ new Function('el','VEIN',b.js)(box,{go}); }catch(err){ console.warn('自訂區塊 '+(b.title||b.id)+' 的程式出錯：',err); } },0);
+    if (b.js) setTimeout(()=>{ try{ new Function('el','VEIN',b.js)(box,{go:h=>{ location.hash=h; }}); }catch(err){ console.warn('自訂區塊 '+(b.title||b.id)+' 的程式出錯：',err); } },0);
     return box;
   }
   const f=document.createElement('iframe'); f.className='cblock'; f.dataset.block=b.id; f.title=b.title||'自訂區塊'; f.loading='lazy';
@@ -5303,8 +5303,15 @@ function sfhBlocks(){ return pdBlocks('store'); }
 function pdRender(key,body,orig){ const L=pdBlocks(key), now=Date.now();
   if (orig&&L.length===1&&L[0].k==='_page'&&L[0].on!==false&&!Object.keys(L[0].cfg||{}).length){ orig(body); return; }
   for (const b of L){ if(!sfhLive(b,now)) continue; const c=b.cfg||{}; let el=null;
-    try{ if(b.k==='_page'){ if(!orig) continue; el=h('div',{class:'pd-orig'}); orig(el); } else if(SFH_COMP[b.k]) el=SFH_COMP[b.k].r(c,b); }catch(e){ console.warn('區塊錯誤',b.k,e); el=null; }
+    try{ if(b.k==='_page'){ if(!orig) continue; el=h('div',{class:'pd-orig'}); orig(el); } else if(SFH_COMP[b.k]) el=SFH_COMP[b.k].r(c,b); if(b.k!=='_page'&&b.k!=='code') el=sfhCustom(c,b,el); }catch(e){ console.warn('區塊錯誤',b.k,e); el=null; }
     if (!el) continue; el.dataset.sfid=b.id; if(b.k!=='_page'){ el.classList.add('sfh'); if(!c._anim) scReveal(el); } applySx(el,c); body.append(el); } }
+// 每個元件都能用自己的 HTML 取代或加在上下（{{link}} 會換成這個元件設定的連結）
+function sfhCustom(c,b,el){ const html=String(c._html||'').trim(); if(!html&&!String(c._js||'').trim()) return el;
+  const link=safeLink(c.link||'')||(c.lp?'#/lp/'+encodeURIComponent(c.lp):'')||(c.shop?'#/seller/'+c.shop:'')||'#/store', title=c.title||c._lpt||(c.lp?lpTitle(c.lp):'')||'';
+  const sub=x=>String(x||'').split('{{link}}').join(link).split('{{title}}').join(title.replace(/[<>&"]/g,''));
+  const box=h('section',{class:'sfh-code sfh-cx'}, blockEl({id:'sfx-'+b.id,mode:'frame',html:sub(c._html),css:sub(c._css),js:c._js||'',h:+c._hh||200,title:'自訂區塊'}));
+  const m=c._hmode||'replace'; if(m==='replace'||!el) return box;
+  const wrap=h('div',{class:'sfh-cxw'}); if(m==='above') wrap.append(box,el); else wrap.append(el,box); return wrap; }
 function sfhLive(b,now=Date.now()){ if(b.on===false) return false; const c=b.cfg||{}; const f=c._from?new Date(c._from).getTime():0, t=c._to?new Date(c._to).getTime():0; if(f&&now<f) return false; if(t&&now>t) return false; return true; }
 const sfhStyle=(c,k)=>c._st||SFH_COMP[k]?.styles?.[0]?.[0]||'';
 const sfhMore=(t,l)=>{ const a=linkAttrs(l); return a.href?h('a',{class:'sfh-cta',...a}, t||'看更多', h('i',{text:'→'})):null; };
@@ -5614,7 +5621,7 @@ function sfhBuiltin(k,x,c){ const V=c._view&&c._view!=='orig'?c._view:null, pv=(
 function storeHome(body){
   const x=sfhCtx(), now=Date.now();
   for (const b of sfhBlocks()){ if(!sfhLive(b,now)) continue; const c=b.cfg||{}; let el=null;
-    try{ el=SFH_COMP[b.k]?SFH_COMP[b.k].r(c,b):sfhBuiltin(b.k,x,c); }catch(e){ console.warn('首頁區塊錯誤',b.k,e); el=null; }
+    try{ el=SFH_COMP[b.k]?SFH_COMP[b.k].r(c,b):sfhBuiltin(b.k,x,c); if(b.k!=='code') el=sfhCustom(c,b,el); }catch(e){ console.warn('首頁區塊錯誤',b.k,e); el=null; }
     if (!el) continue;
     const isNew=!!SFH_COMP[b.k]; el.dataset.sfid=b.id; if(isNew) el.classList.add('sfh'); applySx(el,c); if(isNew&&!c._anim) scReveal(el);
     body.append(el); }
@@ -5689,6 +5696,11 @@ function admStorefront(m){
     out.push(h('details',{class:'sfe-adv',open:!!(c._from||c._to||c._bg||c._w||c._anim||c._dev||c._fx)}, h('summary',{text:'🎛 外觀、動畫效果、顯示裝置與上架時段'}),
       h('div',{class:'two'}, sel('_bg','背景',SX_BG), sel('_w','寬度',SX_W)), h('div',{class:'two'}, sel('_anim','進場動畫',SX_A), sel('_fx','互動／持續效果',SX_FX)), sel('_dev','顯示在',SX_D),
       h('div',{class:'two'}, dt('_from','開始顯示（選填）'), dt('_to','結束顯示（選填）')), h('p',{class:'hint',text:'廣告或活動可以設定時段，時間到自動上架、到期自動下架。'})));
+    if (b.k!=='code'&&b.k!=='_page'){ const code=(k,l,rows)=>{ const i=h('textarea',{rows,class:'mono sfe-code',spellcheck:'false',maxlength:60000,placeholder:k==='_html'?'<a class="card" href="{{link}}">…</a>':''}); i.value=c[k]||''; i.addEventListener('input',()=>{ c[k]=i.value; mark(); }); i.addEventListener('change',()=>draw()); return field(l,i); };
+      out.push(h('details',{class:'sfe-adv',open:!!(c._html||c._js)}, h('summary',{text:'🧑‍💻 自訂 HTML（用自己的設計取代這個元件）'}),
+        sel('_hmode','放在哪裡',[['','取代原本的元件'],['above','加在元件上面'],['below','加在元件下面']]),
+        code('_html','HTML（可以直接貼整段，含 <style> 和 <script>）',8), code('_css','CSS（選填）',4), code('_js','JavaScript（選填）',3),
+        h('p',{class:'hint',text:'寫 {{link}} 會自動換成這個元件設定的連結（例如一頁式入口選的廣告），{{title}} 換成標題。連結用 #/… 會在網站內換頁。清空 HTML 就恢復原本樣子。'}))); }
     return h('div',{class:'form sfe-cfg'}, ...out); };
   // ---- 區塊列表 ----
   const list=h('div',{class:'sfe-list'}), pal=h('div',{class:'sfe-pal'});
@@ -5696,7 +5708,7 @@ function admStorefront(m){
   const badge=b=>{ const c=b.cfg||{}, t=[]; const now=Date.now(), f=c._from?new Date(c._from).getTime():0, to=c._to?new Date(c._to).getTime():0;
     if (f&&now<f) t.push(['wait','⏳ '+fmtMD(f)+' 上架']); else if(to&&now>to) t.push(['off','已到期']); else if(to) t.push(['on','到 '+fmtMD(to)]);
     if (c._dev==='mob') t.push(['','只手機']); if(c._dev==='desk') t.push(['','只電腦']); if(SFH_COMP[b.k]?.styles?.length) t.push(['',SFH_COMP[b.k].styles.find(s=>s[0]===sfhStyle(c,b.k))?.[1]||'']);
-    if (b.k==='shopfeat'&&c.shop) t.push(['ad','💰 '+shopName(c.shop)]); return t.filter(x=>x[1]).map(([k,v])=>h('span',{class:'sfe-bg '+k,text:v})); };
+    if (b.k==='shopfeat'&&c.shop) t.push(['ad','💰 '+shopName(c.shop)]); if(c._html&&b.k!=='code') t.push(['ad','🧑‍💻 自訂 HTML']); return t.filter(x=>x[1]).map(([k,v])=>h('span',{class:'sfe-bg '+k,text:v})); };
   const row=(b,i)=>{ const open=S.sfOpen===b.id, isNew=!!SFH_COMP[b.k];
     const grip=h('span',{class:'sfe-grip',title:'按住拖曳排序',text:'⋮⋮'});
     const r=h('div',{class:'sfe-row'+(open?' open':'')+(b.on===false?' off':''),'data-id':b.id},
