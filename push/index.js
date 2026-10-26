@@ -187,6 +187,47 @@ exports.pushAuctionEnd = onSchedule({ schedule: 'every 5 minutes', timeZone: 'As
   }
 });
 
+// ===== 競標焦點推播：管理員打開焦點（或活動開始）的那一刻推一次，之後每經過 10% 的時間再推一次；只在 09:00–22:00 推 =====
+const twHour = t => +new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Taipei', hour: '2-digit', hourCycle: 'h23' }).format(new Date(t));
+const awake = t => { const h = twHour(t); return h >= 9 && h < 22; };
+const twParse = v => { if (!v) return 0; if (typeof v === 'number') return v; const s = String(v); const t = Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : s + (s.length <= 16 ? ':00' : '') + '+08:00'); return isNaN(t) ? 0 : t; };
+const leftTxt = ms => { const m = Math.max(0, Math.round(ms / 6e4)); const d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60), mm = m % 60; return d ? d + ' 天 ' + h + ' 小時' : h ? h + ' 小時 ' + mm + ' 分' : mm + ' 分鐘'; };
+async function allPushUsers() { const out = []; for (const col of await db.doc('data/users').listCollections()) { try { const s = await col.doc('push').collection('devices').limit(1).get(); if (!s.empty) out.push(col.id); } catch (e) {} } return out; }
+async function broadcast(title, body, link, tag) { let n = 0; for (const u of await allPushUsers()) { try { n += await push(u, title, body, link, tag); } catch (e) {} } return n; }
+// 回傳這次要推的進度（0＝剛開始、1–9＝經過 10%–90%），沒有就回 null
+async function spotStep(key, start, end, now) {
+  if (!start || !end || end <= start || now >= end || now < start) return null;
+  const step = Math.min(9, Math.floor((now - start) / (end - start) * 10)), mk = db.doc('sysnotes/' + key), d = await mk.get(), last = d.exists ? d.data().last : -1;
+  if (step <= last || !awake(now)) return null;
+  return { step, done: () => mk.set({ last: step, at: now }) };
+}
+exports.pushSpotlight = onSchedule({ schedule: 'every 10 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now(), sd = await db.doc('site/spot').get(); if (!sd.exists) return; const spot = sd.data(); if (spot.push === false) return;
+  // 單株焦點
+  for (const [pid, cfg] of Object.entries(spot.plants || {})) {
+    if (!cfg || !cfg.fx || cfg.on === false || cfg.push === false) continue;
+    const p = await findPlant(pid, cfg.shop); if (!p || p.status === 'sold' || p.hidden || !p.endsAtMs) continue;
+    const bids = await allBids(pid), end = effEnd(p, bids), start = cfg.at || now, top = leaderAt(p, bids, end);
+    const st = await spotStep('spot-' + pid + '-' + (cfg.at || 0), start, end, now); if (!st) continue;
+    const price = top ? '目前最高 ' + nt(top.amt) : '起標 ' + nt(p.startPrice), label = cfg.label || '焦點競標', name = pLabel(p);
+    const title = st.step === 0 ? '👑 ' + label + '：' + name : st.step >= 9 ? '🔥 最後 10%！' + label + '：' + name : '⏳ ' + label + ' 已過 ' + st.step * 10 + '%';
+    const body = (st.step === 0 ? '開放出價中，' : st.step < 9 ? name + '，' : '') + price + '，剩 ' + leftTxt(end - now);
+    const n = await broadcast(title, body, '/#/plant/' + pid, 'spot-' + pid); await st.done(); logger.info('spotlight push', { pid, step: st.step, sent: n });
+  }
+  // 競標活動（整個活動推一則）
+  for (const [id, e] of Object.entries(spot.events || {})) {
+    if (!e || e.on === false || e.push === false || !(e.ids || []).length) continue;
+    const ps = (await Promise.all(e.ids.map(i => findPlant(i)))).filter(p => p && !p.hidden && p.endsAtMs);
+    const ends = []; for (const p of ps) { if (p.status === 'sold') continue; ends.push(effEnd(p, await allBids(p.id))); }
+    const start = Math.max(twParse(e.from), e.at || 0), end = twParse(e.to) || (ends.length ? Math.max(...ends) : 0); if (!ends.length) continue;
+    const st = await spotStep('spotev-' + id + '-' + (e.at || 0), start, end, now); if (!st) continue;
+    const liveN = ends.filter(t => t > now).length, next = Math.min(...ends.filter(t => t > now));
+    const title = st.step === 0 ? '🏆 ' + (e.name || '競標活動') + ' 開始了' : st.step >= 9 ? '🔥 ' + (e.name || '競標活動') + ' 最後衝刺' : '⏳ ' + (e.name || '競標活動') + ' 已過 ' + st.step * 10 + '%';
+    const body = (e.sub ? e.sub + '｜' : '') + liveN + ' 株競標中' + (isFinite(next) ? '，最快 ' + leftTxt(next - now) + ' 後結標' : '');
+    const n = await broadcast(title, body, '/#/store/auction', 'spotev-' + id); await st.done(); logger.info('event push', { id, step: st.step, sent: n });
+  }
+});
+
 // 費用保護：Google Cloud 預算通知（Pub/Sub 主題 billing-alerts）→ 記錄目前花費；超過預算且「自動緊急模式」開著 → 開啟網站緊急模式
 exports.budgetGuard = onMessagePublished({ topic: 'billing-alerts', maxInstances: 1 }, async (ev) => {
   const d = ev.data?.message?.json || {};

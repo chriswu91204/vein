@@ -10703,7 +10703,7 @@ function admSpot(m){
     // 單株
     const rows=L.filter(p=>!q||[p.code,p.species,p.cultivar,shopName(p.shop)].join(' ').toLowerCase().includes(q)).slice(0,80).map(p=>{ const d=D.plants[p.id]||{};
       return h('div',{class:'spa-r'+(d.fx?' on':'')}, h('img',{src:cover(p),alt:''}), h('div',{class:'spa-n'}, h('b',{text:pName(p)}), h('small',{class:'mono',text:p.code+' · '+shopName(p.shop)+' · '+(live(p)?'剩 '+fmtLeft(p.endsAtMs-now):'已結標')})),
-        fxSel(d.fx,v=>{ if(!v){ delete D.plants[p.id]; } else D.plants[p.id]={...(D.plants[p.id]||{}),fx:v}; },true),
+        fxSel(d.fx,v=>{ if(!v){ delete D.plants[p.id]; } else D.plants[p.id]={at:Date.now(),...(D.plants[p.id]||{}),fx:v,shop:p.shop}; },true),
         d.fx?inp(d.label,v=>{ D.plants[p.id].label=v; },'角標文字，例如「稀有品種」',14):null); });
     const search=h('input',{type:'search',placeholder:'搜尋編號、品種、賣場',value:q}); search.oninput=()=>{ q=search.value.trim().toLowerCase(); draw(); setTimeout(()=>{ const s=body.querySelector('.spa-q'); if(s){ s.focus(); s.setSelectionRange(s.value.length,s.value.length); } },0); }; search.className='spa-q';
     // 活動
@@ -10730,9 +10730,10 @@ function admSpot(m){
       h('section',{class:'spa-sec'}, h('h3',{text:'特效樣式'}), h('p',{class:'hint',text:'焦點植物和活動植物，在商店、競標頁、主頁各元件與植物頁都會套上特效和角標。'}), sample()),
       h('section',{class:'spa-sec'}, h('div',{class:'row',style:'justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap'}, h('h3',{text:'🏆 競標活動（植物展、特別企劃）'}), h('button',{class:'btn ink sm',type:'button',text:'＋ 新增活動',onclick:()=>{ const id='ev'+Date.now().toString(36); D.events[id]={name:'',fx:'gold',style:'stage',on:true,ids:[],at:Date.now()}; evOpen=id; mark(); draw(); }})),
         h('label',{class:'row',style:'gap:8px;align-items:center'}, (()=>{ const c=h('input',{type:'checkbox',class:'sw',checked:D.onAuction!==false}); c.onchange=()=>{ D.onAuction=c.checked; mark(); }; return c; })(), h('span',{text:'競標頁最上面自動顯示進行中的活動'})),
-        h('p',{class:'hint',text:'主頁或其他頁面也可以到「頁面設計」加「活動競標專區」元件。'}),
+        h('p',{class:'hint',text:'主頁或其他頁面也可以到「頁面設計」加「活動競標專區」元件。'}), h('p',{class:'hint',text:'📣 活動開始時推播一次，之後每經過 10% 的活動時間再一次（09:00–22:00）。'}),
+        h('label',{class:'row',style:'gap:8px;align-items:center'}, (()=>{ const c=h('input',{type:'checkbox',class:'sw',checked:D.push!==false}); c.onchange=()=>{ D.push=c.checked; mark(); }; return c; })(), h('span',{text:'焦點與活動推播通知（全部關掉就取消勾選）'})),
         evs.length?h('div',{class:'spa-el'}, ...evs.map(evCard)):h('p',{class:'hint',text:'還沒有活動。'})),
-      h('section',{class:'spa-sec'}, h('h3',{text:'⭐ 單株焦點（特別的品種）'}), h('p',{class:'hint',text:'選一個特效就會套用；角標文字可以寫「稀有品種」「站長推薦」。'}), search, rows.length?h('div',{class:'spa-rl'}, ...rows):h('p',{class:'hint',text:L.length?'找不到符合的競標':'目前沒有進行中的競標'})));
+      h('section',{class:'spa-sec'}, h('h3',{text:'⭐ 單株焦點（特別的品種）'}), h('p',{class:'hint',text:'選一個特效就會套用；角標文字可以寫「稀有品種」「站長推薦」。'}), h('p',{class:'hint',text:'📣 儲存後會推播給所有開啟通知的會員：打開焦點時一次，之後每經過 10% 的競標時間再一次，只在 09:00–22:00 送出（夜裡錯過的會在早上 9 點補一則最新進度）。'}), search, rows.length?h('div',{class:'spa-rl'}, ...rows):h('p',{class:'hint',text:L.length?'找不到符合的競標':'目前沒有進行中的競標'})));
   };
   draw();
   m.append(h('div',{class:'spa-bar'}, sv, st), body);
