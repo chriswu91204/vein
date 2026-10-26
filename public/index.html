@@ -1315,7 +1315,8 @@ body[data-tone="dark"] .catc:not(.all),body[data-tone="dark"] .lrow,body[data-to
 .txbar .hint{margin-right:auto}
 .cslot:empty{display:none}
 .cslot{margin-block:28px;position:relative;z-index:4}
-iframe.cblock{display:block;width:100%;border:0;background:transparent;color-scheme:normal}
+/* iOS Safari 會把 iframe 撐到內容那麼寬（橫向滑動列會讓整塊變超大），用 1px＋min-width 鎖住寬度 */
+iframe.cblock{display:block;width:1px;min-width:100%;max-width:100%;border:0;background:transparent;color-scheme:normal}
 .cblock.inline{display:block}
 .cpop{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);display:grid;place-items:center;padding:16px;animation:fade .3s}
 .cpop-c{position:relative;width:min(560px,100%);max-height:86vh;overflow:auto;border-radius:24px}
@@ -4318,7 +4319,7 @@ function blockDoc(b){
   const esc=x=>String(x||'').replace(/<\/script/gi,'<\\/script');
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${FONT_CSS}">
 <style>:root{--paper:#F4F4F1;--night:#0C0E0D;--leaf:#1F5C42;--leaf-2:#2E7D5B;--leaf-soft:#E2EEE6;--sprout:#D4F25A;--live:#FF3B30;--fg:#111312;--fg2:#6B6E6C;--f:"Inter","PingFang TC","Noto Sans TC",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
-html,body{margin:0;background:transparent;color:var(--fg);font-family:var(--f);-webkit-font-smoothing:antialiased}*{box-sizing:border-box}
+html,body{margin:0;background:transparent;color:var(--fg);font-family:var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100%}*{box-sizing:border-box}
 ${b.css||''}</style></head><body>${b.html||''}
 <script>(function(){var id=${JSON.stringify(b.id||'')};
 function post(){ parent.postMessage({veinBlock:id,h:Math.ceil(document.documentElement.getBoundingClientRect().height)},'*'); }
