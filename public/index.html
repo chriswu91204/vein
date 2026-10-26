@@ -9643,7 +9643,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf};
+if (location.hostname==='localhost') window.__vein={S,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -10556,16 +10556,17 @@ function admSite(m){
 
 /* ---------- 主頁素材（只有擁有者帳號可以改） ---------- */
 async function videoPoster(file){
-  const url=URL.createObjectURL(file), v=document.createElement('video');
-  v.muted=true; v.playsInline=true; v.preload='auto'; v.src=url;
+  const url=URL.createObjectURL(file), v=hiddenVid(url);
   try{
-    await new Promise((res,rej)=>{ v.onloadeddata=res; v.onerror=()=>rej(new Error('decode')); setTimeout(()=>rej(new Error('decode')),30000); });
+    // iPhone Safari 不「播一下」就不會讀影片畫面，以前這裡會偶爾等 30 秒後失敗
+    await new Promise((res,rej)=>{ v.onloadeddata=res; v.oncanplay=res; v.onplaying=res; v.onerror=()=>rej(new Error('decode')); setTimeout(()=>rej(new Error('decode')),30000); v.play().catch(()=>{}); });
+    try{ v.pause(); }catch(e){}
     if (!v.videoWidth) throw new Error('decode');
     v.currentTime=Math.min(0.6,(v.duration||1)/3); await new Promise(r=>{ v.onseeked=r; setTimeout(r,3000); });
     const sc=Math.min(1,1280/Math.max(v.videoWidth,v.videoHeight)), c=document.createElement('canvas');
     c.width=Math.round(v.videoWidth*sc); c.height=Math.round(v.videoHeight*sc); c.getContext('2d').drawImage(v,0,0,c.width,c.height);
     let b=await toBlob(c,'image/webp',0.8); if(!b||b.type!=='image/webp') b=await toBlob(c,'image/jpeg',0.82); return b;
-  } finally { URL.revokeObjectURL(url); }
+  } finally { releaseVid(v); URL.revokeObjectURL(url); }
 }
 async function saveMedia(map){ await S.db.doc('site/media').set(map); applyMedia(map); }
 // 主頁內容：依主頁由上到下排列，每個影片／照片旁邊就是它的文字
@@ -10740,7 +10741,15 @@ async function preparePhoto(file,onStage){
 
 /* ---------- 多照片＋6 秒影片 ---------- */
 const MAX_VID_SEC=6.5; // 影片最多 6 秒（省流量）
-function videoDuration(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.preload='metadata'; v.muted=true; v.onloadedmetadata=()=>{ URL.revokeObjectURL(u); res(v.duration||0); }; v.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; v.src=u; setTimeout(()=>rej(new Error('decode')),30000); }); }
+// iPhone 同時能開的影片播放器有限：用完一定要釋放，不然傳幾支之後就會「一下可以一下不行」
+function hiddenVid(url){ const v=document.createElement('video'); v.muted=true; v.defaultMuted=true; v.setAttribute('muted',''); v.playsInline=true; v.setAttribute('playsinline',''); v.preload='auto';
+  v.style.cssText='position:fixed;right:0;bottom:0;width:4px;height:4px;opacity:.02;pointer-events:none;z-index:2147483647'; (document.querySelector('dialog[open]')||document.body).append(v); v.src=url; return v; }
+function releaseVid(v){ try{ v.pause(); }catch(e){} try{ v.removeAttribute('src'); v.load(); }catch(e){} v.remove(); }
+function videoDuration1(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); let done=false; const end=(ok,val)=>{ if(done) return; done=true; releaseVid(v); URL.revokeObjectURL(u); ok?res(val):rej(new Error('decode')); };
+  v.preload='metadata'; v.muted=true; v.playsInline=true; v.onloadedmetadata=()=>end(true,v.duration||0); v.onerror=()=>end(false); v.src=u; setTimeout(()=>end(false),20000); }); }
+async function videoDuration(file){ try{ return await videoDuration1(file); }catch(e){ await new Promise(r=>setTimeout(r,800)); return videoDuration1(file); } }
+// 影片一次處理一支（同時轉好幾支，手機容易失敗）
+let vidChain=Promise.resolve(); const vidQueue=fn=>{ const p=vidChain.then(fn,fn); vidChain=p.catch(()=>{}); return p; };
 const HEVC_MSG='這支影片的格式這個瀏覽器讀不了（多半是 iPhone 的 HEVC 格式）';
 let hevcWarned=0;
 function hevcHelp(){ if(Date.now()-hevcWarned<5000) return; hevcWarned=Date.now(); const body=h('div',{class:'hevc'}, h('p',{text:'iPhone 錄的是 HEVC（高效率）格式。電腦上的 Chrome、Edge 多半讀不了這種影片，所以沒辦法在這台電腦轉檔上傳。'}),
@@ -10782,12 +10791,15 @@ async function transcodeVideo(file,onP,maxSec=MAX_VID_SEC){
     if (lastT<dur*0.6) throw Object.assign(new Error('stall'),{step:'轉檔中途停住（'+Math.round(lastT/dur*100)+'%）'});
     const type=mime.split(';')[0], blob=new Blob(chunks,{type}); if(blob.size<2000) throw Object.assign(new Error('empty'),{step:'錄出來是空的'});
     return {file:new File([blob],file.name.replace(/\.[^.]+$/,'')+(type==='video/mp4'?'.mp4':'.webm'),{type,lastModified:file.lastModified||Date.now()}),dur:Math.min(dur,lastT||dur)};
-  } finally { try{ v.pause(); }catch(e){} v.remove(); URL.revokeObjectURL(url); }
+  } finally { releaseVid(v); URL.revokeObjectURL(url); }
 }
 // 這台裝置自己播得了這支影片嗎？（iPhone／Mac 可以播 HEVC，就算轉檔失敗也能先上傳原檔）
-function playableHere(file){ return new Promise(res=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.muted=true; v.preload='metadata'; const end=ok=>{ URL.revokeObjectURL(u); res(ok); }; v.onloadedmetadata=()=>end(v.videoWidth>0||(v.duration>0&&/iPhone|iPad|Macintosh/.test(navigator.userAgent))); v.onerror=()=>end(false); setTimeout(()=>end(false),15000); v.src=u; }); }
+function playableHere(file){ return new Promise(res=>{ const u=URL.createObjectURL(file), v=document.createElement('video'); v.muted=true; v.preload='metadata'; let dn=false; const end=ok=>{ if(dn) return; dn=true; releaseVid(v); URL.revokeObjectURL(u); res(ok); }; v.onloadedmetadata=()=>end(v.videoWidth>0||(v.duration>0&&/iPhone|iPad|Macintosh/.test(navigator.userAgent))); v.onerror=()=>end(false); setTimeout(()=>end(false),15000); v.src=u; }); }
 async function compatVideo(file,onStage){
-  if (!(await isHEVC(file))) return {file};
+  const hevc=await isHEVC(file);
+  if (!hevc){ if(file.size<=20*1024*1024) return {file};
+    // 太大的影片先在手機上壓小（失敗就用原檔，後面再檢查大小）
+    onStage&&onStage('影片壓縮中…'); try{ return await transcodeVideo(file,p=>onStage&&onStage('壓縮中 '+p+'%')); }catch(e){ console.warn('[VEIN] 壓縮失敗',e.step||e.message); return {file,failed:e.step||e.message}; } }
   onStage&&onStage('iPhone 影片轉檔中…');
   try{ const r=await transcodeVideo(file,p=>onStage&&onStage('轉檔中 '+p+'%')); return r; }
   catch(e){ if(e.message==='decode'&&!(await playableHere(file))){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
@@ -10797,18 +10809,22 @@ async function compatVideo(file,onStage){
 async function prepareMedia(file,onStage){
   if (/^video\//.test(file.type)){
     if (!canVideo(S.me)){ setTimeout(()=>openUpgrade('video'),50); const x=new Error('影片上傳是認證會員功能（可以改傳照片）'); x.vein='msg'; throw x; }
-    let dur; try{ dur=await videoDuration(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
+    if (file.size>300*1024*1024){ const x=new Error('影片原檔超過 300MB，請先剪短（只需要 6 秒內）'); x.vein='msg'; throw x; }
+    return vidQueue(()=>prepVideo(file,onStage)); }
+  return preparePhoto(file,onStage);
+}
+async function prepVideo(file,onStage){ {
+    onStage&&onStage('排隊處理影片…');
+    let dur; try{ dur=await videoDuration(file); }catch(e){ if(!(await playableHere(file))){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; } const x=new Error('影片暫時讀不到，請再選一次（不是檔案的問題）'); x.vein='msg'; throw x; }
     if (dur>MAX_VID_SEC){ const x=new Error('影片最長 6 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短再上傳'); x.vein='msg'; throw x; }
     const cv=await compatVideo(file,onStage); if(cv.file!==file){ file=cv.file; if(cv.dur) dur=cv.dur; }
-    if (file.size>24*1024*1024){ const x=new Error('影片檔案太大（超過 24MB），請剪短或降低畫質'); x.vein='msg'; throw x; }
+    if (file.size>24*1024*1024){ const x=new Error('影片壓縮後還是超過 24MB（目前 '+(file.size/1048576).toFixed(0)+'MB），請剪短或用較低畫質重錄'); x.vein='msg'; throw x; }
     onStage&&onStage('處理影片中…');
-    let poster; try{ poster=await videoPoster(file); }catch(e){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; }
+    let poster; try{ poster=await videoPoster(file); }catch(e){ try{ await new Promise(r=>setTimeout(r,800)); poster=await videoPoster(file); }catch(e2){ if(!(await playableHere(file))){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; } const x=new Error('影片封面讀不到，請再選一次（不是檔案的問題）'); x.vein='msg'; throw x; } }
     const preview=URL.createObjectURL(poster);
     const thumb=await uploadBlob(poster); const url=await uploadBlob(file,b=>onStage&&onStage('上傳中 '+Math.round(b/file.size*100)+'%',preview));
     return {video:true,takenAt:tsLocal(file.lastModified||Date.now()),takenSource:'file',thumb,full:{asset:url,video:true,poster:thumb},preview,dur};
-  }
-  return preparePhoto(file,onStage);
-}
+  } }
 function mediaPicker(o={}){
   const items=[]; let busy=0;
   const inp=h('input',{type:'file',accept:canVideo(S.me)?'image/*,video/mp4,video/webm,video/quicktime':'image/*',multiple:true,class:'vh'});
