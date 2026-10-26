@@ -114,6 +114,10 @@ body[data-tone="dark"] .link{color:var(--sprout)}
 .nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:60;padding-left:var(--gl);padding-right:var(--gr);transition:background .4s,backdrop-filter .4s,transform .5s var(--ease)}
 .nav.solid{background:var(--glass);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);box-shadow:0 1px 0 var(--line)}
 .nav.hide{transform:translateY(-110%)}
+.nav-back{flex:none;width:38px;height:38px;border-radius:50%;border:0;padding:0;margin-right:-2px;background:rgba(127,127,127,.15);color:inherit;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}.nav-back[hidden]{display:none}.nav-back:active{transform:scale(.92)}
+@media (max-width:520px){ .nav.has-back .brand{font-size:0;gap:0;letter-spacing:0} .nav.has-back .wrap{gap:8px} }
+/* 加到主畫面（App 模式）：沒有瀏覽器的返回鍵，導覽列一直顯示、不讓畫面被縮放跑掉 */
+html.pwa{touch-action:manipulation}html.pwa .nav.hide{transform:none}
 .nav .wrap{display:flex;align-items:center;gap:10px;height:62px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:18px;letter-spacing:-.01em}
 .brand i{width:30px;height:30px;border-radius:10px;background:var(--leaf);display:grid;place-items:center;color:var(--sprout);font-style:normal;font-size:14px;font-weight:900}
@@ -3838,6 +3842,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 <div class="cur" id="cur" aria-hidden="true"></div>
 
 <header class="nav" id="nav"><div class="wrap">
+  <button class="nav-back" id="navBack" type="button" aria-label="上一頁" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <a class="brand" href="#/"><i></i>VEIN</a>
   <nav>
     <a href="#/" data-pg="home">首頁</a>
@@ -4100,6 +4105,10 @@ window.claude={ use:function(n){ return window.__veinReady.then(function(a){ ret
 <script>
 var PAGE='home';
 // 每一筆瀏覽紀錄都編號（vi），才知道「上一頁」還在不在 VEIN 裡面、要退幾步才回到進後台前的那一頁
+const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+if (STANDALONE){ document.documentElement.classList.add('pwa');
+  const vp=document.querySelector('meta[name=viewport]'); if(vp) vp.setAttribute('content','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+  ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false})); }
 const NAV=(()=>{ const ps=history.pushState.bind(history), rs=history.replaceState.bind(history); let cur=history.state?.vi??0;
   if (history.state?.vi==null) try{ rs({...(history.state||{}),vi:0},''); }catch(e){}
   history.pushState=(st,t,u)=>{ let ghost=false; try{ ghost=!!window.__BL&&(history.state?.bl||0)>window.__BL.length&&!(st&&st.bl); }catch(e){} if(ghost){ rs({...(st||{}),vi:cur},t,u); return; } cur++; ps({...(st||{}),vi:cur},t,u); };
@@ -6542,7 +6551,12 @@ async function boot(){
 /* ---------- router ---------- */
 const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed','sell','about','rules','me','staff','lp','batch'];
 function go(hash){ if(location.hash===hash) route(); else if((history.state?.bl||0)>(window.__BL?.length||0)){ history.replaceState(null,'',hash); route(); } /* 剛關掉的視窗留下的那筆紀錄直接換掉，按上一頁才不會多按一次 */ else location.hash=hash; }
-function route(){
+// 返回鍵：所有不是主要分頁的頁面都顯示（App 模式沒有瀏覽器返回鍵，一定要有）；有上一頁就回上一頁，沒有就回首頁
+const ROOT_HASH=new Set(['','#','#/','#/store','#/store/auction','#/raffle','#/verify','#/me']);
+function updBack(){ const b=document.getElementById('navBack'); if(!b) return; const on=!ROOT_HASH.has(location.hash.split('?')[0]); b.hidden=!on; document.getElementById('nav')?.classList.toggle('has-back',on); }
+document.getElementById('navBack')?.addEventListener('click',()=>{ if(NAV.idx()>0) history.back(); else location.hash='#/'; });
+addEventListener('hashchange',updBack);
+function route(){ updBack();
   if (PREVIEW&&!/^#\/seller\//.test(location.hash||'')) history.replaceState(null,'',PV_HASH);
   const hs=location.hash||'#/'; if(hs!==S.curHash){ S.prevHash=S.curHash??null; S.curHash=hs; }
   const am=hs.match(/^#(admin|plants)(?:\/([^/]*))?(?:\/(.+))?$/);
