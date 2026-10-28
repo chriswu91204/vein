@@ -9521,9 +9521,15 @@ function chatBoot(db){ if(CH.booted||!S.me) return; CH.booted=true;
     sn.docs.forEach(d=>{ const v=d.data(); if((v.members||[]).includes(S.me)) S.chats.set(d.id,{id:d.id,...v}); });
     resolveNames([...S.chats.keys()].map(chatOther)); if(CH.ready) chatNotify(prev); CH.ready=true; chatRefresh(); },()=>{});
   chatDock(); }
+function chatAttach(cid){ return S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).onSnapshot(sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); },()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); }); }
+// 從通知點進來時資料庫可能還沒連好：先排隊，連好再開始即時同步（以前會直接失敗，要跳出去再進來才會更新）
 function chatSub(cid){ const x=CH.subs.get(cid); if(x){ x.n++; return; }
-  const un=S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).onSnapshot(sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); },()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); });
-  CH.subs.set(cid,{un,n:1}); }
+  if (!S.db){ const y={un:()=>{},n:1,pend:true}; CH.subs.set(cid,y); const t=setInterval(()=>{ if(CH.subs.get(cid)!==y){ clearInterval(t); return; } if(S.db){ clearInterval(t); y.pend=false; y.un=chatAttach(cid); } },300); return; }
+  CH.subs.set(cid,{un:chatAttach(cid),n:1}); }
+// 手機 App 從背景回來時連線可能已經斷了：重新接上正在看的對話，馬上拿到最新訊息
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState!=='visible'||!S.db) return; for(const [cid,x] of CH.subs){ if(x.pend) continue; try{ x.un(); }catch(e){} x.un=chatAttach(cid); } });
+// 點通知：service worker 叫網頁換到對應的頁面（不重新載入）
+navigator.serviceWorker?.addEventListener('message',e=>{ const g=e.data&&e.data.veinGo; if(typeof g!=='string') return; const hs=g.replace(/^\/?/,'').replace(/^[^#]*/,''); if(hs&&hs!==location.hash) location.hash=hs; else if(hs) route(); });
 function chatUnsub(cid){ const x=CH.subs.get(cid); if(!x) return; if(--x.n<=0){ try{ x.un(); }catch(e){} CH.subs.delete(cid); } }
 async function chatSend(cid,msg){ if(needLogin()) return false; if(msg.t!=='sys'&&!rateOK('chat')) return false; const at=Date.now(), m={...msg,from:S.me,at}, last={t:msg.t,text:chatPreview(m),from:S.me,at};
   const c=S.chats.get(cid);
@@ -11183,6 +11189,7 @@ function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ a
   if (PAGE==='plant'){ if(S.pendingPlant&&S.plants.has(S.pendingPlant)) buildPlantPage(S.pendingPlant); else refreshDetail(false); }
   if (S.pendingR&&S.raffles.has(S.pendingR)) openRaffle(S.pendingR);
   if (PAGE==='me'&&!typing($('#pgMe'))) renderMe();
+  if (PAGE==='chats'&&S.me&&!document.querySelector('#chatsPage .cp')) renderChats(decodeURIComponent((location.hash.match(/^#\/chats\/(.+)$/)||[])[1]||''));
   if (dlg.open){ if(S.open) refreshDetail(false); else if(S.openR) renderRaffleDetail(false); else if(S.openCart&&!typing($('#cartBody'))) renderCart(); }
   if (adm.open) renderAdmin(false); autoTransfers(); }); }
 let was='';

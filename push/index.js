@@ -17,12 +17,12 @@ async function tokensOf(uid) {
   return snap.docs.filter(d => d.data().token && d.data().on !== false).map(d => ({ ref: d.ref, token: d.data().token }));
 }
 async function push(uid, title, body, link, tag) {
-  const T = await tokensOf(uid); if (!T.length) return 0;
+  const T0 = await tokensOf(uid), seen = new Set(), T = T0.filter(t => !seen.has(t.token) && seen.add(t.token)); if (!T.length) return 0;
+  // 只送資料、由網站的 service worker 自己顯示一則通知；同時帶 notification 欄位的話，iPhone 會自動顯示一則、service worker 再顯示一則 → 重複
   const res = await admin.messaging().sendEachForMulticast({
     tokens: T.map(t => t.token),
-    notification: { title, body },
     data: { title, body, link: link || '/', tag: tag || '' },
-    webpush: { fcmOptions: { link: SITE + (link || '/') }, notification: { icon: SITE + '/icon-192.png', badge: SITE + '/icon-192.png', tag: tag || undefined } }
+    webpush: { headers: { Urgency: 'high', TTL: '86400' }, fcmOptions: { link: SITE + (link || '/') } }
   });
   // 失效的裝置 token 清掉
   await Promise.all(res.responses.map((r, i) => (!r.success && /registration-token-not-registered|invalid-argument|invalid-registration/.test(r.error?.code || '')) ? T[i].ref.delete().catch(() => {}) : null));
@@ -210,8 +210,8 @@ exports.pushSpotlight = onSchedule({ schedule: 'every 10 minutes', timeZone: 'As
     const bids = await allBids(pid), end = effEnd(p, bids), start = cfg.at || now, top = leaderAt(p, bids, end);
     const st = await spotStep('spot-' + pid + '-' + (cfg.at || 0), start, end, now); if (!st) continue;
     const price = top ? '目前最高 ' + nt(top.amt) : '起標 ' + nt(p.startPrice), label = cfg.label || '焦點競標', name = pLabel(p);
-    const title = st.step === 0 ? '👑 ' + label + '：' + name : st.step >= 9 ? '🔥 最後 10%！' + label + '：' + name : '⏳ ' + label + ' 已過 ' + st.step * 10 + '%';
-    const body = (st.step === 0 ? '開放出價中，' : st.step < 9 ? name + '，' : '') + price + '，剩 ' + leftTxt(end - now);
+    const title = st.step === 0 ? '👑 ' + label + '：' + name : st.step >= 9 ? '🔥 快結標了：' + name : '⚡ ' + label + '：' + name;
+    const body = (st.step === 0 ? '開放出價中，' : '') + price + '，剩 ' + leftTxt(end - now);
     const n = await broadcast(title, body, '/#/plant/' + pid, 'spot-' + pid); await st.done(); logger.info('spotlight push', { pid, step: st.step, sent: n });
   }
   // 競標活動（整個活動推一則）
@@ -222,7 +222,7 @@ exports.pushSpotlight = onSchedule({ schedule: 'every 10 minutes', timeZone: 'As
     const start = Math.max(twParse(e.from), e.at || 0), end = twParse(e.to) || (ends.length ? Math.max(...ends) : 0); if (!ends.length) continue;
     const st = await spotStep('spotev-' + id + '-' + (e.at || 0), start, end, now); if (!st) continue;
     const liveN = ends.filter(t => t > now).length, next = Math.min(...ends.filter(t => t > now));
-    const title = st.step === 0 ? '🏆 ' + (e.name || '競標活動') + ' 開始了' : st.step >= 9 ? '🔥 ' + (e.name || '競標活動') + ' 最後衝刺' : '⏳ ' + (e.name || '競標活動') + ' 已過 ' + st.step * 10 + '%';
+    const title = st.step === 0 ? '🏆 ' + (e.name || '競標活動') + ' 開始了' : st.step >= 9 ? '🔥 ' + (e.name || '競標活動') + ' 最後衝刺' : '🏆 ' + (e.name || '競標活動') + ' 進行中';
     const body = (e.sub ? e.sub + '｜' : '') + liveN + ' 株競標中' + (isFinite(next) ? '，最快 ' + leftTxt(next - now) + ' 後結標' : '');
     const n = await broadcast(title, body, '/#/store/auction', 'spotev-' + id); await st.done(); logger.info('event push', { id, step: st.step, sent: n });
   }

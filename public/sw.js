@@ -37,6 +37,6 @@ self.addEventListener('push', e => {
 self.addEventListener('notificationclick', e => {
   e.notification.close(); const link = (e.notification.data && e.notification.data.link) || '/';
   e.waitUntil((async () => { const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of all) { if (new URL(c.url).origin === location.origin) { await c.focus(); try { c.navigate(new URL(link, location.origin).href); } catch (x) {} return; } }
+    for (const c of all) { if (new URL(c.url).origin === location.origin) { await c.focus(); try { c.postMessage({ veinGo: link }); } catch (x) { try { c.navigate(new URL(link, location.origin).href); } catch (y) {} } return; } }
     await self.clients.openWindow(link); })());
 });
