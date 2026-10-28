@@ -2960,6 +2960,11 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 #admMain select{max-width:100%}#admMain form,#admMain .panel{min-width:0}
 #admin:has(.rg-bulk2) #chDock,#admin:has(.be) #chDock,#admin:has(.rs-ov) #chDock{display:none}
 .pk{max-width:520px}
+.nfc{max-width:420px;text-align:center}.nfc-st{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 8px 10px}.nfc-st p{margin:0;font-size:14.5px;line-height:1.6}.nfc-st.ok p{color:var(--leaf-2);font-weight:700}.nfc-st.warn p{color:var(--fg)}
+.nfc-url{display:block;max-width:100%;overflow-wrap:anywhere;font-size:12px;background:var(--paper);border-radius:10px;padding:8px 10px}
+.nfc-r{position:relative;width:110px;height:110px;margin:8px auto 14px;border-radius:50%;background:var(--leaf-soft);display:grid;place-items:center}.nfc-r b{font-size:40px;position:relative;z-index:1}
+.nfc-r i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--leaf-2);opacity:0}.nfc-r.on i{animation:nfcP 1.8s ease-out infinite}.nfc-r.on i+i{animation-delay:.9s}
+@keyframes nfcP{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.6);opacity:0}}.nfc-r.ok{background:#D4F25A}.nfc-r.off{background:var(--paper);filter:grayscale(1)}
 .own-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:10px 12px 10px 14px;border-radius:18px;background:var(--leaf-soft);box-shadow:inset 0 0 0 1px rgba(31,92,66,.15)}
 .own-t{display:flex;align-items:baseline;gap:6px}.own-t i{font-style:normal}.own-t b{font-size:14.5px}.own-t small{font-size:12px;color:var(--fg2)}
 .own-a{display:flex;gap:6px;flex-wrap:wrap}
@@ -7714,6 +7719,25 @@ function ownBar(p){ if(!p||!S.me||!holds(p)) return null; const L=listed(p), sol
   return h('div',{class:'own-bar'}, h('span',{class:'own-t'}, h('i',{text:'🌱'}), h('b',{text:'你的植物'}), h('small',{text:saleState(p)[1].split(' · ')[0]})),
     h('div',{class:'own-a'}, h('button',{type:'button',class:'btn ink sm',onclick:()=>editPlant(p.id,'rec'),text:'📸 加紀錄／換封面'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>editPlant(p.id,'data'),text:'✏️ 改資料'}),
       canSell?h('button',{type:'button',class:'btn '+(L?'soft':'lime')+' sm',onclick:()=>editPlant(p.id,'sale'),text:L?'🏷 改價格／販售':'🏷 上架販售'}):null)); }
+// ===== NFC：把植物頁網址寫進 NFC 貼紙，手機一碰就打開履歷（Android Chrome 支援；iPhone 用 App 寫入） =====
+const nfcOK=()=>'NDEFReader' in window;
+function writeNfc(p){ const url=plantUrl(p);
+  const host=adm.open?adm:document.body, prev=document.documentElement.style.overflow; let ac=null;
+  const close=()=>{ try{ ac?.abort(); }catch(e){} ov.remove(); document.documentElement.style.overflow=prev; };
+  const st=h('div',{class:'nfc-st'}), ring=h('div',{class:'nfc-r'}, h('i'), h('i'), h('b',{text:'📶'}));
+  const ov=h('div',{class:'rs-ov',onclick:e=>{ if(e.target===ov) close(); }}, h('div',{class:'rs nfc'}, h('div',{class:'rs-h'}, h('div',{}, h('b',{text:'寫入 NFC 貼紙'}), h('small',{text:p.code+' · '+pName(p)})), h('button',{type:'button',class:'rs-x','aria-label':'關閉',onclick:close,text:'✕'})), ring, st));
+  host.append(ov); document.documentElement.style.overflow='hidden';
+  const say=(t,cls,extra)=>{ st.className='nfc-st '+(cls||''); st.replaceChildren(h('p',{text:t}), ...(extra||[])); };
+  const copyBtn=h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(url,e.currentTarget),text:'🔗 複製這株的網址'});
+  if (!nfcOK()){ ring.classList.add('off');
+    say(/iPhone|iPad/.test(navigator.userAgent)?'iPhone 的瀏覽器不能直接寫入 NFC。請先複製網址，再用免費 App「NFC Tools」→ 寫入 → 新增記錄 → 網址，貼上後把貼紙靠近手機頂端。':'這個瀏覽器不支援寫入 NFC。請用 Android 手機的 Chrome 打開 VEIN 再按一次，或複製網址用「NFC Tools」App 寫入。','warn',[h('code',{class:'nfc-url',text:url}), copyBtn]); return; }
+  const go=async()=>{ ac=new AbortController(); ring.classList.add('on'); say('把 NFC 貼紙靠近手機背面（相機附近），保持不動 1～2 秒…');
+    try{ const w=new NDEFReader(); await w.write({records:[{recordType:'url',data:url}]},{signal:ac.signal,overwrite:true});
+      ring.classList.remove('on'); ring.classList.add('ok'); try{ navigator.vibrate&&navigator.vibrate(120); }catch(e){}
+      say('✅ 寫入完成！手機碰一下貼紙就會打開 '+p.code+' 的頁面。','ok',[h('button',{class:'btn pri sm',type:'button',onclick:()=>{ ring.classList.remove('ok'); go(); },text:'再寫一張'}), h('button',{class:'btn soft sm',type:'button',onclick:close,text:'完成'})]);
+    }catch(e){ ring.classList.remove('on'); if(e?.name==='AbortError') return;
+      say(e?.name==='NotAllowedError'?'需要允許 NFC 權限：請在跳出的提示按「允許」，並確認手機設定裡 NFC 已開啟。':e?.name==='NotSupportedError'?'這支手機沒有 NFC 或 NFC 沒開。':'寫入失敗：貼紙可能被鎖住、容量不夠，或移開太快。換一張再試。','warn',[h('button',{class:'btn pri sm',type:'button',onclick:go,text:'再試一次'}), copyBtn]); } };
+  say('準備好空白 NFC 貼紙（NTAG213／215 都可以），按下開始後靠近手機。','',[h('button',{class:'btn pri',type:'button',onclick:go,text:'開始寫入'})]); }
 function histBtn(p,cls,label){ return h('a',{class:'btn '+(cls||'soft')+' hbtn',href:'#/history/'+encodeURIComponent(p.id),onclick:e=>{ e.stopPropagation(); }}, h('i',{class:'hbtn-i'}), label||'看完整履歷'); }
 function leaveHistory(){ if(S.histUnsub){ S.histUnsub(); S.histUnsub=null; } S.histFor=null; S.histDocs=null; histSig=''; }
 let histSig='', histIO=null;
@@ -8642,6 +8666,7 @@ function plantPeek(id,extra){ const p=typeof id==='string'?S.plants.get(id):id; 
       h('div',{class:'rs-l'}, ...(extra||[]).map(x=>act(...x)),
         holds(p)?act('✏️','管理這株','照片、成長紀錄、資料、販售設定',()=>editPlant(p.id,'rec')):null, holds(p)&&hasShop()&&p.status!=='sold'?act('🏷',listed(p)?'改價格／販售設定':'上架販售','直購、競標、價格',()=>editPlant(p.id,'sale')):null,
         act('📜','看履歷','溯源頁：完整成長紀錄與血統',()=>openHistory(p.id)),
+        holds(p)?act('📶','寫入 NFC 貼紙','手機一碰就打開這株',()=>writeNfc(p)):null,
         act('🌿','看前台商品頁','買家看到的樣子',()=>openPlant(p.id)))));
   (adm.open?adm:document.body).append(ov); return close; }
 // ===== 賣家：新訂單絕對不會漏看 =====
@@ -8726,6 +8751,7 @@ function admReg(m){
       ['✏️','管理這株','照片、成長紀錄、資料、販售設定',()=>openE(p)],
       ks.length?['🌿','看後代（'+ks.length+' 株）','側芽與實生苗都在裡面',()=>drillTo(p)]:null,
       ['📜','看履歷','買家看到的溯源頁',()=>openHistory(p.id)],
+      ['📶','寫入 NFC 貼紙','手機一碰就打開這株的履歷',()=>writeNfc(p)],
       '新增後代',
       ['🌱','＋ 分出側芽','從這株分出來的，一次登錄一株',()=>rgAddKids(p,'pup')],
       ['🌾','＋ 加實生苗（這株當母本）','一批實生苗一次建好',()=>rgAddKids(p,'seedling')],
@@ -10589,7 +10615,7 @@ function admEditor(m, id){
         h('div',{class:'pe-chips'}, inbound?h('span',{class:'tag zone',style:'--zc:#2E7D5B',text:'🔄 轉入 · 原賣場 '+shopName(p.shop)}):null, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null, careZoneOf(p.id)?h('button',{type:'button',class:'tag zone',style:'--zc:'+careZoneOf(p.id).color,onclick:()=>{ openPlants('care'); },text:'📍 '+careZoneOf(p.id).name}):null, p.hidden?h('span',{class:'tag',text:'不在商店展示'}):null, isLocked(p)?h('span',{class:'tag',text:'已轉手・血統鎖定'}):null))),
     h('div',{class:'pe-acts'},
       h('div',{class:'pe-ag'}, h('small',{text:'查看'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ adm.close(); openPlant(p.id); },text:'🌐 前台商品頁'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openHistory(p.id),text:'📜 履歷頁'})),
-      h('div',{class:'pe-ag'}, h('small',{text:'分享'}), h('button',{class:'btn lime sm',type:'button',onclick:()=>shareAny(p),text:'↗ 轉發／分享圖'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(plantUrl(p)),text:'🔗 複製連結'})),
+      h('div',{class:'pe-ag'}, h('small',{text:'分享'}), h('button',{class:'btn lime sm',type:'button',onclick:()=>shareAny(p),text:'↗ 轉發／分享圖'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(plantUrl(p)),text:'🔗 複製連結'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>writeNfc(p),text:'📶 寫入 NFC'})),
       h('div',{class:'pe-ag'}, h('small',{text:'新增後代'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>newKid('pup'),text:'＋ 分出側芽'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>newKid('seed'),text:'＋ 登錄實生苗'}))));
   // 摘要卡
   const pl=priceLabel(p), on=onSale(p);
