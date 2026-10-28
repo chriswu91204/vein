@@ -2961,6 +2961,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 #admin:has(.rg-bulk2) #chDock,#admin:has(.be) #chDock,#admin:has(.rs-ov) #chDock{display:none}
 .pk{max-width:520px}
 .nfc{max-width:420px;text-align:center}.nfc-st{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 8px 10px}.nfc-st p{margin:0;font-size:14.5px;line-height:1.6}.nfc-st.ok p{color:var(--leaf-2);font-weight:700}.nfc-st.warn p{color:var(--fg)}
+.nfc-ol{text-align:left;margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.55}
 .nfc-url{display:block;max-width:100%;overflow-wrap:anywhere;font-size:12px;background:var(--paper);border-radius:10px;padding:8px 10px}
 .nfc-r{position:relative;width:110px;height:110px;margin:8px auto 14px;border-radius:50%;background:var(--leaf-soft);display:grid;place-items:center}.nfc-r b{font-size:40px;position:relative;z-index:1}
 .nfc-r i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--leaf-2);opacity:0}.nfc-r.on i{animation:nfcP 1.8s ease-out infinite}.nfc-r.on i+i{animation-delay:.9s}
@@ -7720,7 +7721,7 @@ function ownBar(p){ if(!p||!S.me||!holds(p)) return null; const L=listed(p), sol
     h('div',{class:'own-a'}, h('button',{type:'button',class:'btn ink sm',onclick:()=>editPlant(p.id,'rec'),text:'📸 加紀錄／換封面'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>editPlant(p.id,'data'),text:'✏️ 改資料'}),
       canSell?h('button',{type:'button',class:'btn '+(L?'soft':'lime')+' sm',onclick:()=>editPlant(p.id,'sale'),text:L?'🏷 改價格／販售':'🏷 上架販售'}):null)); }
 // ===== NFC：把植物頁網址寫進 NFC 貼紙，手機一碰就打開履歷（Android Chrome 支援；iPhone 用 App 寫入） =====
-const nfcOK=()=>'NDEFReader' in window;
+const nfcOK=()=>'NDEFReader' in window, NFC_SC='VEIN 寫入 NFC';
 function writeNfc(p){ const url=plantUrl(p);
   const host=adm.open?adm:document.body, prev=document.documentElement.style.overflow; let ac=null;
   const close=()=>{ try{ ac?.abort(); }catch(e){} ov.remove(); document.documentElement.style.overflow=prev; };
@@ -7729,6 +7730,19 @@ function writeNfc(p){ const url=plantUrl(p);
   host.append(ov); document.documentElement.style.overflow='hidden';
   const say=(t,cls,extra)=>{ st.className='nfc-st '+(cls||''); st.replaceChildren(h('p',{text:t}), ...(extra||[])); };
   const copyBtn=h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(url,e.currentTarget),text:'🔗 複製這株的網址'});
+  const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if (!nfcOK()&&IOS){ const SC=NFC_SC, link=S.site?.nfcShortcut||'';
+    const run=()=>{ try{ navigator.clipboard?.writeText(url).catch(()=>{}); }catch(e){} lsSet('vein.nfcSc',1); location.href='shortcuts://run-shortcut?name='+encodeURIComponent(SC)+'&input=text&text='+encodeURIComponent(url); setTimeout(()=>say('捷徑開了嗎？在跳出的畫面把貼紙靠近手機頂端，看到勾勾就寫好了。','',[h('button',{class:'btn pri',type:'button',onclick:run,text:'再寫一次'}), h('button',{class:'btn soft sm',type:'button',onclick:setup,text:'還沒安裝捷徑？'}), copyBtn]),1200); };
+    const setup=()=>{ ring.classList.add('off'); say('第一次使用要先裝好捷徑（只要做一次）：','',[
+      h('ol',{class:'nfc-ol'}, h('li',{}, 'App Store 安裝免費的「', h('b',{text:'NFC.cool Tools'}), '」，打開一次讓它取得 NFC 權限。'),
+        link?h('li',{}, '按下面「安裝 VEIN 捷徑」→「加入捷徑」。'):h('li',{}, '打開「捷徑」App →「＋」→ 加入動作「', h('b',{text:'接收輸入'}), '」（文字）→ 再加入 NFC.cool 的「', h('b',{text:'Write Tag / 寫入 NFC'}), '」，內容選「捷徑輸入」。'),
+        link?null:h('li',{}, '把捷徑命名為「', h('b',{text:SC}), '」（一字不差）。'),
+        h('li',{}, '回到這裡按「用捷徑寫入」，之後每次都是一鍵。')),
+      link?h('a',{class:'btn ink',href:link,target:'_blank',rel:'noopener',text:'安裝 VEIN 捷徑'}):null,
+      h('button',{class:'btn pri',type:'button',onclick:()=>{ ring.classList.remove('off'); run(); },text:'用捷徑寫入'})]); };
+    if (lsGet('vein.nfcSc',0)) say('iPhone 會用「捷徑」幫你寫入：按下去後把貼紙靠近手機頂端。','',[h('button',{class:'btn pri',type:'button',onclick:run,text:'用捷徑寫入'}), h('button',{class:'btn soft sm',type:'button',onclick:setup,text:'怎麼設定捷徑'}), copyBtn]);
+    else setup();
+    return; }
   if (!nfcOK()){ ring.classList.add('off');
     say(/iPhone|iPad/.test(navigator.userAgent)?'iPhone 的瀏覽器不能直接寫入 NFC。請先複製網址，再用免費 App「NFC Tools」→ 寫入 → 新增記錄 → 網址，貼上後把貼紙靠近手機頂端。':'這個瀏覽器不支援寫入 NFC。請用 Android 手機的 Chrome 打開 VEIN 再按一次，或複製網址用「NFC Tools」App 寫入。','warn',[h('code',{class:'nfc-url',text:url}), copyBtn]); return; }
   const go=async()=>{ ac=new AbortController(); ring.classList.add('on'); say('把 NFC 貼紙靠近手機背面（相機附近），保持不動 1～2 秒…');
@@ -10935,9 +10949,10 @@ function admSite(m){
     field('平台 LINE ID（頁尾「聯絡我們」）', h('input',{'data-s':'line',maxlength:60,value:s.line||'',placeholder:'例如 @vein'})),
     field('其他聯絡方式（選填）', h('input',{'data-s':'contact',maxlength:120,value:s.contact||''})),
     field('頁尾介紹', h('textarea',{'data-s':'about',maxlength:300}, s.about||'給所有植物玩家的溯源市集。每一株都有編號與履歷。')),
+    field('iPhone 寫入 NFC 的捷徑分享連結（選填，https://www.icloud.com/shortcuts/…）', h('input',{'data-s':'nfcShortcut',maxlength:200,value:s.nfcShortcut||'',placeholder:'在 iPhone 建好「VEIN 寫入 NFC」捷徑後，分享 → 拷貝 iCloud 連結貼這裡'})),
     h('label',{class:'row',style:'font-size:14.5px;align-items:flex-start;gap:10px'}, h('input',{type:'checkbox',class:'sw','data-s':'requirePhone',checked:!!s.requirePhone}), h('span',{}, h('b',{text:'要求手機驗證'}), h('br'), h('span',{class:'hint',text:'開啟後，出價、下單、報名抽獎與開店前都要先驗證手機。開啟前請先在 Firebase → Authentication → 登入方式 啟用「電話」。'}))),
     h('div',{class:'err'}), h('div',{}, h('button',{class:'btn pri',type:'submit',text:'儲存'})));
-  f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); try{ await S.db.doc('site/info').set({...S.site,line:v('line'),contact:v('contact'),about:v('about'),requirePhone:f.querySelector('[data-s=requirePhone]').checked}); toast('網站設定已儲存'); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } });
+  f.addEventListener('submit',async e=>{ e.preventDefault(); const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); try{ await S.db.doc('site/info').set({...S.site,line:v('line'),contact:v('contact'),about:v('about'),nfcShortcut:/^https:\/\/www\.icloud\.com\/shortcuts\//.test(v('nfcShortcut'))?v('nfcShortcut'):'',requirePhone:f.querySelector('[data-s=requirePhone]').checked}); toast('網站設定已儲存'); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } });
   const mlog=h('p',{class:'hint'}), mbtn=h('button',{class:'btn ink sm',type:'button',text:'開始搬移'});
   mbtn.addEventListener('click',async()=>{ if(!S.assets){ toast('需要登入才能上傳'); return; } mbtn.disabled=true; mlog.textContent='搬移中…'; try{ const n=await migrateImages(t=>{ mlog.textContent='已搬移：'+t; }); mlog.textContent=n?'完成，共搬移 '+n+' 筆圖片。':'沒有需要搬移的圖片，都已經是最省流量的格式。'; }catch(e){ mlog.textContent='搬移中斷：'+(e?.code||e?.message||'請稍後再試'); } finally{ mbtn.disabled=false; } });
   const savePanel=h('div',{class:'panel',style:'margin-top:20px;max-width:640px'}, h('h3',{text:'省流量工具'}), h('p',{class:'hint',text:'把舊版直接存在資料庫裡的圖片（縮圖、賣場頭像與封面、抽獎圖、成長紀錄照片）搬到 Storage，資料庫只留網址。每位訪客載入的資料會小很多。只需要執行一次。'}), h('div',{class:'row',style:'margin-top:10px'}, mbtn), mlog);
