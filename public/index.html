@@ -435,6 +435,8 @@ dialog[open]{animation:dlgin .5s var(--ease)}
 .od-age{margin-left:auto;flex:none;font-size:12px;font-weight:700;color:var(--fg2);white-space:nowrap}.od-o.late .od-age{color:#B3261E}
 @media (max-width:640px){ .od-dash{grid-template-columns:repeat(2,1fr)} .od-o .row:last-child{flex-wrap:wrap} }
 /* 賣家新訂單提醒（全站都看得到，處理完才會消失） */
+.ord-alert.out{opacity:0;transform:translateY(20px)!important;transition:.3s}
+.oa-go{display:flex;align-items:center;gap:10px;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:0;min-width:0;flex:1}.oa-x{flex:none;border:0;background:rgba(255,255,255,.22);color:#fff;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer}
 .ord-alert{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);padding:11px 14px 11px 12px;border:0;border-radius:999px;background:#E8452C;color:#fff;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;box-shadow:0 14px 30px -10px rgba(232,69,44,.7);animation:oaIn .5s cubic-bezier(.3,1.5,.5,1)}
 .ord-alert i{font-style:normal;font-size:18px;animation:oaBell 2.4s ease-in-out infinite}.ord-alert span{line-height:1.3;text-align:left}.ord-alert b{background:#fff;color:#E8452C;border-radius:999px;padding:3px 10px;font-size:13px;flex:none}
 @keyframes oaIn{from{transform:translate(-50%,30px);opacity:0}}@keyframes oaBell{0%,80%,100%{transform:rotate(0)}84%{transform:rotate(-18deg)}88%{transform:rotate(16deg)}92%{transform:rotate(-10deg)}96%{transform:rotate(6deg)}}
@@ -8591,12 +8593,15 @@ function ordAlert(){ if(ordBaseTitle==null) ordBaseTitle=document.title;
   const ids=new Set(pend.map(o=>o.id)); if(ordKnown){ const fresh=pend.filter(o=>!ordKnown.has(o.id)); if(fresh.length){ ordChime(); toast('🔔 新訂單！'+nameOf(fresh[0].buyer)+' 下單了 '+money(fresh[0].total)); } } ordKnown=ids;
   try{ if(navigator.setAppBadge) total?navigator.setAppBadge(total):navigator.clearAppBadge(); }catch(e){}
   const dt=document.title.replace(/^\(\d+\) /,''); document.title=(pend.length?'('+pend.length+') ':'')+dt;
-  const msg=pend.length?['🔔',pend.length+' 筆新訂單等你確認','去確認']:paid.length?['💳',paid.length+' 筆訂單買家已匯款，請對帳','去對帳']:prep.length?['📦',prep.length+' 筆訂單等你出貨','去出貨']:offN?['🤝',offN+' 筆議價等你回覆','去回覆']:null;
-  const inOrders=adm.open&&S.admMode==='order';
-  if (!msg||inOrders){ el?.remove(); return; }
-  if (!el){ el=h('button',{type:'button',id:'ordAlert',class:'ord-alert',onclick:()=>openOrders()}); document.body.append(el); }
-  const sig=msg.join('|'); if(el.dataset.sig!==sig){ el.dataset.sig=sig; el.replaceChildren(h('i',{text:msg[0]}), h('span',{text:msg[1]}), h('b',{text:msg[2]+' →'})); }
-  el.classList.toggle('urgent',!!pend.length); }
+  // 提醒條只在「有新的事」時出現：新訂單、買家剛匯款；看過（按 ✕ 或 12 秒後）就收起來，3 小時後還沒處理才再提醒一次。待出貨、議價只用紅點數字提示
+  const msg=pend.length?['🔔',pend.length+' 筆新訂單等你確認','去確認']:paid.length?['💳',paid.length+' 筆訂單買家已匯款，請對帳','去對帳']:null;
+  const key=[...pend,...paid].map(o=>o.id+':'+o.status).sort().join(','), dis=(()=>{ try{ return JSON.parse(localStorage.getItem('vein.oaDis')||'null'); }catch(e){ return null; } })();
+  const seen=dis&&dis.k===key&&Date.now()-dis.at<3*36e5, inOrders=adm.open&&S.admMode==='order';
+  const dismiss=()=>{ try{ localStorage.setItem('vein.oaDis',JSON.stringify({k:key,at:Date.now()})); }catch(e){} const x=document.getElementById('ordAlert'); if(x){ x.classList.add('out'); setTimeout(()=>x.remove(),350); } };
+  if (!msg||inOrders||seen){ if(el&&!el.classList.contains('out')) el.remove(); return; }
+  if (!el){ el=h('div',{id:'ordAlert',class:'ord-alert',role:'status'}); document.body.append(el); }
+  if (el.dataset.sig!==key){ el.dataset.sig=key; clearTimeout(el._t); el._t=setTimeout(dismiss,12000);
+    el.replaceChildren(h('button',{type:'button',class:'oa-go',onclick:()=>{ dismiss(); openOrders(); }}, h('i',{text:msg[0]}), h('span',{text:msg[1]}), h('b',{text:msg[2]+' →'})), h('button',{type:'button',class:'oa-x','aria-label':'知道了',onclick:dismiss,text:'✕'})); } }
 function rgSheet(title,sub,items){
   const host=adm.open?adm:document.documentElement, prevOv=host.style.overflow; host.style.overflow='hidden';
   const close=()=>{ ov.remove(); host.style.overflow=prevOv; };
