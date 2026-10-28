@@ -7732,10 +7732,10 @@ function writeNfc(p){ const url=plantUrl(p);
   const copyBtn=h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(url,e.currentTarget),text:'🔗 複製這株的網址'});
   const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if (!nfcOK()&&IOS){ const SC=NFC_SC, link=S.site?.nfcShortcut||'';
-    const run=()=>{ try{ navigator.clipboard?.writeText(url).catch(()=>{}); }catch(e){} lsSet('vein.nfcSc',1); location.href='shortcuts://run-shortcut?name='+encodeURIComponent(SC)+'&input=text&text='+encodeURIComponent(url); setTimeout(()=>say('捷徑開了嗎？在跳出的畫面把貼紙靠近手機頂端，看到勾勾就寫好了。','',[h('button',{class:'btn pri',type:'button',onclick:run,text:'再寫一次'}), h('button',{class:'btn soft sm',type:'button',onclick:setup,text:'還沒安裝捷徑？'}), copyBtn]),1200); };
+    const run=async()=>{ try{ await navigator.clipboard?.writeText(url); }catch(e){} lsSet('vein.nfcSc',1); location.href='shortcuts://run-shortcut?name='+encodeURIComponent(SC)+'&input=text&text='+encodeURIComponent(url); setTimeout(()=>say('捷徑開了嗎？在跳出的畫面把貼紙靠近手機頂端，看到勾勾就寫好了。','',[h('button',{class:'btn pri',type:'button',onclick:run,text:'再寫一次'}), h('button',{class:'btn soft sm',type:'button',onclick:setup,text:'還沒安裝捷徑？'}), copyBtn]),1200); };
     const setup=()=>{ ring.classList.add('off'); say('第一次使用要先裝好捷徑（只要做一次）：','',[
       h('ol',{class:'nfc-ol'}, h('li',{}, 'App Store 安裝免費的「', h('b',{text:'NFC.cool Tools'}), '」，打開一次讓它取得 NFC 權限。'),
-        link?h('li',{}, '按下面「安裝 VEIN 捷徑」→「加入捷徑」。'):h('li',{}, '打開「捷徑」App →「＋」→ 加入動作「', h('b',{text:'接收輸入'}), '」（文字）→ 再加入 NFC.cool 的「', h('b',{text:'Write Tag / 寫入 NFC'}), '」，內容選「捷徑輸入」。'),
+        link?h('li',{}, '按下面「安裝 VEIN 捷徑」→「加入捷徑」。'):h('li',{}, '打開「捷徑」App →「＋」→ 搜尋加入「', h('b',{text:'取得剪貼簿'}), '」→ 再搜尋「NFC.cool」加入寫入動作（Write Tag／寫入 NFC），內容點一下選「', h('b',{text:'剪貼簿'}), '」。VEIN 按下去時會自動把網址放進剪貼簿。'),
         link?null:h('li',{}, '把捷徑命名為「', h('b',{text:SC}), '」（一字不差）。'),
         h('li',{}, '回到這裡按「用捷徑寫入」，之後每次都是一鍵。')),
       link?h('a',{class:'btn ink',href:link,target:'_blank',rel:'noopener',text:'安裝 VEIN 捷徑'}):null,
