@@ -421,19 +421,19 @@ dialog[open]{animation:dlgin .5s var(--ease)}
 .li span{font-size:12.5px;color:var(--fg2)}
 .li .r{text-align:right;display:grid;gap:2px;justify-items:end;font-size:13px}
 .htabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:18px}
-.od-dash{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.od-dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:8px}
 .od-c{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:0;border-radius:18px;padding:12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;box-shadow:inset 0 0 0 1px var(--line)}
 .od-c i{font-style:normal;font-size:18px}.od-c b{font-size:26px;line-height:1.1}.od-c span{font-weight:700;font-size:14px}.od-c small{font-size:11.5px;color:var(--fg2)}
 .od-c.on{background:#111;color:#fff;box-shadow:none}.od-c.on small{color:rgba(255,255,255,.6)}
 .od-c.hot::after{content:'';position:absolute;right:10px;top:10px;width:10px;height:10px;border-radius:50%;background:#E8452C;box-shadow:0 0 0 0 rgba(232,69,44,.6);animation:odPing 1.6s infinite}
 @keyframes odPing{70%{box-shadow:0 0 0 9px rgba(232,69,44,0)}100%{box-shadow:0 0 0 0 rgba(232,69,44,0)}}
 .od-more{display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap}.od-more button{border:0;background:none;color:var(--fg2);font:inherit;font-size:13px;padding:6px 8px;border-radius:999px;cursor:pointer}.od-more button.on{background:#111;color:#fff}
-.od-more input{flex:1;min-width:160px;margin-left:auto}
+.od-more input{flex:1;min-width:160px;max-width:340px;margin-left:auto;border:0;border-radius:999px;padding:9px 14px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:inherit;font-size:14px}
 .od-o{border-left:4px solid transparent}.od-o.warn{border-left-color:#F2B84B}.od-o.late{border-left-color:#E8452C}
 .od-nx{display:flex;align-items:flex-start;gap:10px;margin:-4px -4px 12px;padding:10px 12px;border-radius:14px;background:var(--leaf-soft)}.od-nx i{font-style:normal;font-size:20px}.od-nx b{display:block;font-size:15px}.od-nx small{color:var(--fg2);font-size:12.5px}
 .od-o.warn .od-nx{background:#FFF4DA}.od-o.late .od-nx{background:#FDE5E1}
 .od-age{margin-left:auto;flex:none;font-size:12px;font-weight:700;color:var(--fg2);white-space:nowrap}.od-o.late .od-age{color:#B3261E}
-@media (max-width:640px){ .od-dash{grid-template-columns:repeat(2,1fr)} .od-o .row:last-child{flex-wrap:wrap} }
+@media (max-width:640px){ .od-dash{grid-template-columns:repeat(2,1fr)} .od-more input{max-width:none;min-width:100%} .od-o .row:last-child{flex-wrap:wrap} }
 /* 賣家新訂單提醒（全站都看得到，處理完才會消失） */
 .ord-alert.out{opacity:0;transform:translateY(20px)!important;transition:.3s}
 .oa-go{display:flex;align-items:center;gap:10px;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:0;min-width:0;flex:1}.oa-x{flex:none;border:0;background:rgba(255,255,255,.22);color:#fff;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer}
@@ -678,6 +678,11 @@ a.shopchip:hover{color:var(--fg)}
 .crow .x{border:0;background:#F0F0EC;border-radius:50%;width:28px;height:28px;cursor:pointer}
 .cgroup>input{border:0;background:#F4F4F1;border-radius:14px;padding:12px 14px;font:inherit;font-size:14.5px}
 .ocard{background:#fff;border-radius:20px;padding:14px;display:grid;gap:10px}
+.ocard.bord{border:2px solid transparent}.ocard.bord.bo-act{border-color:var(--leaf-2);box-shadow:0 10px 26px -18px rgba(31,92,66,.6)}.ocard.bord.off{opacity:.7}
+.bo-nx{display:flex;gap:10px;align-items:flex-start;margin:-2px -2px 0;padding:10px 12px;border-radius:14px;background:var(--paper)}.bo-nx i{font-style:normal;font-size:20px}.bo-nx b{display:block;font-size:15px}.bo-nx small{color:var(--fg2);font-size:12.5px}
+.ocard.bord.bo-act .bo-nx{background:var(--leaf-soft)}
+.bo-f{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}.bo-f button{flex:none;display:flex;gap:6px;align-items:center;border:0;border-radius:999px;padding:8px 14px;background:#fff;font:inherit;font-size:14px;cursor:pointer}.bo-f button b{font-size:12px;background:var(--paper);border-radius:999px;padding:1px 7px}
+.bo-f button[aria-pressed=true]{background:#111;color:#fff}.bo-f button[aria-pressed=true] b{background:#D2FF00;color:#111}.bo-f button.hot b{background:#E8452C;color:#fff}
 .oitems{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .oi{display:grid;gap:4px;justify-items:start;border:0;background:none;padding:0;cursor:pointer;font-size:11px;color:var(--fg2)}
 .oi img{width:64px;height:64px;border-radius:14px;object-fit:cover}
@@ -1554,6 +1559,7 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .sf-prof .sp-btns{grid-row:1;grid-column:3;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .vbadge{display:inline-flex;align-items:center;font-size:11px;font-weight:800;letter-spacing:.04em;background:var(--sprout);color:#111;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
 .vbadge.lg{font-size:13px;padding:4px 12px;margin:0}
+.sf-tabs-a{display:block;height:0}.sf-body{min-height:70vh}
 .sf-tabs{position:sticky;top:64px;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:22px 0 6px;padding:8px;background:var(--glass);backdrop-filter:blur(16px);border-radius:999px}
 .sf-tabs button{flex:none;border:0;background:none;border-radius:999px;padding:9px 16px;font:inherit;font-size:14.5px;cursor:pointer;color:var(--fg2);display:flex;gap:6px;align-items:baseline}
 .sf-tabs button small{font-size:11.5px;opacity:.7}
@@ -3497,7 +3503,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .mp-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:8px;margin-bottom:14px}
 .mp-act{border:0;background:#fff;border-radius:16px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.04);min-width:0}
 .mp-act:active{transform:scale(.97)}.mp-act.hot{background:#E8452C;color:#fff;animation:odPing 1.6s infinite}.mp-act.hot small{color:rgba(255,255,255,.85)}
-.modesw.m3{grid-template-columns:1fr 1fr 1fr}.modesw button{position:relative}.msw-n{position:absolute;top:-4px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:#E8452C;color:#fff;font-style:normal;font-size:11px;line-height:18px;padding:0 5px}.mp-ai{font-size:22px;line-height:1.2}.mp-act b{font-size:13px;white-space:nowrap}.mp-act small{font-size:10.5px;color:var(--fg2);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.modesw.m3{grid-template-columns:repeat(3,minmax(0,1fr))}.modesw.m3 button{font-size:12.5px;padding:9px 2px;overflow:hidden;text-overflow:ellipsis}.modesw button{position:relative}.msw-n{position:absolute;top:-4px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:#E8452C;color:#fff;font-style:normal;font-size:11px;line-height:18px;padding:0 5px}.mp-ai{font-size:22px;line-height:1.2}.mp-act b{font-size:13px;white-space:nowrap}.mp-act small{font-size:10.5px;color:var(--fg2);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .mp-act.on small{color:#05843D;font-weight:700}
 .mp-bdg{background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:14px}
 .mp-bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.mp-bh b{font-size:14px}.mp-more{border:0;background:none;color:var(--fg2);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px}
@@ -5104,7 +5110,7 @@ function renderSeller(force){
   const others=shopList().filter(u=>u!==uid).slice(0,4);
   const bg=V&&st.bg?.url?h('div',{class:'sf-bg',style:'--ov:'+(st.bgDim??0.35)}, sfMedia(st.bg,'sf-bgm')):null;
   const th=V?[st.font&&'sf-f-'+st.font,st.radius&&'sf-r-'+st.radius,st.mode&&'sf-m-'+st.mode,st.density&&'sf-d-'+st.density].filter(Boolean).join(' '):'';
-  box.replaceChildren(h('div',{class:'sf'+(bg?' has-bg':'')+(th?' '+th:''),style:accent?'--sa:'+accent:''}, bg, hero, prof, tabs, h('div',{class:'sf-body'}, ...content.filter(Boolean)),
+  box.replaceChildren(h('div',{class:'sf'+(bg?' has-bg':'')+(th?' '+th:''),style:accent?'--sa:'+accent:''}, bg, hero, prof, h('i',{class:'sf-tabs-a','aria-hidden':'true'}), tabs, h('div',{class:'sf-body'}, ...content.filter(Boolean)),
     others.length?h('div',{style:'margin-top:56px'}, h('div',{class:'shead'}, h('h3',{text:'其他人氣賣家'})), h('div',{class:'hotrow'}, ...others.map((u,i)=>hotCard(u,shopList().indexOf(u)+1)))):null));
 }
 
@@ -6541,7 +6547,12 @@ function renderMe(force){
       add(h('div',{class:'row',style:'justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px'}, h('span',{class:'hint',text:'最近看過 '+rv.length+' 株（只有你看得到）'}), h('button',{class:'btn soft sm',type:'button',onclick:clearRecent,text:'清除紀錄'})));
       groups.forEach(gp=>add(h('section',{class:'me-sec'}, h('div',{class:'me-sh'}, h('h3',{text:gp.k})), h('div',{class:'mini'}, ...gp.items.map(tile)))));
       if (rv.length>36&&!S.meRvAll) add(h('button',{class:'btn soft',type:'button',style:'display:block;margin:16px auto',onclick:()=>{ S.meRvAll=true; renderMe(true); },text:'看更早的紀錄'})); } }
-  else if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else add(h('div',{class:'list'}, ...ords.map(orderCard))); }
+  else if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else {
+    const needMe=o=>(o.status==='confirmed'&&o.payMethod==='transfer')||o.status==='shipped'||(o.status==='done'&&!mySocial().reviews?.[o.id]);
+    const F=[['act','進行中',o=>!['done','cancelled'].includes(o.status)],['me','要我處理',needMe],['done','已完成',o=>o.status==='done'],['all','全部',()=>true]];
+    if (!S.boF) S.boF=ords.some(needMe)?'me':ords.some(F[0][2])?'act':'all'; const cur=F.find(f=>f[0]===S.boF)||F[3], L=ords.filter(cur[2]);
+    add(h('div',{class:'bo-f'}, ...F.map(([k,l,fn])=>{ const n=ords.filter(fn).length; return h('button',{type:'button','aria-pressed':String(S.boF===k),class:k==='me'&&n?'hot':'',onclick:()=>{ S.boF=k; renderMe(true); }}, l, h('b',{text:String(n)})); })));
+    add(L.length?h('div',{class:'list'}, ...L.map(orderCard)):h('div',{class:'empty'}, h('h3',{text:S.boF==='me'?'沒有需要你處理的訂單 🎉':'這裡沒有訂單'}))); } }
   else if (T==='mine'){ if(!owned.length) empty('還沒有植物','交易完成或別人轉移給你的植株會出現在這裡，可以查看履歷或再轉移。'); else main.append(h('div',{class:'row',style:'justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap'}, h('span',{class:'hint',text:'這些植物也在你的「植物管理」裡，可以繼續記錄成長、排日常照顧。'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openPlants('reg'),text:'🌱 到植物管理'})), h('div',{class:'list'}, ...owned.map(p=>h('div',{class:'ocard'}, h('button',{type:'button',class:'oi',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:''}), h('span',{class:'mono',text:p.code+' · '+short(p.species)})), ownerTimeline(p), transferForm(p,()=>renderMe(true)))))); }
   else if (T==='offers'){ if(!offs.length) empty('還沒有議價','在植株頁按「議價／出價」可以向賣家提出價格。'); else add(h('div',{class:'list'}, ...offs.map(offerCard))); }
   else if (T==='favs'){ if(!favs.length) empty('還沒有收藏','在植株卡片右上角點愛心，就會收在這裡。',h('a',{class:'btn lime',href:'#/store',text:'逛商店'}));
@@ -6563,13 +6574,15 @@ function renderMe(force){
 const OSTEPS=[['pending','下單'],['confirmed','賣家確認'],['paid','付款'],['preparing','備貨'],['shipped','出貨'],['done','完成']];
 function stepBar(st){ const idx=OSTEPS.findIndex(x=>x[0]===st); return h('div',{class:'osteps'+(st==='cancelled'?' off':'')}, ...OSTEPS.map(([k,l],i)=>h('div',{class:i<idx?'done':i===idx?'on':''}, h('i'), h('span',{text:l})))); }
 async function updDeal(o,patch,msg){ try{ await S.db.doc('deals/'+o.shop+'_'+o.id).update(patch); if(msg) toast(msg); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }
-function bankCard(bk){ if(!bk) return h('p',{class:'hint',text:'賣家還沒提供匯款帳號，請透過聯絡方式詢問。'}); return h('div',{class:'bankc'}, h('b',{text:'匯款帳號'}), h('div',{class:'mono',text:[bk.bankName,bk.bankCode&&'('+bk.bankCode+')'].filter(Boolean).join(' ')}), h('div',{class:'mono big',text:bk.account||''}), h('div',{text:'戶名 '+(bk.holder||'')}), bk.note?h('p',{class:'hint',text:bk.note}):null, h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(bk.account||''),text:'複製帳號'})); }
+function bankCard(bk){ if(!bk) return h('p',{class:'hint',text:'賣家還沒提供匯款帳號，請透過聯絡方式詢問。'}); return h('div',{class:'bankc'}, h('b',{text:'匯款帳號'}), h('div',{class:'mono',text:[bk.bankName,bk.bankCode&&'('+bk.bankCode+')'].filter(Boolean).join(' ')}), h('div',{class:'row',style:'gap:8px;align-items:center'}, h('div',{class:'mono big',text:bk.account||''}), bk.account?h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(bk.account,e.currentTarget),text:'複製帳號'}):null), h('div',{text:'戶名 '+(bk.holder||'')}), bk.note?h('p',{class:'hint',text:bk.note}):null, h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(bk.account||''),text:'複製帳號'})); }
 function orderCard(o){
   const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), rv=mySocial().reviews?.[o.id], d=o.deal, st=o.status;
-  const c=h('div',{class:'ocard'},
+  const tr=o.payMethod==='transfer', NX={pending:['⏳','等賣家確認訂單','賣家確認後，這裡會出現匯款帳號。',0],confirmed:tr?['💳','下一步：匯款','照下面的帳號匯款，匯完填帳號後五碼。',1]:['🤝','跟賣家約付款方式','這筆選了其他付款方式，按「聊聊」跟賣家約。',1],paid:['🕐','等賣家對帳','賣家確認收到款項後就會開始備貨。',0],preparing:['📦','賣家備貨中','出貨後會通知你。',0],shipped:['🚚','下一步：收到後按「我已收到貨」','按下後植物的履歷會轉到你名下。',1],done:rv?['✅','交易完成','謝謝你的評價！',0]:['⭐','給賣家一個評價吧','你的評價會幫助其他買家。',1],cancelled:['✕','訂單未成立','',0]}[st]||['','','',0];
+  const c=h('div',{class:'ocard bord'+(NX[3]?' bo-act':'')+(st==='cancelled'?' off':'')},
+    NX[1]?h('div',{class:'bo-nx'}, h('i',{text:NX[0]}), h('div',{}, h('b',{text:NX[1]}), NX[2]?h('small',{text:NX[2]}):null)):null,
     h('div',{class:'row',style:'justify-content:space-between'}, shopChip(o.shop,true), h('div',{class:'row',style:'gap:8px'}, chatBtn(o.shop,{pid:o.items?.[0]},'soft sm'), h('span',{class:'tag '+(st==='cancelled'||st==='pending'?'grey':'lime'),text:OST[st]}))),
     st!=='cancelled'?stepBar(st):null,
-    h('div',{class:'oitems'}, ...items.map(p=>h('button',{type:'button',class:'oi',onclick:()=>openPlant(p.id)}, h('img',{src:p.thumb||'m/p1.jpg',alt:''}), h('span',{class:'mono',text:p.code+(o.qty?.[p.id]?' × '+o.qty[p.id]+' 株':'')})))),
+    h('div',{class:'oitems'}, ...items.map(p=>h('button',{type:'button',class:'oi pkable',onclick:()=>plantPeek(p)}, h('img',{src:p.thumb||'m/p1.jpg',alt:''}), h('span',{class:'mono',text:p.code+(o.qty?.[p.id]?' × '+o.qty[p.id]+' 株':'')})))),
     h('div',{class:'row',style:'justify-content:space-between'}, h('span',{class:'hint',text:fmtDate(tsLocal(o.at))+(o.src==='offer'?' · 議價成交':'')+(o.note?' · '+o.note:'')}), h('b',{text:money(o.total)})));
   if (st==='pending') c.append(h('div',{class:'row'}, h('span',{class:'hint',text:'等待賣家確認訂單。'}), S.social.get(S.me)?.orders?.[o.id]?h('button',{class:'bf-lk',type:'button',style:'margin-left:auto',onclick:()=>cancelOrder(o),text:'取消訂單'}):null));
   if (st==='confirmed'){
@@ -6786,7 +6799,7 @@ function route(){ updBack();
     if (pg==='raffle'){ renderRafflePage(); if(arg) openRaffle(arg); else if(dlg.open&&S.openR) dlg.close(); }
     const el=sec&&document.getElementById(sec);
     if (el) requestAnimationFrame(()=>el.scrollIntoView({behavior:changed||REDUCE?'auto':'smooth'}));
-    else if (pg==='seller'&&S.sfTabNav){ S.sfTabNav=false; requestAnimationFrame(()=>document.querySelector('.sf-tabs')?.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'start'})); }
+    else if (pg==='seller'&&S.sfTabNav){ S.sfTabNav=false; const jump=()=>{ const a=document.querySelector('.sf-tabs-a'); if(!a) return; const y=a.getBoundingClientRect().top+scrollY-(innerWidth>860?72:62); scrollTo({top:Math.max(0,y),behavior:'auto'}); }; /* 黏在上方的分頁列不能拿來 scrollIntoView（位置會亂跳），改用它前面的錨點算位置，切換後直接停在分頁列下方 */ requestAnimationFrame(()=>requestAnimationFrame(jump)); setTimeout(jump,250); }
     else if (changed&&!(pg==='raffle'&&arg)) scrollTo(0,0);
     $('#nav').classList.remove('hide'); window.__frame&&__frame();
   };
