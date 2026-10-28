@@ -105,7 +105,7 @@ exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
   for (const [oid, o] of Object.entries(after.orders || {})) {
     if ((before.orders || {})[oid] || !o.seller) continue;
     const n = (o.items || []).length, q = Object.values(o.qty || {}).reduce((a, b) => a + b, 0);
-    await push(o.seller, '📦 新訂單', me + ' 下單 ' + (q ? q + ' 株' : n + ' 件') + '，共 ' + nt(o.total) + '，請到訂單接受', '/#admin/orders', 'order-' + oid);
+    await push(o.seller, '📦 新訂單', me + ' 下單 ' + (q ? q + ' 株' : n + ' 件') + '，共 ' + nt(o.total) + '，請到訂單接受', '/#orders/orders', 'order-' + oid);
   }
   // 新出價 → 賣家；被超標 → 原本最高的人
   for (const [pid, bid] of Object.entries(after.bids || {})) {
@@ -121,7 +121,7 @@ exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
   }
   // 新提問 → 賣家
   const oldQ = new Set((before.qa || []).map(q => q.id));
-  for (const q of after.qa || []) { if (oldQ.has(q.id)) continue; const p = await findPlant(q.pid, q.shop); if (p) await push(p.shop, '💬 有人提問', me + '：「' + String(q.text || '').slice(0, 60) + '」（' + p.code + '）', '/#admin/qa', 'qa-' + q.id); }
+  for (const q of after.qa || []) { if (oldQ.has(q.id)) continue; const p = await findPlant(q.pid, q.shop); if (p) await push(p.shop, '💬 有人提問', me + '：「' + String(q.text || '').slice(0, 60) + '」（' + p.code + '）', '/#orders/qa', 'qa-' + q.id); }
 });
 // 訂單狀態 → 買家
 exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
@@ -130,7 +130,7 @@ exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
   const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
   const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
   if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', auc ? 'won-' + String(ev.params.oid).slice(4) : 'ord-' + ev.params.oid);
-  if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#admin/orders', 'paid-' + ev.params.oid);
+  if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#orders/orders', 'paid-' + ev.params.oid);
 });
 // 開獎 → 中獎者、賣家
 exports.pushRaffle = onDocumentUpdated('shops/{shop}/raffles/{rid}', async ev => {
@@ -180,7 +180,7 @@ exports.pushAuctionEnd = onSchedule({ schedule: 'every 5 minutes', timeZone: 'As
           made = true; logger.info('auction order created', { pid: d.id, winner: win.uid, amt: win.amt }); } } catch (e) { logger.error('auction order failed', d.id, String(e)); } }
       const mk = db.doc('sysnotes/auc-' + d.id + '-' + p.endsAtMs); if ((await mk.get()).exists) continue;
       if (win) { await push(win.uid, '🏆 恭喜得標！', pLabel(p) + ' 以 ' + nt(win.amt) + ' 得標，訂單已成立，到訂單頁看匯款資訊', '/#/me/orders', 'won-' + d.id);
-        await push(p.shop, '🔨 競標結束，訂單已自動成立', pLabel(p) + ' 由 ' + (await displayName(win.uid)) + ' 以 ' + nt(win.amt) + ' 得標', '/#admin/orders', 'end-' + d.id); }
+        await push(p.shop, '🔨 競標結束，訂單已自動成立', pLabel(p) + ' 由 ' + (await displayName(win.uid)) + ' 以 ' + nt(win.amt) + ' 得標', '/#orders/orders', 'end-' + d.id); }
       else await push(p.shop, '🔨 競標結束（沒人出價）', pLabel(p) + ' 可以改成直購或重新競標', '/#admin/auc', 'end-' + d.id);
       await mk.set({ at: now, pid: d.id, shop: sd.id });
     }
@@ -225,6 +225,27 @@ exports.pushSpotlight = onSchedule({ schedule: 'every 10 minutes', timeZone: 'As
     const title = st.step === 0 ? '🏆 ' + (e.name || '競標活動') + ' 開始了' : st.step >= 9 ? '🔥 ' + (e.name || '競標活動') + ' 最後衝刺' : '⏳ ' + (e.name || '競標活動') + ' 已過 ' + st.step * 10 + '%';
     const body = (e.sub ? e.sub + '｜' : '') + liveN + ' 株競標中' + (isFinite(next) ? '，最快 ' + leftTxt(next - now) + ' 後結標' : '');
     const n = await broadcast(title, body, '/#/store/auction', 'spotev-' + id); await st.done(); logger.info('event push', { id, step: st.step, sent: n });
+  }
+});
+
+// ===== 訂單沒人處理就一直提醒賣家：新訂單 2、6、12、24 小時；買家已匯款 6、24 小時（只在 08:00–23:00） =====
+const awakeOrd = t => { const h = twHour(t); return h >= 8 && h < 23; };
+exports.pushOrderNag = onSchedule({ schedule: 'every 30 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now(); if (!awakeOrd(now)) return;
+  const steps = { pending: [2, 6, 12, 24], paid: [6, 24] };
+  for (const sd of await db.collection('social').get().then(s => s.docs)) {
+    for (const [oid, o] of Object.entries(sd.data().orders || {})) {
+      if (!o || !o.seller || !o.at || now - o.at > 3 * 864e5) continue;
+      let st = 'pending', base = o.at;
+      try { const so = await db.doc(`shops/${o.seller}/orders/${oid}`).get(); if (so.exists) { st = so.data().status; base = so.data().paidAt || so.data().updatedAt || o.at; } } catch (e) { continue; }
+      if (o.status === 'cancelled' || !steps[st]) continue;
+      const hrs = (now - base) / 36e5, lv = steps[st].filter(x => hrs >= x).pop(); if (!lv) continue;
+      const mk = db.doc(`sysnotes/nag-${oid}-${st}-${lv}`); if ((await mk.get()).exists) continue;
+      const who = await displayName(sd.id);
+      if (st === 'pending') await push(o.seller, '⏰ 訂單等你確認 ' + lv + ' 小時了', who + ' 下單 ' + nt(o.total) + '，買家在等你回覆，點這裡確認', '/#orders/orders', 'order-' + oid);
+      else await push(o.seller, '💳 買家已匯款 ' + lv + ' 小時，還沒對帳', who + ' 的訂單 ' + nt(o.total) + '，對帳後按「確認收款」', '/#orders/orders', 'paid-' + oid);
+      await mk.set({ at: now }); logger.info('order nag', { oid, st, lv });
+    }
   }
 });
 
