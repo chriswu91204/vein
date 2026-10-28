@@ -3522,7 +3522,7 @@ button.pm-pv i{font-style:normal;font-size:12px;color:var(--fg3,#9A9F96);opacity
 .mp-hm{min-width:0;display:flex;flex-direction:column;gap:6px}.mp-nm{font-size:21px;line-height:1.2;word-break:break-word}
 .mp-tags{display:flex;gap:6px;flex-wrap:wrap}.mp-tag{border:0;font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;padding:6px 10px;border-radius:999px;background:#EEF0EA;color:var(--fg2);white-space:nowrap}
 button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag.warn{background:#FFF1D6;color:#8A5A00}
-.mp-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:8px;margin-bottom:14px}
+.mp-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .mp-act{border:0;background:#fff;border-radius:16px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.04);min-width:0}
 .mp-act:active{transform:scale(.97)}.mp-act.hot{background:#E8452C;color:#fff;animation:odPing 1.6s infinite}.mp-act.hot small{color:rgba(255,255,255,.85)}
 .modesw.m3{grid-template-columns:repeat(3,minmax(0,1fr))}.modesw.m3 button{font-size:12.5px;padding:9px 2px;overflow:hidden;text-overflow:ellipsis}.modesw button{position:relative}.modesw.m3 button{display:inline-flex;align-items:center;justify-content:center;gap:4px}.msw-n{position:static;flex:none;min-width:18px;height:18px;border-radius:999px;background:#E8452C;color:#fff;font-style:normal;font-size:11px;line-height:18px;padding:0 5px;text-align:center}.mp-ai{font-size:22px;line-height:1.2}.mp-act b{font-size:13px;white-space:nowrap}.mp-act small{font-size:10.5px;color:var(--fg2);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -6525,6 +6525,7 @@ function renderMe(force){
   const atile=(ic,t,sub,fn,cls)=>h('button',{type:'button',class:'mp-act'+(cls?' '+cls:''),onclick:fn}, h('span',{class:'mp-ai',text:ic}), h('b',{text:t}), h('small',{text:sub}));
   const acts=h('div',{class:'mp-acts'},
     atile('🌱','植物管理',myPlants().length?myPlants().length+' 株':'建立履歷',()=>openPlants()),
+    myPlants().length?(()=>{ const n=careDueN(); return atile('💧','日常管理',n?n+' 項該做了':'澆水・施肥・噴藥',()=>openPlants('care'),n?'hot':''); })():null,
     hasShop()?(()=>{ const n=ordTodo(); return atile('📦','訂單管理',n?n+' 件要處理':'訂單・出貨・議價',()=>openOrders(),n?'hot':''); })():null,
     isSeller()?atile('🏪',S.admin&&!hasShop()?'管理後台':'商店管理','上架與商品',()=>openAdmin()):atile('🏪','開賣場','免費申請',()=>openApply()),
     atile('🔔','手機通知',pushOn?'已開啟':'未開啟',()=>enablePush(),pushOn?'on':''),
@@ -8415,10 +8416,11 @@ function renderAdmNav(){
   const offN=offersIn().filter(o=>o.status==='open').length, payN=sellerOrders(S.me).filter(o=>o.status==='paid').length;
   const G=[], PM=S.admMode==='plant', OM=S.admMode==='order';
   if (OM) G.push({k:'order',t:'訂單管理',ic:'📦',items:[['orders','訂單與出貨',pendO+payN+sellerOrders(S.me).filter(o=>o.status==='preparing').length],['offers','議價',offN],['qa','顧客提問',pendingQ]]});
-  else if (PM) G.push({k:'plant',t:'我的植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['care','日常管理',careDueN()],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]});
+  else if (PM&&S.admTab==='care') G.push({k:'care',t:'日常管理',ic:'💧',items:[['care','日常管理',careDueN()]]});
+  else if (PM) G.push({k:'plant',t:'我的植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]});
   else if (hasShop()) G.push(
     {k:'home',items:[['home','總覽']]},
-    {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['care','日常管理',careDueN()],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
+    {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
     {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['raffle','抽獎',rOpen]]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
@@ -8839,7 +8841,7 @@ function admReg(m){
       ['📗','下載 Excel 標籤','給標籤機用',()=>downloadXLSX(P())],
       ['📄','下載 CSV','',()=>downloadCSV(P())],
       '整理',
-      ['📍','移到區域…',S.care.zones.length?'日常管理的分區':'還沒有區域，先去建立',()=>{ if(!S.care.zones.length){ S.admTab='care'; renderAdmin(true); return; } rgSheet('移到哪個區域？',sel.size+' 株',[...S.care.zones.map(z=>[z.icon||'📍',z.name,'',()=>{ [...sel].forEach(id=>{ S.care.pz[id]=z.id; }); careSave(true); toast('已把 '+sel.size+' 株加到「'+z.name+'」'); doneSel(); }]),['↩️','移出區域','',()=>{ [...sel].forEach(id=>delete S.care.pz[id]); careSave(true); toast('已移出區域'); doneSel(); }]]); }],
+      ['📍','移到區域…',S.care.zones.length?'日常管理的分區':'還沒有區域，先去建立',()=>{ if(!S.care.zones.length){ openPlants('care'); return; } rgSheet('移到哪個區域？',sel.size+' 株',[...S.care.zones.map(z=>[z.icon||'📍',z.name,'',()=>{ [...sel].forEach(id=>{ S.care.pz[id]=z.id; }); careSave(true); toast('已把 '+sel.size+' 株加到「'+z.name+'」'); doneSel(); }]),['↩️','移出區域','',()=>{ [...sel].forEach(id=>delete S.care.pz[id]); careSave(true); toast('已移出區域'); doneSel(); }]]); }],
       ['🗂','疊在一起','在分層裡疊成一疊',async()=>{ const ps=P(); if(ps.length<2){ toast('至少選 2 株才能疊在一起'); return; } const sid=ps.sort(codeSort)[0].id; let n=0; for(const p of ps){ try{ await S.db.doc(pPath(p)).update({stack:sid}); p.stack=sid; n++; }catch(x){} } toast('已把 '+n+' 株疊在一起'); doneSel(); }],
       ['📤','從疊裡拿出來','',async()=>{ let n=0; for(const p of P()){ try{ await S.db.doc(pPath(p)).update({stack:'x:'+p.id}); p.stack='x:'+p.id; n++; }catch(x){} } toast('已把 '+n+' 株從疊裡拿出來'); doneSel(); }],
       ['🔁','改類型…','實生苗／側芽／母株',()=>rgSheet('改成哪一種？',sel.size+' 株',[['seedling','🌾','實生苗'],['pup','🌱','側芽'],['mother','🪴','母株']].map(([k,ic,l])=>[ic,l,'',async()=>{ const r=await setKinds(P(),k); toast('已把 '+r.n+' 株改成「'+KIND[k]+'」'+(r.skip?'（'+r.skip+' 株略過：已轉手鎖定，或改側芽但沒有母株）':'')); doneSel(); }]))],
@@ -10584,7 +10586,7 @@ function admEditor(m, id){
     h('button',{class:'bf-lk',type:'button',onclick:()=>admBack(()=>{ S.admEdit=null; renderAdmin(true); })}, NAV.idx()>0?'← 上一頁':S.admTab==='reg'?'← 植物管理':'← 商品管理'),
     h('div',{class:'pe-hm'}, h('div',{class:'pe-iw'}, h('button',{type:'button',class:'pe-img',onclick:()=>{ const M=(p.media||[]).filter(x=>x?.url); lightbox(M.length?M:[{type:'image',url:cover(p)}],0); }}, h('img',{src:cover(p),alt:''})), h('button',{type:'button',class:'pe-cvb',onclick:()=>{ setTab('rec'); requestAnimationFrame(()=>document.querySelector('.cvp')?.scrollIntoView({behavior:'smooth',block:'start'})); },text:'換封面'})),
       h('div',{class:'pe-ht'}, h('div',{class:'mono pe-code',text:p.code}), h('h2',{class:'pe-name'+(nm.length>24?' long':''),text:nm||'未命名'}), memoOf(p)?h('p',{class:'pe-memo',text:memoOf(p)}):null,
-        h('div',{class:'pe-chips'}, inbound?h('span',{class:'tag zone',style:'--zc:#2E7D5B',text:'🔄 轉入 · 原賣場 '+shopName(p.shop)}):null, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null, careZoneOf(p.id)?h('button',{type:'button',class:'tag zone',style:'--zc:'+careZoneOf(p.id).color,onclick:()=>{ S.admTab='care'; S.admEdit=null; renderAdmin(true); },text:'📍 '+careZoneOf(p.id).name}):null, p.hidden?h('span',{class:'tag',text:'不在商店展示'}):null, isLocked(p)?h('span',{class:'tag',text:'已轉手・血統鎖定'}):null))),
+        h('div',{class:'pe-chips'}, inbound?h('span',{class:'tag zone',style:'--zc:#2E7D5B',text:'🔄 轉入 · 原賣場 '+shopName(p.shop)}):null, h('span',{class:'tag '+kindTag(p),text:kindLabel(p)}), saleChip(p), p.private?h('span',{class:'tag priv',text:'🔒 私人'}):null, careZoneOf(p.id)?h('button',{type:'button',class:'tag zone',style:'--zc:'+careZoneOf(p.id).color,onclick:()=>{ openPlants('care'); },text:'📍 '+careZoneOf(p.id).name}):null, p.hidden?h('span',{class:'tag',text:'不在商店展示'}):null, isLocked(p)?h('span',{class:'tag',text:'已轉手・血統鎖定'}):null))),
     h('div',{class:'pe-acts'},
       h('div',{class:'pe-ag'}, h('small',{text:'查看'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ adm.close(); openPlant(p.id); },text:'🌐 前台商品頁'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openHistory(p.id),text:'📜 履歷頁'})),
       h('div',{class:'pe-ag'}, h('small',{text:'分享'}), h('button',{class:'btn lime sm',type:'button',onclick:()=>shareAny(p),text:'↗ 轉發／分享圖'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(plantUrl(p)),text:'🔗 複製連結'})),
