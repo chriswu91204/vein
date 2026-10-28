@@ -213,6 +213,31 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // 現場轉讓請求：買家（碰 NFC 或掃面對面 QR）送出，目前主人 5 分鐘內確認或婉拒；買家可以取消
+    match /xreq/{id} {
+      function ownNow(shop, p) { return exists(ownDoc(p)) ? get(ownDoc(p)).data.current : shop; }
+      allow read: if signedIn() && (resource.data.owner == request.auth.uid || resource.data.from == request.auth.uid);
+      allow create: if signedIn() && notBanned()
+        && request.resource.data.from == request.auth.uid && request.resource.data.status == 'open'
+        && request.resource.data.owner != request.auth.uid
+        && exists(/databases/$(database)/documents/shops/$(request.resource.data.shop)/plants/$(request.resource.data.pid))
+        && ownNow(request.resource.data.shop, request.resource.data.pid) == request.resource.data.owner
+        && request.resource.data.exp <= request.time.toMillis() + 6 * 60000;
+      allow update: if signedIn() && resource.data.status == 'open'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'doneAt'])
+        && ((request.auth.uid == resource.data.owner && request.resource.data.status in ['done', 'rejected'])
+          || (request.auth.uid == resource.data.from && request.resource.data.status == 'cancelled'));
+      allow delete: if isAdmin();
+    }
+    // 面對面轉移的 QR 代碼（5 分鐘有效）
+    match /xqr/{tok} {
+      allow get: if true;
+      allow create: if signedIn() && notBanned() && tok.size() >= 16
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.exp <= request.time.toMillis() + 6 * 60000;
+      allow delete: if signedIn() && resource.data.owner == request.auth.uid;
+    }
+
     // 所有權履歷：任何人可讀；目前所有者可以轉移；買家憑已出貨／完成的訂單、或憑轉移連結取得所有權
     match /owners/{pid} {
       function xf() { return get(/databases/$(database)/documents/xfers/$(request.resource.data.xfer)).data; }

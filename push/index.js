@@ -249,6 +249,12 @@ exports.pushOrderNag = onSchedule({ schedule: 'every 30 minutes', timeZone: 'Asi
   }
 });
 
+// 現場轉讓請求 → 目前主人（5 分鐘內要確認）
+exports.pushXreq = onDocumentCreated('xreq/{id}', async ev => {
+  const x = ev.data?.data(); if (!x || !x.owner || x.status !== 'open') return;
+  await push(x.owner, '🤝 ' + (await displayName(x.from)) + ' 請求轉讓 ' + (x.code || ''), (x.via === 'nfc' ? '對方在現場碰了 NFC，' : '對方掃了你的轉移 QR，') + '請在 5 分鐘內打開 VEIN 確認轉移', '/#/plant/' + x.pid, 'xreq-' + ev.params.id);
+});
+
 // 費用保護：Google Cloud 預算通知（Pub/Sub 主題 billing-alerts）→ 記錄目前花費；超過預算且「自動緊急模式」開著 → 開啟網站緊急模式
 exports.budgetGuard = onMessagePublished({ topic: 'billing-alerts', maxInstances: 1 }, async (ev) => {
   const d = ev.data?.message?.json || {};
