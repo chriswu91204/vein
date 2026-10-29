@@ -229,6 +229,14 @@ service cloud.firestore {
           || (request.auth.uid == resource.data.from && request.resource.data.status == 'cancelled'));
       allow delete: if isAdmin();
     }
+    // 賣家代碼登記簿：一個代碼只能屬於一個賣場，先登記的人才能用
+    match /codes/{code} {
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && code.matches('^[A-Z0-9]{2,4}$')
+        && request.resource.data.uid == request.auth.uid
+        && exists(/databases/$(database)/documents/shops/$(request.auth.uid));
+      allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
     // 面對面轉移的 QR 代碼（5 分鐘有效）
     match /xqr/{tok} {
       allow get: if true;
