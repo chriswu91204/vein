@@ -187,6 +187,21 @@ service cloud.firestore {
       }
     }
     // 交易私密資料（匯款帳號、匯款後五碼、物流、收貨）：只有該筆訂單的買賣雙方看得到
+    // 訂單留言（買賣雙方、有訂單權限的小編）
+    match /ordmsg/{shop}/o/{oid}/m/{mid} {
+      function ordDoc() { return /databases/$(database)/documents/shops/$(shop)/orders/$(oid); }
+      function socDoc() { return /databases/$(database)/documents/social/$(request.auth.uid); }
+      function ordParty() {
+        return signedIn() && (request.auth.uid == shop || staff(shop, 'orders')
+          || (exists(socDoc()) && get(socDoc()).data.get('orders', {}).get(oid, {}).get('seller', '') == shop)
+          || (exists(ordDoc()) && get(ordDoc()).data.get('buyer', '') == request.auth.uid));
+      }
+      allow read: if ordParty();
+      allow create: if ordParty() && notBanned() && request.resource.data.from == request.auth.uid
+        && request.resource.data.size() <= 8
+        && (!('text' in request.resource.data) || (request.resource.data.text is string && request.resource.data.text.size() <= 1000))
+        && (!('img' in request.resource.data) || (request.resource.data.img is string && request.resource.data.img.size() <= 600));
+    }
     match /deals/{id} {
       allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid || staff(resource.data.seller, 'orders'));
       allow create: if signedIn() && ((request.resource.data.seller == request.auth.uid && id.matches(request.auth.uid + '_.*'))

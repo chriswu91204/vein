@@ -132,6 +132,19 @@ exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
   if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', auc ? 'won-' + String(ev.params.oid).slice(4) : 'ord-' + ev.params.oid);
   if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#orders/orders', 'paid-' + ev.params.oid);
 });
+// 訂單留言 → 推給另一方
+exports.pushOrdMsg = onDocumentCreated('ordmsg/{shop}/o/{oid}/m/{mid}', async ev => {
+  const m = ev.data?.data(); if (!m || !m.from) return;
+  const { shop, oid } = ev.params, fromSeller = m.side === 's' || m.from === shop;
+  let buyer = null;
+  try { const so = await db.doc('shops/' + shop + '/orders/' + oid).get(); if (so.exists) buyer = so.data().buyer || null; } catch (e) {}
+  if (!buyer && m.to && m.to !== shop) { try { const sd = await db.doc('social/' + m.to).get(); if (sd.exists && (((sd.data().orders || {})[oid]) || {}).seller === shop) buyer = m.to; } catch (e) {} }
+  if (!buyer && !fromSeller) buyer = m.from;
+  const to = fromSeller ? buyer : shop; if (!to || to === m.from) return;
+  const body = (m.text ? String(m.text) : '') || (m.img ? '📷 傳了一張照片' : '新留言');
+  const link = to === shop ? '/#orders/orders/' + encodeURIComponent(shop + '~' + oid) : '/#/me/orders/' + encodeURIComponent(shop + '~' + oid);
+  await push(to, '📝 訂單留言 · ' + await displayName(fromSeller ? shop : m.from), body.slice(0, 120), link, 'om-' + oid);
+});
 // 開獎 → 中獎者、賣家
 exports.pushRaffle = onDocumentUpdated('shops/{shop}/raffles/{rid}', async ev => {
   const b = ev.data.before.data(), a = ev.data.after.data(); if (b.drawn || !a.drawn) return;

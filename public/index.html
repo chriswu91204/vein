@@ -3540,6 +3540,40 @@ button.pm-pv i{font-style:normal;font-size:12px;color:var(--fg3,#9A9F96);opacity
 .mp-hm{min-width:0;display:flex;flex-direction:column;gap:6px}.mp-nm{font-size:21px;line-height:1.2;word-break:break-word}
 .mp-tags{display:flex;gap:6px;flex-wrap:wrap}.mp-tag{border:0;font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;padding:6px 10px;border-radius:999px;background:#EEF0EA;color:var(--fg2);white-space:nowrap}
 button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag.warn{background:#FFF1D6;color:#8A5A00}
+.osl{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--fg2);margin-top:2px}.osl small{font-size:11.5px}
+.oopen{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--fg);font:600 14px/1.2 var(--f);cursor:pointer}.oopen:hover{background:color-mix(in srgb,var(--leaf) 8%,var(--paper))}.oopen b{color:var(--leaf)}
+.shpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.shp{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);text-align:left;cursor:pointer;font:inherit;min-width:0}
+.shp i{font-style:normal;font-size:20px;flex:none}.shp span{display:flex;flex-direction:column;min-width:0;flex:1}.shp b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shp small{font-size:11.5px;color:var(--fg2)}.shp em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--fg2);white-space:nowrap}
+.shp.on{border-color:var(--leaf);background:color-mix(in srgb,var(--leaf) 9%,var(--surface));box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 14%,transparent)}.shp.on em{color:var(--leaf)}
+.od2-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,11,.45);backdrop-filter:blur(4px);display:flex;justify-content:center;align-items:stretch;padding:16px}
+.od2{width:min(760px,100%);background:var(--paper);color:var(--fg);border-radius:24px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.5);--fg:#111312;--fg2:#6B6E6C;--surface:#fff;--line:rgba(0,0,0,.08)}
+.od2-h{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.od2-x{width:40px;height:40px;border-radius:50%;border:0;background:var(--paper);display:grid;place-content:center;cursor:pointer;color:var(--fg);flex:none}
+.od2-t{display:flex;flex-direction:column;min-width:0}.od2-t small{font-size:11px;color:var(--fg2);font-weight:700;letter-spacing:.06em}.od2-t b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.od2-b{flex:1;overflow:auto;padding:14px 16px 0;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+.od2-info{display:flex;flex-direction:column;gap:12px}.od2-info>.ocard,.od2-info>.panel{margin:0}
+.od2-s{background:var(--surface);border-radius:18px;padding:14px 16px;border:1px solid var(--line)}.od2-s h4{margin:0 0 8px;font-size:15px}
+.od2-fee{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--fg2)}.od2-fee input{width:100px;height:36px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font:14px var(--f);background:var(--paper);color:var(--fg)}
+.od2-cur{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.od2-cur span{font-weight:700;font-size:15px}.od2-cur small{color:var(--fg2);font-size:12.5px}
+.od2-recv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}.od2-recv small{display:block;font-size:11.5px;color:var(--fg2)}.od2-recv b{font-size:14.5px;word-break:break-all}
+.od2-sum>div{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:var(--fg2)}.od2-sum>div b{color:var(--fg)}.od2-sum .t{border-top:1px solid var(--line);margin-top:4px;padding-top:9px;color:var(--fg)}.od2-sum .t b{font-size:20px}
+.od2-chat{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:0}
+.od2-msgs{display:flex;flex-direction:column;gap:8px;max-height:min(46vh,420px);overflow:auto;padding:4px 2px 8px}
+.om{max-width:82%;align-self:flex-start;background:var(--paper);border-radius:16px 16px 16px 4px;padding:8px 12px}.om.me{align-self:flex-end;background:color-mix(in srgb,var(--leaf) 12%,var(--surface));border-radius:16px 16px 4px 16px}
+.om-h{display:flex;gap:8px;align-items:baseline}.om-h b{font-size:12px}.om-h small{font-size:11px;color:var(--fg2)}.om p{margin:3px 0 0;font-size:14.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.om-img{display:block;margin-top:6px}.om-img img{display:block;max-width:220px;max-height:260px;width:auto;border-radius:12px;object-fit:cover}
+.om-empty{text-align:center;padding:14px 6px}
+.od2-comp{position:sticky;bottom:0;z-index:2;display:flex;align-items:flex-end;gap:8px;margin:0 -16px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--surface)}
+.od2-comp textarea{flex:1;min-width:0;resize:none;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font:15px/1.4 var(--f);background:var(--paper);color:var(--fg);min-height:42px}
+.od2-ph{width:42px;height:42px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--paper);font-size:18px;cursor:pointer}
+.she-l{display:flex;flex-direction:column;gap:8px}.she-r{display:grid;grid-template-columns:28px minmax(0,1fr) 108px 110px 34px;gap:8px;align-items:center}
+.she-r input,.she-r select{min-width:0;height:40px;border:1px solid var(--line);border-radius:12px;padding:0 10px;background:var(--surface);color:var(--fg);font:14px var(--f)}.she-i{font-size:18px;text-align:center}.she-f{display:flex;align-items:center;gap:4px;margin:0}.she-f small{color:var(--fg2);font-size:11.5px;white-space:nowrap}.she-f input{width:100%}
+.she-x{width:34px;height:34px;border-radius:50%;border:0;background:var(--surface);cursor:pointer;color:var(--fg2)}
+.she-p{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}.she-p small{color:var(--fg2)}
+@media (max-width:640px){.od2-ov{padding:0}.od2{border-radius:0;width:100%}.od2-b{padding:12px 12px 0}.shpick{grid-template-columns:1fr}
+  .she-r{grid-template-columns:24px minmax(0,1fr) 34px;grid-template-areas:"i n x" ". k f"}.she-r>.she-i{grid-area:i}.she-r>input{grid-area:n}.she-r>select{grid-area:k}.she-r>.she-f{grid-area:f}.she-r>.she-x{grid-area:x}
+  .she-r{grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 34px;grid-template-areas:"i n n x" ". k f ."}}
 .mp-tag.shop{text-decoration:none;color:var(--leaf);font-weight:700}
 .myshop{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:12px;border-radius:18px;text-decoration:none;color:var(--fg);background:linear-gradient(120deg,color-mix(in srgb,var(--leaf) 14%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--leaf) 30%,transparent);transition:transform .2s}
 .myshop:hover{transform:translateY(-1px)}.myshop .av{border-radius:50%;flex:none}
@@ -6605,7 +6639,7 @@ function renderMe(force){
       groups.forEach(gp=>add(h('section',{class:'me-sec'}, h('div',{class:'me-sh'}, h('h3',{text:gp.k})), h('div',{class:'mini'}, ...gp.items.map(tile)))));
       if (rv.length>36&&!S.meRvAll) add(h('button',{class:'btn soft',type:'button',style:'display:block;margin:16px auto',onclick:()=>{ S.meRvAll=true; renderMe(true); },text:'看更早的紀錄'})); } }
   else if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else {
-    const needMe=o=>(o.status==='confirmed'&&o.payMethod==='transfer')||o.status==='shipped'||(o.status==='done'&&!mySocial().reviews?.[o.id]);
+    const needMe=o=>(o.status==='confirmed'&&o.payMethod==='transfer')||(o.status==='confirmed'&&ordNeedRecv(o))||o.status==='shipped'||(o.status==='done'&&!mySocial().reviews?.[o.id]);
     const F=[['act','進行中',o=>!['done','cancelled'].includes(o.status)],['me','要我處理',needMe],['done','已完成',o=>o.status==='done'],['all','全部',()=>true]];
     if (!S.boF) S.boF=ords.some(needMe)?'me':ords.some(F[0][2])?'act':'all'; const cur=F.find(f=>f[0]===S.boF)||F[3], L=ords.filter(cur[2]);
     add(h('div',{class:'bo-f'}, ...F.map(([k,l,fn])=>{ const n=ords.filter(fn).length; return h('button',{type:'button','aria-pressed':String(S.boF===k),class:k==='me'&&n?'hot':'',onclick:()=>{ S.boF=k; renderMe(true); }}, l, h('b',{text:String(n)})); })));
@@ -6632,7 +6666,7 @@ const OSTEPS=[['pending','下單'],['confirmed','賣家確認'],['paid','付款'
 function stepBar(st){ const idx=OSTEPS.findIndex(x=>x[0]===st); return h('div',{class:'osteps'+(st==='cancelled'?' off':'')}, ...OSTEPS.map(([k,l],i)=>h('div',{class:i<idx?'done':i===idx?'on':''}, h('i'), h('span',{text:l})))); }
 async function updDeal(o,patch,msg){ try{ await S.db.doc('deals/'+o.shop+'_'+o.id).update(patch); if(msg) toast(msg); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }
 function bankCard(bk){ if(!bk) return h('p',{class:'hint',text:'賣家還沒提供匯款帳號，請透過聯絡方式詢問。'}); return h('div',{class:'bankc'}, h('b',{text:'匯款帳號'}), h('div',{class:'mono',text:[bk.bankName,bk.bankCode&&'('+bk.bankCode+')'].filter(Boolean).join(' ')}), h('div',{class:'row',style:'gap:8px;align-items:center'}, h('div',{class:'mono big',text:bk.account||''}), bk.account?h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(bk.account,e.currentTarget),text:'複製帳號'}):null), h('div',{text:'戶名 '+(bk.holder||'')}), bk.note?h('p',{class:'hint',text:bk.note}):null, h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(bk.account||''),text:'複製帳號'})); }
-function orderCard(o){
+function orderCard(o,inD){
   const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), rv=mySocial().reviews?.[o.id], d=o.deal, st=o.status;
   const tr=o.payMethod==='transfer', NX={pending:['⏳','等賣家確認訂單','賣家確認後，這裡會出現匯款帳號。',0],confirmed:tr?['💳','下一步：匯款','照下面的帳號匯款，匯完填帳號後五碼。',1]:['🤝','跟賣家約付款方式','這筆選了其他付款方式，按「聊聊」跟賣家約。',1],paid:['🕐','等賣家對帳','賣家確認收到款項後就會開始備貨。',0],preparing:['📦','賣家備貨中','出貨後會通知你。',0],shipped:['🚚','下一步：收到後按「我已收到貨」','按下後植物的履歷會轉到你名下。',1],done:rv?['✅','交易完成','謝謝你的評價！',0]:['⭐','給賣家一個評價吧','你的評價會幫助其他買家。',1],cancelled:['✕','訂單未成立','',0]}[st]||['','','',0];
   const c=h('div',{class:'ocard bord'+(NX[3]?' bo-act':'')+(st==='cancelled'?' off':'')},
@@ -6640,11 +6674,11 @@ function orderCard(o){
     h('div',{class:'row',style:'justify-content:space-between'}, shopChip(o.shop,true), h('div',{class:'row',style:'gap:8px'}, chatBtn(o.shop,{pid:o.items?.[0]},'soft sm'), h('span',{class:'tag '+(st==='cancelled'||st==='pending'?'grey':'lime'),text:OST[st]}))),
     st!=='cancelled'?stepBar(st):null,
     h('div',{class:'oitems'}, ...items.map(p=>h('button',{type:'button',class:'oi pkable',onclick:()=>plantPeek(p)}, h('img',{src:cover(p),alt:''}), h('span',{class:'mono',text:p.code+(o.qty?.[p.id]?' × '+o.qty[p.id]+' 株':'')})))),
-    h('div',{class:'row',style:'justify-content:space-between'}, h('span',{class:'hint',text:fmtDate(tsLocal(o.at))+(o.src==='offer'?' · 議價成交':'')+(o.note?' · '+o.note:'')}), h('b',{text:money(o.total)})));
+    h('div',{class:'row',style:'justify-content:space-between'}, h('span',{class:'hint',text:fmtDate(tsLocal(o.at))+(o.src==='offer'?' · 議價成交':'')+(o.note?' · '+o.note:'')}), h('b',{text:money(ordGrand(o))})), ordShipLine(o));
   if (st==='pending') c.append(h('div',{class:'row'}, h('span',{class:'hint',text:'等待賣家確認訂單。'}), S.social.get(S.me)?.orders?.[o.id]?h('button',{class:'bf-lk',type:'button',style:'margin-left:auto',onclick:()=>cancelOrder(o),text:'取消訂單'}):null));
   if (st==='confirmed'){
     if (o.payMethod==='transfer'){ if(!d) c.append(h('p',{class:'hint',text:'賣家已確認，匯款資訊載入中…'}));
-      else { const last5=h('input',{maxlength:5,inputmode:'numeric',placeholder:'帳號後五碼',required:true}), amt=h('input',{type:'number',min:0,value:o.total||'',required:true}), when=h('input',{type:'datetime-local',value:tsLocal(Date.now()).slice(0,16)}), note=h('input',{maxlength:200,placeholder:'留言給賣家（選填，例如：已用網銀轉帳）'});
+      else { const last5=h('input',{maxlength:5,inputmode:'numeric',placeholder:'帳號後五碼',required:true}), amt=h('input',{type:'number',min:0,value:ordGrand(o)||'',required:true}), when=h('input',{type:'datetime-local',value:tsLocal(Date.now()).slice(0,16)}), note=h('input',{maxlength:200,placeholder:'留言給賣家（選填，例如：已用網銀轉帳）'});
         c.append(h('div',{class:'paybox'}, bankCard(d.bank), h('form',{class:'form',style:'gap:8px',onsubmit:async e=>{ e.preventDefault(); if(!/^\d{3,5}$/.test(last5.value.trim())){ toast('請填帳號後五碼'); return; } await updDeal(o,{pay:{method:'transfer',last5:last5.value.trim(),amount:Number(amt.value)||0,time:when.value,note:note.value.trim(),at:Date.now()}},'已送出匯款資訊'); }},
           h('b',{text:'匯款後填寫匯款資訊'}), h('div',{class:'two'}, field('帳號後五碼',last5), field('匯款金額',amt)), field('匯款時間',when), field('留言',note), h('button',{class:'btn pri',type:'submit',text:'送出匯款資訊'})))); } }
     else c.append(h('p',{class:'hint',text:'付款方式：其他（面交、貨到付款等），請與賣家聯絡：'+(shopContact(o.shop)||'見賣場頁')}));
@@ -6659,6 +6693,7 @@ function orderCard(o){
       const ta=h('input',{maxlength:200,placeholder:'說說這次的交易（選填）'});
       c.append(h('form',{class:'rvform',onsubmit:async e=>{ e.preventDefault(); try{ await saveSocial({reviews:{...mySocial().reviews,[o.id]:{seller:o.shop,stars:sv,text:ta.value.trim(),at:Date.now()}}}); toast('謝謝你的評價'); }catch(x){} }}, h('b',{text:'評價賣家'}), sb, ta, h('button',{class:'btn pri sm',type:'submit',text:'送出評價'}))); }
   }
+  if (!inD) c.append(ordOpenBtn(o));
   return c;
 }
 function offerCard(o){ const p=S.plants.get(o.pid), stl={open:'等待賣家回覆',accepted:'已成交（已轉成訂單）',rejected:'賣家婉拒',withdrawn:'已撤回'}[o.status];
@@ -6678,15 +6713,18 @@ function renderCart(){
   box.replaceChildren(...[...groups].map(([shop,ps])=>{ const note=h('input',{maxlength:120,placeholder:'備註（選填，例如：希望週末出貨）'}); const total=ps.reduce((n,p)=>n+(p.price||0)*cartQty(p.id),0);
     const pm=h('select',{}, h('option',{value:'transfer',text:'銀行匯款（賣家確認後提供帳號）'}), h('option',{value:'other',text:'其他（面交、貨到付款，與賣家聯絡）'}));
     const btn=h('button',{class:'btn pri lg',type:'submit',text:'向 '+shopName(shop)+' 送出訂單'});
-    return h('form',{class:'cgroup',onsubmit:e=>{ e.preventDefault(); placeOrder(shop,ps,note.value.trim(),btn,pm.value); }},
+    const SO=shipOpts(shop); let shSel=SO.length===1?0:-1; const totEl=h('b',{style:'font-size:22px',text:money(total)}), feeEl=h('span',{class:'hint'});
+    const shBox=h('div',{class:'shpick'}); const paintSh=()=>{ shBox.replaceChildren(...SO.map((x,k)=>h('button',{type:'button',class:'shp'+(k===shSel?' on':''),onclick:()=>{ shSel=k; paintSh(); }}, h('i',{text:SHIP_IC[x.k]||'📦'}), h('span',{}, h('b',{text:x.n}), x.n===SHIP_KIND[x.k]?null:h('small',{text:SHIP_KIND[x.k]||''})), h('em',{text:feeTxt(x.fee)})))); const f=shSel>=0?SO[shSel].fee:0; totEl.textContent=money(total+(+f||0)); feeEl.textContent=shSel<0?'':(f==null?'運費由賣家另計':f?'含運費 '+money(f):'免運費'); };
+    paintSh();
+    return h('form',{class:'cgroup',onsubmit:e=>{ e.preventDefault(); if(shSel<0){ toast('請選擇收貨方式'); shBox.scrollIntoView({block:'center',behavior:'smooth'}); return; } const x=SO[shSel]; placeOrder(shop,ps,note.value.trim(),btn,pm.value,{n:x.n,fee:x.fee??null,k:x.k||'home',at:Date.now(),by:S.me}); }},
       h('div',{class:'row',style:'justify-content:space-between'}, shopChip(shop,true), h('span',{class:'hint',text:ps.reduce((n,p)=>n+cartQty(p.id),0)+' 株'})),
       ...ps.map(p=>h('div',{class:'crow'}, h('img',{src:cover(p),alt:''}), h('div',{style:'min-width:0'}, h('b',{text:short(p.species)}), h('span',{class:'mono hint',text:p.code+(isLot(p)?' · 整盤 · 每株 '+money(p.price):'')}), isLot(p)?qtyStep(cartQty(p.id),lotLeft(p),v=>setCartQty(p.id,v)):null), h('b',{text:money(p.price*cartQty(p.id))}), h('button',{class:'x',type:'button','aria-label':'移除',onclick:()=>rmCart(p.id),text:'✕'}))),
-      field('付款方式',pm), note, h('div',{class:'row',style:'justify-content:space-between;margin-top:6px'}, h('span',{text:'小計'}), h('b',{style:'font-size:22px',text:money(total)})), btn,
-      h('p',{class:'hint',text:'下單不需要先付款。賣家確認後，訂單頁會顯示匯款帳號，匯款後填寫後五碼即可；收件資料請私下提供給賣家，不要寫在備註。'})); }));
+      fieldBox('收貨方式',shBox), field('付款方式',pm), note, h('div',{class:'row',style:'justify-content:space-between;margin-top:6px'}, h('span',{}, '合計 ', feeEl), totEl), btn,
+      h('p',{class:'hint',text:'下單不需要先付款。賣家確認後，訂單頁會顯示匯款帳號，並可以在訂單裡填收件資料（只有賣家看得到），不要寫在備註。'})); }));
 }
-async function placeOrder(shop,ps,note,btn,payMethod){
+async function placeOrder(shop,ps,note,btn,payMethod,ship){
   if(needLogin()||needPhone()||!rateOK('order')) return; btn.disabled=true; const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  try{ await saveSocial({orders:{...mySocial().orders,[id]:{seller:shop,items:ps.map(p=>p.id),...(ps.some(isLot)?{qty:Object.fromEntries(ps.filter(isLot).map(p=>[p.id,cartQty(p.id)]))}:{}),total:ps.reduce((n,p)=>n+(p.price||0)*cartQty(p.id),0),note,payMethod:payMethod||'transfer',at:Date.now()}}});
+  try{ await saveSocial({orders:{...mySocial().orders,[id]:{seller:shop,items:ps.map(p=>p.id),...(ps.some(isLot)?{qty:Object.fromEntries(ps.filter(isLot).map(p=>[p.id,cartQty(p.id)]))}:{}),total:ps.reduce((n,p)=>n+(p.price||0)*cartQty(p.id),0),note,payMethod:payMethod||'transfer',...(ship?{ship}:{}),at:Date.now()}}});
     const cq={...(S.prefs.cartQty||{})}; ps.forEach(p=>delete cq[p.id]); savePrefs({cart:cartIds().filter(x=>!ps.some(p=>p.id===x)),cartQty:cq}); toast('訂單已送出，等待賣家確認'); dlg.close(); openMe('orders'); }catch(e){ btn.disabled=false; }
 }
 
@@ -6850,7 +6888,7 @@ function route(){ updBack();
     if (pg==='staff') renderStaffPage(arg);
     if (pg==='lp') renderLp(arg);
     if (pg==='batch'){ batchSig=''; S.batchKey=arg; renderBatch(arg); }
-    if (pg==='me'){ if(!S.me){ if(S.booted){ history.replaceState(null,'','#/'); openLogin(); } } else { S.meTab=arg||'home'; renderMe(true); } }
+    if (pg==='me'){ if(!S.me){ if(S.booted){ history.replaceState(null,'','#/'); openLogin(); } } else { let a2=arg||'home'; if(a2.startsWith('orders/')){ S.ordPend=a2.slice(7); S.ordPendN=0; a2='orders'; history.replaceState(null,'','#/me/orders'); setTimeout(ordOpenPend,300); } S.meTab=a2; renderMe(true); } }
     if (pg==='plant'&&(plantChanged||!$('#dInfo'))) buildPlantPage(arg);
     if (pg==='shop') renderShop(true);
     if (pg==='raffle'){ renderRafflePage(); if(arg) openRaffle(arg); else if(dlg.open&&S.openR) dlg.close(); }
@@ -8531,7 +8569,7 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if (T==='bulked') return admBulkEdit(main);
   if (T==='batch') return admBatch(main);
   if (T==='labels') return admLabels(main);
-  if (T==='orders') return admOrders(main);
+  if (T==='orders'){ if(S.admEdit&&S.admEdit.includes('~')){ S.ordPend=S.admEdit; S.ordPendN=0; S.admEdit=null; setTimeout(ordOpenPend,300); } return admOrders(main); }
   if (T==='offers') return admOffers(main);
   if (T==='auc') return admAuctions(main);
   if (T==='raffle') return admRaffles(main);
@@ -10819,7 +10857,86 @@ function admSideFill(box,p){
       !live(p)&&t&&p.status!=='sold'?h('button',{class:'btn lime',type:'button',style:'margin-top:12px',onclick:()=>sellToWinner(p,t),text:'成立訂單給得標者'}):null,
       p.status==='sold'&&p.buyer?h('p',{class:'hint',style:'margin-top:10px',text:'已售出給 '+nameOf(p.buyer)+(p.soldPrice?' · '+money(p.soldPrice):'')}):null):'');
 }
-async function setOrder(o,status,patch){ const base={buyer:o.buyer,items:o.items||[],total:o.total||0,note:o.note||'',at:o.at,payMethod:o.payMethod||'transfer',src:o.src||null};
+/* ---------- 運送方式・收件資料・訂單詳情與留言 ---------- */
+const SHIP_KIND={meet:'面交',store:'超商取貨',home:'宅配'}, SHIP_IC={meet:'🤝',store:'🏪',home:'🚚'};
+const SHIP_DEF=[{n:'面交',fee:0,k:'meet'},{n:'7-11 交貨便',fee:null,k:'store'},{n:'黑貓宅急便',fee:null,k:'home'}];
+const SHIP_PRESET=[['面交',0,'meet'],['7-11 交貨便',60,'store'],['全家店到店',60,'store'],['萊爾富店到店',60,'store'],['黑貓宅急便',180,'home'],['黑貓低溫',260,'home'],['郵局包裹',100,'home'],['新竹物流',150,'home']];
+function shipOpts(shop){ const L=shopOf(shop)?.shipOpts; return Array.isArray(L)&&L.length?L:SHIP_DEF; }
+const feeTxt=f=>f==null?'運費另計':+f?'+'+money(+f):'免運';
+function ordShip(o){ const so=S.sorders.get(o.shop+'/'+o.id); return [o.deal?.shipSel,so?.ship,o.ship].filter(Boolean).sort((a,b)=>(b.at||0)-(a.at||0))[0]||null; }
+const ordFee=o=>+(ordShip(o)?.fee)||0, ordGrand=o=>(o.total||0)+ordFee(o);
+const ordShipOK=o=>!['paid','preparing','shipped','done','cancelled'].includes(o.status);
+const ordNeedRecv=o=>!!o.deal&&o.buyer===S.me&&!o.deal.recv&&!['shipped','done','cancelled'].includes(o.status);
+const RECV_L={meet:['方便面交的時間、地點','例如 週六下午 台中花市'],store:['取貨門市（店名或店號）','例如 7-11 鑫忠孝門市 / 123456'],home:['收件地址','例如 台中市西屯區…']};
+const recvTxt=r=>[r.name,r.phone,r.place].filter(Boolean).join(' · ');
+function ordShipLine(o){ const x=ordShip(o); return h('div',{class:'osl'}, h('span',{text:(x?(SHIP_IC[x.k]||'📦')+' '+x.n:'📦 還沒選收貨方式')}), x?h('small',{text:x.fee==null?'運費另計':+x.fee?'運費 '+money(+x.fee):'免運'}):null); }
+function ordOpenBtn(o){ return h('button',{type:'button',class:'oopen',onclick:()=>openOrder(o)}, h('span',{text:'📝 訂單詳情・留言・照片'}), h('b',{text:'→'})); }
+function ordFind(shop,id){ return (shop===S.me?sellerOrders(shop):buyerOrders(S.me)).find(x=>x.shop===shop&&x.id===id)||buyerOrders(S.me).find(x=>x.shop===shop&&x.id===id)||sellerOrders(shop).find(x=>x.id===id)||null; }
+async function setShip(o,x){ const sel={n:x.n,fee:x.fee??null,k:x.k||'home',at:Date.now(),by:S.me};
+  try{ if(o.deal) await S.db.doc('deals/'+o.shop+'_'+o.id).update({shipSel:sel});
+    else if(o.buyer===S.me&&mySocial().orders?.[o.id]) await saveSocial({orders:{...mySocial().orders,[o.id]:{...mySocial().orders[o.id],ship:sel}}});
+    else if(o.buyer!==S.me) await setOrder(o,o.base||'pending',{ship:sel});
+    else throw new Error('x');
+    toast('收貨方式已改成「'+x.n+'」'); renderAll(); ordDetRefresh(); }catch(e){ if(e?.message!=='work') toast('修改失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }
+let ODET=null;
+function ordDetRefresh(){ if(ODET) setTimeout(()=>ODET&&ODET.paint(),60); }
+function openOrder(o0,k0){ if(!S.me) return;
+  if (ODET) ODET.close(true);
+  const shop=o0?.shop||k0?.[0], oid=o0?.id||k0?.[1]; const get=()=>ordFind(shop,oid)||o0;
+  let o=get(); if(!o){ toast('找不到這筆訂單'); return; }
+  const host=adm.open?adm:document.body, prevOv=document.documentElement.style.overflow; document.documentElement.style.overflow='hidden';
+  const info=h('div',{class:'od2-info'}), msgs=h('div',{class:'od2-msgs'}), title=h('b',{});
+  let L=[], unsub=null, sig='';
+  const seller=()=>o.buyer!==S.me;
+  const sec=(t,...kids)=>h('section',{class:'od2-s'}, h('h4',{text:t}), ...kids);
+  const paint=()=>{ o=get()||o; const ns=JSON.stringify([o.status,o.deal,ordShip(o),o.total,shopOf(o.shop)?.shipOpts]); if(info.contains(document.activeElement)&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return; if(ns===sig&&info.firstChild) return; sig=ns;
+    title.textContent=(seller()?nameOf(o.buyer):shopName(o.shop))+' · 訂單 '+o.id;
+    const x=ordShip(o), SO=shipOpts(o.shop), can=ordShipOK(o);
+    const pick=can?h('div',{class:'shpick'}, ...SO.map(y=>h('button',{type:'button',class:'shp'+(x&&x.n===y.n?' on':''),onclick:()=>{ if(x&&x.n===y.n) return; setShip(o,y); }}, h('i',{text:SHIP_IC[y.k]||'📦'}), h('span',{}, h('b',{text:y.n}), y.n===SHIP_KIND[y.k]?null:h('small',{text:SHIP_KIND[y.k]||''})), h('em',{text:feeTxt(y.fee)})))):null;
+    const shipS=sec('🚚 收貨與出貨方式', x?h('div',{class:'od2-cur'}, h('span',{text:(SHIP_IC[x.k]||'📦')+' '+x.n}), h('small',{text:feeTxt(x.fee)+(x.by?' · '+(x.by===o.buyer?'買家':'賣家')+'選的':'')})):h('p',{class:'hint',text:'還沒選收貨方式'+(seller()?'，可以幫買家選，或請買家選。':'，請選一個。')}),
+      seller()&&can&&x?(()=>{ const fi=h('input',{type:'number',min:0,max:99999,inputmode:'numeric',placeholder:'這筆運費',value:x.fee==null?'':x.fee}); return h('form',{class:'od2-fee',onsubmit:e=>{ e.preventDefault(); if(fi.value==='') return; setShip(o,{...x,fee:Math.max(0,Math.round(+fi.value)||0)}); }}, h('span',{text:x.fee==null?'運費另計，講好後填在這裡：':'調整這筆運費：'}), h('small',{text:'NT$'}), fi, h('button',{class:'btn soft sm',type:'submit',text:'設定'})); })():null,
+      can?h('p',{class:'hint',style:'margin:8px 0 6px',text:seller()?'可以依跟買家講好的方式調整，運費會自動加進訂單金額。':'選好後賣家會照這個方式出貨，運費會加進訂單金額。付款後就不能再改。'}):h('p',{class:'hint',style:'margin-top:6px',text:o.status==='cancelled'?'訂單已取消':'已付款，收貨方式不能再改；要調整請在下面留言跟對方說。'}), pick,
+      seller()&&can&&o.shop===S.me?h('button',{type:'button',class:'bf-lk',style:'margin-top:8px',onclick:()=>{ close(); go('#admin/shop:basic'); setTimeout(()=>document.querySelector('.shopt')?.scrollIntoView({block:'center'}),600); },text:'⚙ 設定我的收貨方式與運費 →'}):null);
+    // 收件資料
+    const kk=x?.k||'home', RL=RECV_L[kk]||RECV_L.home, r=o.deal?.recv;
+    let recvS;
+    if (!o.deal) recvS=sec('📮 收件資料', h('p',{class:'hint',text:seller()?'賣家接受訂單後，買家就可以填收件資料。':'賣家接受訂單後就可以在這裡填收件資料（只有賣家看得到）。'}));
+    else if (o.buyer===S.me&&!['shipped','done','cancelled'].includes(o.status)){
+      const nm=h('input',{maxlength:30,placeholder:'收件人姓名',value:r?.name||''}), ph=h('input',{maxlength:20,inputmode:'tel',placeholder:'手機',value:r?.phone||''}), pl=h('input',{maxlength:120,placeholder:RL[1],value:r?.place||''});
+      recvS=sec('📮 收件資料', r?h('div',{class:'od2-cur'}, h('span',{text:'✓ 已填寫'}), h('small',{text:'可以修改，賣家出貨前都看得到最新的'})):h('p',{class:'hint',text:'只有這筆訂單的賣家看得到。'}),
+        h('form',{class:'form',style:'gap:8px;margin-top:8px',onsubmit:async e=>{ e.preventDefault(); if(!nm.value.trim()||!pl.value.trim()){ toast('請填姓名和'+RL[0]); return; } await updDeal(o,{recv:{name:nm.value.trim(),phone:ph.value.trim(),place:pl.value.trim(),k:kk,at:Date.now()}},'收件資料已送出'); sig=''; ordDetRefresh(); }},
+          h('div',{class:'two'}, field('收件人',nm), field('手機',ph)), field(RL[0],pl), h('button',{class:'btn pri sm',type:'submit',text:r?'更新收件資料':'送出收件資料'})));
+    } else recvS=sec('📮 收件資料', r?h('div',{class:'od2-recv'}, h('div',{}, h('small',{text:'收件人'}), h('b',{text:r.name||'—'})), h('div',{}, h('small',{text:'手機'}), h('b',{text:r.phone||'—'})), h('div',{}, h('small',{text:(RECV_L[r.k]||RL)[0]}), h('b',{text:r.place||'—'})), seller()?h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(recvTxt(r)),text:'複製'}):null):h('p',{class:'hint',text:seller()?'買家還沒填收件資料，可以在下面留言提醒。':'沒有收件資料'}));
+    const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean);
+    const sum=sec('💰 金額', h('div',{class:'od2-sum'}, h('div',{}, h('span',{text:'商品 '+items.length+' 件'}), h('b',{text:money(o.total||0)})), h('div',{}, h('span',{text:'運費'+(x?'（'+x.n+'）':'')}), h('b',{text:x?(x.fee==null?'另計':money(+x.fee||0)):'—'})), h('div',{class:'t'}, h('span',{text:'合計'}), h('b',{text:money(ordGrand(o))}))));
+    info.replaceChildren(seller()?sellerOrdCard(o,true):orderCard(o,true), shipS, recvS, sum);
+  };
+  const MP='ordmsg/'+shop+'/o/'+oid+'/m';
+  const paintMsgs=()=>{ const stick=msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<40;
+    msgs.replaceChildren(...(L.length?L.map(m=>{ const mine=m.from===S.me, sideS=m.side==='s';
+      return h('div',{class:'om'+(mine?' me':'')}, h('div',{class:'om-h'}, h('b',{text:sideS?shopName(shop)+'（賣家）':nameOf(m.from)+'（買家）'}), h('small',{text:ago(m.at)})),
+        m.text?h('p',{text:m.text}):null, m.img?h('a',{href:m.img,target:'_blank',rel:'noopener',class:'om-img'}, h('img',{src:m.thumb||m.img,alt:'',loading:'lazy'})):null); }):[h('p',{class:'hint om-empty',text:'還沒有留言。出貨細節、包裝、植株狀況照片都可以在這裡講，雙方都看得到、會留紀錄。'})]));
+    if(stick) msgs.scrollTop=msgs.scrollHeight; };
+  const send=async(d)=>{ if(!rateOK('chat')) return false; try{ await S.db.collection(MP).doc().set({...d,from:S.me,to:seller()?o.buyer:shop,side:seller()?'s':'b',at:Date.now()}); return true; }catch(e){ toast('送出失敗：'+(e?.code==='permission-denied'||e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); return false; } };
+  const ta=h('textarea',{rows:1,maxlength:1000,placeholder:'留言給'+(seller()?'買家':'賣家')+'…'}), fi=h('input',{type:'file',accept:'image/*',multiple:true,hidden:true});
+  ta.addEventListener('input',()=>{ ta.style.height='auto'; ta.style.height=Math.min(140,ta.scrollHeight)+'px'; });
+  fi.addEventListener('change',async()=>{ const fs=[...fi.files].slice(0,6); fi.value=''; for(const f of fs){ const t=toastStay('照片上傳中…'); try{ const md=await uploadMediaFile(f,b=>t.set('照片上傳中 '+Math.round(b/f.size*100)+'%')); t.done(); if(md.type!=='image'){ toast('只能傳照片'); continue; } await send({img:md.url,thumb:md.thumb||null}); }catch(e){ t.done(); toast('上傳失敗：'+(e?.message||'請稍後再試')); } } });
+  const comp=h('form',{class:'od2-comp',onsubmit:async e=>{ e.preventDefault(); const v=ta.value.trim(); if(!v) return; ta.disabled=true; if(await send({text:v})){ ta.value=''; ta.style.height='auto'; } ta.disabled=false; ta.focus(); }},
+    h('button',{type:'button',class:'od2-ph','aria-label':'傳照片',onclick:()=>fi.click(),text:'📷'}), fi, ta, h('button',{class:'btn pri sm',type:'submit',text:'送出'}));
+  ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)) comp.requestSubmit(); });
+  const panel=h('div',{class:'od2',role:'dialog','aria-modal':'true'},
+    h('div',{class:'od2-h'}, (()=>{ const b=h('button',{type:'button',class:'od2-x','aria-label':'返回',onclick:()=>close()}); b.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>'; return b; })(), h('div',{class:'od2-t'}, h('small',{text:'訂單詳情'}), title)),
+    h('div',{class:'od2-b'}, info, h('section',{class:'od2-s od2-chat'}, h('h4',{text:'💬 訂單留言'}), h('p',{class:'hint',style:'margin:-4px 0 8px',text:'只有買賣雙方看得到，可以傳照片（例如包裝、出貨單、收到時的狀況）。'}), msgs, comp)));
+  const ov=h('div',{class:'od2-ov',onclick:e=>{ if(e.target===ov) close(); }}, panel);
+  const tick=setInterval(()=>{ if(!document.hidden) paint(); },3000);
+  function close(silent){ if(!ODET) return; clearInterval(tick); try{ unsub&&unsub(); }catch(e){} ov.remove(); document.documentElement.style.overflow=prevOv; ODET=null; if(!silent) blDone('odet'); else { const i=BL.findIndex(l=>l.id==='odet'); if(i>=0) BL.splice(i,1); } }
+  ODET={close,paint:()=>{ sig=''; paint(); },key:shop+'~'+oid};
+  host.append(ov); paint(); paintMsgs();
+  blPush('odet',()=>close(true));
+  try{ unsub=S.db.collection(MP).orderBy('at','asc').limit(300).onSnapshot(sn=>{ L=sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at); resolveNames([...new Set(L.map(m=>m.from))]); paintMsgs(); },()=>{ msgs.replaceChildren(h('p',{class:'hint',text:'留言載入失敗，請稍後再試。'})); }); }catch(e){}
+}
+function ordOpenPend(){ const k=S.ordPend; if(!k||!S.me) return; const [shop,oid]=k.split('~'); const o=ordFind(shop,oid); if(o){ S.ordPend=null; openOrder(o); return; } if((S.ordPendN=(S.ordPendN||0)+1)<25) setTimeout(ordOpenPend,400); else S.ordPend=null; }
+async function setOrder(o,status,patch){ const base={buyer:o.buyer,items:o.items||[],total:o.total||0,note:o.note||'',at:o.at,payMethod:o.payMethod||'transfer',src:o.src||null,...(o.ship?{ship:o.ship}:{})};
   const so=S.sorders.get(o.shop+'/'+o.id)||{}; await S.db.doc(`shops/${S.me}/orders/${o.id}`).set({...base,...so,id:undefined,shop:undefined,...(patch||{}),status,updatedAt:Date.now()}); }
 async function ensureDeal(o){ const id=S.me+'_'+o.id; if(S.deals.has(id)) return; await S.db.doc('deals/'+id).set({seller:S.me,buyer:o.buyer,orderId:o.id,payMethod:o.payMethod||'transfer',bank:(o.payMethod||'transfer')==='transfer'?(S.bank||null):null,at:Date.now()}); }
 function admOrders(m){
@@ -10837,19 +10954,21 @@ function admOrders(m){
   const list=os.filter(o=>cur[2].includes(o.status)).filter(o=>!oq||[nameOf(o.buyer),o.id,...(o.items||[]).map(i=>S.plants.get(i)?.code||'')].join(' ').toLowerCase().includes(oq)).sort((a,b)=>act0?a.at-b.at:b.at-a.at);
   if (!list.length){ m.append(h('div',{class:'empty'}, h('h3',{text:oq?'找不到符合的訂單':{pending:'沒有要確認的訂單 🎉',pay:'沒有等付款的訂單',prep:'沒有要出貨的訂單 🎉',ship:'沒有運送中的訂單'}[S.admSub]||'沒有訂單'}), h('p',{text:'新訂單進來時，手機會收到通知，畫面上也會一直提醒你，不會漏掉。'}))); return; }
   if (act0&&list.length>1) m.append(h('p',{class:'hint',style:'margin:-4px 0 10px',text:'依下單時間排序，最早的在最上面，照順序處理就好。'}));
-  m.append(h('div',{class:'list'}, ...list.map(o=>{ const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), qn=p=>Math.max(1,+(o.qty?.[p.id])||1), lotIt=p=>isLot(p)||!!o.qty?.[p.id], lotShort=o.status==='pending'&&items.some(p=>lotIt(p)&&lotLeft(p)<qn(p)), soldElse=lotShort||items.some(p=>!lotIt(p)&&p.status==='sold'&&p.buyer&&p.buyer!==o.buyer), d=o.deal, act=[];
-    const run=async(fn,msg)=>{ try{ await fn(); toast(msg); renderAdmin(true); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } };
+  m.append(h('div',{class:'list'}, ...list.map(o=>sellerOrdCard(o))));
+}
+function sellerOrdCard(o,inD){ const rr=()=>{ renderAdmin(true); ordDetRefresh(); }; const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), qn=p=>Math.max(1,+(o.qty?.[p.id])||1), lotIt=p=>isLot(p)||!!o.qty?.[p.id], lotShort=o.status==='pending'&&items.some(p=>lotIt(p)&&lotLeft(p)<qn(p)), soldElse=lotShort||items.some(p=>!lotIt(p)&&p.status==='sold'&&p.buyer&&p.buyer!==o.buyer), d=o.deal, act=[];
+    const run=async(fn,msg)=>{ try{ await fn(); toast(msg); rr(); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } };
     if (o.status==='pending'){ act.push(h('button',{class:'btn pri sm',type:'button',disabled:soldElse,onclick:()=>run(async()=>{ await setOrder(o,'confirmed'); for(const p of items){ if(lotIt(p)){ const left=lotLeft(p)-qn(p); await S.db.doc(pPath(p)).update({stock:Math.max(0,left),soldN:(+p.soldN||0)+qn(p),status:left<=0?'sold':p.status}); } else await S.db.doc(pPath(p)).update({status:'sold',buyer:o.buyer,soldPrice:p.price||null}); } await ensureDeal(o); },'已接受訂單'),text:'接受訂單'}), confirmBtn('婉拒','soft',()=>run(()=>setOrder(o,'cancelled'),'已婉拒'))); }
     if (o.status==='confirmed'||o.status==='paid'){ if(!d) act.push(h('button',{class:'btn soft sm',type:'button',onclick:()=>run(()=>ensureDeal(o),'已補上交易資料'),text:'補建交易資料'}));
       act.push(h('button',{class:'btn pri sm',type:'button',onclick:()=>run(()=>setOrder(o,'preparing'),'已開始備貨'),text:o.status==='paid'?'確認收款・開始備貨':'已收款・開始備貨'}), confirmBtn('取消訂單','soft',()=>run(async()=>{ await setOrder(o,'cancelled'); for(const p of items){ if(lotIt(p)){ const back=lotLeft(p)+qn(p); await S.db.doc(pPath(p)).update({stock:back,soldN:Math.max(0,(+p.soldN||0)-qn(p)),status:p.status==='sold'?(listed(p)?'available':'keep'):p.status}); } else if(p.buyer===o.buyer) await S.db.doc(pPath(p)).update({status:listed(p)?'available':'keep',buyer:null,soldPrice:null}); } },'已取消訂單（整盤庫存已補回）'))); }
     let shipF=null;
-    if (o.status==='preparing'){ const car=h('input',{maxlength:30,placeholder:'物流（例如 黑貓、7-11 交貨便）'}), tr=h('input',{maxlength:40,placeholder:'物流單號（選填）'});
+    if (o.status==='preparing'){ const car=h('input',{maxlength:30,placeholder:'物流（例如 黑貓、7-11 交貨便）',value:ordShip(o)?.n&&ordShip(o).k!=='meet'?ordShip(o).n:''}), tr=h('input',{maxlength:40,placeholder:'物流單號（選填）'});
       shipF=h('form',{class:'row shipf',onsubmit:e=>{ e.preventDefault(); run(async()=>{ await setOrder(o,'shipped',{shippedAt:Date.now()}); if(d) await S.db.doc('deals/'+S.me+'_'+o.id).update({ship:{carrier:car.value.trim(),tracking:tr.value.trim(),at:Date.now()}}); },'已標記出貨'); }}, car, tr, h('button',{class:'btn ink sm',type:'submit',text:'出貨'})); }
     const age=Date.now()-(o.at||Date.now()), waitMe=o.status==='pending'||o.status==='paid'||o.status==='preparing', urg=waitMe&&age>12*36e5?' late':waitMe&&age>2*36e5?' warn':'';
     const NX={pending:['👉','下一步：確認訂單','確認後買家才會看到匯款資訊。商品已賣掉的話請按「婉拒」。'],confirmed:['⏳','等買家匯款','收到款項後按「已收款・開始備貨」。'],paid:['💳','買家說已匯款，請對帳','對過帳後按「確認收款・開始備貨」。'],preparing:['📦','下一步：包好出貨','填物流和單號，按「出貨」，買家會收到通知。'],shipped:['🚚','等買家收貨','買家按「已收到」或 14 天後自動完成。'],done:['✅','已完成',''],cancelled:['✕','已取消','']}[o.status]||['','',''];
     const ageTxt=age<6e4?'剛剛下單':age<36e5?Math.floor(age/6e4)+' 分鐘前下單':age<864e5?Math.floor(age/36e5)+' 小時前下單':Math.floor(age/864e5)+' 天前下單';
     return h('div',{class:'panel od-o'+urg,style:'margin:0'}, NX[1]?h('div',{class:'od-nx'}, h('i',{text:NX[0]}), h('div',{}, h('b',{text:NX[1]}), NX[2]?h('small',{text:NX[2]}):null), waitMe?h('span',{class:'od-age',text:(urg===' late'?'⚠ 已等 ':'')+(urg===' late'?Math.floor(age/36e5)+' 小時':ageTxt)}):null):null,
-      h('div',{class:'row',style:'justify-content:space-between'}, h('div',{}, h('div',{class:'row',style:'gap:8px'}, h('b',{text:nameOf(o.buyer)}), chatBtn(o.buyer,{pid:o.items?.[0]},'soft sm')), h('div',{class:'hint',text:fmtDate(tsLocal(o.at))+' · 訂單 '+o.id+(o.src==='offer'?' · 議價成交':'')+' · '+(o.payMethod==='other'?'其他付款':'匯款')})), h('span',{class:'tag '+(o.status==='pending'||o.status==='cancelled'?'grey':'lime'),text:OST[o.status]})),
+      h('div',{class:'row',style:'justify-content:space-between'}, h('div',{}, h('div',{class:'row',style:'gap:8px'}, h('b',{text:nameOf(o.buyer)}), chatBtn(o.buyer,{pid:o.items?.[0]},'soft sm')), h('div',{class:'hint',text:fmtDate(tsLocal(o.at))+' · 訂單 '+o.id+(o.src==='offer'?' · 議價成交':'')+' · '+(o.payMethod==='other'?'其他付款':'匯款')}), o.deal?.recv?h('div',{class:'hint',style:'color:var(--fg)',text:'📮 '+recvTxt(o.deal.recv)}):null), h('span',{class:'tag '+(o.status==='pending'||o.status==='cancelled'?'grey':'lime'),text:OST[o.status]})),
       o.status!=='cancelled'?stepBar(o.status):null,
       h('div',{class:'oitems',style:'margin-top:10px'}, ...items.map(p=>h('button',{type:'button',class:'oi pkable',title:'看這株的資料',onclick:()=>plantPeek(p)}, h('img',{src:cover(p),alt:''}), h('span',{class:'mono',text:p.code+(lotIt(p)?' · 整盤 × '+qn(p)+' 株':'')+(p.price?' · '+money(p.price)+(lotIt(p)?'/株':''):'')})))),
       o.note?h('p',{style:'margin-top:8px',text:'備註：'+o.note}):null,
@@ -10857,8 +10976,7 @@ function admOrders(m){
       o.status==='shipped'?h('p',{class:'hint',text:(d?.ship?[d.ship.carrier,d.ship.tracking].filter(Boolean).join(' · ')+'。':'')+'等待買家確認收貨，'+fmtDay(tsLocal((o.shippedAt||Date.now())+AUTO_DONE))+' 會自動完成。'}):null,
       o.status==='done'?h('p',{class:'hint',text:d?.receivedAt?'買家已於 '+fmtDate(tsLocal(d.receivedAt))+' 確認收貨':'出貨 14 天後自動完成'}):null,
       soldElse?h('p',{class:'err',text:lotShort?'整盤庫存不夠這筆訂單的數量，請先到商品把數量加回去，或婉拒／聯絡買家。':'訂單中有商品已售給別人，請婉拒或聯絡買家。'}):null, shipF,
-      h('div',{class:'row',style:'justify-content:space-between;margin-top:10px'}, h('b',{style:'font-size:20px',text:money(o.total)}), h('div',{class:'row'}, ...act))); })));
-}
+      h('div',{class:'row',style:'justify-content:space-between;margin-top:10px'}, h('div',{}, h('b',{style:'font-size:20px',text:money(ordGrand(o))}), ordShipLine(o)), h('div',{class:'row'}, ...act)), inD?null:ordOpenBtn(o)); }
 async function acceptOffer(o,replyText){ const p=S.plants.get(o.pid); if(!p){ toast('找不到這株植株'); return false; } if(p.status==='sold'){ toast('這株已經售出'); return false; }
   try{ const oid='off-'+o.id, ord={id:oid,buyer:o.buyer,items:[p.id],total:o.amt,note:'議價成交'+(o.msg?'：'+o.msg:''),at:Date.now(),payMethod:'transfer',src:'offer',shop:S.me};
     await S.db.doc(`shops/${S.me}/orders/${oid}`).set({buyer:o.buyer,items:[p.id],total:o.amt,note:ord.note,at:ord.at,payMethod:'transfer',src:'offer',status:'confirmed',updatedAt:Date.now()});
@@ -10960,8 +11078,19 @@ function admShop(m){
   if (T==='design') return admDesign(m);
   return admShopBasic(m);
 }
+function shipEditor(cur){
+  let L=(Array.isArray(cur)&&cur.length?cur:SHIP_DEF).map(x=>({...x}));
+  const list=h('div',{class:'she-l'}), presets=h('div',{class:'she-p'});
+  const paint=()=>{ list.replaceChildren(...L.map((x,i)=>{ const nm=h('input',{maxlength:20,value:x.n||'',placeholder:'名稱，例如 7-11 交貨便'}), fee=h('input',{type:'number',min:0,max:9999,inputmode:'numeric',value:x.fee==null?'':x.fee,placeholder:'另計'}), k=h('select',{}, ...Object.entries(SHIP_KIND).map(([v,t])=>h('option',{value:v,text:t,selected:x.k===v})));
+      nm.addEventListener('input',()=>x.n=nm.value.trim()); fee.addEventListener('input',()=>x.fee=fee.value===''?null:Math.max(0,Math.round(+fee.value)||0)); k.addEventListener('change',()=>x.k=k.value);
+      return h('div',{class:'she-r'}, h('span',{class:'she-i',text:SHIP_IC[x.k]||'📦'}), nm, k, h('label',{class:'she-f'}, h('small',{text:'+NT$'}), fee), h('button',{type:'button',class:'she-x','aria-label':'刪除',onclick:()=>{ L.splice(i,1); paint(); },text:'✕'})); }));
+    presets.replaceChildren(h('small',{text:'快速加入：'}), ...SHIP_PRESET.filter(([n])=>!L.some(x=>x.n===n)).map(([n,f,k])=>h('button',{type:'button',class:'chip',onclick:()=>{ L.push({n,fee:f,k}); paint(); },text:'+ '+n})), h('button',{type:'button',class:'chip',onclick:()=>{ L.push({n:'',fee:null,k:'home'}); paint(); list.lastChild?.querySelector('input')?.focus(); },text:'+ 自訂'})); };
+  paint();
+  return {el:h('div',{class:'panel shopt',style:'background:var(--paper);margin:6px 0'}, h('h3',{text:'收貨方式與運費'}), h('p',{class:'hint',style:'margin-bottom:8px',text:'買家下單時從這裡選，運費會自動加進訂單金額。運費留空＝「運費另計」（之後在訂單裡講好）。'}), list, presets),
+    get:()=>L.filter(x=>x.n).map(x=>({n:x.n.slice(0,20),fee:x.fee==null?null:+x.fee,k:x.k||'home'})).slice(0,12)};
+}
 function admShopBasic(m){
-  const s=shopOf(S.me)||{}; const av=imgPicker('頭像',320,.8,s.avatar,true), bn=imgPicker('封面圖',1600,.78,s.banner);
+  const s=shopOf(S.me)||{}; const shipEd=shipEditor(s.shipOpts); const av=imgPicker('頭像',320,.8,s.avatar,true), bn=imgPicker('封面圖',1600,.78,s.banner);
   const f=h('form',{class:'form',style:'max-width:720px'},
     h('div',{class:'two'}, av.el, bn.el),
     h('div',{class:'two'}, field('賣場名稱', h('input',{'data-s':'name',required:true,maxlength:30,value:s.name||''})), field('所在地區', h('input',{'data-s':'location',maxlength:20,value:s.location||''}))),
@@ -10972,9 +11101,10 @@ function admShopBasic(m){
       h('div',{class:'two'}, field('銀行名稱', h('input',{'data-b':'bankName',maxlength:30,value:S.bank?.bankName||'',placeholder:'例如 國泰世華'})), field('銀行代碼', h('input',{'data-b':'bankCode',maxlength:5,value:S.bank?.bankCode||'',placeholder:'例如 013'}))),
       h('div',{class:'two'}, field('帳號', h('input',{'data-b':'account',maxlength:20,inputmode:'numeric',value:S.bank?.account||''})), field('戶名', h('input',{'data-b':'holder',maxlength:30,value:S.bank?.holder||''}))),
       field('匯款備註（選填）', h('input',{'data-b':'note',maxlength:100,value:S.bank?.note||'',placeholder:'例如 匯款後請在訂單填後五碼'}))),
+    shipEd.el,
     field('運送與付款說明（顯示在商品頁與賣場頁）', h('textarea',{'data-s':'ship',maxlength:400,placeholder:'例如：轉帳或面交；週一、週三出貨，黑貓低溫；7–10 月加保溫'}, s.ship||'')),
     h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'儲存'}), h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看賣場頁'})));
-  f.addEventListener('submit',async e=>{ e.preventDefault(); if(av.busy()||bn.busy()){ f.querySelector('.err').textContent='圖片還在上傳，請稍候再按儲存。'; return; } const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const cd=v('code').toUpperCase(); if(!/^[A-Z0-9]{2,4}$/.test(cd)){ f.querySelector('.err').textContent='賣家代碼要 2–4 個英文字母或數字。'; return; } if([...S.shops].some(([u,x])=>u!==S.me&&shopCode(u)===cd)){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 已經有人用了，換一個吧。'; return; } const d={...s,code:cd,name:v('name'),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
+  f.addEventListener('submit',async e=>{ e.preventDefault(); if(av.busy()||bn.busy()){ f.querySelector('.err').textContent='圖片還在上傳，請稍候再按儲存。'; return; } const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const cd=v('code').toUpperCase(); if(!/^[A-Z0-9]{2,4}$/.test(cd)){ f.querySelector('.err').textContent='賣家代碼要 2–4 個英文字母或數字。'; return; } if([...S.shops].some(([u,x])=>u!==S.me&&shopCode(u)===cd)){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 已經有人用了，換一個吧。'; return; } const d={...s,code:cd,name:v('name'),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),shipOpts:shipEd.get(),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
     const old=shopCode(); if(cd!==old){ const ok=await claimCode(cd); if(!ok){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 剛剛被別人用走了，換一個吧。'; return; } }
     try{ await S.db.doc('shops/'+S.me).set(d); S.shops.set(S.me,d); if(cd!==old) S.db.doc('codes/'+old).get().then(x=>{ if(x.exists&&x.data().uid===S.me) S.db.doc('codes/'+old).delete().catch(()=>{}); }).catch(()=>{}); const bk={}; f.querySelectorAll('[data-b]').forEach(x=>bk[x.dataset.b]=x.value.trim()); await S.db.doc(`data/users/${S.me}/bank`).set(bk); S.bank=bk; toast('賣場設定已儲存'); renderAll(); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'圖片太大或沒有權限':'請稍後再試'); } });
   m.append(h('div',{class:'row',style:'gap:8px;margin-bottom:12px'}, approved(S.me)?h('span',{class:'tag lime',text:'已上架'}):h('span',{class:'tag grey',text:'審核中'}), isVerified(S.me)?h('span',{class:'vbadge',text:'認證賣家'}):h('span',{class:'hint',text:'一般賣家'})), f);
