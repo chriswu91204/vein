@@ -14,7 +14,12 @@ const SITE = 'https://vein-48ec8.web.app';
 
 async function tokensOf(uid) {
   const snap = await db.collection(`data/users/${uid}/push/devices`).get();
-  return snap.docs.filter(d => d.data().token && d.data().on !== false).map(d => ({ ref: d.ref, token: d.data().token }));
+  // 同一台裝置（同一個 dev 代號，或同樣的瀏覽器＋螢幕）只送最新的那個 token，避免同一支手機跳兩則
+  const L = snap.docs.filter(d => d.data().token && d.data().on !== false).map(d => ({ ref: d.ref, token: d.data().token, at: +d.data().at || 0, key: d.data().dev || ((d.data().ua || '') + '|' + (d.data().scr || '')) }))
+    .sort((a, b) => b.at - a.at);
+  const seen = new Set(), out = [];
+  for (const t of L) { const k = t.key && t.key !== '|' ? t.key : t.token; if (seen.has(k)) continue; seen.add(k); out.push(t); }
+  return out;
 }
 async function push(uid, title, body, link, tag) {
   const T0 = await tokensOf(uid), seen = new Set(), T = T0.filter(t => !seen.has(t.token) && seen.add(t.token)); if (!T.length) return 0;

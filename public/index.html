@@ -6880,7 +6880,7 @@ function syncSubs(){
     L.push(S.db.collection(b+'/answers').onSnapshot(sn=>{ for(const [k,a] of S.answers) if(a.shop===u) S.answers.delete(k); sn.docs.forEach(d=>S.answers.set(d.id,{...d.data(),shop:u})); renderAll(); },()=>{}));
     subs.set(u,L); }
 }
-function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
+function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.me) setTimeout(()=>{ pushRefresh(); },4000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
 async function boot(){
   const c=window.claude;
   if (!c?.use){ S.failed=true; renderAll(); return; }
@@ -10501,11 +10501,20 @@ function openInstall(reason){ lsSet('vein.installTipAt',Date.now());
 function pushBtn(cls){ if(!S.me) return null; const on=lsGet('vein.pushOn',false)&&'Notification' in window&&Notification.permission==='granted';
   return h('button',{class:'btn '+(cls||'soft sm')+(on?' on':''),type:'button',onclick:e=>enablePush(e.currentTarget),text:on?'🔔 手機通知已開啟':'🔔 開啟手機通知'}); }
 const pushId=t=>{ let x=0; for(const c of t) x=(x*31+c.charCodeAt(0))|0; return 'd'+(x>>>0).toString(36)+t.length; };
+// 同一支手機只留一個推播 token（token 換過、重開通知、重新加到主畫面時舊的還有效 → 會收到兩則）
+const devKey=()=>{ let k=lsGet('vein.devKey',''); if(!k){ k='k'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); lsSet('vein.devKey',k); } return k; };
+const scrKey=()=>{ try{ const a=[screen.width,screen.height].sort((x,y)=>x-y); return a.join('x')+'@'+(devicePixelRatio||1); }catch(e){ return ''; } };
+async function pushSave(tok){ const base='data/users/'+ME()+'/push/devices', id=pushId(tok), dk=devKey(), sk=scrKey(), ua=UA.slice(0,160);
+  await S.db.doc(base+'/'+id).set({token:tok,ua,scr:sk,dev:dk,at:Date.now(),on:true});
+  try{ const sn=await S.db.collection(base).get(); for(const d of sn.docs){ if(d.id===id) continue; const x=d.data(); if(x.dev===dk||(x.ua===ua&&(!x.scr||x.scr===sk))) await S.db.doc(base+'/'+d.id).delete().catch(()=>{}); } }catch(e){} }
+// 每次打開網站：通知已開的話，悄悄更新這台裝置的 token（不跳權限視窗），順便清掉同一台的舊 token
+async function pushRefresh(){ if(pushRefresh.done||!S.me||S.work||!lsGet('vein.pushOn',false)||!('Notification' in window)||Notification.permission!=='granted') return; const vapid=S.site?.vapid; if(!vapid||!window.__veinPush) return; pushRefresh.done=true;
+  try{ if(!(await window.__veinPush.supported())) return; const tok=await window.__veinPush.enable(vapid); if(tok) await pushSave(tok); }catch(e){} }
 async function enablePush(btn){ if(needLogin()) return;
   if (isIOS&&!isStandalone()){ openInstall('push'); return; }
   const vapid=S.site?.vapid; if(!vapid){ toast(S.isOwner?'請先到「網站設定」填推播公開金鑰':'推播功能還在準備中'); return; }
   if (!window.__veinPush||!(await window.__veinPush.supported())){ toast('這個瀏覽器不支援推播通知'+(isIOS?'（iPhone 需要 iOS 16.4 以上，並從主畫面打開）':'')); return; }
-  try{ if(btn) btn.disabled=true; const tok=await window.__veinPush.enable(vapid); await S.db.doc('data/users/'+ME()+'/push/devices/'+pushId(tok)).set({token:tok,ua:UA.slice(0,160),at:Date.now(),on:true}); lsSet('vein.pushOn',true);
+  try{ if(btn) btn.disabled=true; const tok=await window.__veinPush.enable(vapid); await pushSave(tok); lsSet('vein.pushOn',true);
     try{ const reg=await navigator.serviceWorker.ready; reg.showNotification('🔔 VEIN 通知已開啟',{body:'有新訊息、議價、日常管理到期時會通知你',icon:'/icon-192.png'}); }catch(e){}
     toast('已開啟手機通知 🔔'); if(btn){ btn.textContent='🔔 手機通知已開啟'; btn.classList.add('on'); } }
   catch(e){ toast(e.code==='denied'?'通知被拒絕了：到手機「設定 → 通知 → VEIN」（或瀏覽器的網站設定）打開':'開啟失敗：'+(e.message||'請稍後再試')); }
