@@ -10076,13 +10076,21 @@ function chatBoot(db){ if(CH.booted||!S.me) return; CH.booted=true;
     sn.docs.forEach(d=>{ const v=d.data(); if((v.members||[]).includes(S.me)) S.chats.set(d.id,{id:d.id,...v}); });
     resolveNames([...S.chats.keys()].map(chatOther)); if(CH.ready) chatNotify(prev); CH.ready=true; chatRefresh(); },()=>{});
   chatDock(); }
-function chatAttach(cid){ return S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).onSnapshot(sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); },()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); }); }
+function chatAttach(cid){ const q=S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200), put=sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); };
+  const un=q.onSnapshot(put,()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); });
+  // 剛打開或從背景回來時，即時連線可能還沒接上、先給的是舊的快取：再主動跟伺服器要一次最新的
+  chatPull(cid); setTimeout(()=>chatPull(cid),2500); return un; }
+async function chatPull(cid){ try{ if(!S.db||!CH.subs.has(cid)) return; const sn=await S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).get(); const L=sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at), cur=S.chatMsgs.get(cid)||[];
+  if(L.length!==cur.length||(L[L.length-1]?.id!==cur[cur.length-1]?.id)||JSON.stringify(L.map(m=>m.resp||''))!==JSON.stringify(cur.map(m=>m.resp||''))){ S.chatMsgs.set(cid,L); chatRefresh(cid); } }catch(e){} }
 // 從通知點進來時資料庫可能還沒連好：先排隊，連好再開始即時同步（以前會直接失敗，要跳出去再進來才會更新）
 function chatSub(cid){ const x=CH.subs.get(cid); if(x){ x.n++; return; }
   if (!S.db){ const y={un:()=>{},n:1,pend:true}; CH.subs.set(cid,y); const t=setInterval(()=>{ if(CH.subs.get(cid)!==y){ clearInterval(t); return; } if(S.db){ clearInterval(t); y.pend=false; y.un=chatAttach(cid); } },300); return; }
   CH.subs.set(cid,{un:chatAttach(cid),n:1}); }
 // 手機 App 從背景回來時連線可能已經斷了：重新接上正在看的對話，馬上拿到最新訊息
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState!=='visible'||!S.db) return; for(const [cid,x] of CH.subs){ if(x.pend) continue; try{ x.un(); }catch(e){} x.un=chatAttach(cid); } });
+let chatResumeAt=0;
+const chatResume=async()=>{ if(!S.db||Date.now()-chatResumeAt<1500) return; chatResumeAt=Date.now(); try{ await S.db.resync?.(); }catch(e){} for(const [cid,x] of CH.subs){ if(x.pend) continue; try{ x.un(); }catch(e){} x.un=chatAttach(cid); } };
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') chatResume(); });
+addEventListener('pageshow',e=>{ if(e.persisted) chatResume(); });
 // 點通知：service worker 叫網頁換到對應的頁面（不重新載入）
 navigator.serviceWorker?.addEventListener('message',e=>{ const g=e.data&&e.data.veinGo; if(typeof g!=='string') return; const hs=g.replace(/^\/?/,'').replace(/^[^#]*/,''); if(hs&&hs!==location.hash) location.hash=hs; else if(hs) route(); });
 function chatUnsub(cid){ const x=CH.subs.get(cid); if(!x) return; if(--x.n<=0){ try{ x.un(); }catch(e){} CH.subs.delete(cid); } }
@@ -10100,7 +10108,7 @@ function chatNotify(prev){ for(const c of S.chats.values()){ const at=c.last?.at
 function chatPop(c){ const u=chatOther(c); document.querySelectorAll('.ch-pop').forEach(x=>x.remove());
   const el=h('button',{type:'button',class:'ch-pop',onclick:()=>{ el.remove(); openChat(u); }}, chatAv(u,40), h('span',{}, h('b',{text:chatName(u)}), h('small',{text:c.last.text||''})), h('i',{text:'回覆 →'}));
   (topLayer()||document.body).append(el); setTimeout(()=>el.remove(),6000);
-  try{ if(document.hidden&&'Notification' in window&&Notification.permission==='granted') new Notification('VEIN · '+chatName(u),{body:c.last.text||'',icon:'/favicon.svg',tag:c.id}); }catch(e){} }
+  try{ if(document.hidden&&!lsGet('vein.pushOn',false)&&'Notification' in window&&Notification.permission==='granted') new Notification('VEIN · '+chatName(u),{body:c.last.text||'',icon:'/favicon.svg',tag:c.id}); }catch(e){} }
 function topLayer(){ const L=[...document.querySelectorAll('dialog[open]')].sort((a,b)=>(a._openAt||0)-(b._openAt||0)); return L[L.length-1]||null; }
 function chatRefresh(cid){ CH.views.forEach(v=>{ if(!v.el.isConnected){ CH.views.delete(v); return; } if(!cid||v.cid===cid||v.list) v.render(); }); chatBadge();
   const n=chatUnreadN(); const t=document.title.replace(/^\(\d+\) /,''); document.title=n?'('+n+') '+t:t; }
