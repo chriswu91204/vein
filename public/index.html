@@ -4795,8 +4795,12 @@ const reg=()=>all().filter(p=>!p.hidden&&!p.private&&!p.blocked&&approved(p.shop
 const KIND={mother:'母株',pup:'側芽',seedling:'實生苗'};
 const kindLabel=p=>KIND[p?.kind]||'母株';
 const kindTag=p=>p?.kind==='pup'?'lime':p?.kind==='seedling'?'seed':'dark';
-const momId=p=>p?.momId||p?.parentId||null, momCode=p=>p?.momCode||p?.parentCode||'';
-const dadId=p=>p?.dadId||null, dadCode=p=>p?.dadCode||'';
+// 血統連結只承認「自己的（或曾經擁有過的）植株」當父母本：別人的植株不能被拿來掛在自己的植物底下
+const hadPlant=(par,u)=>!!par&&!!u&&(par.shop===u||ownerOf(par)===u||(S.owners.get(par.id)?.log||[]).some(l=>l.to===u||l.from===u));
+const linkOK=(par,child)=>!par||!child||hadPlant(par,child.shop)||(S.owners.get(child.id)?.log||[]).some(l=>hadPlant(par,l.from)||hadPlant(par,l.to));
+const rawMomId=p=>p?.momId||p?.parentId||null, rawDadId=p=>p?.dadId||null;
+const momId=p=>{ const id=rawMomId(p); if(!id) return null; const M=S.plants.get(id); return M&&!linkOK(M,p)?null:id; }, momCode=p=>p?.momCode||p?.parentCode||'';
+const dadId=p=>{ const id=rawDadId(p); if(!id) return null; const D=S.plants.get(id); return D&&!linkOK(D,p)?null:id; }, dadCode=p=>p?.dadCode||'';
 const mine=()=>all().filter(p=>p.shop===S.me); // 我的賣場登錄的（銷售、訂單用）
 // 我現在擁有的植物（植物管理、日常管理、標籤用）：轉給別人的不算，別人轉給我的算
 const holds=p=>!!p&&!!S.me&&(S.owners.get(p.id)?.current||p.shop)===S.me;
@@ -8425,6 +8429,7 @@ function lnode(x,role,code,ext){
   return activate(h('div',{class:'ln'+(role==='本株'?' me':'')}, h('div',{class:'ln-i'}, h('img',{src:cover(x),alt:'',loading:'lazy'})), h('span',{class:'lr',text:role}), h('b',{class:'mono',text:x.code}), h('small',{text:short(x.species)+(x.cultivar?' '+x.cultivar:'')}), memoOf(x)?h('small',{class:'ln-memo',text:memoOf(x)}):null, h('em',{class:'ls '+st[0],text:st[1].split(' · ')[0]})), ()=>openPlant(x.id));
 }
 function lineageView(p){
+  const bad=(id,code)=>id&&S.plants.get(id)&&!linkOK(S.plants.get(id),p)?{code,name:'不是登錄者的植株，未連結血統'}:null;
   const M=S.plants.get(momId(p)), D=S.plants.get(dadId(p)), ok=x=>x&&!x.blocked&&(approved(x.shop)||x.shop===S.me||S.admin), byCode=(a,b)=>(a.code||'').localeCompare(b.code||'',undefined,{numeric:true});
   const gpN=[[M,momId(M)],[M,dadId(M)],[D,momId(D)],[D,dadId(D)]].filter(([par,id])=>par&&id&&ok(S.plants.get(id))).length;
   // 同級：同一個母本（父本也相同）的兄弟姊妹，跟本株排在同一列
@@ -8438,7 +8443,7 @@ function lineageView(p){
   const rows=[];
   if (gpN) rows.push(h('a',{class:'lg2-up',href:'#/history/'+encodeURIComponent(p.id)}, '↑ 還有更早的祖代 '+gpN+' 株，看完整履歷'));
   if (hasPar) rows.push(gen(p.kind==='pup'?'上一代 · 分株自':'上一代 · 親本','par',h('div',{class:'lg2-par'},
-    lnode(ok(M)?M:null,p.kind==='pup'?'母株':'母本 ♀',momCode(p),momExt(p)), hasD?h('em',{class:'lg-x',text:'×'}):null, hasD?lnode(ok(D)?D:null,'父本 ♂',dadCode(p),dadExt(p)):null)));
+    lnode(ok(M)?M:null,p.kind==='pup'?'母株':'母本 ♀',momCode(p),bad(rawMomId(p),momCode(p))||momExt(p)), hasD?h('em',{class:'lg-x',text:'×'}):null, hasD?lnode(ok(D)?D:null,'父本 ♂',dadCode(p),bad(rawDadId(p),dadCode(p))||dadExt(p)):null)));
   // 這一代：本株在中間，同級的排左右；太多就收起來
   const left=sib.filter(x=>byCode(x,p)<0), right=sib.filter(x=>byCode(x,p)>0);
   const line=h('div',{class:'lg2-line'});
@@ -9365,10 +9370,10 @@ function admReg(m){
 }
 /* ---- 父母本選擇器：用編號或品種搜尋所有已登錄的植株 ---- */
 function parentPicker(o){
-  const items=()=>vis().filter(p=>!p.blocked&&p.id!==o.self).sort((a,b)=>((b.shop===S.me)-(a.shop===S.me))||(a.code||'').localeCompare(b.code||'',undefined,{numeric:true})).map(p=>({v:p.id,label:p.code,sub:short(p.species)+(p.cultivar?' '+p.cultivar:'')+' · '+kindLabel(p)+' · '+(p.shop===S.me?'我的':shopName(p.shop))}));
+  const items=()=>vis().filter(p=>!p.blocked&&p.id!==o.self&&(S.admin&&!S.work||hadPlant(p,S.me))).sort((a,b)=>((b.shop===S.me)-(a.shop===S.me))||(a.code||'').localeCompare(b.code||'',undefined,{numeric:true})).map(p=>({v:p.id,label:p.code,sub:short(p.species)+(p.cultivar?' '+p.cultivar:'')+' · '+kindLabel(p)+' · '+(p.shop===S.me?'我的':shopName(p.shop))}));
   const c=combo({items,value:o.value&&S.plants.has(o.value)?o.value:'',placeholder:o.placeholder||'點選後搜尋編號或品種',searchPh:'輸入編號或品種，例如 AN-VEN-00012',allowCustom:o.external!==false,clearable:true,onPick:()=>o.onChange&&o.onChange()});
   if (o.value&&!S.plants.has(o.value)) c.set(o.value,true);
-  const get=()=>{ const v=(c.get()||'').trim(); if(!v) return null; if(S.plants.has(v)){ const x=S.plants.get(v); return {id:x.id,code:x.code,p:x}; } const x=findByCode(v); if(x) return {id:x.id,code:x.code,p:x}; return {id:null,code:v.toUpperCase()}; };
+  const mineOK=x=>(S.admin&&!S.work)||hadPlant(x,S.me); const get=()=>{ const v=(c.get()||'').trim(); if(!v) return null; if(S.plants.has(v)){ const x=S.plants.get(v); if(mineOK(x)) return {id:x.id,code:x.code,p:x}; return {id:null,code:x.code}; } const x=findByCode(v); if(x&&mineOK(x)) return {id:x.id,code:x.code,p:x}; return {id:null,code:v.toUpperCase()}; };
   return {el:c.el,get,set:v=>c.set(v,true),clear:()=>{ c.set('',true); c.input.value=''; }};
 }
 const parLabel=x=>x?(x.p?(x.p.cultivar||short(x.p.species)):x.code):'';
