@@ -154,7 +154,24 @@ exports.pushOrdMsg = onDocumentCreated('ordmsg/{shop}/o/{oid}/m/{mid}', async ev
 exports.pushRaffle = onDocumentUpdated('shops/{shop}/raffles/{rid}', async ev => {
   const b = ev.data.before.data(), a = ev.data.after.data(); if (b.drawn || !a.drawn) return;
   const link = '/#/raffle/' + ev.params.shop + '~' + ev.params.rid, sn = await displayName(ev.params.shop);
-  for (const w of a.drawn.winners || []) await push(w, '🎉 恭喜你中獎了', '「' + sn + '」的「' + a.title + '」：' + (a.prize || ''), link, 'raf-' + ev.params.rid);
+  const W = new Set(a.drawn.winners || []);
+  for (const w of W) await push(w, '🎉 恭喜你中獎了', '「' + sn + '」的「' + a.title + '」：' + (a.prize || ''), link, 'raf-' + ev.params.rid);
+  // 沒抽中的參加者也通知：開獎結果出爐
+  let all = Array.isArray(a.drawn.all) ? a.drawn.all : null;
+  if (!all) { all = []; const key = ev.params.shop + '~' + ev.params.rid; try { const ss = await db.collection('social').get(); ss.forEach(d => { const at = ((d.data().raffles || {})[key]); if (at && (!a.endsAtMs || at <= a.endsAtMs)) all.push(d.id); }); } catch (e) {} }
+  for (const u of new Set(all)) { if (W.has(u) || u === ev.params.shop) continue; try { await push(u, '🎁 抽獎開獎了', '「' + sn + '」的「' + a.title + '」已經開獎，看看得獎名單', link, 'raf-' + ev.params.rid); } catch (e) {} }
+});
+// 抽獎截止了還沒開獎：提醒主辦人去按「開獎」（每場只提醒一次）
+exports.pushRaffleDue = onSchedule({ schedule: 'every 10 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now(), shops = await db.collection('shops').get();
+  for (const s of shops.docs) {
+    try {
+      const rs = await db.collection('shops/' + s.id + '/raffles').get();
+      for (const r of rs.docs) { const a = r.data(); if (a.drawn || a.dueNoted || !a.endsAtMs || a.endsAtMs > now || now - a.endsAtMs > 7 * 864e5) continue;
+        await push(s.id, '🎲 抽獎時間到了', '「' + (a.title || '抽獎') + '」已截止，打開按「開獎」抽出得獎者', '/#/raffle/' + encodeURIComponent(s.id + '~' + r.id), 'rafdue-' + r.id);
+        await r.ref.update({ dueNoted: now }); }
+    } catch (e) { logger.warn('raffleDue', s.id, e.message); }
+  }
 });
 // 收藏了這株的人（快結標提醒用）
 async function favoredBy(pid) { const out = [];

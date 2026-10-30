@@ -3592,6 +3592,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .tx-in small{font-size:12px;color:var(--fg2)}.tx-in .tx-memo{color:var(--fg)}
 .tx input[type=checkbox]{width:20px;height:20px;accent-color:var(--leaf);flex:none}
 .tx-rep{display:flex;gap:10px;align-items:center;font-size:13.5px}.tx-go{display:flex;justify-content:flex-end}
+.r-host{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.r-draw{font-size:18px;padding:14px 26px;animation:rDrawP 1.6s ease-in-out infinite}@keyframes rDrawP{50%{box-shadow:0 0 0 10px rgba(212,242,90,.25)}}
 .osl{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--fg2);margin-top:2px}.osl small{font-size:11.5px}
 .oopen{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--fg);font:600 14px/1.2 var(--f);cursor:pointer}.oopen:hover{background:color-mix(in srgb,var(--leaf) 8%,var(--paper))}.oopen b{color:var(--leaf)}
 .shpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
@@ -6476,7 +6477,11 @@ function renderRaffleDetail(first){
   const st=rState(r), es=entrants(r), k=rKey(r), joined=!!mySocial().raffles?.[k], el=eligible(S.me,r), w=r.drawn?.winners||[];
   resolveNames([...es.map(e=>e.uid),...w]);
   const action=(()=>{
-    if (r.shop===S.me) return h('p',{class:'hint',text:'這是你的抽獎，可以在賣家後台開獎。'});
+    if (r.shop===S.me){
+      if (st==='ended') return h('div',{class:'r-host'}, h('button',{class:'btn lime lg r-draw',type:'button',onclick:async e=>{ const b=e.currentTarget; b.textContent='抽獎中…'; await drawRaffle(r,b); const r2=S.raffles.get(rKey(r)); if(r2?.drawn){ renderRaffleDetail(true); setTimeout(()=>playDraw(r2),120); } }}, '🎲 開獎：抽出 '+(r.winnersN||1)+' 位'), h('p',{class:'hint',text:'時間到了！共 '+es.length+' 人參加，按下去會從符合資格的參加者中隨機抽出，並推播通知所有參加的人。'}));
+      if (st==='open') return h('p',{class:'hint',text:'這是你的抽獎。截止後這裡會出現「開獎」按鈕，按下去就抽出得獎者並通知所有參加者。'});
+      if (st==='soon') return h('p',{class:'hint',text:'這是你的抽獎，還沒開始。'});
+      return h('p',{class:'hint',text:'已開獎，得獎者與所有參加者都收到通知了。'}); }
     if (st==='soon') return h('button',{class:'btn soft lg',type:'button',disabled:true,text:'尚未開始'});
     if (st!=='open') return null;
     if (joined) return h('div',{class:'row'}, h('span',{class:'tag lime',style:'font-size:14px;padding:8px 14px',text:'✓ 已參加'}), h('button',{class:'link',type:'button',onclick:()=>leaveRaffle(r),text:'取消參加'}));
@@ -11386,7 +11391,7 @@ async function drawRaffle(r,btn){
   const es=entrants(r); let ver={}; if(window.__veinAuth&&S.user){ try{ ver=await S.user.profiles(es.map(e=>e.uid)); }catch(e){} }
   Object.entries(ver).forEach(([u,v])=>S.profC.set(u,!!v?.phoneVerified)); const pool=es.filter(e=>eligible(e.uid,r)&&(!window.__veinAuth||!phoneReq()||ver[e.uid]?.phoneVerified)).map(e=>e.uid), n=Math.min(r.winnersN||1,pool.length), a=[...pool];
   const rnd=new Uint32Array(Math.max(1,a.length)); crypto.getRandomValues(rnd); for(let i=a.length-1;i>0;i--){ const j=rnd[i]%(i+1); [a[i],a[j]]=[a[j],a[i]]; }
-  try{ await S.db.doc(`shops/${r.shop}/raffles/${r.id}`).update({drawn:{at:Date.now(),winners:a.slice(0,n),pool:pool.length,entrants:es.length}}); toast(n?'已開獎，抽出 '+n+' 位':'沒有符合資格的參加者'); }catch(e){ toast('開獎失敗'); if(btn) btn.disabled=false; }
+  try{ await S.db.doc(`shops/${r.shop}/raffles/${r.id}`).update({drawn:{at:Date.now(),winners:a.slice(0,n),pool:pool.length,entrants:es.length,all:es.map(e=>e.uid).slice(0,2000)}}); try{ const cur=S.raffles.get(rKey(r)); if(cur) cur.drawn={at:Date.now(),winners:a.slice(0,n),pool:pool.length,entrants:es.length}; }catch(x){} toast(n?'已開獎，抽出 '+n+' 位':'沒有符合資格的參加者'); }catch(e){ toast('開獎失敗'); if(btn) btn.disabled=false; }
 }
 function admQA(m){
   const qs=allQuestions(S.me); resolveNames(qs.map(q=>q.asker));
