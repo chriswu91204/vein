@@ -3333,7 +3333,7 @@ label.cvp-add{position:relative}
 .sd-cap{font-size:12.5px;color:var(--fg2);text-align:center;font-weight:600}
 .sd2 .sd-act{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px}
 .sd2 .sh-btns{margin:0;display:flex;flex-direction:column;gap:8px}.sd2 .sh-main{width:100%;justify-content:center}
-.sh-sub{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.sh-sub .btn{justify-content:center;white-space:nowrap}
+.sh-sub{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px}.sh-sub .btn{justify-content:center;white-space:nowrap;gap:5px}.sh-sub .btn i{font-style:normal}
 .sd2 .sh-note{font-size:12px;margin:8px 0 0}
 .sd2 .sd-panel{gap:10px;margin:0}
 .sd-sec{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
@@ -3361,7 +3361,10 @@ html:has(.sd2) #chDock,html:has(.sd2) .ch-pop{display:none!important}
   .sd2 .sd-pw{order:0;align-items:center}.sd2 .sd-right{order:1}.sd2 .sd-pw,.sd2 .sd-act,.sd2 .sd-right{width:100%;box-sizing:border-box;align-self:stretch}.sd2 .sd-act{width:auto}
   .sd2 .sd-act{order:2;position:sticky;bottom:0;z-index:3;margin:0 -4px;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px -12px rgba(0,0,0,.25)}
   .sd2 .sh-note{display:none}
-  .sd2 .sd-prev{max-width:300px}.sd2 .sd-prev.st .sd-cv{height:min(52vh,480px)}
+  .sd2 .sd-prev{max-width:min(100%,440px);width:100%}.sd2 .sd-prev.st{width:auto}.sd2 .sd-prev.st .sd-cv{height:min(66vh,640px)}.sd2 .sd-cv{max-height:66vh}
+  .sd2 .sd-act{padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
+  .sd2 .sh-btns{flex-direction:row;flex-wrap:nowrap;align-items:stretch;gap:6px}.sd2 .sh-btns .btn.lg.sh-main{flex:1 1 auto;width:auto;min-width:0;padding:0 10px;min-height:46px;font-size:15px;white-space:nowrap}.sd2 .sh-sub .btn.line{padding:0 10px}
+  .sd2 .sh-sub{display:flex;gap:6px}.sd2 .sh-sub .btn{width:46px;height:46px;padding:0;font-size:18px}.sd2 .sh-sub .btn span{display:none}.sd2 .sh-sub .btn.line span{display:inline;font-size:12px}.sd2 .sh-sub .btn.line{width:auto;padding:0 12px}
 }
 
 @media (max-width:760px){.sd-sl{grid-template-columns:96px 1fr 46px}}
@@ -7718,12 +7721,13 @@ function openShare(p,start){ lsSet('vein.didShare',true);
     if (navigator.canShare&&navigator.canShare({files:[file]})){ quietCopy(story?plantUrl(p):txt.value,story?'網址已複製，可以貼到限動連結':'文字已複製，傳出圖片後可以直接貼上'); try{ await navigator.share({files:[file]}); }catch(e){} } else { copyText(txt.value); dl(blob); } };
   const busyBtn=async(b,fn)=>{ if(b.disabled) return; const t=b.innerHTML; b.disabled=true; b.classList.add('busy'); try{ await fn(); } finally{ b.disabled=false; b.classList.remove('busy'); b.innerHTML=t; } };
   btns.append(h('button',{class:'btn volt lg sh-main',type:'button',onclick:e=>busyBtn(e.currentTarget,doShare)},'📤 分享圖片'),
-    h('div',{class:'sh-sub'}, h('button',{class:'btn soft sm',type:'button',onclick:e=>busyBtn(e.currentTarget,async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); })},'⬇ '+saveLabel()),
-      h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(txt.value)},'📋 複製文字'),
-      h('a',{class:'btn line sm',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE')));
+    h('div',{class:'sh-sub'}, h('button',{class:'btn soft sm',type:'button','aria-label':saveLabel(),onclick:e=>busyBtn(e.currentTarget,async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); })}, h('i',{text:'⬇'}), h('span',{text:saveLabel()})),
+      h('button',{class:'btn soft sm',type:'button','aria-label':'複製文字',onclick:()=>copyText(txt.value)}, h('i',{text:'📋'}), h('span',{text:'複製文字'})),
+      h('button',{class:'btn soft sm',type:'button','aria-label':'複製連結',onclick:()=>copyText(plantUrl(p))}, h('i',{text:'🔗'}), h('span',{text:'複製連結'})),
+      h('a',{class:'btn line sm',href:'#',target:'_blank',rel:'noopener','aria-label':'LINE',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }}, h('span',{text:'LINE'}))));
   note.textContent='手機按「分享圖片」可以直接選 IG、FB、LINE；限動尺寸會先幫你複製網址，可以用「連結」貼圖貼上。';
   const cap=h('div',{class:'sd-cap'}); sumEls.cap=cap;
-  openDialog('轉發這株', h('div',{class:'sd sd2'}, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, h('div',{class:'sd-pw'}, prev, cap), h('div',{class:'sd-act'}, btns, note)), h('div',{class:'sd-right'}, panel))), false);
+  openDialog(isAuc(p)&&live(p)?'轉發這場競標':'轉發這株', h('div',{class:'sd sd2'}, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, h('div',{class:'sd-pw'}, prev, cap), h('div',{class:'sd-act'}, btns, note)), h('div',{class:'sd-right'}, panel))), false);
   drawPanel(); setTimeout(()=>modesBox.querySelector('[aria-pressed="true"]')?.scrollIntoView({inline:'center',block:'nearest'}),50);
 }
 
@@ -7929,7 +7933,7 @@ function quickShare(o){ lsSet('vein.didShare',true);
     h('details',{class:'qs-t'}, h('summary',{text:'看要傳出去的文字'}), h('pre',{text:text}))), true); }
 function plantShareText(p){ const pl=priceLabel(p), sale=onSale(p);
   return '🌱 '+short(p.species)+(p.cultivar?' '+p.cultivar:'')+'（'+p.code+'）\n'+(sale?(live(p)?'⚡ 競標中，目前 '+pl.main+(p.endsAtMs?'，'+fmtLeft(p.endsAtMs-Date.now())+'後結標':''):'💰 '+pl.main)+'\n':'')+'有編號、親本與成長履歷，可以查驗\n👉 '+plantUrl(p); }
-const shareAny=p=>quickShare({title:isAuc(p)&&live(p)?'轉發這場競標':'轉發這株',name:short(p.species)+(p.cultivar?' '+p.cultivar:''),sub:p.code+' · '+(onSale(p)?priceLabel(p).main:kindLabel(p)),img:cover(p),url:plantUrl(p),text:plantShareText(p),poster:()=>isAuc(p)?openAucShare(p):openShare(p)});
+const shareAny=p=>{ if(isAuc(p)&&!live(p)) return openAucShare(p); return openShare(p,isAuc(p)&&live(p)?'auction':undefined); };
 function shareBtn(p,cls,label){ return h('button',{class:'btn '+(cls||'soft')+' shbtn',type:'button',onclick:e=>{ e.stopPropagation(); shareAny(p); }}, h('i',{class:'shbtn-i',text:'↗'}), label||(isAuc(p)?'轉發競標':'轉發')); }
 
 /* ---------- 所有權轉移連結：對方打開、按接受就轉過去 ---------- */
