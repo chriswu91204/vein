@@ -7514,6 +7514,7 @@ async function sdRender(cv,p,c,scale=1){
       if(note){ g.fillStyle=TX; g.font='800 '+Math.round(34*s)+'px '+F; g.fillText(note,L,top?H/2:T+130*s); }
       await qr(R-QS,by+(top&&story?250*s:0)+bh-QS-30*s,QS,onA,A); break; }
     case 'multi': case 'mgrid': case 'mfilm': case 'mpola': case 'mmag':{
+      const T=story?Math.max(110*u,mg):mg, B=story?H-Math.max(120*u,mg):H-mg; // 多圖版：限動也盡量滿版
       const P0=sdPhotos(p), first=c.photo&&P0.includes(c.photo)?c.photo:P0[0], P=[first,...P0.filter(u=>u!==first)].filter(Boolean);
       const ims=(await Promise.all(P.slice(0,6).map(async(src,i)=>i===0&&im?im:((scale>=1?await sdImg(await hiPhoto(p,src)):null)||await sdImg(src))))).filter(Boolean);
       const RED='#E5484D', SQ=c.fmt==='square', FLT=()=>{ try{ g.filter=(SD_FILTER_CSS[c.filter||'none']==='none'?'':SD_FILTER_CSS[c.filter])+(c.bright&&c.bright!==1?' brightness('+c.bright+')':'')||'none'; }catch(e){} };
@@ -7535,7 +7536,7 @@ async function sdRender(cv,p,c,scale=1){
       if (c.tpl==='multi'){ // 吊牌卡：頁首挖掛勾孔
         const HD=A==='#FFFFFF'||A==='#111312'?VOLT:A, onHD=A==='#FFFFFF'||A==='#111312'?INK:onA, PAPER='#ECECE7', BODY='#F7F7F5', FOOT='#EFEFEC';
         g.fillStyle=PAPER; g.fillRect(0,0,W,H); g.save(); g.globalAlpha=.05; g.fillStyle=INK; g.font='italic 900 '+Math.round(260*u)+'px '+FF.sans; g.fillText('VEIN',-30*u,240*u); g.fillText('VEIN',W*.45,H-60*u); g.restore();
-        const FH=(c.showQR?(SQ?200:260):(SQ?120:150))*s, pd=(story?54:40)*u, cx=pd, cw=W-2*pd, cy=story?Math.max(190*u,pd):pd, ch=(story?H-cy-Math.max(210*u,pd):H-2*pd), cr=50*u*rd, hh=(story?200:(SQ?150:180))*s;
+        const FH=(c.showQR?(SQ?200:260):(SQ?120:150))*s, pd=(story?22:18)*u, cx=pd, cw=W-2*pd, cy=story?70*u:pd, ch=(story?H-cy-70*u:H-2*pd), cr=50*u*rd, hh=(story?200:(SQ?150:180))*s;
         g.save(); g.shadowColor='rgba(0,0,0,.14)'; g.shadowBlur=46*u; g.shadowOffsetY=16*u; g.fillStyle=BODY; g.beginPath(); g.roundRect(cx,cy,cw,ch,cr); g.fill(); g.restore();
         g.save(); g.beginPath(); g.roundRect(cx,cy,cw,ch,cr); g.clip(); g.fillStyle=HD; g.fillRect(cx,cy,cw,hh); g.fillStyle='rgba(0,0,0,.06)'; g.fillRect(cx,cy+hh-3*u,cw,3*u); g.fillStyle=FOOT; g.fillRect(cx,cy+ch-FH,cw,FH); g.restore();
         // 掛勾孔：膠囊＋上方半圓凸起，挖成背景色，加內陰影
@@ -7561,7 +7562,6 @@ async function sdRender(cv,p,c,scale=1){
           g.fillStyle='#8B8D8A'; g.font='500 '+Math.round(40*s)+'px '+F; g.fillText('⌗ VEIN 掃一掃',ix+qs+40*s,qy+qs*.42); g.fillText('🌿 看完整履歷與血統',ix+qs+40*s,qy+qs*.42+62*s); }
         else { g.fillStyle='#8B8D8A'; g.font='500 '+Math.round(38*s)+'px '+F; g.fillText('🌿 在 VEIN 看完整履歷與血統',ix,fy0+FH/2+14*s); }
         g.save(); g.translate(ix+iw-70*s,fy0+FH/2); g.rotate(.18); g.fillStyle='#1F5C42'; g.shadowColor='rgba(0,0,0,.2)'; g.shadowBlur=18*u; g.beginPath(); g.roundRect(-66*s,-66*s,132*s,132*s,38*s); g.fill(); g.shadowColor='transparent'; g.fillStyle=VOLT; g.beginPath(); g.arc(0,0,22*s,0,7); g.fill(); g.restore();
-        if(story){ g.fillStyle='#8B8D8A'; g.textAlign='center'; g.font='700 '+Math.round(30*s)+'px '+MONO; g.fillText(plantUrl(p).replace(/^https?:\/\//,'').slice(0,46),W/2,cy+ch+80*u); g.textAlign='left'; }
       }
       else if (c.tpl==='mgrid'){ // 拼貼滿版
         g.fillStyle=INK; g.fillRect(0,0,W,H); grid(0,0,W,H,8*u,0,5);
