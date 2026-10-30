@@ -3327,6 +3327,43 @@ label.cvp-add{position:relative}
 .sd-body{display:flex;flex-direction:column;gap:14px;min-height:260px}
 .sd-sl{display:grid;grid-template-columns:120px 1fr 52px;gap:10px;align-items:center;font-size:12.5px;color:var(--fg2)}.sd-sl em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--fg)}.sd-sl input{width:100%;accent-color:#111312}
 .sd-saved{font-size:12px;color:var(--leaf-2);font-weight:600}
+.sd2 .sd-main{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:24px}
+.sd2 .sd-left{position:sticky;top:0;display:flex;flex-direction:column;gap:12px;align-self:start}
+.sd2 .sd-pw{display:flex;flex-direction:column;gap:8px}
+.sd-cap{font-size:12.5px;color:var(--fg2);text-align:center;font-weight:600}
+.sd2 .sd-act{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px}
+.sd2 .sh-btns{margin:0;display:flex;flex-direction:column;gap:8px}.sd2 .sh-main{width:100%;justify-content:center}
+.sh-sub{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.sh-sub .btn{justify-content:center;white-space:nowrap}
+.sd2 .sh-note{font-size:12px;margin:8px 0 0}
+.sd2 .sd-panel{gap:10px;margin:0}
+.sd-sec{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.sd-sh{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none;user-select:none}.sd-sh::-webkit-details-marker{display:none}
+.sd-sec.fixed .sd-sh{cursor:default;padding-bottom:4px}
+.sd-sh>i{flex:none;width:24px;height:24px;border-radius:50%;background:#111312;color:#D2FF00;font:800 12px/24px var(--f-mono);text-align:center;font-style:normal}
+.sd-sh>span{display:flex;flex-direction:column;min-width:0;flex:1}.sd-sh b{font-size:15px}
+.sd-sum{font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.sd-dot{display:inline-block;width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.sd-chev{font-style:normal;color:var(--fg2);font-size:18px;transition:transform .2s}.sd-sec[open] .sd-chev{transform:rotate(180deg)}
+.sd-sb{padding:6px 14px 14px;display:flex;flex-direction:column;gap:12px}
+.sd2 .sd-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:0}
+.sd2 .sd-modes button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 10px;border-radius:14px;min-width:0;text-align:left}
+.sd2 .sd-modes button span{font-size:18px;grid-row:auto;line-height:1.2}.sd2 .sd-modes button b{font-size:13px;white-space:nowrap}.sd2 .sd-modes button small{font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sd2 .sd-tpls{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.sd2 .sd-tp{flex:none;width:78px}.sd2 .sd-tp canvas{border-radius:8px}
+.sd2 .sd-fmt button{flex:1;text-align:center}
+.sd-ph{position:relative}.sd-ph em{position:absolute;left:3px;top:3px;font-style:normal;font-size:10px;font-weight:800;color:#fff;background:rgba(0,0,0,.55);border-radius:5px;padding:0 4px}
+.sd2 .sh-txt{min-height:120px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--paper);color:var(--fg);box-sizing:border-box}
+html:has(.sd2) #chDock,html:has(.sd2) .ch-pop{display:none!important}
+.sd-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:2px 4px}
+@media (max-width:760px){
+  .sd2 .sd-main{display:flex;flex-direction:column;gap:12px}
+  .sd2 .sd-left{display:contents}
+  .sd2 .sd-pw{order:0;align-items:center}.sd2 .sd-right{order:1}.sd2 .sd-pw,.sd2 .sd-act,.sd2 .sd-right{width:100%;box-sizing:border-box;align-self:stretch}.sd2 .sd-act{width:auto}
+  .sd2 .sd-act{order:2;position:sticky;bottom:0;z-index:3;margin:0 -4px;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px -12px rgba(0,0,0,.25)}
+  .sd2 .sh-note{display:none}
+  .sd2 .sd-prev{max-width:300px}.sd2 .sd-prev.st .sd-cv{height:min(52vh,480px)}
+}
+
 @media (max-width:760px){.sd-sl{grid-template-columns:96px 1fr 46px}}
 html.modal-lock,html.modal-lock body{overflow:hidden;overscroll-behavior:none}
 html.modal-lock body{position:fixed;left:0;right:0;width:100%}
@@ -7560,7 +7597,7 @@ function openShare(p,start){ lsSet('vein.didShare',true);
   let tk=0; const redraw=async()=>{ const my=++tk; prev.classList.toggle('st',c.fmt==='story'); const off=document.createElement('canvas'); await sdRender(off,p,c,0.5); if(my!==tk) return; cv.width=off.width; cv.height=off.height; cv.getContext('2d').drawImage(off,0,0); };
   let rt=0, th=0;
   const persist=()=>{ const keep={}; SD_KEEP.forEach(k=>{ if(c[k]!==undefined) keep[k]=c[k]; }); store.m[mode]=keep; store.last=mode; sdSave(store); saved.textContent='✓ 已記住「'+modeDef(mode)[2]+'」的設定，下次自動套用'; };
-  const soon=(thumbs)=>{ clearTimeout(rt); rt=setTimeout(redraw,50); persist(); if(thumbs){ clearTimeout(th); th=setTimeout(drawThumbs,250); } };
+  let soon=(thumbs)=>{ clearTimeout(rt); rt=setTimeout(redraw,50); persist(); if(thumbs){ clearTimeout(th); th=setTimeout(drawThumbs,250); } };
   // ---- 控制元件 ----
   const seg=(opts,key,cls,thumbs)=>{ const box=h('div',{class:'sd-seg '+(cls||'')}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(c[key]===v),onclick:()=>{ c[key]=v; box.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(opts[i][0]===v))); soon(thumbs); },text:l}))); return box; };
   const slider=(key,label,min,max,step,fmt)=>{ const val=h('em',{text:fmt?fmt(c[key]):String(c[key])}); const i=h('input',{type:'range',min,max,step,value:c[key]}); i.addEventListener('input',()=>{ c[key]=+i.value; val.textContent=fmt?fmt(c[key]):String(c[key]); soon(); }); return h('div',{class:'sd-sl'}, h('span',{text:label}), i, val); };
@@ -7568,51 +7605,64 @@ function openShare(p,start){ lsSet('vein.didShare',true);
   const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(c[k]!==false&&!!c[k]),onclick:e=>{ c[k]=!(c[k]!==false&&!!c[k]); e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(true); }},l);
   const swatch=(key,list,thumbs)=>{ const box=h('div',{class:'dz-sw'}, ...list.map(col=>h('button',{type:'button',style:'background:'+col,'aria-label':col,'aria-pressed':String(c[key]===col),onclick:e=>{ c[key]=col; box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(thumbs); }}))); return box; };
   const tplBox=h('div',{class:'sd-tpls'});
-  const drawThumbs=()=>{ tplBox.replaceChildren(...SD_TPL.map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
-  const modesBox=h('div',{class:'sd-modes'}, ...MODES.map(([k,ic,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ persist(); mode=k; c=build(k); txt.value=modeDef(k)[5](p); saved.textContent=store.m[k]?'✓ 已套用你上次的「'+modeDef(k)[2]+'」設定':''; modesBox.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===k))); store.last=k; sdSave(store); drawPanel(); }}, h('span',{text:ic}), h('b',{text:l}), h('small',{text:sub}))));
-  let tab=store.tab||'layout';
-  const tabs=[['layout','版型'],['content','內容'],['style','文字與顏色'],['alpha','透明度'],['frame','外框']];
+  const drawThumbs=()=>{ tplBox.replaceChildren(...SD_TPL.map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),'aria-label':l,onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); sumUpd(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
+  const open=store.open||(store.open={photo:sdPhotos(p).length>1,show:true});
+  const sumEls={};
+  const sumUpd=()=>{ const fmtL=(SD_FMT[c.fmt]||SD_FMT.post)[2], tplL=(SD_TPL.find(t=>t[0]===c.tpl)||SD_TPL[0])[1];
+    if(sumEls.cap) sumEls.cap.textContent=modeDef(mode)[2]+' · '+fmtL+' · '+tplL;
+    if(sumEls.photo) sumEls.photo.textContent=(sdPhotos(p).length>1?'第 '+(sdPhotos(p).indexOf(c.photo)+1)+' / '+sdPhotos(p).length+' 張':'1 張')+' · '+((SD_FILTERS.find(f=>f[0]===c.filter)||SD_FILTERS[0])[1])+(c.zoom>1.01?' · 放大 '+(+c.zoom).toFixed(1)+'×':'');
+    if(sumEls.show){ const on=[['showPrice','價格'],['showQR','QR'],['showCode','編號'],['showKind','類型'],['showStatus','狀態'],['showTags','標籤'],['showShopName','溫室名'],['showVein','VEIN']].filter(([k])=>c[k]!==false&&!!c[k]).map(x=>x[1]); sumEls.show.textContent=(on.length?on.join('、'):'只放照片')+(c.note?' ·「'+c.note+'」':''); }
+    if(sumEls.style){ sumEls.style.replaceChildren(h('i',{class:'sd-dot',style:'background:'+c.color}), (SD_FONTS.find(f=>f[0]===c.font)||SD_FONTS[0])[1]+' · 文字在'+(c.pos==='top'?'上方':'下方')); }
+    if(sumEls.adv) sumEls.adv.textContent=(c.border>0?'外框 '+c.border+'px':'無外框')+' · 暗化 '+Math.round((c.shade??1)*100)+'%';
+  };
+  const sec=(k,num,title,body,sumKey,fixed)=>{ const sm=sumKey?h('small',{class:'sd-sum'}):null; if(sumKey) sumEls[sumKey]=sm;
+    if(fixed) return h('section',{class:'sd-sec fixed'}, h('div',{class:'sd-sh'}, h('i',{text:num}), h('b',{text:title})), h('div',{class:'sd-sb'}, ...body));
+    const d=h('details',{class:'sd-sec'}, h('summary',{class:'sd-sh'}, h('i',{text:num}), h('span',{}, h('b',{text:title}), sm), h('em',{class:'sd-chev',text:'⌄'})), h('div',{class:'sd-sb'}, ...body));
+    d.open=!!open[k]; d.addEventListener('toggle',()=>{ open[k]=d.open; sdSave(store); }); return d; };
+  const modesBox=h('div',{class:'sd-modes'});
+  const paintModes=()=>modesBox.replaceChildren(...MODES.map(([k,ic,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ if(k===mode) return; persist(); mode=k; c=build(k); txt.value=modeDef(k)[5](p); saved.textContent=store.m[k]?'✓ 已套用你上次的「'+l+'」設定':''; store.last=k; sdSave(store); drawPanel(); }}, h('span',{text:ic}), h('b',{text:l}), h('small',{text:sub}))));
   const panel=h('div',{class:'sd-panel'});
-  const drawPanel=()=>{ const tb=h('div',{class:'sd-tabs'}, ...tabs.map(([k,l])=>h('button',{type:'button','aria-pressed':String(tab===k),onclick:()=>{ tab=k; store.tab=k; drawPanel(); },text:l})));
-    const body=[];
-    if (tab==='layout'){
-      body.push(h('div',{class:'sd-g'}, h('b',{text:'尺寸'}), seg(Object.entries(SD_FMT).map(([k,v])=>[k,v[2]]),'fmt','',true)), h('div',{class:'sd-g'}, h('b',{text:'模板'}), tplBox));
-      const ph=sdPhotos(p); if(ph.length>1) body.push(h('div',{class:'sd-g'}, h('b',{text:'照片'}), h('div',{class:'sd-photos'}, ...ph.map(u=>h('button',{type:'button',class:'sd-ph'+(c.photo===u?' on':''),onclick:e=>{ c.photo=u; e.currentTarget.parentElement.querySelectorAll('.sd-ph').forEach(x=>x.classList.toggle('on',x===e.currentTarget)); soon(true); }}, h('img',{src:u,alt:'',loading:'lazy'}))))));
-      body.push(h('div',{class:'sd-g'}, h('b',{text:'照片調整'}), h('div',{class:'sd-row'}, h('span',{text:'對齊'}), seg([['top','上'],['center','中'],['bottom','下']],'focus','sm')), slider('zoom','放大',1,2.5,.05,v=>v.toFixed(2)+'×'), slider('bright','亮度',.6,1.4,.02,pct), h('div',{class:'sd-row'}, h('span',{text:'濾鏡'}), seg(SD_FILTERS,'filter','sm',true))));
-      drawThumbs();
-    }
-    if (tab==='content'){
-      const ttl=h('input',{maxlength:40,placeholder:'植物名稱（留空用預設）',value:c.title}); ttl.addEventListener('input',()=>{ c.title=ttl.value.trim(); soon(); });
-      const nt=h('input',{maxlength:30,placeholder:'自訂一句話，例如：限量 3 株',value:c.note}); nt.addEventListener('input',()=>{ c.note=nt.value.trim(); soon(); });
-      body.push(h('div',{class:'sd-g'}, h('b',{text:'溫室與品牌'}), h('div',{class:'chips'}, tog('showLogo','溫室 logo'), tog('showShopName','溫室名稱'), tog('showVein','VEIN 標誌'))),
-        h('div',{class:'sd-g'}, h('b',{text:'植物資訊'}), h('div',{class:'chips'}, tog('showKind','類型'), tog('showStatus','販售狀態'), tog('showTags','商品標籤'), tog('showPrice','價格'), tog('showCode','編號'), tog('showQR','QR code'))),
-        h('div',{class:'sd-g'}, h('b',{text:'文字'}), ttl, nt));
-    }
-    if (tab==='style'){
-      body.push(h('div',{class:'sd-g'}, h('b',{text:'主色（標籤、貼紙、價格）'}), swatch('color',SD_COLORS,true)),
-        h('div',{class:'sd-g'}, h('b',{text:'文字顏色'}), swatch('ink',['#FFFFFF','#111312','#D2FF00','#FFE9A8'])),
-        h('div',{class:'sd-g'}, h('div',{class:'sd-row'}, h('span',{text:'字體'}), seg(SD_FONTS,'font','sm',true)), h('div',{class:'sd-row'}, h('span',{text:'文字位置'}), seg([['bottom','下方'],['top','上方']],'pos','sm',true)), h('div',{class:'sd-row'}, h('span',{text:'文字陰影'}), seg([[false,'關'],[true,'開']],'shadow','sm')),
-          slider('size','文字與卡片大小',.6,1.5,.05,v=>Math.round(v*100)+'%'), slider('margin','邊距',20,160,2,v=>v+'px'), slider('round','圓角',0,2,.1,v=>Math.round(v*100)+'%')));
-    }
-    if (tab==='alpha'){
-      body.push(h('div',{class:'sd-g'}, h('b',{text:'半透明程度'}), slider('shade','照片暗化漸層',0,1.6,.05,pct), slider('vignette','四周暗角',0,.8,.02,pct), slider('boxA','卡片／貼紙／色條',0,1,.02,pct), slider('tagA','標籤底色',0,1,.02,pct), slider('markA','溫室 logo 與 VEIN 標誌',0,1,.02,pct), slider('blur','毛玻璃模糊',0,60,1,v=>v+'px')));
-    }
-    if (tab==='frame'){
-      body.push(h('div',{class:'sd-g'}, h('b',{text:'整張外框（所有模板都能加）'}), slider('border','框線粗細',0,40,1,v=>v?v+'px':'無'), slider('borderIn','框的大小（內縮）',0,160,2,v=>v+'px'), slider('borderR','框的圓角',0,120,2,v=>v+'px'), slider('borderA','框的透明度',0,1,.02,pct), h('div',{class:'sd-row'}, h('span',{text:'顏色'}), seg([['accent','主色'],['ink','文字色']],'borderColor','sm'))),
-        h('div',{class:'sd-g'}, h('b',{text:'「細框藝廊」模板的框'}), slider('frameW','粗細',1,30,1,v=>v+'px'), slider('frameIn','內縮',0,160,2,v=>v+'px'), slider('frameR','圓角',0,120,2,v=>v+'px')));
-    }
-    panel.replaceChildren(tb, h('div',{class:'sd-body'}, ...body), h('div',{class:'row',style:'justify-content:space-between;gap:8px;flex-wrap:wrap'}, saved, h('button',{type:'button',class:'bf-lk',onclick:()=>{ delete store.m[mode]; sdSave(store); c=build(mode); drawPanel(); toast('已恢復「'+modeDef(mode)[2]+'」的預設'); },text:'恢復這個模式的預設'})));
-    redraw(); };
+  const drawPanel=()=>{ paintModes();
+    const ph=sdPhotos(p);
+    const photoBody=[ph.length>1?h('div',{class:'sd-g'}, h('b',{text:mode==='multi'||c.tpl==='multi'?'選第一張（拼貼裡最大的那格）':'選一張當底圖'}), h('div',{class:'sd-photos'}, ...ph.map((u,i)=>h('button',{type:'button',class:'sd-ph'+(c.photo===u?' on':''),onclick:e=>{ c.photo=u; e.currentTarget.parentElement.querySelectorAll('.sd-ph').forEach(x=>x.classList.toggle('on',x===e.currentTarget)); soon(true); sumUpd(); }}, h('img',{src:u,alt:'',loading:'lazy'}), h('em',{text:String(i+1)}))))):null,
+      h('div',{class:'sd-g'}, h('div',{class:'sd-row'}, h('span',{text:'對齊'}), seg([['top','靠上'],['center','置中'],['bottom','靠下']],'focus','sm')), slider('zoom','放大',1,2.5,.05,v=>v.toFixed(2)+'×'), slider('bright','亮度',.6,1.4,.02,pct)),
+      h('div',{class:'sd-g'}, h('b',{text:'濾鏡'}), seg(SD_FILTERS,'filter','sm',true))].filter(Boolean);
+    const ttl=h('input',{maxlength:40,placeholder:'植物名稱（留空＝'+pName(p)+'）',value:c.title}); ttl.addEventListener('input',()=>{ c.title=ttl.value.trim(); soon(); });
+    const nt=h('input',{maxlength:30,placeholder:'例如：限量 3 株、週六面交',value:c.note}); nt.addEventListener('input',()=>{ c.note=nt.value.trim(); soon(); sumUpd(); });
+    const showBody=[h('div',{class:'sd-g'}, h('b',{text:'植物資訊'}), h('div',{class:'chips'}, tog('showPrice','價格'), tog('showQR','QR code'), tog('showCode','編號'), tog('showKind','類型'), tog('showStatus','販售狀態'), tog('showTags','商品標籤'))),
+      h('div',{class:'sd-g'}, h('b',{text:'溫室與品牌'}), h('div',{class:'chips'}, tog('showLogo','溫室頭像'), tog('showShopName','溫室名稱'), tog('showVein','VEIN 標誌'))),
+      h('div',{class:'sd-g'}, h('b',{text:'標題'}), ttl), h('div',{class:'sd-g'}, h('b',{text:'加一句話'}), nt)];
+    const styleBody=[h('div',{class:'sd-g'}, h('b',{text:'主色（標籤、價格、色條）'}), swatch('color',SD_COLORS,true)),
+      h('div',{class:'sd-g'}, h('b',{text:'文字顏色'}), swatch('ink',['#FFFFFF','#111312','#D2FF00','#FFE9A8'])),
+      h('div',{class:'sd-g'}, h('div',{class:'sd-row'}, h('span',{text:'字體'}), seg(SD_FONTS,'font','sm',true)), h('div',{class:'sd-row'}, h('span',{text:'文字位置'}), seg([['bottom','下方'],['top','上方']],'pos','sm',true)), h('div',{class:'sd-row'}, h('span',{text:'文字陰影'}), seg([[false,'關'],[true,'開']],'shadow','sm'))),
+      h('div',{class:'sd-g'}, slider('size','文字大小',.6,1.5,.05,v=>Math.round(v*100)+'%'), slider('margin','邊距',20,160,2,v=>v+'px'), slider('round','圓角',0,2,.1,v=>Math.round(v*100)+'%'))];
+    const advBody=[h('div',{class:'sd-g'}, h('b',{text:'透明度'}), slider('shade','照片暗化',0,1.6,.05,pct), slider('vignette','四周暗角',0,.8,.02,pct), slider('boxA','卡片／色條',0,1,.02,pct), slider('tagA','標籤底色',0,1,.02,pct), slider('markA','logo 與標誌',0,1,.02,pct), slider('blur','毛玻璃模糊',0,60,1,v=>v+'px')),
+      h('div',{class:'sd-g'}, h('b',{text:'整張外框'}), slider('border','粗細',0,40,1,v=>v?v+'px':'無'), slider('borderIn','內縮',0,160,2,v=>v+'px'), slider('borderR','圓角',0,120,2,v=>v+'px'), slider('borderA','透明度',0,1,.02,pct), h('div',{class:'sd-row'}, h('span',{text:'顏色'}), seg([['accent','主色'],['ink','文字色']],'borderColor','sm'))),
+      c.tpl==='frame'?h('div',{class:'sd-g'}, h('b',{text:'「細框藝廊」的框'}), slider('frameW','粗細',1,30,1,v=>v+'px'), slider('frameIn','內縮',0,160,2,v=>v+'px'), slider('frameR','圓角',0,120,2,v=>v+'px')):null].filter(Boolean);
+    panel.replaceChildren(
+      sec('mode','1','要發到哪裡？',[modesBox],null,true),
+      sec('look','2','尺寸與版型',[h('div',{class:'sd-g'}, seg(Object.entries(SD_FMT).map(([k,v])=>[k,v[2]]),'fmt','sd-fmt',true)), tplBox],null,true),
+      sec('photo','3','照片',photoBody,'photo'),
+      sec('show','4','圖上要放什麼',showBody,'show'),
+      sec('style','5','顏色與文字',styleBody,'style'),
+      sec('adv','6','進階：透明度與外框',advBody,'adv'),
+      sec('text','7','一起傳出去的文字',[txt, h('p',{class:'hint',style:'margin:0',text:'分享圖片時會自動幫你複製這段文字，貼到貼文或訊息就好。'})],null,true),
+      h('div',{class:'sd-foot'}, saved, h('button',{type:'button',class:'bf-lk',onclick:()=>{ delete store.m[mode]; sdSave(store); c=build(mode); drawPanel(); toast('已恢復「'+modeDef(mode)[2]+'」的預設'); },text:'↺ 恢復這個用途的預設'})));
+    drawThumbs(); sumUpd(); redraw(); };
+  const soon0=soon; soon=(t)=>{ soon0(t); sumUpd(); };
   const exportBlob=async()=>{ const off=document.createElement('canvas'); const ok=await sdRender(off,p,c,2); const blob=await new Promise(r=>{ try{ off.toBlob(b=>r(b),'image/jpeg',.93); }catch(e){ r(null); } }); return {blob,ok}; };
   const fileName=()=>vfn();
   const dl=blob=>saveImg(blob,fileName());
   const doShare=async()=>{ const {blob}=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],fileName(),{type:'image/jpeg',lastModified:Date.now()}); const story=c.fmt==='story';
     if (navigator.canShare&&navigator.canShare({files:[file]})){ quietCopy(story?plantUrl(p):txt.value,story?'網址已複製，可以貼到限動連結':'文字已複製，傳出圖片後可以直接貼上'); try{ await navigator.share({files:[file]}); }catch(e){} } else { copyText(txt.value); dl(blob); } };
-  btns.append(h('button',{class:'btn volt lg',type:'button',onclick:doShare},'📤 分享圖片'), h('button',{class:'btn ink',type:'button',onclick:()=>copyText(txt.value),text:'複製文字'}),
-    h('button',{class:'btn soft',type:'button',onclick:async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); },text:saveLabel()}),
-    h('a',{class:'btn line',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE'));
-  note.textContent='手機按「分享圖片」選 Instagram／Facebook 就能發；限動尺寸會先幫你複製網址，可以加「連結」貼圖貼上。';
-  openDialog('轉發這株', h('div',{class:'sd'}, modesBox, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, prev), h('div',{class:'sd-right'}, panel, h('label',{class:'field'}, h('span',{text:'一起傳出去的文字（可以改）'}), txt), btns, note))), false);
+  const busyBtn=async(b,fn)=>{ if(b.disabled) return; const t=b.innerHTML; b.disabled=true; b.classList.add('busy'); try{ await fn(); } finally{ b.disabled=false; b.classList.remove('busy'); b.innerHTML=t; } };
+  btns.append(h('button',{class:'btn volt lg sh-main',type:'button',onclick:e=>busyBtn(e.currentTarget,doShare)},'📤 分享圖片'),
+    h('div',{class:'sh-sub'}, h('button',{class:'btn soft sm',type:'button',onclick:e=>busyBtn(e.currentTarget,async()=>{ const {blob}=await exportBlob(); if(blob) dl(blob); else toast('圖片產生失敗'); })},'⬇ '+saveLabel()),
+      h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(txt.value)},'📋 複製文字'),
+      h('a',{class:'btn line sm',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }},'LINE')));
+  note.textContent='手機按「分享圖片」可以直接選 IG、FB、LINE；限動尺寸會先幫你複製網址，可以用「連結」貼圖貼上。';
+  const cap=h('div',{class:'sd-cap'}); sumEls.cap=cap;
+  openDialog('轉發這株', h('div',{class:'sd sd2'}, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, h('div',{class:'sd-pw'}, prev, cap), h('div',{class:'sd-act'}, btns, note)), h('div',{class:'sd-right'}, panel))), false);
   drawPanel(); setTimeout(()=>modesBox.querySelector('[aria-pressed="true"]')?.scrollIntoView({inline:'center',block:'nearest'}),50);
 }
 
