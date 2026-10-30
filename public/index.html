@@ -1994,7 +1994,7 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .memo{display:flex;align-items:baseline;gap:6px;min-width:0;font-size:12.5px;color:var(--fg2);margin-top:2px}
 .memo i{flex:none;font-style:normal;font-size:10.5px;font-weight:700;color:var(--leaf-2);background:var(--leaf-soft);border-radius:5px;padding:1px 5px}
 .memo span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.memo.sm{font-size:12px}.memo.dk{color:rgba(255,255,255,.7)}.memo.dk i{background:rgba(255,255,255,.14);color:#D4F25A}
+.memo.sm{font-size:12px}.memo.mdk{color:rgba(255,255,255,.7)}.memo.mdk i{background:rgba(255,255,255,.14);color:#D4F25A}
 .tr.dark .tile .memo{color:rgba(255,255,255,.6)}.tr.dark .tile .memo i{background:rgba(255,255,255,.12);color:#D4F25A}
 .pw-memo{opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hk-memo,.gp-memo,.ln-memo{color:var(--fg2)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -3543,10 +3543,13 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .bo-ex{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;margin-bottom:10px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}.bo-ex>div{display:flex;flex-direction:column}.bo-ex small{font-size:12px;color:var(--fg2)}
 .tx{display:flex;flex-direction:column;gap:14px}.tx-bar{display:flex;align-items:center;gap:14px}.tx-bar b{margin-left:auto;font-size:14px}
 .tx-l{display:flex;flex-direction:column;gap:10px;max-height:46vh;overflow:auto;padding-right:2px}
-.tx-o{border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.tx-o{flex:none;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
 .tx-oh{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--paper);cursor:pointer}.tx-oh span{display:flex;flex-direction:column;min-width:0}.tx-oh small{font-size:12px;color:var(--fg2)}
 .tx-ps{display:flex;flex-direction:column}.tx-p{display:flex;align-items:center;gap:10px;padding:8px 12px;border-top:1px solid var(--line);cursor:pointer}
-.tx-p img{width:40px;height:40px;border-radius:10px;object-fit:cover;flex:none}.tx-p span{display:flex;flex-direction:column;min-width:0}.tx-p small{font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-im{position:relative;width:64px;height:64px;flex:none;border:0;padding:0;border-radius:12px;overflow:hidden;cursor:zoom-in;background:var(--paper)}.tx-im img{width:100%;height:100%;object-fit:cover;display:block}.tx-im em{position:absolute;right:4px;bottom:4px;font-style:normal;font-size:10px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);border-radius:6px;padding:1px 5px}
+.tx-in{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.tx-in>b{font-size:15px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tx-mt{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tx-mt code{font:700 12px var(--f-mono);color:var(--leaf)}.tx-mt i{font-style:normal;font-size:11px;font-weight:700;background:var(--paper);border-radius:6px;padding:1px 6px;color:var(--fg2)}.tx-mt i.q{background:var(--leaf-soft);color:var(--leaf)}
+.tx-in small{font-size:12px;color:var(--fg2)}.tx-in .tx-memo{color:var(--fg)}
 .tx input[type=checkbox]{width:20px;height:20px;accent-color:var(--leaf);flex:none}
 .tx-rep{display:flex;gap:10px;align-items:center;font-size:13.5px}.tx-go{display:flex;justify-content:flex-end}
 .osl{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--fg2);margin-top:2px}.osl small{font-size:11.5px}
@@ -5346,7 +5349,7 @@ function techRow(o){
 function aucCard(p){ const t=topBid(p.id), n=bidsFor(p.id).length;
   return spot(activate(h('article',{class:'lot'}, h('div',{class:'lot-i'}, pv(p), h('span',{class:'tag live',text:'LIVE'}), favBtn(p.id)),
     h('div',{class:'lot-h'}, h('div',{class:'lot-l mono'}, h('span',{text:'LOT '+p.code.slice(-4)}), h('span',{text:n+' BIDS'})),
-      h('b',{class:'lot-n',text:short(p.species)}), h('a',{class:'lot-shop',href:'#/seller/'+p.shop,onclick:e=>e.stopPropagation()}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), p.cultivar?h('span',{class:'lot-s',text:p.cultivar}):null, memoEl(p,'dk'),
+      h('b',{class:'lot-n',text:short(p.species)}), h('a',{class:'lot-shop',href:'#/seller/'+p.shop,onclick:e=>e.stopPropagation()}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), p.cultivar?h('span',{class:'lot-s',text:p.cultivar}):null, memoEl(p,'mdk'),
       h('div',{class:'lot-g'}, h('div',{}, h('small',{text:t?'目前出價':'起標價'}), h('b',{text:money(t?t.amt:p.startPrice)})), h('div',{}, h('small',{text:'剩餘'}), h('b',{class:'mono','data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())}))),
       h('span',{class:'lot-cta',text:'出價 →'}))), e=>openPlant(p.id,e.currentTarget.querySelector('img'))),p); }
 function sellerCardBig(u){ const s=shopOf(u), ps=onSaleOf(u).slice(0,4), rt=rating(u);
@@ -6712,9 +6715,9 @@ function offerCard(o){ const p=S.plants.get(o.pid), stl={open:'等待賣家回�
     o.reply?h('p',{class:'hint',text:'賣家回覆：'+o.reply}):null,
     o.status==='open'?h('button',{class:'bf-lk',type:'button',onclick:async()=>{ try{ await S.db.doc('offers/'+o.id).update({status:'withdrawn',decidedAt:Date.now()}); toast('已撤回'); }catch(e){ toast('操作失敗'); } },text:'撤回議價'}):null); }
 /* ---------- 買家：匯出花牌資料（CSV／Excel） ---------- */
-const TAG_COLS=[['code','編號',1],['name','學名／品種',1],['zh','中文屬名',1],['cultivar','品種名',1],['kind','類型',1],['mom','母本',1],['dad','父本',1],['qty','數量',1],['buyer','買家',1],['shop','賣場',0],['date','購買日期',1],['price','價格',0],['order','訂單編號',0],['url','履歷網址（做 QR）',1]];
+const TAG_COLS=[['code','編號',1],['name','學名／品種',1],['zh','中文屬名',1],['cultivar','品種名',1],['kind','類型',1],['mom','母本',1],['dad','父本',1],['qty','數量',1],['buyer','買家',1],['shop','賣場',0],['date','購買日期',1],['memo','備註',0],['price','價格',0],['order','訂單編號',0],['url','履歷網址（做 QR）',1]];
 function tagRow(o,p){ const q=+(o.qty?.[p.id])||1, M=S.plants.get(momId(p)), D=S.plants.get(dadId(p));
-  return {code:p.code||'',name:(short(p.species)||'').replace(/^./,c=>c.toUpperCase()),zh:spCn(p.species)||'',cultivar:p.cultivar||'',kind:kindLabel(p),mom:M?M.code:momCode(p)||p.momExt||'',dad:D?D.code:dadCode(p)||p.dadExt||'',qty:q,shop:shopName(o.shop),buyer:nameOf(o.buyer),date:fmtDay(tsLocal(o.at))||'',price:p.price||p.soldPrice||'',order:o.id,url:plantUrl(p)}; }
+  return {code:p.code||'',name:(short(p.species)||'').replace(/^./,c=>c.toUpperCase()),zh:spCn(p.species)||'',cultivar:p.cultivar||'',kind:kindLabel(p),mom:M?M.code:momCode(p)||p.momExt||'',dad:D?D.code:dadCode(p)||p.dadExt||'',qty:q,shop:shopName(o.shop),buyer:nameOf(o.buyer),date:fmtDay(tsLocal(o.at))||'',price:p.price||p.soldPrice||'',order:o.id,memo:memoOf(p),url:plantUrl(p)}; }
 function dlFile(blob,name){ const a=h('a',{href:URL.createObjectURL(blob),download:name}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500); }
 function openTagExport(ords){
   if(!ords.length||ords.some(o=>o.shop!==S.me&&o.buyer===S.me)){ toast('只有賣家可以匯出花牌資料'); return; }
@@ -6725,15 +6728,18 @@ function openTagExport(ords){
   const sel=new Set(); OS.forEach(({o,ps})=>{ if(['confirmed','paid','preparing'].includes(o.status)) ps.forEach(p=>sel.add(o.id+'|'+p.id)); });
   OS.sort((a,b)=>(['confirmed','paid','preparing'].includes(b.o.status)-['confirmed','paid','preparing'].includes(a.o.status))||(b.o.at-a.o.at));
   const body=h('div',{class:'tx'}), cnt=h('b',{});
-  const keyOf=(o,p)=>o.id+'|'+p.id;
+  const keyOf=(o,p)=>o.id+'|'+p.id, M0=p=>S.plants.get(momId(p))?.code||'';
   const paint=()=>{ const n=[...sel].length, rows=OS.flatMap(({o,ps})=>ps.filter(p=>sel.has(keyOf(o,p))).map(p=>+(o.qty?.[p.id])||1)).reduce((a,b)=>a+(rep?b:1),0); cnt.textContent='已選 '+n+' 株'+(rep&&rows!==n?'（展開成 '+rows+' 張花牌）':'');
     body.querySelectorAll('[data-k]').forEach(cb=>cb.checked=sel.has(cb.dataset.k));
     body.querySelectorAll('[data-o]').forEach(cb=>{ const x=OS.find(x=>x.o.id===cb.dataset.o); const k=x.ps.filter(p=>sel.has(keyOf(x.o,p))).length; cb.checked=k===x.ps.length; cb.indeterminate=k>0&&k<x.ps.length; }); };
   const list=h('div',{class:'tx-l'}, ...OS.map(({o,ps})=>h('div',{class:'tx-o'},
     h('label',{class:'tx-oh'}, (()=>{ const cb=h('input',{type:'checkbox','data-o':o.id}); cb.addEventListener('change',()=>{ ps.forEach(p=>cb.checked?sel.add(keyOf(o,p)):sel.delete(keyOf(o,p))); paint(); }); return cb; })(),
-      h('span',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:fmtDay(tsLocal(o.at))+' · 訂單 '+o.id+' · '+OST[o.status]+' · '+ps.length+' 株'}))),
+      h('span',{style:'flex:1;min-width:0'}, h('b',{text:'買家 '+nameOf(o.buyer)}), h('small',{text:fmtDay(tsLocal(o.at))+' · 訂單 '+o.id+' · '+ps.length+' 株 · '+money(ordGrand(o))})), h('span',{class:'tag '+(['confirmed','paid','preparing'].includes(o.status)?'lime':'grey'),text:OST[o.status]})),
     h('div',{class:'tx-ps'}, ...ps.map(p=>h('label',{class:'tx-p'}, (()=>{ const cb=h('input',{type:'checkbox','data-k':keyOf(o,p)}); cb.addEventListener('change',()=>{ cb.checked?sel.add(keyOf(o,p)):sel.delete(keyOf(o,p)); paint(); }); return cb; })(),
-      h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{}, h('b',{class:'mono',text:p.code}), h('small',{text:[short(p.species),p.cultivar].filter(Boolean).join(' · ')+(o.qty?.[p.id]?' · × '+o.qty[p.id]:'')}))))))));
+      h('button',{type:'button',class:'tx-im',title:'看這株的照片和資料',onclick:e=>{ e.preventDefault(); e.stopPropagation(); plantPeek(p); }}, h('img',{src:(p.coverThumb||p.thumb||(p.media||[]).find(m=>m.type!=='video')?.url||'m/p1.jpg'),alt:'',loading:'lazy'}), (p.media||[]).length>1?h('em',{text:String((p.media||[]).length)}):null),
+      h('span',{class:'tx-in'}, h('b',{text:pName(p)}), h('span',{class:'tx-mt'}, h('code',{text:p.code}), h('i',{text:kindLabel(p)}), (o.qty?.[p.id]?h('i',{class:'q',text:'× '+o.qty[p.id]+' 株'}):null)),
+        h('small',{text:[spCn(p.species),momCode(p)||M0(p)?'母本 '+(M0(p)||momCode(p)):'',p.price||p.soldPrice?money(p.price||p.soldPrice):''].filter(Boolean).join(' · ')}),
+        memoOf(p)?h('small',{class:'tx-memo',text:'備註：'+memoOf(p)}):null)))))));
   const all=on=>{ OS.forEach(({o,ps})=>ps.forEach(p=>on?sel.add(keyOf(o,p)):sel.delete(keyOf(o,p)))); paint(); };
   const fmtSeg=h('div',{class:'sd-seg'}, ...[['xlsx','Excel (.xlsx)'],['csv','CSV']].map(([v,l])=>h('button',{type:'button','aria-pressed':String(fmt===v),onclick:e=>{ fmt=v; fmtSeg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); },text:l})));
   const colBox=h('div',{class:'chips'}, ...TAG_COLS.map(([k,l])=>h('button',{type:'button',class:'chip','aria-pressed':String(cols.has(k)),onclick:e=>{ cols.has(k)?cols.delete(k):cols.add(k); e.currentTarget.setAttribute('aria-pressed',String(cols.has(k))); },text:l})));
