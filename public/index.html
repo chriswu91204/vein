@@ -3593,6 +3593,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .tx input[type=checkbox]{width:20px;height:20px;accent-color:var(--leaf);flex:none}
 .tx-rep{display:flex;gap:10px;align-items:center;font-size:13.5px}.tx-go{display:flex;justify-content:flex-end}
 .r-host{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.r-draw{font-size:18px;padding:14px 26px;animation:rDrawP 1.6s ease-in-out infinite}@keyframes rDrawP{50%{box-shadow:0 0 0 10px rgba(212,242,90,.25)}}
+.rw-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;padding:12px;border-radius:14px;background:var(--paper)}.rw-list>b{font-size:13px}.rw-i{display:flex;align-items:center;justify-content:space-between;gap:10px}.rw-i span{font-weight:700}
 .osl{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--fg2);margin-top:2px}.osl small{font-size:11.5px}
 .oopen{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--fg);font:600 14px/1.2 var(--f);cursor:pointer}.oopen:hover{background:color-mix(in srgb,var(--leaf) 8%,var(--paper))}.oopen b{color:var(--leaf)}
 .shpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
@@ -6501,6 +6502,8 @@ function renderRaffleDetail(first){
       h('div',{class:'ract'}, action, h('div',{class:'r-sh'}, w.includes(S.me)?h('button',{class:'btn volt',type:'button',onclick:()=>openRaffleShare(r,'win')}, h('i',{class:'shbtn-i',text:'↗'}), '分享我中獎了'):null, h('button',{class:'btn '+(w.includes(S.me)?'soft':st==='drawn'?'volt':'ink'),type:'button',onclick:()=>openRaffleShare(r)}, h('i',{class:'shbtn-i',text:'↗'}), st==='drawn'?'分享得獎名單':r.shop===S.me?'轉發抽獎，邀更多人參加':'轉發給朋友'))),
       r.drawn?h('div',{class:'win',id:'winBox'}, h('div',{class:'row',style:'justify-content:space-between'}, h('b',{text:'得獎名單'}), h('button',{class:'link',type:'button',onclick:()=>playDraw(r),text:'重播開獎'})),
         h('div',{class:'wnames',id:'wNames'}, ...(w.length?w.map(u=>h('span',{class:'wn'+(u===S.me?' me':''),text:u===S.me?'🎉 你':nameOf(u)})):[h('span',{class:'hint',text:'沒有符合資格的參加者。'})])),
+        r.shop===S.me&&w.length?h('div',{class:'rw-list'}, h('b',{text:'跟得獎者聊聊，約寄送方式'}), ...w.map(u=>h('div',{class:'rw-i'}, h('span',{text:nameOf(u)}), chatBtn(u,{raf:rKey(r)},'volt sm','聊聊')))):null,
+        r.shop!==S.me&&w.includes(S.me)?h('div',{class:'rw-list'}, h('b',{text:'恭喜！跟主辦的溫室聊聊寄送方式'}), h('div',{class:'rw-i'}, h('span',{text:shopName(r.shop)}), chatBtn(r.shop,{raf:rKey(r)},'volt sm','聊聊'))):null,
         h('p',{class:'hint',text:'從 '+(r.drawn.pool??es.length)+' 位符合資格的參加者中隨機抽出'+(r.drawn.entrants!=null&&r.drawn.entrants!==r.drawn.pool?'（共 '+r.drawn.entrants+' 人報名）':'')+'。'})):null,
       h('ul',{class:'rrules'}, h('li',{text:'每人限參加一次'+(phoneReq()?'，需完成手機驗證':'')+'；截止後才報名的不列入。'}), r.mode==='buyers'?h('li',{text:'開獎時系統會再次確認購買紀錄。'}):null, h('li',{text:'得獎名單公開，賣家會私訊得獎者寄送方式。'}), r.notes?h('li',{text:r.notes}):null))));
   if (first&&r.drawn&&!sessionStorageGet('played:'+k)){ sessionStorageSet('played:'+k); setTimeout(()=>playDraw(r),350); }
@@ -10183,7 +10186,8 @@ function chatConv(cid,opt={}){
   const tb=h('div',{class:'cv-tools',hidden:true}, ...tools.map(([i,l,fn])=>h('button',{type:'button',onclick:()=>{ tb.hidden=true; plus.classList.remove('on'); fn(); }}, h('span',{text:i}), h('small',{text:l}))));
   const quick=h('div',{class:'cv-quick'});
   const drawQuick=()=>{ const ctx=CH.ctx[cid], p=ctx?.pid&&S.plants.get(ctx.pid), sentP=p&&(S.chatMsgs.get(cid)||[]).some(m=>m.t==='prod'&&m.pid===p.id);
-    quick.replaceChildren(...(p&&!sentP?[h('button',{type:'button',class:'q prod',onclick:()=>chatSend(cid,{t:'prod',pid:p.id,code:p.code})}, h('img',{src:cover(p),alt:''}), '附上 '+p.code)]:[]), ...(mine&&!plantsOf(other).length?QUICK_SELL:QUICK_BUY).map(t=>h('button',{type:'button',class:'q',onclick:()=>chatSend(cid,{t:'text',text:t}),text:t}))); };
+    const rf=ctx?.raf&&S.raffles.get(ctx.raf), rfMsg=rf?(rf.shop===S.me?'🎉 恭喜你抽中「'+rf.title+'」！獎品：'+(rf.prize||'')+'。請告訴我收件方式（面交／超商／宅配）和收件資料，我安排寄出 🙏':'你好！我抽中了「'+rf.title+'」🎉 想跟你確認領獎和寄送方式'):'', rfSent=rfMsg&&(S.chatMsgs.get(cid)||[]).some(m=>m.text===rfMsg);
+    quick.replaceChildren(...(rfMsg&&!rfSent?[h('button',{type:'button',class:'q prod',onclick:()=>chatSend(cid,{t:'text',text:rfMsg})}, rf.shop===S.me?'🎉 傳送得獎通知':'🎁 我抽中了')]:[]), ...(p&&!sentP?[h('button',{type:'button',class:'q prod',onclick:()=>chatSend(cid,{t:'prod',pid:p.id,code:p.code})}, h('img',{src:cover(p),alt:''}), '附上 '+p.code)]:[]), ...(mine&&!plantsOf(other).length?QUICK_SELL:QUICK_BUY).map(t=>h('button',{type:'button',class:'q',onclick:()=>chatSend(cid,{t:'text',text:t}),text:t}))); };
   const composer=h('div',{class:'cv-cmp'}, plus, ta, h('button',{type:'button',class:'cv-send','aria-label':'送出',onclick:send}, h('i')), fileIn);
   box.append(ms, quick, tb, composer, over);
   // ---- 訊息 ----
@@ -11365,7 +11369,8 @@ function admRaffles(m){
       h('span',{class:'tag '+(st==='open'?'live':st==='drawn'?'lime':'grey'),text:{open:'進行中',soon:'未開始',ended:'待開獎',drawn:'已開獎'}[st]})),
       h('div',{class:'row',style:'justify-content:space-between;margin-top:12px'}, h('span',{class:'hint',text:es.length+' 人參加'+(eligConds(r).length?' · '+okN+' 人符合資格':'')+(r.drawn?' · 得獎：'+(r.drawn.winners||[]).map(nameOf).join('、'):'')}),
         h('div',{class:'row'}, st==='ended'?h('button',{class:'btn lime sm',type:'button',onclick:e=>drawRaffle(r,e.currentTarget),text:'開獎'}):null, h('button',{class:'btn '+(st==='open'||st==='soon'?'volt':'soft')+' sm',type:'button',onclick:()=>openRaffleShare(r),text:st==='drawn'?'↗ 分享名單':'↗ 轉發'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ adm.close(); go('#/raffle/'+rKey(r)); },text:'前台查看'}),
-          !r.drawn&&!es.length?h('button',{class:'link',type:'button',onclick:async()=>{ try{ await S.db.doc(`shops/${S.me}/raffles/${r.id}`).delete(); toast('已刪除'); }catch(e){ toast('刪除失敗'); } },text:'刪除'}):null))); })));
+          !r.drawn&&!es.length?h('button',{class:'link',type:'button',onclick:async()=>{ try{ await S.db.doc(`shops/${S.me}/raffles/${r.id}`).delete(); toast('已刪除'); }catch(e){ toast('刪除失敗'); } },text:'刪除'}):null)),
+      (r.drawn?.winners||[]).length?h('div',{class:'rw-list'}, h('b',{text:'🎉 得獎者'}), ...(r.drawn.winners||[]).map(u=>h('div',{class:'rw-i'}, h('span',{text:nameOf(u)}), chatBtn(u,{raf:rKey(r)},'volt sm','聊聊')))):null); })));
   resolveNames(ids);
 }
 function admRaffleForm(m){
