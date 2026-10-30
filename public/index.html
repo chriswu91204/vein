@@ -2801,7 +2801,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .tv-kids2:hover{background:#222}
 .tv-stack{flex-wrap:wrap;align-items:flex-start}
 .tv-stack .tv-pile{margin-top:2px}
-.tv-sbar{flex:1 0 100%;display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:4px}
+.tv-sbar{flex:1 0 100%;display:grid;grid-template-columns:1fr auto auto auto;gap:8px;margin-top:4px}@media (max-width:560px){.tv-sbar{grid-template-columns:1fr 1fr}.tv-sbar .tv-sb{text-align:center}}
 .tv-sb.ed{text-align:center}.tv-sb{white-space:nowrap}
 .tv-sb{border:0;border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;background:var(--paper);color:var(--fg);text-align:left}
 .tv-sb.add{background:#D2FF00;color:#111;text-align:center;font-weight:800}
@@ -7997,6 +7997,7 @@ function batchPosterData(key){ const M=batchMembers(key), p0=M[0]||{}, sale=M.fi
 function batchText(key,fmt){ const d=batchPosterData(key);
   if (fmt==='story') return '🌱 '+d.title+'・同一批 '+d.stats[0][1]+'\n👉 '+d.url;
   return ['🌱 同一批植物｜'+d.title, d.sub?'🧬 '+d.sub:'', '📦 共 '+d.stats[0][1]+(d.stats[1][1]!=='0 株'?'・在售 '+d.stats[1][1]:''), '每一株都有獨立編號、照片與成長紀錄，可以查驗', '', '👉 看整批：'+d.url, '賣家：'+d.foot.split(' · ')[0], '', '#VEIN #植物溯源'].filter((x,i,a)=>x!==''||(i>0&&a[i-1]!=='')).join('\n'); }
+function openBatchPage(L){ const key=batchKeyOf(L); if(!key){ toast('這一批是空的'); return; } try{ if(adm.open) adm.close(); }catch(e){} go('#/batch/'+encodeURIComponent(key)); }
 function shareBatch(L){ const key=batchKeyOf(L); if(!key){ toast('這一批是空的'); return; } const M=batchMembers(key), d=batchPosterData(key);
   quickShare({title:'分享這一批',name:d.title,sub:M.length+' 株 · '+shopName(M[0]?.shop),img:cover(M[0]||{}),url:batchUrl(key),text:batchText(key,'post'),
     poster:()=>shareFmts({title:'分享這一批',url:batchUrl(key),file:'batch',draw:f=>gridPoster(batchPosterData(key),f),text:f=>batchText(key,f),lead:'用同一批的植株拼成一張圖，朋友掃 QR code 就能看整批。'})}); }
@@ -9240,6 +9241,7 @@ function admReg(m){
       ['☑️',sel.has(p.id)?'取消選取這株':'選取這株','之後可以一起上架、印標籤、移動區域…',()=>{ sel.has(p.id)?sel.delete(p.id):sel.add(p.id); S.rgPick=true; renderAdmin(true); }],
       ks.length?['👪','選取全家','這株和所有側芽、實生苗',()=>selAll(famOf(p),true)]:null]); };
   const stackMenu=(L,title)=>rgSheet(title, L.length+' 株 · '+L[0].code+' → '+L[L.length-1].code, [
+      ['📄','打開這疊的頁面','整疊一起看：每一株的照片、編號、履歷',()=>openBatchPage(L)],
       ['✏️','批量修改這疊','名稱打錯、父母本新增或刪除、標籤…一次改好',()=>openBulkEdit(L,title+' · '+L.length+' 株')],
       ['📤','分享這一批','不用上架也能分享，朋友看得到每一株的照片與履歷',()=>shareBatch(L)],
       ['➕','加更多到這疊','接著同一組親本，繼續編號',()=>rgAddTo(L,title)],
@@ -9297,7 +9299,7 @@ function admReg(m){
           h('div',{class:'tv-t'}, h('span',{class:'tag dark',text:(kinds.includes('、')?'一疊':kinds)+' · '+L.length+' 株'})),
           par?h('div',{class:'memo sm'}, h('i',{text:'親本'}), h('span',{text:par+(p0.momId&&S.plants.has(p0.momId)?'':'（不在 VEIN 上）')})):null),
         moreBtn(()=>stackMenu(L,title)),
-        h('div',{class:'tv-sbar'}, h('button',{type:'button',class:'tv-sb',onclick:e=>{ e.stopPropagation(); tog(); }}, open?'⌃ 收起':'⌄ 打開 '+L.length+' 株'), h('button',{type:'button',class:'tv-sb ed',onclick:e=>{ e.stopPropagation(); openBulkEdit(L,title+' · '+L.length+' 株'); }}, '✏️ 改整疊'), h('button',{type:'button',class:'tv-sb add',onclick:e=>{ e.stopPropagation(); rgAddTo(L,title); }}, '＋ 加進這疊')));
+        h('div',{class:'tv-sbar'}, h('button',{type:'button',class:'tv-sb',onclick:e=>{ e.stopPropagation(); tog(); }}, open?'⌃ 收起':'⌄ 打開 '+L.length+' 株'), h('button',{type:'button',class:'tv-sb pg',onclick:e=>{ e.stopPropagation(); openBatchPage(L); }}, '📄 這疊的頁面'), h('button',{type:'button',class:'tv-sb ed',onclick:e=>{ e.stopPropagation(); openBulkEdit(L,title+' · '+L.length+' 株'); }}, '✏️ 改整疊'), h('button',{type:'button',class:'tv-sb add',onclick:e=>{ e.stopPropagation(); rgAddTo(L,title); }}, '＋ 加進這疊')));
       head.addEventListener('click',e=>{ if(e.target.closest('input,button,label')) return; if(picking) selAll(L,!allOn); else tog(); });
       return h('div',{class:'tv-stw'}, head, open?h('div',{class:'tv-stk'}, ...L.map(row)):null); };
     const groupsOf=L=>{ const m=new Map(); L.forEach(c=>{ const G=c.grp&&groupMeta(c.shop,c.grp); const k=c.kind==='pup'?'pup':G?'g:'+c.grp:c.batch?'b:'+c.batch+'|'+(c.kind||''):'one:'+(c.kind||''); if(!m.has(k)) m.set(k,[]); m.get(k).push(c); });
@@ -9306,7 +9308,7 @@ function admReg(m){
     const section=(g,prefix,cur)=>{ const key=prefix+g.k, open=F.open[key], N=g.L.length, cut=open||N<=24?N:12, allOn=g.L.every(p=>sel.has(p.id));
       const addFn=g.k==='pup'?()=>rgAddKids(cur,'pup'):()=>rgAddTo(g.L,g.title);
       return h('div',{class:'tv-sec'}, h('div',{class:'tv-sh'}, h('div',{style:'min-width:0'}, h('b',{text:g.title+' · '+N+' 株'}), h('small',{class:'mono hint',text:g.range})),
-          h('div',{class:'row',style:'gap:6px;flex-wrap:wrap;justify-content:flex-end'}, h('button',{type:'button',class:'btn sm soft',onclick:addFn,text:g.k==='pup'?'＋ 再分側芽':'＋ 加進這批'}), h('button',{type:'button',class:'btn sm soft',onclick:()=>openBulkEdit(g.L,g.title+' · '+N+' 株'),text:'✏️ 批量修改'}), h('button',{type:'button',class:'btn sm soft',onclick:()=>shareBatch(g.L),text:'📤 分享'}), h('button',{type:'button',class:'btn sm '+(allOn?'ink':'soft'),onclick:()=>selAll(g.L,!allOn),text:allOn?'取消選取':'☑ 選取這批'}))),
+          h('div',{class:'row',style:'gap:6px;flex-wrap:wrap;justify-content:flex-end'}, h('button',{type:'button',class:'btn sm soft',onclick:addFn,text:g.k==='pup'?'＋ 再分側芽':'＋ 加進這批'}), h('button',{type:'button',class:'btn sm soft',onclick:()=>openBulkEdit(g.L,g.title+' · '+N+' 株'),text:'✏️ 批量修改'}), h('button',{type:'button',class:'btn sm soft',onclick:()=>openBatchPage(g.L),text:'📄 頁面'}), h('button',{type:'button',class:'btn sm soft',onclick:()=>shareBatch(g.L),text:'📤 分享'}), h('button',{type:'button',class:'btn sm '+(allOn?'ink':'soft'),onclick:()=>selAll(g.L,!allOn),text:allOn?'取消選取':'☑ 選取這批'}))),
         h('div',{class:'tv-list'}, ...g.L.slice(0,cut).map(row)),
         N>cut?h('button',{type:'button',class:'btn soft sm tv-more2',onclick:()=>{ F.open[key]=true; renderAdmin(true); },text:'顯示全部 '+N+' 株'}):null); };
     // 搜尋／篩選時：符合的植株一樣疊成一疊（同一批、同一株母株的側芽、同一個群組、同名同親本）
