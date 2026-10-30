@@ -8700,7 +8700,7 @@ function renderAdmNav(){
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
     {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['raffle','抽獎',rOpen]]},
-    {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
+    {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
   if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return (S.admTab==='lot'||(S.admTab==='new'&&S.newPreset?.list)?'list':S.admTab)===base&&(!sub||(S.shopTab||'basic')===sub); };
@@ -9162,7 +9162,7 @@ function parentPicker(o){
 const parLabel=x=>x?(x.p?(x.p.cultivar||short(x.p.species)):x.code):'';
 /* ---- 登錄一株 ---- */
 /* ---- 後台說明：讓每個功能的用途一看就懂 ---- */
-const NAV_DESC={spot:'特別品種、植物展活動的競標加上特效',lot:'一盤同價，填數量一次上架',home:'今天要處理的事一覽',reg:'所有植物的檔案、履歷、血統',care:'分區照顧：澆水、施肥、噴藥',new:'一次登錄 1 株，資料最完整',batch:'同一批多株，父母本填一次',labels:'印 QR 標籤、匯出 Excel',plants:'正在賣與賣出過的商品',list:'從植物檔案挑幾株開賣',groups:'同一批合成一張卡一起賣',auc:'出價拍賣的進度',raffle:'辦免費抽獎吸引追蹤',orders:'確認、收款、出貨',offers:'買家出的價格要回覆',qa:'買家在商品頁的提問','shop:basic':'名稱、LINE、匯款帳號','shop:design':'橫幅、模板、互動元件',sfront:'像賣場裝修一樣設計植物商店主頁、廣告專版與活動',sellers:'審核新賣家',mod:'下架違規內容',users:'會員與停權',site:'平台文字與開關',media:'首頁的圖片影片',house:'用平台名義開店'};
+const NAV_DESC={spot:'特別品種、植物展活動的競標加上特效',lot:'一盤同價，填數量一次上架',home:'今天要處理的事一覽',reg:'所有植物的檔案、履歷、血統',care:'分區照顧：澆水、施肥、噴藥',new:'一次登錄 1 株，資料最完整',batch:'同一批多株，父母本填一次',labels:'印 QR 標籤、匯出 Excel',plants:'正在賣與賣出過的商品',list:'從植物檔案挑幾株開賣',groups:'同一批合成一張卡一起賣',auc:'出價拍賣的進度',raffle:'辦免費抽獎吸引追蹤',orders:'確認、收款、出貨',offers:'買家出的價格要回覆',qa:'買家在商品頁的提問','shop:basic':'名稱、LINE、匯款帳號','shop:ship':'收貨方式與運費','shop:design':'橫幅、模板、互動元件',sfront:'像賣場裝修一樣設計植物商店主頁、廣告專版與活動',sellers:'審核新賣家',mod:'下架違規內容',users:'會員與停權',site:'平台文字與開關',media:'首頁的圖片影片',house:'用平台名義開店'};
 const KIND_HELP={mother:['🌿 母株','你溫室裡的成株。之後可以當其他植株的母本或父本，側芽與實生苗都會接在牠底下。父母本可填可不填。'],pup:['🌱 側芽','從某一株母株旁邊分出來的小株。要先選牠的母株，編號會接在母株後面（例如 …-S01、-S02），血統自動連上。'],seedling:['🌰 實生苗','種子播出來的。填母本 ♀ 和父本 ♂（不在 VEIN 上也可以打名字或上傳照片），編號用流水號往下編。']};
 function kindHelpEl(kind){ const [t,d]=KIND_HELP[kind]||KIND_HELP.mother; return h('div',{class:'khelp'}, h('b',{text:t}), h('span',{text:d})); }
 function regChooser(cur){ if(lsGet('vein.regTipOff',false)) return h('button',{type:'button',class:'bf-lk',style:'margin:-6px 0 12px',onclick:e=>{ lsSet('vein.regTipOff',false); renderAdmin(true); },text:'❓ 登錄一株和批量登錄差在哪？'});
@@ -10997,7 +10997,7 @@ function openOrder(o0,k0){ if(!S.me) return;
     const shipS=sec('🚚 收貨與出貨方式', x?h('div',{class:'od2-cur'}, h('span',{text:(SHIP_IC[x.k]||'📦')+' '+x.n}), h('small',{text:feeTxt(x.fee)+(x.by?' · '+(x.by===o.buyer?'買家':'賣家')+'選的':'')})):h('p',{class:'hint',text:'還沒選收貨方式'+(seller()?'，可以幫買家選，或請買家選。':'，請選一個。')}),
       seller()&&can&&x?(()=>{ const fi=h('input',{type:'number',min:0,max:99999,inputmode:'numeric',placeholder:'這筆運費',value:x.fee==null?'':x.fee}); return h('form',{class:'od2-fee',onsubmit:e=>{ e.preventDefault(); if(fi.value==='') return; setShip(o,{...x,fee:Math.max(0,Math.round(+fi.value)||0)}); }}, h('span',{text:x.fee==null?'運費另計，講好後填在這裡：':'調整這筆運費：'}), h('small',{text:'NT$'}), fi, h('button',{class:'btn soft sm',type:'submit',text:'設定'})); })():null,
       can?h('p',{class:'hint',style:'margin:8px 0 6px',text:seller()?'可以依跟買家講好的方式調整，運費會自動加進訂單金額。':'選好後賣家會照這個方式出貨，運費會加進訂單金額。付款後就不能再改。'}):h('p',{class:'hint',style:'margin-top:6px',text:o.status==='cancelled'?'訂單已取消':'已付款，收貨方式不能再改；要調整請在下面留言跟對方說。'}), pick,
-      seller()&&can&&o.shop===S.me?h('button',{type:'button',class:'bf-lk',style:'margin-top:8px',onclick:()=>{ close(); go('#admin/shop:basic'); setTimeout(()=>document.querySelector('.shopt')?.scrollIntoView({block:'center'}),600); },text:'⚙ 設定我的收貨方式與運費 →'}):null);
+      seller()&&can&&o.shop===S.me?h('button',{type:'button',class:'bf-lk',style:'margin-top:8px',onclick:()=>{ close(); go('#admin/shop:ship'); },text:'⚙ 設定我的收貨方式與運費 →'}):null);
     // 收件資料
     const kk=x?.k||'home', RL=RECV_L[kk]||RECV_L.home, r=o.deal?.recv;
     let recvS;
@@ -11175,9 +11175,10 @@ function imgPicker(label,max,q,cur,round){ let val=cur||null, busy=false; const 
     finally{ busy=false; inp.value=''; } });
   return {el:fieldBox(label,zone),get:()=>val,busy:()=>busy}; }
 function admShop(m){
-  const T=S.shopTab==='design'?'design':'basic';
-  m.append(admTop('賣場設定', h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看賣場頁 →'})), h('div',{class:'segs',style:'margin-bottom:18px'}, ...[['basic','基本資料'],['design','賣場裝修'+(isVerified(S.me)?'':' 🔒')]].map(([k,l])=>h('button',{type:'button','aria-pressed':String(T===k),onclick:()=>{ S.shopTab=k; renderAdmin(true); },text:l}))));
+  const T=['design','ship'].includes(S.shopTab)?S.shopTab:'basic';
+  m.append(admTop(T==='ship'?'運送方式':T==='design'?'賣場裝修':'賣場設定', h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看賣場頁 →'})), h('div',{class:'segs',style:'margin-bottom:18px'}, ...[['basic','基本資料'],['ship','運送方式'],['design','賣場裝修'+(isVerified(S.me)?'':' 🔒')]].map(([k,l])=>h('button',{type:'button','aria-pressed':String(T===k),onclick:()=>{ S.shopTab=k; renderAdmin(true); },text:l}))));
   if (T==='design') return admDesign(m);
+  if (T==='ship') return admShip(m);
   return admShopBasic(m);
 }
 function shipEditor(cur){
@@ -11191,8 +11192,15 @@ function shipEditor(cur){
   return {el:h('div',{class:'panel shopt',style:'background:var(--paper);margin:6px 0'}, h('h3',{text:'收貨方式與運費'}), h('p',{class:'hint',style:'margin-bottom:8px',text:'買家下單時從這裡選，運費會自動加進訂單金額。運費留空＝「運費另計」（之後在訂單裡講好）。'}), list, presets),
     get:()=>L.filter(x=>x.n).map(x=>({n:x.n.slice(0,20),fee:x.fee==null?null:+x.fee,k:x.k||'home'})).slice(0,12)};
 }
+function admShip(m){
+  const s=shopOf(S.me)||{}, ed=shipEditor(s.shipOpts), msg=h('span',{class:'hint'});
+  const save=h('button',{class:'btn pri',type:'button',onclick:async()=>{ const L=ed.get(); if(!L.length){ msg.textContent='至少要留一種收貨方式'; return; } save.disabled=true; try{ const d={...(shopOf(S.me)||{}),shipOpts:L}; await S.db.doc('shops/'+S.me).set(d); S.shops.set(S.me,d); msg.textContent='✓ 已儲存，買家下單時會看到這些選項'; toast('運送方式已儲存'); }catch(e){ msg.textContent='儲存失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } finally{ save.disabled=false; } },text:'儲存運送方式'});
+  m.append(h('div',{style:'max-width:760px'}, ed.el, h('div',{class:'panel',style:'background:var(--paper);margin:6px 0'}, h('h3',{text:'怎麼運作'}),
+      h('ul',{class:'hint',style:'margin:0;padding-left:18px;line-height:1.8'}, h('li',{text:'買家結帳時從這些方式選一個，運費自動加進訂單金額。'}), h('li',{text:'運費留空＝「運費另計」，接單後可以在訂單詳情裡填這一筆的實際運費。'}), h('li',{text:'付款前，你和買家都能在訂單詳情改收貨方式；出貨時物流欄會自動帶入。'}), h('li',{text:'類型決定買家要填什麼收件資料：面交填時間地點、超商填門市、宅配填地址。'}))),
+    h('div',{class:'row',style:'gap:10px;align-items:center;margin-top:10px'}, save, msg)));
+}
 function admShopBasic(m){
-  const s=shopOf(S.me)||{}; const shipEd=shipEditor(s.shipOpts); const av=imgPicker('頭像',320,.8,s.avatar,true), bn=imgPicker('封面圖',1600,.78,s.banner);
+  const s=shopOf(S.me)||{}; const av=imgPicker('頭像',320,.8,s.avatar,true), bn=imgPicker('封面圖',1600,.78,s.banner);
   const f=h('form',{class:'form',style:'max-width:720px'},
     h('div',{class:'two'}, av.el, bn.el),
     h('div',{class:'two'}, field('賣場名稱', h('input',{'data-s':'name',required:true,maxlength:30,value:s.name||''})), field('所在地區', h('input',{'data-s':'location',maxlength:20,value:s.location||''}))),
@@ -11203,10 +11211,9 @@ function admShopBasic(m){
       h('div',{class:'two'}, field('銀行名稱', h('input',{'data-b':'bankName',maxlength:30,value:S.bank?.bankName||'',placeholder:'例如 國泰世華'})), field('銀行代碼', h('input',{'data-b':'bankCode',maxlength:5,value:S.bank?.bankCode||'',placeholder:'例如 013'}))),
       h('div',{class:'two'}, field('帳號', h('input',{'data-b':'account',maxlength:20,inputmode:'numeric',value:S.bank?.account||''})), field('戶名', h('input',{'data-b':'holder',maxlength:30,value:S.bank?.holder||''}))),
       field('匯款備註（選填）', h('input',{'data-b':'note',maxlength:100,value:S.bank?.note||'',placeholder:'例如 匯款後請在訂單填後五碼'}))),
-    shipEd.el,
     field('運送與付款說明（顯示在商品頁與賣場頁）', h('textarea',{'data-s':'ship',maxlength:400,placeholder:'例如：轉帳或面交；週一、週三出貨，黑貓低溫；7–10 月加保溫'}, s.ship||'')),
     h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'儲存'}), h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看賣場頁'})));
-  f.addEventListener('submit',async e=>{ e.preventDefault(); if(av.busy()||bn.busy()){ f.querySelector('.err').textContent='圖片還在上傳，請稍候再按儲存。'; return; } const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const cd=v('code').toUpperCase(); if(!/^[A-Z0-9]{2,4}$/.test(cd)){ f.querySelector('.err').textContent='賣家代碼要 2–4 個英文字母或數字。'; return; } if([...S.shops].some(([u,x])=>u!==S.me&&shopCode(u)===cd)){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 已經有人用了，換一個吧。'; return; } const d={...s,code:cd,name:v('name'),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),shipOpts:shipEd.get(),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
+  f.addEventListener('submit',async e=>{ e.preventDefault(); if(av.busy()||bn.busy()){ f.querySelector('.err').textContent='圖片還在上傳，請稍候再按儲存。'; return; } const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const cd=v('code').toUpperCase(); if(!/^[A-Z0-9]{2,4}$/.test(cd)){ f.querySelector('.err').textContent='賣家代碼要 2–4 個英文字母或數字。'; return; } if([...S.shops].some(([u,x])=>u!==S.me&&shopCode(u)===cd)){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 已經有人用了，換一個吧。'; return; } const d={...s,code:cd,name:v('name'),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
     const old=shopCode(); if(cd!==old){ const ok=await claimCode(cd); if(!ok){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 剛剛被別人用走了，換一個吧。'; return; } }
     try{ await S.db.doc('shops/'+S.me).set(d); S.shops.set(S.me,d); if(cd!==old) S.db.doc('codes/'+old).get().then(x=>{ if(x.exists&&x.data().uid===S.me) S.db.doc('codes/'+old).delete().catch(()=>{}); }).catch(()=>{}); const bk={}; f.querySelectorAll('[data-b]').forEach(x=>bk[x.dataset.b]=x.value.trim()); await S.db.doc(`data/users/${S.me}/bank`).set(bk); S.bank=bk; toast('賣場設定已儲存'); renderAll(); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'圖片太大或沒有權限':'請稍後再試'); } });
   m.append(h('div',{class:'row',style:'gap:8px;margin-bottom:12px'}, approved(S.me)?h('span',{class:'tag lime',text:'已上架'}):h('span',{class:'tag grey',text:'審核中'}), isVerified(S.me)?h('span',{class:'vbadge',text:'認證賣家'}):h('span',{class:'hint',text:'一般賣家'})), f);
