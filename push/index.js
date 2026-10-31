@@ -98,8 +98,8 @@ function effEnd(p, bids) {
 }
 // 跟網站一樣的規則：照時間排序，出價必須高於當下最高價才算數
 function leaderAt(p, bids, until) {
-  let top = null; const start = +p.startPrice || 0;
-  bids.filter(b => b.at <= until).sort((a, b) => a.at - b.at).forEach(b => { if (b.amt >= start && (!top || b.amt > top.amt)) top = b; });
+  let top = null; const start = +p.startPrice || 0, st0 = +p.startsAtMs || 0;
+  bids.filter(b => b.at <= until && b.at >= st0).sort((a, b) => a.at - b.at).forEach(b => { if (b.amt >= start && (!top || b.amt > top.amt)) top = b; });
   return top;
 }
 exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
@@ -171,6 +171,28 @@ exports.pushRaffleDue = onSchedule({ schedule: 'every 10 minutes', timeZone: 'As
         await push(s.id, '🎲 抽獎時間到了', '「' + (a.title || '抽獎') + '」已截止，打開按「開獎」抽出得獎者', '/#/raffle/' + encodeURIComponent(s.id + '~' + r.id), 'rafdue-' + r.id);
         await r.ref.update({ dueNoted: now }); }
     } catch (e) { logger.warn('raffleDue', s.id, e.message); }
+  }
+});
+// 競標開始：推給追蹤這個賣場的人（和收藏這株的人）；指定起標時間的到點才推，上架即開始的上架後馬上推
+exports.pushAuctionStart = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now();
+  for (const sd of await db.collection('shops').listDocuments()) {
+    let snap; try { snap = await sd.collection('plants').where('mode', '==', 'auction').get(); } catch (e) { continue; }
+    for (const d of snap.docs) {
+      const p = { id: d.id, shop: sd.id, ...d.data() };
+      if (p.startNoted || p.status === 'sold' || p.listed === false || p.blocked || !p.endsAtMs || p.endsAtMs <= now) continue;
+      const st = +p.startsAtMs || +p.aucStartAt || 0;
+      if (!st) { await d.ref.update({ startNoted: true }).catch(() => {}); continue; } // 舊的競標：不補推
+      if (st > now) continue;
+      await d.ref.update({ startNoted: now }).catch(() => {});
+      if (now - st > 15 * 6e4) continue; // 太久以前開始的不推
+      const who = new Set(); try { (await db.collection('social').where('follows', 'array-contains', sd.id).get()).forEach(x => who.add(x.id)); } catch (e) {}
+      try { for (const u of await favoredBy(d.id)) who.add(u); } catch (e) {}
+      who.delete(sd.id);
+      const sn = await displayName(sd.id), mins = Math.round((p.endsAtMs - st) / 6e4), len = mins < 120 ? mins + ' 分鐘' : mins < 2880 ? Math.round(mins / 60) + ' 小時' : Math.round(mins / 1440) + ' 天';
+      for (const u of who) { try { await push(u, '⚡ ' + sn + ' 開始競標了', pLabel(p) + ' 起標 ' + nt(p.startPrice || 0) + '，競標 ' + len + '，快來出價', '/#/plant/' + d.id, 'aucstart-' + d.id); } catch (e) {} }
+      logger.info('auction start pushed', { pid: d.id, n: who.size });
+    }
   }
 });
 // 收藏了這株的人（快結標提醒用）
