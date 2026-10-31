@@ -187,6 +187,18 @@ service cloud.firestore {
       }
     }
     // 交易私密資料（匯款帳號、匯款後五碼、物流、收貨）：只有該筆訂單的買賣雙方看得到
+    // 競標觀戰：在線人數（心跳）與歡呼，不用登入也能看；內容只允許固定欄位
+    match /watch/{pid}/v/{vid} {
+      allow read: if true;
+      allow create, update: if vid.size() <= 40 && request.resource.data.keys().hasOnly(['at']) && request.resource.data.at is int;
+      allow delete: if true;
+    }
+    match /watch/{pid}/c/{cid} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['e', 'at', 'v', 't', 'n']) && request.resource.data.e is string && request.resource.data.e.size() <= 4
+        && request.resource.data.at is int && request.resource.data.v is string && request.resource.data.v.size() <= 40
+        && (!('n' in request.resource.data) || (request.resource.data.n is string && request.resource.data.n.size() <= 16));
+    }
     // 訂單留言（買賣雙方、有訂單權限的小編）
     match /ordmsg/{shop}/o/{oid}/m/{mid} {
       function ordDoc() { return /databases/$(database)/documents/shops/$(shop)/orders/$(oid); }

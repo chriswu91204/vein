@@ -2860,7 +2860,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .pc-b i{font-style:normal}.pc-b:hover{background:#D2FF00}
 .pp-facts{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 @media (max-width:900px){
-  .pp-i #dHead{order:0}.pp-i #dDeal{order:1}.pp-i #dBid{order:2}.pp-i #dInfo{order:3}.pp-i #dSeller{order:4}
+  .pp-i #dHead{order:0}.pp-i #dArena{order:1}.pp-i #dDeal{order:1}.pp-i #dBid{order:2}.pp-i #dInfo{order:3}.pp-i #dSeller{order:4}
   .pp-code2{padding:12px}.pc-a{grid-template-columns:repeat(3,1fr);width:100%}.pc-b{justify-content:center}
   .pp-facts>div{padding:10px 8px!important}.pp-facts b{font-size:15px!important}.pp-facts span{font-size:11px!important}
 }
@@ -3610,6 +3610,27 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .tx-rep{display:flex;gap:10px;align-items:center;font-size:13.5px}.tx-go{display:flex;justify-content:flex-end}
 .r-host{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.r-draw{font-size:18px;padding:14px 26px;animation:rDrawP 1.6s ease-in-out infinite}@keyframes rDrawP{50%{box-shadow:0 0 0 10px rgba(212,242,90,.25)}}
 .rw-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;padding:12px;border-radius:14px;background:var(--paper)}.rw-list>b{font-size:13px}.rw-i{display:flex;align-items:center;justify-content:space-between;gap:10px}.rw-i span{font-weight:700}
+.arena{position:relative;background:#0d0f0e;color:#fff;border-radius:20px;padding:12px 14px;margin-bottom:12px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.arena::before{content:'';position:absolute;inset:-40%;background:radial-gradient(closest-side,rgba(255,59,48,.18),transparent 70%);animation:arGlow 4s ease-in-out infinite alternate;pointer-events:none}@keyframes arGlow{to{transform:translate(20%,10%)}}
+.ar-top{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.ar-live{color:#FF3B30;font:900 12px var(--f-mono);letter-spacing:.12em;animation:arBlink 1.2s infinite}@keyframes arBlink{50%{opacity:.35}}
+.ar-w{font-size:14.5px}.ar-w span{color:#D2FF00;font-variant-numeric:tabular-nums;font-size:17px}.ar-hot{margin-left:auto;font-size:12.5px;font-weight:800;color:#FFB4C8}
+.ar-fin{position:relative;margin-top:10px;display:flex;flex-direction:column;gap:6px}.ar-fin b{font-size:17px;color:#FF6A5F;animation:arBlink 1s infinite}.ar-fin i{display:block;height:6px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}.ar-fin em{display:block;height:100%;background:linear-gradient(90deg,#FF3B30,#FF8A3D);transition:width .25s linear}
+.ar-cheer{position:relative;display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}.ar-cheer::-webkit-scrollbar{display:none}
+.ar-cheer button{flex:none;border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:7px 12px;font-size:19px;line-height:1.2;cursor:pointer}.ar-cheer button.t{font-size:13.5px;font-weight:900;background:#D2FF00;color:#111}.ar-cheer button.pop{animation:arPop .35s}@keyframes arPop{40%{transform:scale(1.35)}}
+.ar-tip{position:relative;display:block;margin-top:6px;font-size:11px;color:rgba(255,255,255,.5)}
+.ar-fx{position:fixed;inset:0;pointer-events:none;z-index:2147482400;overflow:hidden}
+.ar-pill{position:absolute;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));pointer-events:auto;display:flex;align-items:center;gap:6px;background:rgba(13,15,14,.88);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);white-space:nowrap}.ar-pill b{color:#D2FF00}.ar-pill button{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:4px 9px;font-size:15px;cursor:pointer}.ar-pill button.go{font-size:12px;font-weight:800;background:#FF3B30}.ar-pill button.pop{animation:arPop .35s}.ar-pill[hidden]{display:none}
+.ar-vig{position:absolute;inset:0;opacity:0;transition:opacity .4s}.ar-fx.final .ar-vig{opacity:1;animation:arPulse 1s ease-in-out infinite}@keyframes arPulse{0%,100%{box-shadow:inset 0 0 40px 0 rgba(255,59,48,.25)}50%{box-shadow:inset 0 0 110px 18px rgba(255,59,48,.55)}}
+body.ar-final #dDeal .cd{color:#FF3B30!important;display:inline-block;animation:arShake .5s infinite}@keyframes arShake{25%{transform:translateX(-2px) scale(1.06)}75%{transform:translateX(2px) scale(1.06)}}
+.ar-fl{position:absolute;bottom:110px;animation:arFloat 2.8s ease-out forwards;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}.ar-fl small{font-size:11px;font-weight:700;background:rgba(0,0,0,.65);color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap;margin-top:2px}
+@keyframes arFloat{0%{transform:translate(0,0) scale(.5);opacity:0}12%{opacity:1;transform:translate(0,-30px) scale(1.15)}100%{transform:translate(var(--dx),-55vh) scale(.95);opacity:0}}
+.ar-ban{position:absolute;left:50%;top:20%;transform:translateX(-50%);max-width:92vw;text-align:center;background:linear-gradient(90deg,#FF3B30,#FF8A3D);color:#fff;font-weight:900;font-size:clamp(17px,4.4vw,28px);padding:14px 24px;border-radius:999px;box-shadow:0 20px 50px -10px rgba(255,59,48,.65);animation:arBan 2.6s cubic-bezier(.2,.9,.25,1.2) forwards}
+.ar-ban.win{background:linear-gradient(90deg,#D2FF00,#8CF5C0);color:#111;box-shadow:0 20px 60px -10px rgba(210,255,0,.7);animation-duration:5s}.ar-ban.end{background:#111312}
+@keyframes arBan{0%{transform:translate(-50%,-30px) scale(.6);opacity:0}10%{transform:translate(-50%,0) scale(1.08);opacity:1}18%{transform:translate(-50%,0) scale(1)}86%{opacity:1}100%{opacity:0;transform:translate(-50%,-16px)}}
+.ar-cf{position:absolute;left:50%;top:26%;width:9px;height:14px;border-radius:2px;animation:arCf 1.7s cubic-bezier(.15,.7,.3,1) forwards}@keyframes arCf{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+.ar-big{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font:900 min(42vw,280px)/1 var(--f-display);color:#FF3B30;text-shadow:0 0 50px rgba(255,59,48,.75),0 0 2px #fff;animation:arBig .95s ease-out forwards}@keyframes arBig{0%{transform:translate(-50%,-50%) scale(1.7);opacity:0}15%{opacity:.92}100%{transform:translate(-50%,-50%) scale(.85);opacity:0}}
+.ar-bump{animation:arBump .9s}@keyframes arBump{30%{transform:scale(1.22);color:#FF3B30}}
+@media (prefers-reduced-motion:reduce){.ar-fl,.ar-cf,.ar-big{display:none}}
 .osl{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--fg2);margin-top:2px}.osl small{font-size:11.5px}
 .oopen{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--fg);font:600 14px/1.2 var(--f);cursor:pointer}.oopen:hover{background:color-mix(in srgb,var(--leaf) 8%,var(--paper))}.oopen b{color:var(--leaf)}
 .shpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
@@ -8420,7 +8441,7 @@ function openPlant(id, fromImg, tab){
   if (sheet.open) sheet.close(); if (dlg.open) dlg.close(); try{ if(adm.open) adm.close(); }catch(e){}
   S.pTab=tab||null; go('#/plant/'+encodeURIComponent(id));
 }
-function leavePlant(){ if(S.pagePhotoUnsub){ S.pagePhotoUnsub(); S.pagePhotoUnsub=null; } S.pageP=null; }
+function leavePlant(){ try{ arenaStop(); }catch(e){} if(S.pagePhotoUnsub){ S.pagePhotoUnsub(); S.pagePhotoUnsub=null; } S.pageP=null; }
 const saleState=p=>!listed(p)?['off','未販售 · 只公開履歷']:p.status==='sold'?['sold','已售出']:live(p)?['live','競標中']:isAuc(p)?['sold','競標已結束']:p.status==='available'?['on',p.price?'可直購':'可洽詢']:['sold',STATUS[p.status]||''];
 /* ---- 不在 VEIN 上的親本（國外進口、向別人購買…）：名稱、來源、照片影片 ---- */
 const EXT_SRC=['國外進口','向他人購買','朋友贈送','自己舊有收藏','其他'];
@@ -8506,7 +8527,7 @@ function buildPlantPage(id){
     h('nav',{class:'crumbs'}, h('a',{href:'#/store',text:'植物商店'}), h('span',{text:'›'}), h('a',{href:'#/store/c/'+encodeURIComponent(gk),text:genusZh(g)||g||'其他'}), h('span',{text:'›'}), h('b',{class:'mono',text:p.code})),
     h('div',{class:'pp'},
       h('div',{class:'pp-g'}, h('div',{class:'pp-main',id:'dBigWrap',onclick:e=>{ if(e.target.tagName==='VIDEO') return; S.photos.length&&openViewer(S.gi); }}, h('img',{id:'dBig',src:cover(p),alt:p.code}), h('video',{id:'dVid',class:'pp-vid',muted:true,loop:true,playsinline:true,controls:true,hidden:true}), h('span',{class:'pp-cnt',id:'dCnt'})), h('div',{class:'pp-thumbs',id:'dThumbs'})),
-      h('div',{class:'pp-i'}, h('div',{id:'dHead'}), h('div',{id:'dInfo'}), h('div',{id:'dDeal'}), h('div',{id:'dBid'}), h('div',{id:'dSeller'}))),
+      h('div',{class:'pp-i'}, h('div',{id:'dHead'}), h('div',{id:'dInfo'}), h('div',{id:'dArena'}), h('div',{id:'dDeal'}), h('div',{id:'dBid'}), h('div',{id:'dSeller'}))),
     h('section',{class:'pp-sec'}, secHead('PLANT FILE','植物檔案','編號與拍攝時間登錄後就不能修改'), h('div',{id:'pSpec'})),
     h('section',{class:'pp-sec dark'}, secHead('LINEAGE','血統','母本、父本、同級與後代，點任一株看它的檔案'), h('div',{id:'pTree'})),
     h('section',{class:'pp-sec hpre'}, secHead('HISTORY','履歷','成長紀錄、分出的側芽與實生苗、所有權變更，完整時間軸在履歷頁',histBtn(p,'pri')), h('div',{id:'pRuler'}), h('div',{id:'dFilm'}, h('p',{class:'hint',text:'載入成長紀錄中…'})), h('div',{id:'pOwn'})),
@@ -8538,6 +8559,55 @@ function offerPart(p,mo){ const id=p.id; let offerEl=null; S.offerOpen=S.offerOp
           h('div',{class:'by-orow'}, h('label',{class:'by-amt'}, h('span',{text:'NT$'}), amt), h('button',{class:'btn ink',type:'submit',text:'送出出價'})), msg,
           h('small',{class:'hint',text:'賣家同意後會自動成立訂單，再依訂單流程匯款。'})); } } return offerEl; }
 function setGal(i){ S.gi=i; const d=S.photos[i]; const b=$('#dBig'), v=$('#dVid'); if(d&&isVidRec(d)&&v){ b.hidden=true; v.hidden=false; if(v.getAttribute('src')!==imgSrc(d)){ v.src=imgSrc(d); v.poster=recPoster(d)||''; } if(!REDUCE) v.play().catch(()=>{}); } else { if(v){ v.pause(); v.hidden=true; } if(b){ b.hidden=false; if(d&&imgSrc(d)) b.src=imgSrc(d); } } document.querySelectorAll('#dThumbs button').forEach((x,k)=>x.setAttribute('aria-current',String(k===i))); document.querySelectorAll('.r-dot').forEach((x,k)=>x.classList.toggle('on',k===i)); const c=$('#dCnt'); if(c&&d) c.textContent=(i+1)+' / '+S.photos.length+' · '+(d.stage||'紀錄')+' · '+fmtDay(d.takenAt); }
+/* ================= 競標觀戰：人數、歡呼、最後倒數與加價特效 ================= */
+const AR={pid:null}; const AR_CHEER=['🔥','👏','💪','🎉','😱','🙏'];
+const arVid=()=>{ if(S.me) return S.me; let v=''; try{ v=sessionStorage.getItem('vein.vid')||''; if(!v){ v='a'+Math.random().toString(36).slice(2,12); sessionStorage.setItem('vein.vid',v); } }catch(e){ v=v||'a'+Math.random().toString(36).slice(2,12); } return v; };
+function arenaSync(p){ const box=$('#dArena'); if(!box) return;
+  const on=isAuc(p)&&listed(p)&&!p.blocked&&(live(p)||(AR.pid===p.id&&Date.now()-p.endsAtMs<180e3));
+  if(!on){ if(AR.pid) arenaStop(); box.replaceChildren(); return; }
+  if(AR.pid!==p.id){ arenaStop(); arenaStart(p,box); }
+}
+function arenaStart(p,box){ if(!S.db) return; const pid=p.id, base='watch/'+pid; AR.pid=pid; AR.top=topBid(pid)?.amt??0; AR.t0=Date.now(); AR.seen=new Set(); AR.cheers=[]; AR.lastSec=null; AR.ended=!live(p); AR.n=1;
+  const wN=h('span',{text:'1'}), hot=h('span',{class:'ar-hot'}), fin=h('div',{class:'ar-fin',hidden:true});
+  const btn=(e,t)=>h('button',{type:'button',class:t?'t':'',onclick:ev=>arenaCheer(e,ev.currentTarget)},t||e);
+  box.replaceChildren(h('div',{class:'arena'}, h('div',{class:'ar-top'}, h('span',{class:'ar-live',text:'● LIVE'}), h('b',{class:'ar-w'}, '👀 ', wN, ' 人正在觀戰'), hot), fin,
+    h('div',{class:'ar-cheer'}, ...AR_CHEER.map(e=>btn(e)), btn('📣','加油！')), h('small',{class:'ar-tip',text:'幫出價的人歡呼加油，大家都看得到'})));
+  AR.ui={wN,hot,fin};
+  const pN=h('b',{text:'1'}), pill=h('div',{class:'ar-pill',hidden:true}, h('span',{class:'ar-live',text:'●'}), h('span',{}, '👀 ', pN, ' 人觀戰'), h('button',{type:'button',onclick:ev=>arenaCheer('🔥',ev.currentTarget),text:'🔥'}), h('button',{type:'button',onclick:ev=>arenaCheer('👏',ev.currentTarget),text:'👏'}), h('button',{type:'button',class:'go',onclick:()=>box.scrollIntoView({behavior:'smooth',block:'center'}),text:'看競標'}));
+  const fx=h('div',{class:'ar-fx'}, h('div',{class:'ar-vig'}), pill); document.body.append(fx); AR.fx=fx; AR.ui.pN=pN;
+  try{ AR.io=new IntersectionObserver(es=>{ pill.hidden=es[0].isIntersecting; }); AR.io.observe(box); }catch(e){}
+  const vid=arVid(), ping=()=>S.db.doc(base+'/v/'+vid).set({at:Date.now()}).catch(()=>{}); ping(); AR.ping=setInterval(()=>{ if(!document.hidden) ping(); },20e3);
+  let VL=[]; const cnt=()=>{ const n=Math.max(1,VL.filter(x=>x>Date.now()-55e3).length); AR.n=n; wN.textContent=String(n); if(AR.ui.pN) AR.ui.pN.textContent=String(n); }; AR.cnt=setInterval(cnt,10e3);
+  AR.u1=S.db.collection(base+'/v').orderBy('at','desc').limit(300).onSnapshot(sn=>{ VL=sn.docs.map(d=>+d.data().at||0); cnt(); },()=>{});
+  AR.u2=S.db.collection(base+'/c').orderBy('at','desc').limit(30).onSnapshot(sn=>{ sn.docs.forEach(d=>{ if(AR.seen.has(d.id)) return; AR.seen.add(d.id); const x=d.data(); if((+x.at||0)<AR.t0-3000) return; AR.cheers.push(+x.at||Date.now()); if(x.v!==vid) arenaFloat(x.e,x.t?x.n:''); }); },()=>{});
+  AR.tick=setInterval(()=>arenaTick(),250); arenaTick();
+}
+function arenaStop(){ if(!AR.pid) return; const pid=AR.pid; AR.pid=null; ['ping','cnt','tick'].forEach(k=>clearInterval(AR[k])); try{ AR.u1&&AR.u1(); }catch(e){} try{ AR.u2&&AR.u2(); }catch(e){}
+  try{ S.db&&S.db.doc('watch/'+pid+'/v/'+arVid()).delete().catch(()=>{}); }catch(e){} AR.io?.disconnect(); AR.fx?.remove(); AR.fx=null; }
+function arenaTick(){ const p=S.plants.get(AR.pid); if(!p||!AR.fx) return; const left=p.endsAtMs-Date.now(), fx=AR.fx;
+  // 熱度：最近一分鐘的歡呼數
+  const n60=AR.cheers.filter(t=>t>Date.now()-60e3).length; AR.ui.hot.textContent=n60?'🔥 熱度 '+n60:'';
+  // 加價特效
+  const t=topBid(p.id); if(t&&t.amt>AR.top){ arenaBid(t,p); AR.top=t.amt; }
+  // 最後關頭
+  const final=left>0&&left<=60e3; fx.classList.toggle('final',final); document.body.classList.toggle('ar-final',final);
+  if (left>0&&left<=5*60e3){ const sec=Math.ceil(left/1000); AR.ui.fin.hidden=false; AR.ui.fin.replaceChildren(h('b',{text:sec<=60?'⏳ 最後 '+sec+' 秒！':'⏳ 最後 '+fmtLeft(left)}), h('i',{}, h('em',{style:'width:'+Math.max(0,Math.min(100,left/3e3))+'%'})));
+    if(sec<=10&&sec!==AR.lastSec&&!REDUCE){ AR.lastSec=sec; const b=h('div',{class:'ar-big',text:String(sec)}); fx.append(b); setTimeout(()=>b.remove(),1000); try{ navigator.vibrate?.(30); }catch(e){} } }
+  else AR.ui.fin.hidden=true;
+  if (left<=0&&!AR.ended){ AR.ended=true; document.body.classList.remove('ar-final'); fx.classList.remove('final'); AR.ui.fin.hidden=true; const w=topBid(p.id);
+    arenaBanner(w?'🏆 結標！'+(w.uid===S.me?'你':nameOf(w.uid))+' 以 '+money(w.amt)+' 得標':'⏱ 競標結束',w?'win':'end'); if(w) arenaConfetti(80); }
+}
+function arenaBanner(txt,cls){ if(!AR.fx) return; const b=h('div',{class:'ar-ban '+(cls||''),text:txt}); AR.fx.append(b); setTimeout(()=>b.remove(),cls==='win'?5200:2700); }
+function arenaConfetti(n){ if(!AR.fx||REDUCE) return; const C=['#D2FF00','#FF3B30','#FFB4C8','#7FD4FF','#FFFFFF','#FF8A3D']; for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, d=180+Math.random()*320; const c=h('i',{class:'ar-cf',style:`background:${C[i%C.length]};--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d+200}px;--r:${Math.random()*720-360}deg;animation-delay:${Math.random()*.15}s`}); AR.fx.append(c); setTimeout(()=>c.remove(),1900); } }
+function arenaBid(t,p){ const who=t.uid===S.me?'你':nameOf(t.uid); arenaBanner('🔥 '+who+' 加價到 '+money(t.amt)+'！'); arenaConfetti(36); try{ navigator.vibrate?.([40,40,60]); }catch(e){}
+  const bp=document.querySelector('#dDeal .bp'); if(bp){ bp.classList.remove('ar-bump'); void bp.offsetWidth; bp.classList.add('ar-bump'); }
+  for(let i=0;i<6;i++) setTimeout(()=>arenaFloat(['🔥','😱','👏'][i%3]),i*90); }
+function arenaFloat(e,name){ if(!AR.fx||AR.fx.childElementCount>70) return; const el=h('span',{class:'ar-fl',style:`right:${8+Math.random()*22}vw;--dx:${Math.round(Math.random()*80-40)}px;font-size:${26+Math.random()*16}px`}, e, name?h('small',{text:name+'：加油！'}):null); AR.fx.append(el); setTimeout(()=>el.remove(),2900); }
+let arLast=0;
+function arenaCheer(e,btn){ if(!AR.pid) return; const now=Date.now(); if(now-arLast<450) return; arLast=now; const txt=e==='📣';
+  arenaFloat(e,txt?(S.me?(S.meInfo?.name||nameOf(S.me)):'觀眾'):''); AR.cheers.push(now); btn?.classList.remove('pop'); void btn?.offsetWidth; btn?.classList.add('pop');
+  const d={e,at:now,v:arVid()}; if(txt){ d.t=1; d.n=String(S.me?(S.meInfo?.name||nameOf(S.me)):'觀眾').slice(0,16); }
+  S.db.collection('watch/'+AR.pid+'/c').doc().set(d).catch(()=>{}); }
 function refreshDetail(first){
   const id=S.pageP, p=S.plants.get(id); if(!p||!$('#dInfo')) return;
   const own=p.shop===S.me, s=shopOf(p.shop), st=saleState(p), M=S.plants.get(momId(p)), D=S.plants.get(dadId(p));
@@ -8559,7 +8629,7 @@ function refreshDetail(first){
     tagsOf(p).length?h('div',{class:'ptags'}, ...tagsOf(p).map(t=>h('button',{type:'button',class:'tg',onclick:()=>{ S.bfPending={tags:[t]}; go('#/store/search'); },text:'#'+t}))):null,
     p.notes?h('p',{class:'pp-notes',text:p.notes}):null,
     p.blocked?h('div',{class:'notice',style:'margin-top:12px',text:'這株已被管理員下架：'+(p.blockedReason||'違反平台規範')}):null);
-  const deal=$('#dDeal');
+  const deal=$('#dDeal'); try{ arenaSync(p); }catch(e){ console.warn(e); }
   if (!listed(p)){
     $('#dBid').replaceChildren();
     if (!typing(deal)){ const mo=S.me?myOffers().find(o=>o.pid===id&&(o.status==='open'||o.status==='rejected')):null, can=!own&&p.status!=='sold'&&!p.blocked;
@@ -10141,7 +10211,7 @@ function chatPop(c){ const u=chatOther(c); document.querySelectorAll('.ch-pop').
   (topLayer()||document.body).append(el); setTimeout(()=>el.remove(),6000);
   try{ if(document.hidden&&!lsGet('vein.pushOn',false)&&'Notification' in window&&Notification.permission==='granted') new Notification('VEIN · '+chatName(u),{body:c.last.text||'',icon:'/favicon.svg',tag:c.id}); }catch(e){} }
 function topLayer(){ const L=[...document.querySelectorAll('dialog[open]')].sort((a,b)=>(a._openAt||0)-(b._openAt||0)); return L[L.length-1]||null; }
-function chatRefresh(cid){ CH.views.forEach(v=>{ if(!v.el.isConnected){ CH.views.delete(v); return; } if(!cid||v.cid===cid||v.list) v.render(); }); chatBadge();
+function chatRefresh(cid){ CH.views.forEach(v=>{ if(!v.el.isConnected){ if(v.on||Date.now()-(v.born||0)>8000) CH.views.delete(v); return; } v.on=true; if(!cid||v.cid===cid||v.list) v.render(); }); chatBadge();
   const n=chatUnreadN(); const t=document.title.replace(/^\(\d+\) /,''); document.title=n?'('+n+') '+t:t; }
 
 /* ---- 對外入口 ---- */
@@ -10264,8 +10334,8 @@ function chatConv(cid,opt={}){
       out.push(h('div',{class:'cm'+(meS?' me':'')+(cont?' cont':'')+(['prod','offer','ask','pay','ship'].includes(m.t)?' wide':'')}, !meS?(cont?h('span',{class:'cm-sp'}):chatAv(other,28)):null, h('div',{class:'cm-b'}, msgBody(m), h('span',{class:'cm-t',text:hhmm(m.at)+(m===myLast&&oRead>=m.at?' · 已讀':'')})))); });
     ms.replaceChildren(...out); drawQuick();
     if (keepB) ms.scrollTop=ms.scrollHeight; else ms.scrollTop=oldT+(L.length!==lastN?0:0);
-    lastN=L.length; if(atBottom) chatMarkRead(cid); };
-  const view={cid,el:box,render}; CH.views.add(view); render(); setTimeout(()=>{ ms.scrollTop=ms.scrollHeight; if(!opt.noFocus&&isDesk()) ta.focus(); },30);
+    lastN=L.length; if(atBottom) setTimeout(()=>chatMarkRead(cid),0); };
+  const view={cid,el:box,render,born:Date.now()}; CH.views.add(view); render(); setTimeout(()=>{ ms.scrollTop=ms.scrollHeight; if(!opt.noFocus&&isDesk()) ta.focus(); },30);
   box.__destroy=()=>{ CH.views.delete(view); chatUnsub(cid); };
   return box;
 }
@@ -10517,7 +10587,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
