@@ -326,3 +326,45 @@ exports.budgetGuard = onMessagePublished({ topic: 'billing-alerts', maxInstances
     if (owner) await push(owner.uid, '🚨 VEIN 已自動開啟緊急模式', `本月費用 ${Math.round(cost)} 已超過預算 ${Math.round(budget)}`, '/#admin/guard', 'budget').catch(() => {});
   }
 });
+
+// ================= 定期清理（每天凌晨）=================
+// 聊天：超過 1 年的訊息刪除；整個對話 1 年沒動就整個刪
+// 訂單留言：1 年前的刪除；競標觀戰：人數心跳 1 天、歡呼 7 天；系統標記 60 天；轉移請求／面對面 QR 7 天
+// 植物頁：2 年沒有任何更新、沒上架、沒賣出、沒轉手、沒有後代的，先通知持有人並標記 30 天後刪除；持有人按「保留」就取消
+const DAY = 864e5;
+const tms = v => { if (!v) return 0; if (typeof v === 'number') return v; if (v.toMillis) return v.toMillis(); if (v._seconds) return v._seconds * 1000; const n = Date.parse(String(v).replace(' ', 'T')); return isNaN(n) ? 0 : n; };
+async function delQuery(q, max = 2000) { let n = 0; while (n < max) { const sn = await q.limit(300).get(); if (sn.empty) break; const b = db.batch(); sn.docs.forEach(d => b.delete(d.ref)); await b.commit(); n += sn.size; if (sn.size < 300) break; } return n; }
+async function delCol(col, max = 5000) { return delQuery(col, max); }
+exports.retention = onSchedule({ schedule: '10 4 * * *', timeZone: 'Asia/Taipei', timeoutSeconds: 540, memory: '512MiB' }, async () => {
+  const now = Date.now(), stat = { chatMsg: 0, chats: 0, ordMsg: 0, watch: 0, notes: 0, xr: 0, warned: 0, purged: 0 };
+  // 聊天
+  try { for (const c of (await db.collection('chats').get()).docs) { const last = tms((c.data().last || {}).at) || tms(c.data().updatedAt);
+      if (last && last < now - 365 * DAY) { stat.chatMsg += await delCol(c.ref.collection('messages')); await c.ref.delete(); stat.chats++; }
+      else stat.chatMsg += await delQuery(c.ref.collection('messages').where('at', '<', now - 365 * DAY), 1000); } } catch (e) { logger.warn('ret chats', e.message); }
+  // 訂單留言
+  try { for (const sh of await db.collection('ordmsg').listDocuments()) for (const o of await sh.collection('o').listDocuments()) stat.ordMsg += await delQuery(o.collection('m').where('at', '<', now - 365 * DAY), 1000); } catch (e) { logger.warn('ret ordmsg', e.message); }
+  // 觀戰
+  try { for (const w of await db.collection('watch').listDocuments()) { stat.watch += await delQuery(w.collection('v').where('at', '<', now - DAY), 2000); stat.watch += await delQuery(w.collection('c').where('at', '<', now - 7 * DAY), 2000); } } catch (e) { logger.warn('ret watch', e.message); }
+  // 系統標記、暫時性的請求
+  try { for (const [col, days] of [['sysnotes', 60], ['xqr', 7], ['xreq', 7]]) { const sn = await db.collection(col).get(); const b = []; sn.docs.forEach(d => { const at = tms(d.data().at) || tms(d.data().createdAt) || d.createTime.toMillis(); if (at < now - days * DAY) b.push(d.ref); });
+      for (let i = 0; i < b.length; i += 300) { const bt = db.batch(); b.slice(i, i + 300).forEach(r => bt.delete(r)); await bt.commit(); } if (col === 'sysnotes') stat.notes += b.length; else stat.xr += b.length; } } catch (e) { logger.warn('ret notes', e.message); }
+  // 植物頁
+  try {
+    const owners = new Set((await db.collection('owners').listDocuments()).map(d => d.id)), warnBy = new Map();
+    for (const sd of await db.collection('shops').listDocuments()) {
+      const ps = (await sd.collection('plants').get()).docs.map(d => ({ ref: d.ref, id: d.id, ...d.data() }));
+      const parents = new Set(); ps.forEach(p => { [p.momId, p.parentId, p.dadId].forEach(x => x && parents.add(x)); });
+      for (const p of ps) {
+        const last = Math.max(tms(p.createdAt), tms(p.updatedAt), tms(p.lastPhotoAt), tms(p.listedAt), tms(p.keptAt), tms(p.endsAtMs) || 0);
+        const onSale = p.listed !== false && p.status !== 'keep' && (p.mode === 'auction' || p.price || p.price === 0);
+        const keep = !last || last > now - 730 * DAY || p.status === 'sold' || p.buyer || owners.has(p.id) || parents.has(p.id) || onSale || p.grp;
+        if (keep) { if (p.purgeAt) await p.ref.update({ purgeAt: null }).catch(() => {}); continue; }
+        if (!p.purgeAt) { const at = now + 30 * DAY; await p.ref.update({ purgeAt: at }).catch(() => {}); const L = warnBy.get(sd.id) || []; L.push(p); warnBy.set(sd.id, L); stat.warned++; continue; }
+        if (p.purgeAt < now) { await delCol(p.ref.collection('photos')).catch(() => {}); await p.ref.delete(); stat.purged++; logger.info('plant purged', { shop: sd.id, pid: p.id, code: p.code }); }
+      }
+    }
+    for (const [u, L] of warnBy) { const d = new Date(now + 30 * DAY + 8 * 36e5); const ds = (d.getUTCMonth() + 1) + '/' + d.getUTCDate();
+      await push(u, '🗂 ' + L.length + ' 株植物 2 年沒有更新', (L.slice(0, 3).map(p => p.code).join('、') + (L.length > 3 ? ' 等' : '')) + ' 將在 ' + ds + ' 清除，要保留請打開按「保留」', '/#plants/reg', 'purge-' + u).catch(() => {}); }
+  } catch (e) { logger.warn('ret plants', e.message); }
+  logger.info('retention', stat);
+});
