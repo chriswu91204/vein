@@ -3618,7 +3618,7 @@ button.mp-tag{cursor:pointer}.mp-tag.ok{background:#E3F7E9;color:#05843D}.mp-tag
 .ar-cheer{position:relative;display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}.ar-cheer::-webkit-scrollbar{display:none}
 .ar-cheer button{flex:none;border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:7px 12px;font-size:19px;line-height:1.2;cursor:pointer}.ar-cheer button.t{font-size:13.5px;font-weight:900;background:#D2FF00;color:#111}.ar-cheer button.pop{animation:arPop .35s}@keyframes arPop{40%{transform:scale(1.35)}}
 .ar-tip{position:relative;display:block;margin-top:6px;font-size:11px;color:rgba(255,255,255,.5)}
-.ar-fx{position:fixed;inset:0;pointer-events:none;z-index:2147482400;overflow:hidden}
+.ar-fx{position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;pointer-events:none;z-index:2147482400;overflow:hidden}
 .ar-pill{position:absolute;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));pointer-events:auto;display:flex;align-items:center;gap:6px;background:rgba(13,15,14,.88);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);white-space:nowrap}.ar-pill b{color:#D2FF00}.ar-pill button{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:4px 9px;font-size:15px;cursor:pointer}.ar-pill button.go{font-size:12px;font-weight:800;background:#FF3B30}.ar-pill button.pop{animation:arPop .35s}.ar-pill[hidden]{display:none}
 .ar-vig{position:absolute;inset:0;opacity:0;transition:opacity .4s}.ar-fx.final .ar-vig{opacity:1;animation:arPulse 1s ease-in-out infinite}@keyframes arPulse{0%,100%{box-shadow:inset 0 0 40px 0 rgba(255,59,48,.25)}50%{box-shadow:inset 0 0 110px 18px rgba(255,59,48,.55)}}
 body.ar-final #dDeal .cd{color:#FF3B30!important;display:inline-block;animation:arShake .5s infinite}@keyframes arShake{25%{transform:translateX(-2px) scale(1.06)}75%{transform:translateX(2px) scale(1.06)}}
@@ -3629,7 +3629,27 @@ body.ar-final #dDeal .cd{color:#FF3B30!important;display:inline-block;animation:
 @keyframes arBan{0%{transform:translate(-50%,-30px) scale(.6);opacity:0}10%{transform:translate(-50%,0) scale(1.08);opacity:1}18%{transform:translate(-50%,0) scale(1)}86%{opacity:1}100%{opacity:0;transform:translate(-50%,-16px)}}
 .ar-cf{position:absolute;left:50%;top:26%;width:9px;height:14px;border-radius:2px;animation:arCf 1.7s cubic-bezier(.15,.7,.3,1) forwards}@keyframes arCf{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
 .ar-big{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font:900 min(42vw,280px)/1 var(--f-display);color:#FF3B30;text-shadow:0 0 50px rgba(255,59,48,.75),0 0 2px #fff;animation:arBig .95s ease-out forwards}@keyframes arBig{0%{transform:translate(-50%,-50%) scale(1.7);opacity:0}15%{opacity:.92}100%{transform:translate(-50%,-50%) scale(.85);opacity:0}}
-.ar-bump{animation:arBump .9s}@keyframes arBump{30%{transform:scale(1.22);color:#FF3B30}}
+.ar-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.95),rgba(255,59,48,.55) 45%,rgba(255,59,48,0) 75%);animation:arFlash .45s ease-out forwards}@keyframes arFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36,.07,.19,.97)}@keyframes arShakeP{10%,90%{transform:translate(-2px,0)}20%,80%{transform:translate(4px,1px)}30%,50%,70%{transform:translate(-7px,-1px)}40%,60%{transform:translate(7px,1px)}}
+.ar-hero{position:absolute;left:50%;top:40%;width:min(86vw,460px);aspect-ratio:1.3;transform:translate(-50%,-50%);display:grid;place-items:center;animation:arHero 2.8s cubic-bezier(.2,1.4,.3,1) forwards}
+@keyframes arHero{0%{transform:translate(-50%,-50%) scale(.2) rotate(-12deg);opacity:0}12%{transform:translate(-50%,-50%) scale(1.12) rotate(2deg);opacity:1}20%{transform:translate(-50%,-50%) scale(1) rotate(0)}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-120%) scale(.7);opacity:0}}
+.ar-rays{position:absolute;inset:-30%;border-radius:50%;background:repeating-conic-gradient(rgba(255,214,0,.55) 0 8deg,transparent 8deg 22deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 68%);mask:radial-gradient(circle,#000 20%,transparent 68%);animation:arSpin 3s linear infinite}@keyframes arSpin{to{transform:rotate(360deg)}}
+.ar-hc{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 30px;border-radius:28px;background:linear-gradient(135deg,#FF3B30,#FF8A3D 55%,#FFD000);color:#fff;box-shadow:0 30px 80px -10px rgba(255,59,48,.8),0 0 0 4px rgba(255,255,255,.85),0 0 60px 10px rgba(255,138,61,.6);text-align:center}
+.ar-hero.me .ar-hc{background:linear-gradient(135deg,#9BC400,#D2FF00 55%,#8CF5C0);color:#111}
+.ar-hc small{font-size:clamp(15px,3.6vw,20px);font-weight:900;letter-spacing:.04em}.ar-amt{font:900 clamp(40px,11vw,70px)/1 var(--f-display);letter-spacing:-.02em;text-shadow:0 4px 0 rgba(0,0,0,.18);font-variant-numeric:tabular-nums}.ar-hc span{font-size:13.5px;font-weight:800;opacity:.92}
+.ar-ring{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:4px solid #D2FF00;animation:arRing .9s ease-out forwards}.ar-ring.sm{border-width:3px;border-color:#fff;animation-duration:.6s}@keyframes arRing{to{transform:scale(14);opacity:0}}
+.ar-spk{position:absolute;width:7px;height:7px;margin:-3px;border-radius:50%;box-shadow:0 0 10px currentColor;animation:arSpk 1.25s cubic-bezier(.1,.8,.3,1) forwards}@keyframes arSpk{70%{opacity:1}to{transform:translate(var(--x),calc(var(--y) + 60px));opacity:0}}
+.ar-bst{position:absolute;font-style:normal;transform:translate(-50%,-50%);animation:arBst .95s cubic-bezier(.15,.8,.3,1) forwards;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}@keyframes arBst{0%{transform:translate(-50%,-50%) scale(.3)}60%{opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r)) scale(1.1);opacity:0}}
+.ar-shout{position:absolute;right:6vw;transform:rotate(var(--rot));display:flex;flex-direction:column;align-items:flex-end;animation:arShout 2.1s cubic-bezier(.2,1.5,.3,1) forwards}
+.ar-shout b{font:italic 900 clamp(36px,9vw,64px)/1 var(--f-display);background:linear-gradient(180deg,#FFF59D,#FFD000 45%,#FF8A3D);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px #111;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25)) drop-shadow(0 0 18px rgba(255,208,0,.7))}
+.ar-shout.big b{font-size:clamp(48px,13vw,92px)}.ar-shout small{margin-top:4px;font-size:13px;font-weight:900;color:#fff;background:#111312;border-radius:999px;padding:3px 10px}
+@keyframes arShout{0%{transform:rotate(var(--rot)) scale(.2);opacity:0}14%{transform:rotate(var(--rot)) scale(1.18);opacity:1}24%{transform:rotate(var(--rot)) scale(1)}78%{opacity:1}100%{transform:rotate(var(--rot)) translate(-40px,-60px) scale(.9);opacity:0}}
+.ar-combo{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;animation:arCombo 1.2s ease-out forwards}.ar-combo b{font:italic 900 34px/1 var(--f-display);color:#D2FF00;-webkit-text-stroke:2px #111;text-shadow:0 0 18px rgba(210,255,0,.8)}.ar-combo small{font-size:11px;font-weight:900;color:#fff;background:#FF3B30;border-radius:999px;padding:2px 8px}.ar-combo.max b{font-size:46px;color:#FFD000}
+@keyframes arCombo{0%{transform:translate(-50%,-50%) scale(.4)}20%{transform:translate(-50%,-50%) scale(1.3)}35%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,-90%);opacity:0}}
+.ar-ban.hype{background:linear-gradient(90deg,#FF3B30,#FF00A8,#7B61FF);box-shadow:0 20px 60px -10px rgba(255,0,168,.6)}
+.ar-fx.hype .ar-vig{opacity:1;animation:arHypeV 1.4s ease-in-out infinite}@keyframes arHypeV{50%{box-shadow:inset 0 0 120px 20px rgba(255,138,61,.45)}}
+.ar-fl{text-shadow:0 0 16px rgba(255,255,255,.8)}
+.ar-bump{animation:arBump .9s}@keyframes arBump{25%{transform:scale(1.45);color:#FF3B30;text-shadow:0 0 24px rgba(255,59,48,.7)}50%{transform:scale(1.15)}}#dDeal .bp{transform-origin:left center}
 @media (prefers-reduced-motion:reduce){.ar-fl,.ar-cf,.ar-big{display:none}}
 .aud{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px;padding:12px;border-radius:16px;background:var(--paper)}.aud>b{font-size:13px;color:var(--fg2)}.aud-chips{display:flex;flex-wrap:wrap;gap:6px}.aud-chips .chip[aria-pressed=true]{background:#111312;color:#D2FF00}.aud-info{margin:0;font-weight:600;color:var(--fg)}
 .lot.soon .lot-cta{background:#111312;color:#D2FF00}
@@ -8578,12 +8598,12 @@ function arenaStart(p,box){ if(!S.db) return; const pid=p.id, base='watch/'+pid;
     h('div',{class:'ar-cheer'}, ...AR_CHEER.map(e=>btn(e)), btn('📣','加油！')), h('small',{class:'ar-tip',text:'幫出價的人歡呼加油，大家都看得到'})));
   AR.ui={wN,hot,fin};
   const pN=h('b',{text:'1'}), pill=h('div',{class:'ar-pill',hidden:true}, h('span',{class:'ar-live',text:'●'}), h('span',{}, '👀 ', pN, ' 人觀戰'), h('button',{type:'button',onclick:ev=>arenaCheer('🔥',ev.currentTarget),text:'🔥'}), h('button',{type:'button',onclick:ev=>arenaCheer('👏',ev.currentTarget),text:'👏'}), h('button',{type:'button',class:'go',onclick:()=>box.scrollIntoView({behavior:'smooth',block:'center'}),text:'看競標'}));
-  const fx=h('div',{class:'ar-fx'}, h('div',{class:'ar-vig'}), pill); document.body.append(fx); AR.fx=fx; AR.ui.pN=pN;
+  const fx=h('div',{class:'ar-fx'}, h('div',{class:'ar-vig'}), pill); document.documentElement.append(fx); AR.fx=fx; AR.ui.pN=pN;
   try{ AR.io=new IntersectionObserver(es=>{ pill.hidden=es[0].isIntersecting; }); AR.io.observe(box); }catch(e){}
   const vid=arVid(), ping=()=>S.db.doc(base+'/v/'+vid).set({at:Date.now()}).catch(()=>{}); ping(); AR.ping=setInterval(()=>{ if(!document.hidden) ping(); },20e3);
   let VL=[]; const cnt=()=>{ const n=Math.max(1,VL.filter(x=>x>Date.now()-55e3).length); AR.n=n; wN.textContent=String(n); if(AR.ui.pN) AR.ui.pN.textContent=String(n); }; AR.cnt=setInterval(cnt,10e3);
   AR.u1=S.db.collection(base+'/v').orderBy('at','desc').limit(300).onSnapshot(sn=>{ VL=sn.docs.map(d=>+d.data().at||0); cnt(); },()=>{});
-  AR.u2=S.db.collection(base+'/c').orderBy('at','desc').limit(30).onSnapshot(sn=>{ sn.docs.forEach(d=>{ if(AR.seen.has(d.id)) return; AR.seen.add(d.id); const x=d.data(); if((+x.at||0)<AR.t0-3000) return; AR.cheers.push(+x.at||Date.now()); if(x.v!==vid) arenaFloat(x.e,x.t?x.n:''); }); },()=>{});
+  AR.u2=S.db.collection(base+'/c').orderBy('at','desc').limit(30).onSnapshot(sn=>{ sn.docs.forEach(d=>{ if(AR.seen.has(d.id)) return; AR.seen.add(d.id); const x=d.data(); if((+x.at||0)<AR.t0-3000) return; if(x.v!==vid){ AR.cheers.push(+x.at||Date.now()); if(x.t) arenaShout(x.n||'觀眾'); else arenaFloat(x.e,''); arenaHype(); } }); },()=>{});
   AR.tick=setInterval(()=>arenaTick(),250); arenaTick();
 }
 function arenaStop(){ if(!AR.pid) return; const pid=AR.pid; AR.pid=null; ['ping','cnt','tick'].forEach(k=>clearInterval(AR[k])); try{ AR.u1&&AR.u1(); }catch(e){} try{ AR.u2&&AR.u2(); }catch(e){}
@@ -8596,21 +8616,49 @@ function arenaTick(){ const p=S.plants.get(AR.pid); if(!p||!AR.fx) return; const
   // 最後關頭
   const final=left>0&&left<=60e3; fx.classList.toggle('final',final); document.body.classList.toggle('ar-final',final);
   if (left>0&&left<=5*60e3){ const sec=Math.ceil(left/1000); AR.ui.fin.hidden=false; AR.ui.fin.replaceChildren(h('b',{text:sec<=60?'⏳ 最後 '+sec+' 秒！':'⏳ 最後 '+fmtLeft(left)}), h('i',{}, h('em',{style:'width:'+Math.max(0,Math.min(100,left/3e3))+'%'})));
-    if(sec<=10&&sec!==AR.lastSec&&!REDUCE){ AR.lastSec=sec; const b=h('div',{class:'ar-big',text:String(sec)}); fx.append(b); setTimeout(()=>b.remove(),1000); try{ navigator.vibrate?.(30); }catch(e){} } }
+    if(sec<=10&&sec!==AR.lastSec&&!REDUCE){ AR.lastSec=sec; arSfx('tick'); const b=h('div',{class:'ar-big',text:String(sec)}); fx.append(b); setTimeout(()=>b.remove(),1000); try{ navigator.vibrate?.(30); }catch(e){} } }
   else AR.ui.fin.hidden=true;
   if (left<=0&&!AR.ended){ AR.ended=true; document.body.classList.remove('ar-final'); fx.classList.remove('final'); AR.ui.fin.hidden=true; const w=topBid(p.id);
     arenaBanner(w?'🏆 結標！'+(w.uid===S.me?'你':nameOf(w.uid))+' 以 '+money(w.amt)+' 得標':'⏱ 競標結束',w?'win':'end'); if(w) arenaConfetti(80); }
 }
 function arenaBanner(txt,cls){ if(!AR.fx) return; const b=h('div',{class:'ar-ban '+(cls||''),text:txt}); AR.fx.append(b); setTimeout(()=>b.remove(),cls==='win'?5200:2700); }
 function arenaConfetti(n){ if(!AR.fx||REDUCE) return; const C=['#D2FF00','#FF3B30','#FFB4C8','#7FD4FF','#FFFFFF','#FF8A3D']; for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, d=180+Math.random()*320; const c=h('i',{class:'ar-cf',style:`background:${C[i%C.length]};--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d+200}px;--r:${Math.random()*720-360}deg;animation-delay:${Math.random()*.15}s`}); AR.fx.append(c); setTimeout(()=>c.remove(),1900); } }
-function arenaBid(t,p){ const who=t.uid===S.me?'你':nameOf(t.uid); arenaBanner('🔥 '+who+' 加價到 '+money(t.amt)+'！'); arenaConfetti(36); try{ navigator.vibrate?.([40,40,60]); }catch(e){}
+// 音效：用 WebAudio 合成（不用下載檔案）；要使用者在頁面上點過才會出聲
+let arAC=null; const arAudio=()=>{ try{ if(!arAC) arAC=new (window.AudioContext||window.webkitAudioContext)(); if(arAC.state==='suspended') arAC.resume(); return arAC; }catch(e){ return null; } };
+function arSfx(kind){ const ac=arAC; if(!ac||ac.state!=='running') return; const t=ac.currentTime, g=ac.createGain(); g.connect(ac.destination);
+  const tone=(f0,f1,st,du,type,vol)=>{ const o=ac.createOscillator(), gg=ac.createGain(); o.type=type||'sine'; o.frequency.setValueAtTime(f0,t+st); if(f1) o.frequency.exponentialRampToValueAtTime(f1,t+st+du); gg.gain.setValueAtTime(0,t+st); gg.gain.linearRampToValueAtTime(vol||.18,t+st+.015); gg.gain.exponentialRampToValueAtTime(.001,t+st+du); o.connect(gg); gg.connect(g); o.start(t+st); o.stop(t+st+du+.05); };
+  if(kind==='bid'){ tone(180,900,0,.35,'sawtooth',.08); tone(880,0,.28,.25,'triangle',.16); tone(1320,0,.4,.4,'triangle',.14); tone(1760,0,.52,.5,'sine',.1); }
+  else if(kind==='cheer'){ tone(600+Math.random()*300,1200,0,.12,'triangle',.07); }
+  else if(kind==='tick'){ tone(1000,0,0,.08,'square',.05); } }
+function arenaBid(t,p){ if(!AR.fx) return; const fx=AR.fx, me=t.uid===S.me, who=me?'你':nameOf(t.uid), prev=AR.top||+p.startPrice||0;
+  arSfx('bid'); try{ navigator.vibrate?.([60,40,60,40,120]); }catch(e){}
+  const fl=h('div',{class:'ar-flash'}); fx.append(fl); setTimeout(()=>fl.remove(),500);
+  if(!REDUCE){ document.body.classList.remove('ar-shake'); void document.body.offsetWidth; document.body.classList.add('ar-shake'); setTimeout(()=>document.body.classList.remove('ar-shake'),650); }
+  const amt=h('b',{class:'ar-amt',text:money(prev)}), hero=h('div',{class:'ar-hero'+(me?' me':'')}, h('div',{class:'ar-rays'}), h('div',{class:'ar-hc'}, h('small',{text:me?'⚡ 你加價成功！':'🔥 有人加價！'}), amt, h('span',{text:who+' 出價 · 每口 +'+money(p.step||100)})));
+  fx.append(hero); setTimeout(()=>hero.remove(),2900);
+  const t0=performance.now(), D=700; const step=now=>{ const k=Math.min(1,(now-t0)/D), e=1-Math.pow(1-k,3); amt.textContent=money(Math.round(prev+(t.amt-prev)*e)); if(k<1) requestAnimationFrame(step); }; requestAnimationFrame(step);
+  arenaConfetti(110); [[.22,.3],[.78,.26],[.5,.62]].forEach(([x,y],i)=>setTimeout(()=>arenaFirework(x,y),180+i*260));
   const bp=document.querySelector('#dDeal .bp'); if(bp){ bp.classList.remove('ar-bump'); void bp.offsetWidth; bp.classList.add('ar-bump'); }
-  for(let i=0;i<6;i++) setTimeout(()=>arenaFloat(['🔥','😱','👏'][i%3]),i*90); }
+  for(let i=0;i<14;i++) setTimeout(()=>arenaFloat(['🔥','😱','👏','💸','⚡'][i%5]),i*70);
+}
+function arenaFirework(fx0,fy0){ if(!AR.fx||REDUCE) return; const C=['#D2FF00','#FF3B30','#FFB4C8','#7FD4FF','#FFE9A8','#8CF5C0'], c0=C[Math.floor(Math.random()*C.length)], N=26;
+  const ring=h('i',{class:'ar-ring',style:`left:${fx0*100}%;top:${fy0*100}%;border-color:${c0}`}); AR.fx.append(ring); setTimeout(()=>ring.remove(),900);
+  for(let i=0;i<N;i++){ const a=i/N*Math.PI*2, d=90+Math.random()*90; const sp=h('i',{class:'ar-spk',style:`left:${fx0*100}%;top:${fy0*100}%;background:${i%3?c0:'#fff'};--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d}px`}); AR.fx.append(sp); setTimeout(()=>sp.remove(),1300); } }
 function arenaFloat(e,name){ if(!AR.fx||AR.fx.childElementCount>70) return; const el=h('span',{class:'ar-fl',style:`right:${8+Math.random()*22}vw;--dx:${Math.round(Math.random()*80-40)}px;font-size:${26+Math.random()*16}px`}, e, name?h('small',{text:name+'：加油！'}):null); AR.fx.append(el); setTimeout(()=>el.remove(),2900); }
-let arLast=0;
-function arenaCheer(e,btn){ if(!AR.pid) return; const now=Date.now(); if(now-arLast<450) return; arLast=now; const txt=e==='📣';
-  arenaFloat(e,txt?(S.me?(S.meInfo?.name||nameOf(S.me)):'觀眾'):''); AR.cheers.push(now); btn?.classList.remove('pop'); void btn?.offsetWidth; btn?.classList.add('pop');
-  const d={e,at:now,v:arVid()}; if(txt){ d.t=1; d.n=String(S.me?(S.meInfo?.name||nameOf(S.me)):'觀眾').slice(0,16); }
+let arLast=0, arCombo=0, arComboAt=0, arHypeAt=0;
+function arenaBurst(e,x,y,n){ if(!AR.fx||REDUCE) return; for(let i=0;i<n;i++){ const a=-Math.PI/2+(Math.random()-.5)*Math.PI*1.3, d=70+Math.random()*130; const el=h('i',{class:'ar-bst',style:`left:${x}px;top:${y}px;--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d}px;--r:${Math.random()*80-40}deg;font-size:${18+Math.random()*16}px`,text:e}); AR.fx.append(el); setTimeout(()=>el.remove(),1000); }
+  const r=h('i',{class:'ar-ring sm',style:`left:${x}px;top:${y}px`}); AR.fx.append(r); setTimeout(()=>r.remove(),700); }
+function arenaShout(name,big){ if(!AR.fx) return; const el=h('div',{class:'ar-shout'+(big?' big':''),style:`top:${22+Math.random()*30}%;--rot:${(Math.random()*10-8).toFixed(1)}deg`}, h('b',{text:'加油！'}), name?h('small',{text:name}):null); AR.fx.append(el); setTimeout(()=>el.remove(),2200); }
+function arenaHype(){ const now=Date.now(), n=AR.cheers.filter(t=>t>now-10e3).length; AR.fx?.classList.toggle('hype',n>=10); if(n>=12&&now-arHypeAt>20e3){ arHypeAt=now; arenaBanner('🔥 全場沸騰！'+n+' 次歡呼','hype'); arenaConfetti(60); } }
+function arenaCheer(e,btn){ if(!AR.pid) return; arAudio(); const now=Date.now(); if(now-arLast<220) return; arLast=now; const txt=e==='📣', nm=S.me?(S.meInfo?.name||nameOf(S.me)):'觀眾';
+  const r=btn?.getBoundingClientRect(), x=r?r.left+r.width/2:innerWidth-60, y=r?r.top+r.height/2:innerHeight-120;
+  arCombo=now-arComboAt<1600?arCombo+1:1; arComboAt=now;
+  arenaBurst(txt?'📣':e,x,y,txt?14:8+Math.min(10,arCombo)); arSfx('cheer'); try{ navigator.vibrate?.(15); }catch(x2){}
+  if(txt) arenaShout(nm,true); else arenaFloat(e,'');
+  if(arCombo>=3&&AR.fx){ AR.fx.querySelectorAll('.ar-combo').forEach(x2=>x2.remove()); const c=h('div',{class:'ar-combo'+(arCombo>=10?' max':''),style:`left:${Math.min(innerWidth-90,x)}px;top:${Math.max(70,y-70)}px`}, h('b',{text:'×'+arCombo}), h('small',{text:arCombo>=20?'瘋狂連擊！':arCombo>=10?'超級連擊！':'COMBO'})); AR.fx.append(c); setTimeout(()=>c.remove(),1200);
+    if(arCombo===10||arCombo===25||arCombo===50){ arenaBanner('💥 '+nm+' 連續加油 ×'+arCombo+'！','hype'); arenaConfetti(50); } }
+  AR.cheers.push(now); arenaHype(); btn?.classList.remove('pop'); void btn?.offsetWidth; btn?.classList.add('pop');
+  const d={e,at:now,v:arVid()}; if(txt){ d.t=1; d.n=String(nm).slice(0,16); }
   S.db.collection('watch/'+AR.pid+'/c').doc().set(d).catch(()=>{}); }
 function refreshDetail(first){
   const id=S.pageP, p=S.plants.get(id); if(!p||!$('#dInfo')) return;
@@ -8654,7 +8702,7 @@ function refreshDetail(first){
     const bf=$('#dBid');
     if (L && !own){
       if (!bf.firstChild||first){ const inp=h('input',{type:'number',inputmode:'numeric',min:0,step:'any',id:'bidAmt','aria-label':'出價金額'});
-        bf.replaceChildren(h('div',{class:'deal auc',style:'margin-top:8px'}, h('div',{class:'lbl',id:'bidHint'}), h('form',{class:'bidform',onsubmit:e=>{ e.preventDefault(); placeBid(id,Number(inp.value)); }}, inp, h('button',{class:'btn lime lg',type:'submit',text:'出價'})),
+        bf.replaceChildren(h('div',{class:'deal auc',style:'margin-top:8px'}, h('div',{class:'lbl',id:'bidHint'}), h('form',{class:'bidform',onsubmit:e=>{ e.preventDefault(); arAudio(); placeBid(id,Number(inp.value)); }}, inp, h('button',{class:'btn lime lg',type:'submit',text:'出價'})),
           h('div',{class:'row',style:'margin-top:8px'}, ...[1,2,5].map(k=>h('button',{class:'btn soft sm',type:'button',onclick:()=>{ const pp=S.plants.get(id); inp.value=minBid(pp)+(k-1)*(pp.step||100); },text:'+'+k+' 口'}))), h('div',{class:'err',id:'bidErr'}),
           h('p',{class:'lbl',style:'margin-top:6px',text:'得標後賣家會與你聯絡付款與出貨。'}), h('div',{id:'bidV'}))); }
       const bv=$('#bidV'); if(bv) bv.replaceChildren(...(hasElig(p)?[eligBox(p,'出價')].filter(Boolean):[]));
