@@ -80,7 +80,7 @@ async function start() {
   const mapErr = e => ({ code: e && e.code === 'permission-denied' ? 'invalid_argument' : (e && e.code) || 'unknown', message: e && e.message, original: e });
   const clean = d => JSON.parse(JSON.stringify(d));
   const wrapDoc = s => ({ id: s.id, exists: s.exists(), data: () => s.data(), metadata: { hasPendingWrites: s.metadata.hasPendingWrites, fromCache: s.metadata.fromCache } });
-  const wrapQuery = qs => { const docs = qs.docs.map(wrapDoc); return { docs, size: docs.length, empty: !docs.length, metadata: { hasPendingWrites: qs.metadata.hasPendingWrites } }; };
+  const wrapQuery = qs => { const docs = qs.docs.map(wrapDoc); return { docs, size: docs.length, empty: !docs.length, metadata: { hasPendingWrites: qs.metadata.hasPendingWrites, fromCache: qs.metadata.fromCache } }; };
   function Q(path, cons = []) {
     const q = () => query(collection(fs, path), ...cons);
     return {
@@ -91,7 +91,7 @@ async function start() {
       startAfter: v => Q(path, [...cons, startAfter(v)]),
       doc: id => D(id ? path + '/' + id : doc(collection(fs, path)).path),
       async get() { try { return wrapQuery(await getDocs(q())); } catch (e) { throw mapErr(e); } },
-      onSnapshot(next, err) { return onSnapshot(q(), s => next(wrapQuery(s)), e => err && err(mapErr(e))); },
+      onSnapshot(next, err, o) { return o && o.meta ? onSnapshot(q(), { includeMetadataChanges: true }, s => next(wrapQuery(s)), e => err && err(mapErr(e))) : onSnapshot(q(), s => next(wrapQuery(s)), e => err && err(mapErr(e))); },
       async add(d) { const r = this.doc(); await r.set(d); return r; }
     };
   }
@@ -103,7 +103,7 @@ async function start() {
       async set(d) { try { await setDoc(r(), clean(d)); } catch (e) { throw mapErr(e); } },
       async update(d) { try { await updateDoc(r(), clean(d)); } catch (e) { throw mapErr(e); } },
       async delete() { try { await deleteDoc(r()); } catch (e) { throw mapErr(e); } },
-      onSnapshot(next, err) { return onSnapshot(r(), s => next(wrapDoc(s)), e => err && err(mapErr(e))); },
+      onSnapshot(next, err, o) { return o && o.meta ? onSnapshot(r(), { includeMetadataChanges: true }, s => next(wrapDoc(s)), e => err && err(mapErr(e))) : onSnapshot(r(), s => next(wrapDoc(s)), e => err && err(mapErr(e))); },
       collection: c => Q(path + '/' + c)
     };
   }

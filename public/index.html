@@ -4480,7 +4480,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 window.__veinReady=new Promise(function(r){ window.__veinResolve=r; });
 window.claude={ use:function(n){ return window.__veinReady.then(function(a){ return a.use(n); }); } };
 </script>
-<script type="module" src="/js/vein-firebase.js"></script>
+<script type="module" src="/js/vein-firebase.js?v=20261101"></script>
 <script>
 var PAGE='home';
 // 每一筆瀏覽紀錄都編號（vi），才知道「上一頁」還在不在 VEIN 裡面、要退幾步才回到進後台前的那一頁
@@ -5005,14 +5005,16 @@ function openPhone(reason){
   openDialog('驗證手機', h('div',{class:'form'}, h('h3',{style:'font-size:28px;font-weight:600',text:'驗證手機號碼'}), reason?h('p',{class:'ph-why',text:reason}):null, h('p',{class:'hint',text:'驗證一次就好。一支手機只能綁定一個帳號，號碼不會公開。'}), field('手機號碼',num), h('div',{}, send), qbox, step2, err), true);
 }
 function saveSocial(patch){ if(S.work){ toast('小編模式不能用賣場的身分出價、追蹤、下單或抽獎，請先切回自己的帳號'); return Promise.reject(new Error('work')); } if(!S.socialReady){ toast('資料還在載入，請稍候'); return Promise.reject(new Error('nr')); } const cur={...mySocial(),...patch}; S.social.set(S.me,cur); S.socialAll.set(S.me,cur); renderAll(); return socialQ(()=>S.db.doc('social/'+S.me).set(cur)).catch(e=>{ toast('儲存失敗，請稍後再試'); throw e; }); }
-function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>toast('沒有存成功，請稍後再試')); }
+function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsUp(patch).catch(()=>toast('沒有存成功，請稍後再試')); }
+// 只寫有改的欄位，別的裝置剛加的收藏不會被這台舊的資料蓋掉
+function prefsUp(patch){ return prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).update(patch).catch(e=>S.db.doc(`data/users/${ME()}/prefs`).get().then(d=>{ if(d.exists) throw e; return S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs); }))); }
 function toggleFav(id){ if(needLogin()) return; const f=new Set(S.prefs.favs||[]); const on=!f.has(id); on?f.add(id):f.delete(id); const fs={...(S.prefs.favShop||{})}; if(on&&S.plants.get(id)?.shop) fs[id]=S.plants.get(id).shop; else if(!on) delete fs[id]; savePrefs({favs:[...f],favShop:fs},on?'已加入收藏':'已取消收藏'); }
 // 收藏的植物不一定在「每家最新幾株」裡：重新整理後直接把收藏的那幾株讀回來
 let favLoading=false, favLegacy=false;
 async function favLoad(){ if(favLoading||!S.db||!S.me||!S.prefsReady||!S.shopsReady) return; const ids=(S.prefs.favs||[]).filter(i=>!S.plants.has(i)); if(!ids.length) return; favLoading=true;
   try{ const fs=S.prefs.favShop||{}, known=ids.filter(i=>fs[i]&&fs[i]!=='-'), unk=ids.filter(i=>!fs[i]); let n=0;
     await Promise.all(known.map(async i=>{ try{ const d=await S.db.doc('shops/'+fs[i]+'/plants/'+i).get(); if(d.exists&&!S.plants.has(i)){ S.plants.set(i,{id:i,...d.data(),shop:fs[i]}); n++; } }catch(e){} }));
-    if(unk.length&&!favLegacy){ favLegacy=true; await ensurePlants(); const add={...fs}; unk.forEach(i=>{ add[i]=S.plants.get(i)?.shop||'-'; }); S.prefs={...S.prefs,favShop:add}; prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>{}); n++; }
+    if(unk.length&&!favLegacy){ favLegacy=true; await ensurePlants(); const add={...fs}; unk.forEach(i=>{ add[i]=S.plants.get(i)?.shop||'-'; }); S.prefs={...S.prefs,favShop:add}; prefsUp({favShop:add}).catch(()=>{}); n++; }
     if(n) renderAll();
   } finally{ favLoading=false; } }
 function favBtn(id){ const on=(S.prefs.favs||[]).includes(id); return h('button',{class:'fav'+(on?' on':''),type:'button','aria-label':on?'取消收藏':'加入收藏','aria-pressed':String(on),onclick:e=>{ e.stopPropagation(); toggleFav(id); }}, svg('i-heart')); }
@@ -6870,9 +6872,9 @@ function recentList(){ const a=lsGet(RV_KEY(),[]), R=Array.isArray(S.prefs?.rece
   for (const x of [...(Array.isArray(a)?a:[]),...R]) if(x&&x.id&&(!m.has(x.id)||m.get(x.id).at<x.at)) m.set(x.id,x);
   return [...m.values()].sort((x,y)=>y.at-x.at).slice(0,80); }
 function noteView(id){ if(!id||String(id).startsWith('g:')) return; const L=recentList().filter(x=>x.id!==id); L.unshift({id,at:Date.now()}); lsSet(RV_KEY(),L.slice(0,80)); rvDirty=true; clearTimeout(rvT); rvT=setTimeout(rvSync,45e3); }
-function rvSync(){ if(!rvDirty||!S.me||!S.prefsReady||!S.db) return; rvDirty=false; S.prefs={...S.prefs,recent:recentList().slice(0,40)}; prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>{}); }
+function rvSync(){ if(!rvDirty||!S.me||!S.prefsReady||!S.db) return; rvDirty=false; S.prefs={...S.prefs,recent:recentList().slice(0,40)}; prefsUp({recent:S.prefs.recent}).catch(()=>{}); }
 addEventListener('visibilitychange',()=>{ if(document.hidden) rvSync(); });
-function clearRecent(){ lsSet(RV_KEY(),[]); if(S.me&&S.prefsReady){ S.prefs={...S.prefs,recent:[]}; prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>{}); } toast('已清除瀏覽紀錄'); renderMe(true); }
+function clearRecent(){ lsSet(RV_KEY(),[]); if(S.me&&S.prefsReady){ S.prefs={...S.prefs,recent:[]}; prefsUp({recent:[]}).catch(()=>{}); } toast('已清除瀏覽紀錄'); renderMe(true); }
 const recentPlants=()=>recentList().map(x=>({x,p:S.plants.get(x.id)})).filter(o=>o.p&&!o.p.hidden&&!o.p.blocked);
 // 為你推薦：追蹤的賣家、收藏與最近看過的品種、競標與新品
 function meRecs(n){ const fol=new Set(mySocial().follows||[]), favIds=new Set(S.prefs.favs||[]), favs=[...favIds].map(i=>S.plants.get(i)).filter(Boolean), rv=recentPlants().slice(0,30).map(o=>o.p);
@@ -7181,7 +7183,7 @@ async function boot(){
   if (!db){ S.failed=true; renderAll(); return; }
   db.collection('shops').onSnapshot(sn=>{ S.shopsReady=true; S.shops.clear(); sn.docs.forEach(d=>S.shops.set(d.id,d.data())); checkReady(); }, ()=>{ S.failed=true; renderAll(); });
   db.doc('site/sellers').onSnapshot(d=>{ S.sellersReady=true; S.sellers={approved:{},house:null,...(d.exists?d.data():{})}; checkReady(); }, ()=>{ S.sellersReady=true; checkReady(); });
-  db.collection('social').onSnapshot(sn=>{ S.socialReady=true; const seen=new Set(); sn.docs.forEach(d=>{ seen.add(d.id); if(!(d.id===S.me&&d.metadata.hasPendingWrites)) S.socialAll.set(d.id,d.data()); }); [...S.socialAll.keys()].forEach(k=>{ if(!seen.has(k)&&k!==S.me) S.socialAll.delete(k); }); syncSocial(); renderAll(); }, ()=>{});
+  db.collection('social').onSnapshot(sn=>{ if(!sn.metadata?.fromCache) S.socialReady=true; const seen=new Set(); sn.docs.forEach(d=>{ seen.add(d.id); if(!(d.id===S.me&&d.metadata.hasPendingWrites)) S.socialAll.set(d.id,d.data()); }); [...S.socialAll.keys()].forEach(k=>{ if(!seen.has(k)&&k!==S.me) S.socialAll.delete(k); }); syncSocial(); renderAll(); }, ()=>{ S.socialReady=true; }, {meta:true}); setTimeout(()=>{ S.socialReady=true; },8000);
   db.doc('site/bans').onSnapshot(d=>{ S.bans=(d.exists&&d.data().uids)||{}; syncSocial(); renderAll(); }, ()=>{});
   db.doc('site/admins').onSnapshot(d=>{ S.adminUids=(d.exists&&d.data().uids)||{}; if(adm.open) renderAdmin(false); }, ()=>{});
   if (S.admin) db.collection('profiles').onSnapshot(sn=>{ S.profiles.clear(); sn.docs.forEach(d=>S.profiles.set(d.id,d.data())); if(adm.open) renderAdmin(false); }, ()=>{});
@@ -7208,7 +7210,7 @@ async function boot(){
     db.doc(`data/users/${S.me}/bank`).onSnapshot(d=>{ S.bank=d.exists?d.data():null; },()=>{});
     if(!S.work) chatBoot(db); careBoot(db);
   }
-  if (S.me) db.doc(`data/users/${ME()}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); setTimeout(favLoad,300); }, ()=>{});
+  if (S.me) db.doc(`data/users/${ME()}/prefs`).onSnapshot(d=>{ if(!d.metadata.fromCache) S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); setTimeout(favLoad,300); }, ()=>{ S.prefsReady=true; }, {meta:true}); if (S.me) setTimeout(()=>{ S.prefsReady=true; },8000);
   setTimeout(()=>{ if(!S.ready){ S.ready=true; renderAll(); } }, 4000);
   if (isAdmHash(location.hash)) route();
 }
