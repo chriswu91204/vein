@@ -10,6 +10,9 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 setGlobalOptions({ region: 'asia-east1', maxInstances: 5 });
+// 即時推播（出價、訂單、聊天）：一台可同時處理多件，尖峰（結標前大家一起出價）不會排隊。
+// 原本預設一台一次只處理一件、最多 5 台，滿了 Google 會「稍後重試」，等待時間會一路拉長到好幾分鐘。
+const HOT = { cpu: 1, memory: '512MiB', concurrency: 40, maxInstances: 10 };
 const SITE = 'https://vein-48ec8.web.app';
 
 async function tokensOf(uid) {
@@ -41,14 +44,14 @@ async function displayName(uid) {
 }
 
 // 聊天：新訊息推給對方
-exports.pushChat = onDocumentCreated('chats/{cid}/messages/{mid}', async ev => {
+exports.pushChat = onDocumentCreated({ document: 'chats/{cid}/messages/{mid}', ...HOT }, async ev => {
   const m = ev.data?.data(); if (!m || m.t === 'sys') return;
   const to = String(ev.params.cid).split('~').find(u => u !== m.from); if (!to) return;
   const prev = { text: m.text, img: '📷 照片', vid: '🎬 影片', prod: '🌿 商品 ' + (m.code || ''), offer: '🤝 議價 NT$ ' + Number(m.amt || 0).toLocaleString('zh-TW'), ask: '✅ ' + (m.q || '請確認'), pay: '💳 匯款資訊', ship: '📦 已出貨' }[m.t] || m.text || '新訊息';
   await push(to, '💬 ' + await displayName(m.from), String(prev).slice(0, 120), '/#/chats/' + encodeURIComponent(ev.params.cid), 'chat-' + ev.params.cid);
 });
 // 議價：推給賣家
-exports.pushOffer = onDocumentCreated('offers/{id}', async ev => {
+exports.pushOffer = onDocumentCreated({ document: 'offers/{id}', ...HOT }, async ev => {
   const o = ev.data?.data(); if (!o || !o.seller) return;
   await push(o.seller, '🤝 收到議價', (await displayName(o.buyer)) + ' 出價 NT$ ' + Number(o.amt || 0).toLocaleString('zh-TW') + (o.code ? '（' + o.code + '）' : ''), '/#admin/offers', 'offer-' + ev.params.id);
 });
@@ -102,7 +105,7 @@ function leaderAt(p, bids, until) {
   bids.filter(b => b.at <= until && b.at >= st0).sort((a, b) => a.at - b.at).forEach(b => { if (b.amt >= start && (!top || b.amt > top.amt)) top = b; });
   return top;
 }
-exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
+exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, async ev => {
   const uid = ev.params.uid, before = ev.data.before.exists ? ev.data.before.data() : {}, after = ev.data.after.exists ? ev.data.after.data() : null;
   if (!after) return;
   const me = await displayName(uid);
@@ -118,6 +121,7 @@ exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
     if (!bid || typeof bid.amt !== 'number' || (prev && prev.amt >= bid.amt)) continue;
     const p = await findPlant(pid, bid.shop); if (!p || p.mode !== 'auction' || !p.endsAtMs) continue;
     const bids = await allBids(pid), end = effEnd(p, bids); if (bid.at > end) continue;
+    logger.info('bidLag', { pid, lagMs: Date.now() - bid.at }); if (Date.now() > end + 6e4) continue;
     const others = bids.filter(b => b.uid !== uid), prevTop = leaderAt(p, others, bid.at - 1), nowTop = leaderAt(p, bids, bid.at);
     if (nowTop && nowTop.uid === uid) {
       await push(p.shop, '⚡ 新出價 ' + nt(bid.amt), me + ' 出價 ' + pLabel(p) + '，目前 ' + bids.length + ' 人出價', '/#/plant/' + pid, 'bid-' + pid);
@@ -129,7 +133,7 @@ exports.pushSocial = onDocumentWritten('social/{uid}', async ev => {
   for (const q of after.qa || []) { if (oldQ.has(q.id)) continue; const p = await findPlant(q.pid, q.shop); if (p) await push(p.shop, '💬 有人提問', me + '：「' + String(q.text || '').slice(0, 60) + '」（' + p.code + '）', '/#orders/qa', 'qa-' + q.id); }
 });
 // 訂單狀態 → 買家
-exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
+exports.pushOrder = onDocumentWritten({ document: 'shops/{shop}/orders/{oid}', ...HOT }, async ev => {
   const a = ev.data.after.exists ? ev.data.after.data() : null, b = ev.data.before.exists ? ev.data.before.data() : null;
   if (!a || !a.buyer || (b && b.status === a.status)) return;
   const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
@@ -138,7 +142,7 @@ exports.pushOrder = onDocumentWritten('shops/{shop}/orders/{oid}', async ev => {
   if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#orders/orders', 'paid-' + ev.params.oid);
 });
 // 訂單留言 → 推給另一方
-exports.pushOrdMsg = onDocumentCreated('ordmsg/{shop}/o/{oid}/m/{mid}', async ev => {
+exports.pushOrdMsg = onDocumentCreated({ document: 'ordmsg/{shop}/o/{oid}/m/{mid}', ...HOT }, async ev => {
   const m = ev.data?.data(); if (!m || !m.from) return;
   const { shop, oid } = ev.params, fromSeller = m.side === 's' || m.from === shop;
   let buyer = null;
