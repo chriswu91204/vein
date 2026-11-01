@@ -34,8 +34,14 @@ service cloud.firestore {
     }
     // 賣家可以改自己的商品，但不能自己解除「被管理員下架」
     function blockedUnchanged() {
+      return (request.resource == null
+        || request.resource.data.get('blocked', false) == (resource == null ? false : resource.data.get('blocked', false)))
+        && pinUnchanged();
+    }
+    // 置頂時間只能由伺服器（扣點後）寫入
+    function pinUnchanged() {
       return request.resource == null
-        || request.resource.data.get('blocked', false) == (resource == null ? false : resource.data.get('blocked', false));
+        || request.resource.data.get('pinUntil', 0) == (resource == null ? 0 : resource.data.get('pinUntil', 0));
     }
     function seller(uid) { return isMe(uid) && notBanned() && phoneOK(); }
     // 小編：賣場主人邀請的共同管理者（shops/{賣場}/staff/{小編}），依權限 plants／raffles／orders／design 分開
@@ -198,6 +204,21 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly(['e', 'at', 'v', 't', 'n']) && request.resource.data.e is string && request.resource.data.e.size() <= 4
         && request.resource.data.at is int && request.resource.data.v is string && request.resource.data.v.size() <= 40
         && (!('n' in request.resource.data) || (request.resource.data.n is string && request.resource.data.n.size() <= 16));
+    }
+    // 精選點數：本人與管理員看得到；只有管理員（與伺服器）能改
+    match /pts/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow write: if isAdmin();
+    }
+    // 置頂／商店精選申請：賣家建立，伺服器驗證點數與名額後處理
+    match /boostReq/{id} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if signedIn() && notBanned() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'pid', 'kind', 'b', 'at']) && request.resource.data.kind in ['pin', 'feat', 'sync'];
+    }
+    match /feat/{b} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
     // 訂單留言（買賣雙方、有訂單權限的小編）
     match /ordmsg/{shop}/o/{oid}/m/{mid} {

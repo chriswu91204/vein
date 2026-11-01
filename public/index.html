@@ -3654,6 +3654,41 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .aud{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px;padding:12px;border-radius:16px;background:var(--paper)}.aud>b{font-size:13px;color:var(--fg2)}.aud-chips{display:flex;flex-wrap:wrap;gap:6px}.aud-chips .chip[aria-pressed=true]{background:#111312;color:#D2FF00}.aud-info{margin:0;font-weight:600;color:var(--fg)}
 .lot.soon .lot-cta{background:#111312;color:#D2FF00}
 .purge-n{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:10px;border-radius:14px;background:#FFF4E5;border:1px solid #F5C77E;color:#5A3A00;flex:1 0 100%}.purge-n span{display:flex;flex-direction:column}.purge-n small{font-size:12px;opacity:.8}
+.bz-sel{flex:1;min-width:200px;height:44px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:var(--surface);font:inherit;color:var(--fg)}
+.bz-top{display:grid;grid-template-columns:auto 1fr;gap:14px;margin-bottom:14px}.bz-bal{background:#111312;color:#fff;border-radius:20px;padding:16px 20px;display:flex;flex-direction:column;min-width:150px}.bz-bal small{color:rgba(255,255,255,.6);font-size:12px}.bz-bal b{font:900 44px/1.1 var(--f-display);color:#D2FF00}.bz-bal span{font-size:11.5px;color:rgba(255,255,255,.6)}
+.bz-rule{display:flex;flex-direction:column;gap:8px;justify-content:center}.bz-rule>div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column}.bz-rule span{font-size:12.5px;color:var(--fg2)}
+@media (max-width:560px){.bz-top{grid-template-columns:1fr}}
+.bz-cal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}@media (max-width:560px){.bz-cal{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bz-b{position:relative;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;cursor:pointer;color:var(--fg)}.bz-b small{font-size:11.5px;color:var(--fg2)}.bz-b em{position:absolute;right:8px;top:8px;font-style:normal;font-size:10.5px;font-weight:800;background:#D2FF00;border-radius:999px;padding:1px 7px}
+.bz-b.on{border-color:#111312;box-shadow:0 0 0 3px rgba(17,19,18,.12)}.bz-b.now{background:#F4FBE0}.bz-b.full{opacity:.5}
+.bz-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}.bz-it{display:flex;align-items:center;gap:10px;padding:6px;border-radius:12px;background:var(--paper)}.bz-it.me{background:#F4FBE0}.bz-it img,.bz-it>i{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#ddd}.bz-it span{display:flex;flex-direction:column;flex:1;min-width:0}.bz-it small{font-size:11.5px;color:var(--fg2)}.bz-it em{font-style:normal;font-size:12px;font-weight:700}
+.bz-log>div{display:grid;grid-template-columns:auto 1fr auto;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.bz-log span:first-child{color:var(--fg2);font-size:12px}.bz-log b.up{color:#2E7D5B}.bz-log b.dn{color:#D33}.bz-log .fail{color:#B3261E}
+/* 置頂精選／商店精選的外框與角標 */
+@property --bga{syntax:'<angle>';inherits:false;initial-value:0deg}
+.bst-pn,.bst-ft{position:relative;isolation:isolate}
+.bst-pn::before,.bst-ft::before{content:'';position:absolute;inset:-2px;border-radius:inherit;padding:2px;z-index:3;pointer-events:none;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bgaSpin 4s linear infinite}
+.bst-pn::before{background:conic-gradient(from var(--bga),#D2FF00,#2E7D5B,#D2FF00 40%,#8CF5C0,#D2FF00)}
+.bst-ft::before{inset:-3px;padding:3px;background:conic-gradient(from var(--bga),#FFD000,#FF8A3D,#FF3B7F,#B07CFF,#7FD4FF,#8CF5C0,#FFD000);animation-duration:3s}
+.bst-ft{box-shadow:0 14px 40px -14px rgba(255,138,61,.6),0 0 0 1px rgba(255,208,0,.25);animation:ftGlow 2.4s ease-in-out infinite}
+@keyframes bgaSpin{to{--bga:360deg}}@keyframes ftGlow{50%{box-shadow:0 18px 50px -12px rgba(176,124,255,.6),0 0 24px rgba(255,208,0,.35)}}
+.bst-tag{position:absolute;left:10px;bottom:10px;z-index:4;font-size:11px;font-weight:900;border-radius:999px;padding:4px 10px;box-shadow:0 4px 12px rgba(0,0,0,.2)}.bst-tag.pn{background:#111312;color:#D2FF00}.bst-tag.ft{background:linear-gradient(90deg,#FFD000,#FF8A3D,#FF3B7F);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.2)}
+.bst-ft .ti::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:250% 100%;animation:ftShine 3.2s ease-in-out infinite}@keyframes ftShine{0%,40%{background-position:130% 0}100%{background-position:-130% 0}}
+.hs.hs-feat::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 4px rgba(255,208,0,.9),inset 0 0 60px rgba(255,138,61,.35)}
+/* 商城頂部：商店精選 */
+.ftx{margin:6px 0 28px;padding:18px;border-radius:28px;background:radial-gradient(120% 140% at 0% 0%,#2A1F3D,#111312 55%);color:#fff;position:relative;overflow:hidden}
+.ftx::before{content:'';position:absolute;inset:-50%;background:conic-gradient(from var(--bga),transparent,rgba(255,208,0,.18),transparent 30%,rgba(176,124,255,.2),transparent 60%);animation:bgaSpin 10s linear infinite;pointer-events:none}
+.ftx-h{position:relative;display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}.ftx-k{font:800 11px var(--f-mono);letter-spacing:.18em;color:#FFD000}.ftx-h h3{margin:2px 0 0;font-size:24px}.ftx-h small{font-size:12px;color:rgba(255,255,255,.6)}.ftx-h small b{color:#D2FF00;font-family:var(--f-mono)}
+.ftx-g{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(180px,1fr);gap:12px;overflow-x:auto;scrollbar-width:none;padding:4px}.ftx-g::-webkit-scrollbar{display:none}
+.ftx-c{position:relative;border-radius:20px;background:#1B1F1C;cursor:pointer;animation:ftIn .7s cubic-bezier(.2,1.3,.3,1) both;animation-delay:calc(var(--d)*90ms)}
+.ftx-c::before{content:'';position:absolute;inset:-2px;border-radius:22px;padding:2px;background:conic-gradient(from var(--bga),#FFD000,#FF8A3D,#FF3B7F,#B07CFF,#7FD4FF,#FFD000);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bgaSpin 3s linear infinite;pointer-events:none}
+@keyframes ftIn{from{opacity:0;transform:translateY(20px) scale(.92)}}
+.ftx-i{position:relative;aspect-ratio:1;border-radius:18px 18px 0 0;overflow:hidden}.ftx-i img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s}.ftx-c:hover .ftx-i img{transform:scale(1.07)}
+.ftx-crown{position:absolute;left:10px;top:8px;font-size:22px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4));animation:crownB 2s ease-in-out infinite}@keyframes crownB{50%{transform:translateY(-4px) rotate(-8deg)}}
+.ftx-sh{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);background-size:250% 100%;animation:ftShine 3s ease-in-out infinite}
+.ftx-t{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px}.ftx-t small{font-size:11px;color:rgba(255,255,255,.55)}.ftx-t b{font-size:14px;line-height:1.25}.ftx-t .mono{font-size:11px;color:#8CF5C0}.ftx-t strong{font-size:16px;color:#FFD000;margin-top:2px}
+@media (prefers-reduced-motion:reduce){.bst-pn::before,.bst-ft::before,.ftx::before,.ftx-c::before,.ftx-sh,.bst-ft .ti::after{animation:none}}
+.pt-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px;background:radial-gradient(120% 140% at 0% 0%,#2A1F3D,#111312 60%);color:#fff;margin-bottom:16px}.pt-k{font:800 11px var(--f-mono);letter-spacing:.18em;color:#FFD000}.pt-hero h2{margin:6px 0 4px;font-size:26px}.pt-hero p{margin:0;color:rgba(255,255,255,.7)}
+.pt-demo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.pt-card{position:relative;border-radius:18px;background:#1B1F1C;padding:44px 14px 14px;display:flex;flex-direction:column}.pt-card .bst-tag{left:12px;top:12px;bottom:auto}.pt-card b{font:900 26px var(--f-display);color:#D2FF00}.pt-card small{color:rgba(255,255,255,.6)}
 .osl{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--fg2);margin-top:2px}.osl small{font-size:11.5px}
 .oopen{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--fg);font:600 14px/1.2 var(--f);cursor:pointer}.oopen:hover{background:color-mix(in srgb,var(--leaf) 8%,var(--paper))}.oopen b{color:var(--leaf)}
 .shpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
@@ -4981,6 +5016,11 @@ function mcBind(ti,MD){ let k=0, t=0, vid=null; const img=ti.querySelector('img.
   const tick=()=>{ if(MD[k]?.type==='video'&&vid&&!vid.paused&&!vid.ended) return; show(k+1); };
   ti.__mcStart=()=>{ if(t||REDUCE) return; show(0); t=setInterval(tick,HOVER?1400:2600); };
   ti.__mcStop=()=>{ clearInterval(t); t=0; if(vid){ vid.pause(); vid.hidden=true; } img.src=MD[0].type==='video'?(MD[0].poster||img.src):MD[0].url; dots.forEach((d,j)=>d.classList.toggle('on',j===0)); k=0; };
+  // 手機左右滑換照片；滑過就不算點擊（不會打開商品頁）
+  let sx=0, sy=0, sw=false; ti.addEventListener('touchstart',e=>{ const t0=e.touches[0]; sx=t0.clientX; sy=t0.clientY; sw=false; },{passive:true});
+  ti.addEventListener('touchmove',e=>{ const t0=e.touches[0], dx=t0.clientX-sx, dy=t0.clientY-sy; if(!sw&&Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.2){ sw=true; } },{passive:true});
+  ti.addEventListener('touchend',e=>{ if(!sw) return; const t0=e.changedTouches[0], dx=t0.clientX-sx; if(Math.abs(dx)>30){ clearInterval(t); t=0; show(k+(dx<0?1:-1)); } ti.__swiped=Date.now(); });
+  ti.addEventListener('click',e=>{ if(ti.__swiped&&Date.now()-ti.__swiped<400){ e.stopPropagation(); e.preventDefault(); } },true);
   // 手機不自動輪播（省流量），電腦滑鼠停上去才換照片
   if (HOVER){ ti.addEventListener('pointerenter',ti.__mcStart); ti.addEventListener('pointerleave',ti.__mcStop); }
 }
@@ -5009,8 +5049,64 @@ function groupTile(p){
     h('div',{class:'tm'}, shopChip(p.shop), h('div',{class:'k gk',text:p.__c?p.cname+' · 還有 '+p.avail+' 株可選':'批量選購 · 同一批挑你喜歡的編號'}), h('div',{class:'nm',text:p.G.name||short(p.species)}), h('div',{class:'sb',text:[short(p.species),M[0].code+' → '+M[M.length-1].code].filter(Boolean).join(' · ')}), memoEl({cross:p.G.cross||p.cross}),
       h('div',{class:'ft'}, h('div',{class:'pr'}, h('small',{text:'單株價格'}), range), h('span',{class:'btn sm lime gt-go',text:p.__c?'看 '+M.length+' 株 →':'挑編號 →'})))), ()=>p.__c?openCluster(p):openPlant(p.id));
 }
+/* ================= 置頂精選（1 點／24 小時）與商店精選（10 點／3 天，每批 5 個） ================= */
+const FEAT_BASE=Date.UTC(2026,10,1)-8*36e5, FEAT_LEN=3*864e5, FEAT_MAX=5, PIN_COST=1, FEAT_COST=10, PIN_MS=864e5;
+const featIdx=t=>Math.floor(((t||Date.now())-FEAT_BASE)/FEAT_LEN), featStart=i=>FEAT_BASE+i*FEAT_LEN;
+const featNowIds=()=>{ const d=(S.feat||{})[featIdx()]; return (d?.slots||[]).map(x=>x.pid); };
+const isFeat=p=>!!p&&(p.__g||p.__c?(p.members||[]).some(isFeat):featNowIds().includes(p.id)&&onSale(p));
+const isPin=p=>!!p&&(p.__g||p.__c?(p.members||[]).some(isPin):+p.pinUntil>Date.now()&&onSale(p));
+function boostOrder(list){ const a=[], b=[], c=[]; list.forEach(p=>(isFeat(p)?a:isPin(p)?b:c).push(p)); return a.length||b.length?[...recRank(a),...recRank(b),...c]:list; }
+function featSub(){ if(featSub.on||!S.db) return; featSub.on=true; S.feat={};
+  S.db.collection('feat').orderBy('start','desc').limit(16).onSnapshot(sn=>{ const o={}; sn.docs.forEach(d=>o[d.id]={...d.data()}); S.feat=o; shopRSig=''; renderAll(); },()=>{}); }
+function ptsSub(){ if(ptsSub.on||!S.db||!S.me) return; ptsSub.on=true; S.db.doc('pts/'+S.me).onSnapshot(d=>{ S.pts=d.exists?d.data():null; if(adm.open) renderAdmin(true); },()=>{});
+  S.db.collection('boostReq').where('uid','==',S.me).onSnapshot(sn=>{ const prev=S.breq||new Map(); S.breq=new Map(sn.docs.map(d=>[d.id,{id:d.id,...d.data()}]));
+    for(const [k,r] of S.breq){ const o=prev.get(k); if(o&&o.status!==r.status){ if(r.status==='ok') toast(r.kind==='feat'?'👑 商店精選申請成功':r.kind==='pin'?'📌 已置頂 24 小時':'點數已更新'); else if(r.status==='fail') toast('沒有成功：'+(r.msg||'請稍後再試')); } } if(adm.open&&S.admTab==='boost') renderAdmin(true); },()=>{}); }
+async function boostAsk(kind,pid,b){ if(!isVerified(S.me)){ toast('認證賣家才能使用'); return; } try{ await S.db.collection('boostReq').doc().set({uid:S.me,kind,pid:pid||'',b:b??null,at:Date.now()}); toast('處理中…'); }catch(e){ toast('送出失敗'); } }
+function admBoost(m){ ptsSub(); featSub(); m.append(admTop('精選與點數'));
+  if (!isVerified(S.me)){ m.append(h('div',{class:'empty'}, h('h3',{text:'🔒 認證賣家專屬'}), h('p',{text:'每月 20 點，可用在置頂精選與商店精選。'}))); return; }
+  const P=S.pts, mon=new Date(Date.now()+8*36e5).toISOString().slice(0,7); if((!P||P.mon!==mon)&&!admBoost.synced){ admBoost.synced=true; boostAsk('sync'); }
+  const bal=P?.bal??0, mine=mine0=>mine0.filter(p=>onSale(p)&&p.status!=='sold');
+  const L=mine(all().filter(p=>p.shop===S.me));
+  m.append(h('div',{class:'bz-top'}, h('div',{class:'bz-bal'}, h('small',{text:'剩餘點數'}), h('b',{text:String(bal)}), h('span',{text:'每月 1 號補到 20 點'})),
+    h('div',{class:'bz-rule'}, h('div',{}, h('b',{text:'📌 置頂精選'}), h('span',{text:PIN_COST+' 點 · 24 小時 · 排在商品列表最上面'})), h('div',{}, h('b',{text:'👑 商店精選'}), h('span',{text:FEAT_COST+' 點 · 3 天 · 每批 '+FEAT_MAX+' 個 · 商城最上方大版位'})))));
+  // 置頂
+  const pinSel=h('select',{class:'bz-sel'}, h('option',{value:'',text:'選一株在售的植物'}), ...L.map(p=>h('option',{value:p.id,text:p.code+' · '+pName(p)+(isPin(p)?'（置頂中）':'')})));
+  if(S.boostPick) pinSel.value=S.boostPick;
+  const pinned=L.filter(isPin);
+  m.append(h('div',{class:'panel'}, h('h3',{text:'📌 置頂精選'}), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, pinSel, h('button',{class:'btn pri',type:'button',disabled:bal<PIN_COST,onclick:()=>{ if(!pinSel.value) return toast('先選一株'); boostAsk('pin',pinSel.value); },text:'置頂（'+PIN_COST+' 點）'})),
+    pinned.length?h('div',{class:'bz-list'}, ...pinned.map(p=>h('div',{class:'bz-it'}, h('img',{src:cover(p),alt:''}), h('span',{}, h('b',{text:pName(p)}), h('small',{text:p.code})), h('em',{}, '剩 ', h('span',{'data-ends':String(p.pinUntil),text:fmtLeft(p.pinUntil-Date.now())}))))):null));
+  // 商店精選：接下來 8 批
+  const cur=featIdx(), myIds=new Set(L.map(p=>p.id)); let pickB=S.boostB??cur+1;
+  const fSel=h('select',{class:'bz-sel'}, h('option',{value:'',text:'選一株在售的植物'}), ...L.map(p=>h('option',{value:p.id,text:p.code+' · '+pName(p)})));
+  if(S.boostPick) fSel.value=S.boostPick;
+  const cal=h('div',{class:'bz-cal'}, ...Array.from({length:8},(_,i)=>{ const b=cur+i, d=(S.feat||{})[b], n=(d?.slots||[]).length, mineN=(d?.slots||[]).filter(x=>x.uid===S.me).length, st=featStart(b), full=n>=FEAT_MAX;
+    const fmt=t=>{ const x=new Date(t+8*36e5); return (x.getUTCMonth()+1)+'/'+x.getUTCDate(); };
+    return h('button',{type:'button',class:'bz-b'+(b===pickB?' on':'')+(full?' full':'')+(b===cur?' now':''),disabled:full&&b!==pickB,onclick:()=>{ S.boostB=b; renderAdmin(true); }}, h('b',{text:fmt(st)+'–'+fmt(st+FEAT_LEN-1)}), h('small',{text:(b===cur?'進行中 · ':'')+n+' / '+FEAT_MAX}), mineN?h('em',{text:'你 '+mineN}):null); }));
+  const pd=(S.feat||{})[pickB];
+  m.append(h('div',{class:'panel'}, h('h3',{text:'👑 商店精選'}), h('p',{class:'hint',style:'margin:-4px 0 10px',text:'選日期（每批 3 天）和植物，送出就扣 '+FEAT_COST+' 點。'}), cal,
+    pd?.slots?.length?h('div',{class:'bz-list'}, ...pd.slots.map(x=>{ const p=S.plants.get(x.pid); return h('div',{class:'bz-it'+(x.uid===S.me?' me':'')}, p?h('img',{src:cover(p),alt:''}):h('i'), h('span',{}, h('b',{text:p?pName(p):x.pid}), h('small',{text:shopName(x.uid)+' · 申請於 '+fmtDate(tsLocal(x.at))})), x.uid===S.me?h('em',{text:'你的'}):null); })):null,
+    h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:10px'}, fSel, h('button',{class:'btn lime',type:'button',disabled:bal<FEAT_COST||(pd?.slots||[]).length>=FEAT_MAX,onclick:()=>{ if(!fSel.value) return toast('先選一株'); if((pd?.slots||[]).some(x=>x.pid===fSel.value)) return toast('這株已經在這一批了'); boostAsk('feat',fSel.value,pickB); },text:'申請（'+FEAT_COST+' 點）'}))));
+  // 紀錄
+  const reqs=[...(S.breq||new Map()).values()].filter(r=>r.kind!=='sync').sort((a,b)=>b.at-a.at).slice(0,12);
+  if (reqs.length||P?.log?.length) m.append(h('div',{class:'panel'}, h('h3',{text:'紀錄'}), h('div',{class:'bz-log'}, ...(P?.log||[]).slice(-15).reverse().map(l=>h('div',{}, h('span',{text:fmtDate(tsLocal(l.at))}), h('span',{text:l.why||''}), h('b',{class:l.d>0?'up':'dn',text:(l.d>0?'+':'')+l.d}))),
+    ...reqs.filter(r=>r.status==='fail').slice(0,3).map(r=>h('div',{class:'fail'}, h('span',{text:fmtDate(tsLocal(r.at))}), h('span',{text:(r.kind==='feat'?'商店精選':'置頂')+'失敗：'+(r.msg||'')}), h('b',{text:'0'}))))));
+  S.boostPick=null;
+}
+function admPts(m){ m.append(admTop('精選點數'));
+  const ids=[...S.shops.keys()].filter(u=>isVerified(u)); const box=h('div',{class:'list'});
+  m.append(h('p',{class:'hint',style:'margin:-6px 0 12px',text:'認證賣家每月 1 號自動補到 20 點。可以在這裡加減點數。'}), box);
+  if(!ids.length){ box.append(h('p',{class:'hint',text:'目前沒有認證賣家。'})); return; }
+  ids.forEach(u=>{ const bal=h('b',{text:'…'}), inp=h('input',{type:'number',value:'10',style:'width:80px'}), why=h('input',{placeholder:'原因（選填）',maxlength:30,style:'flex:1;min-width:100px'});
+    S.db.doc('pts/'+u).get().then(d=>{ bal.textContent=String(d.exists?(d.data().bal??0):0); }).catch(()=>{ bal.textContent='—'; });
+    const add=async sign=>{ const n=Math.round(+inp.value||0)*sign; if(!n) return; try{ const d=await S.db.doc('pts/'+u).get(), cur=d.exists?d.data():{bal:0,log:[]}; const nb=Math.max(0,(cur.bal||0)+n); await S.db.doc('pts/'+u).set({...cur,bal:nb,log:[...(cur.log||[]),{d:n,why:why.value.trim()||'管理員'+(n>0?'補充':'扣除'),at:Date.now()}].slice(-50)}); bal.textContent=String(nb); toast(shopName(u)+' 現在 '+nb+' 點'); }catch(e){ toast('失敗：'+(e?.code||'')); } };
+    box.append(h('div',{class:'panel',style:'margin:0'}, h('div',{class:'row',style:'gap:10px;flex-wrap:wrap;align-items:center'}, avatar(u,36), h('b',{style:'flex:1',text:shopName(u)}), h('span',{}, '點數 ', bal)),
+      h('div',{class:'row',style:'gap:6px;margin-top:8px;flex-wrap:wrap'}, inp, why, h('button',{class:'btn pri sm',type:'button',onclick:()=>add(1),text:'＋ 加'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>add(-1),text:'－ 扣'})))); }); }
+function featStrip(){ const FP=featNowIds().map(id=>S.plants.get(id)).filter(p=>p&&onSale(p)); if(!FP.length) return null; const end=featStart(featIdx()+1);
+  return h('section',{class:'ftx'}, h('div',{class:'ftx-h'}, h('div',{}, h('span',{class:'ftx-k',text:'👑 STORE PICKS'}), h('h3',{text:'商店精選'})), h('small',{}, '剩 ', h('b',{'data-ends':String(end),text:fmtLeft(end-Date.now())}))),
+    h('div',{class:'ftx-g'}, ...FP.map((p,i)=>activate(h('article',{class:'ftx-c',style:'--d:'+i}, h('div',{class:'ftx-i'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{class:'ftx-crown',text:'👑'}), h('i',{class:'ftx-sh'})),
+      h('div',{class:'ftx-t'}, h('small',{text:shopName(p.shop)}), h('b',{text:pName(p)}), h('span',{class:'mono',text:p.code}), h('strong',{text:priceLabel(p).main}))), ()=>openPlant(p.id))))); }
 function tile(p){
-  if (p.__g||p.__c) return groupTile(p);
+  if (p.__g||p.__c){ const el=groupTile(p), FT=isFeat(p), PN=!FT&&isPin(p); if(FT||PN){ el.classList.add(FT?'bst-ft':'bst-pn'); el.querySelector('.ti,.gt-i,img')?.parentElement?.append(h('span',{class:'bst-tag '+(FT?'ft':'pn'),text:FT?'👑 商店精選':'📌 置頂精選'})); } return el; }
   const first=p.coverThumb||p.thumb, two=!!(p.coverThumb&&p.coverThumb!==p.thumb), L=live(p), pl=priceLabel(p);
   const kick=L?h('div',{class:'k live'},'競標中 · 剩 ',h('span',{'data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())})):aucSoon(p)?h('div',{class:'k live'},'⏰ 開始倒數 ',h('span',{'data-ends':String(p.startsAtMs),text:fmtLeft(p.startsAtMs-Date.now())})):isAuc(p)?h('div',{class:'k',style:'color:var(--fg2)',text:'競標已結束'}):h('div',{class:'k',text:(Date.now()-toMs(p.createdAt)<7*864e5?'新到 · ':'')+(p.photoCount||1)+' 筆成長紀錄'});
   const MD=(p.media||[]).filter(x=>x.url&&x.type!=='video'), V=vidOf(p), multi=!V&&MD.length>1;
@@ -5020,7 +5116,8 @@ function tile(p){
       favBtn(p.id), h('button',{type:'button',class:'qv-btn',onclick:e=>{ e.stopPropagation(); quickView(p); },text:'👁 快速看'}));
   hoverVid(ti,V,'pv');
   if (multi) mcBind(ti,MD);
-  return spot(activate(h('article',{class:'tile','aria-label':p.code+' '+(p.species||'')}, ti,
+  const FT=isFeat(p), PN=!FT&&isPin(p); if(FT||PN) ti.append(h('span',{class:'bst-tag '+(FT?'ft':'pn'),text:FT?'👑 商店精選':'📌 置頂精選'}));
+  return spot(activate(h('article',{class:'tile'+(FT?' bst-ft':PN?' bst-pn':''),'aria-label':p.code+' '+(p.species||'')}, ti,
     h('div',{class:'tm'}, shopChip(p.shop), kick, h('div',{class:'nm'+(short(p.species).length>24?' long':''),text:short(p.species)}), h('div',{class:'sb',text:[spCn(p.species),p.cultivar,p.code].filter(Boolean).join(' · ')}), memoEl(p), tagsOf(p).length?h('div',{class:'ttags'}, ...tagsOf(p).slice(0,3).map(t=>h('span',{text:'#'+t}))):null,
       h('div',{class:'ft'}, h('div',{class:'pr'}, h('small',{text:pl.sub}), pl.main), h('span',{class:'btn sm '+(L?'red':'soft'),text:L?'出價':'查看'})))), e=>openPlant(p.id, e.currentTarget.querySelector('.ti img'))),p);
 }
@@ -5337,7 +5434,7 @@ function filtered(){
   else if (f.sort==='high') list.sort((a,b)=>(val(b)??-1)-(val(a)??-1));
   else if (f.sort==='end') list.sort((a,b)=>(live(a)?a.endsAtMs:9e15)-(live(b)?b.endsAtMs:9e15));
   else if (f.sort==='new') list.sort((a,b)=>{ const s=v=>v.status==='sold'?1:0; return s(a)-s(b) || (b.createdAt||'').localeCompare(a.createdAt||''); });
-  else { const r=recRank(list); list.length=0; list.push(...r); }
+  else { const r=boostOrder(recRank(list)); list.length=0; list.push(...r); }
   return list;
 }
 /* ================= SHOP v14：輪播、分類、推薦、排行、動態跑馬燈 ================= */
@@ -5351,15 +5448,15 @@ function heroSlides(){
   if (rs[0]){ const r=rs[0]; sl.push({k:'raffle:'+rKey(r), img:rImg(r), tag:[r.mode==='buyers'?'dark':'lime',r.mode==='buyers'?'買家限定抽獎':'免費抽獎'], title:r.title, sub:'獎品：'+r.prize, stat:[['參加人數',String(entrants(r).length)],['截止',null,r.endsAtMs]], cta:'參加抽獎', go:()=>go('#/raffle/'+rKey(r))}); }
   if (top){ const s=shopOf(top), ps=onSaleOf(top); sl.push({k:'shop:'+top, img:s?.banner||cover(ps[0]||{}), tag:['lime','本週人氣賣家'], title:s?.name||'賣家', sub:[s?.location,followers(top)+' 人追蹤',ratingTxt(top)].filter(Boolean).join(' · '), thumbs:ps.slice(0,3).map(cover), cta:'逛賣場', go:()=>go('#/seller/'+top)}); }
   if (fresh.length){ sl.push({k:'new', img:cover(fresh[0]), tag:['lime','本週新到'], title:fresh.length+' 株新上架', sub:'每一株都附編號與成長紀錄', thumbs:fresh.slice(0,4).map(cover), cta:'看新品', go:()=>go('#/store/buy')}); }
-  sl.push({k:'brand', video:'darkred', tag:['dark','VEIN'], title:'每一株，都有來歷。', sub:'輸入標籤上的編號，看見完整成長紀錄與家族樹。', cta:'查驗編號', go:()=>go('#/verify')});
+  const FP=featNowIds().map(id=>S.plants.get(id)).filter(p=>p&&onSale(p)); FP.slice().reverse().forEach(p=>sl.unshift({k:'feat:'+p.id, img:cover(p), feat:true, tag:['lime','👑 商店精選'], title:pName(p), sub:shopName(p.shop)+' · '+p.code, stat:[[isAuc(p)?'目前出價':'價格',priceLabel(p).main]], cta:'看這株', go:()=>openPlant(p.id)}));
   return sl;
 }
 function renderHero(){
   const box=$('#shopHero'); const f=S.filter, plain=f.f==='all'&&!f.q.trim()&&!f.shop&&!f.sp&&!f.min&&!f.max&&!(f.tags||[]).length;
   box.hidden=!plain||!pub().length; if(box.hidden) return;
-  const sl=heroSlides(), sig=sl.map(s=>s.k+(s.stat?s.stat.map(x=>x[1]).join():'')).join('|');
+  const sl=heroSlides(); if(!sl.length){ box.hidden=true; return; } const sig=sl.map(s=>s.k+(s.stat?s.stat.map(x=>x[1]).join():'')).join('|');
   if (sig===heroSig) return; heroSig=sig; clearInterval(heroTimer); heroI=Math.min(heroI,sl.length-1);
-  const track=h('div',{class:'hero-track'}, ...sl.map((s,i)=>h('div',{class:'hs'+(i===heroI?' on':''),role:'group','aria-label':(i+1)+' / '+sl.length},
+  const track=h('div',{class:'hero-track'}, ...sl.map((s,i)=>h('div',{class:'hs'+(s.feat?' hs-feat':'')+(i===heroI?' on':''),role:'group','aria-label':(i+1)+' / '+sl.length},
     s.video?h('video',{src:'m/'+s.video+'.mp4',poster:'m/'+s.video+'.jpg',muted:true,loop:true,playsinline:true,autoplay:!REDUCE}):h('img',{src:s.img,alt:'',loading:i?'lazy':'eager'}),
     h('div',{class:'hs-c'}, h('span',{class:'tag '+s.tag[0],text:s.tag[1]}), h('h2',{text:s.title}), h('p',{text:s.sub}),
       s.stat?h('div',{class:'hs-stat'}, ...s.stat.map(([l,v,ends])=>h('div',{}, h('span',{text:l}), h('b',{class:ends?'mono':'','data-ends':ends?String(ends):null,text:ends?fmtLeft(ends-Date.now()):v})))):null,
@@ -6003,7 +6100,7 @@ function sfhBuiltin(k,x,c){ const V=c._view&&c._view!=='orig'?c._view:null, pv=(
     case 'gates': return h('div',{class:'gates'}, ...[...(mallNow()?[]:[['auction','LIVE','競標',x.liveL.length+' 場進行中','m/p5.jpg']]),['buy','BUY','直購',x.fixed.length+' 株可直接下單','m/p3.jpg'],['sellers','SELLERS','商家',shopList().length+' 家溫室','m/p2.jpg']].map(([k2,en,zh,sub,img])=>h('a',{class:'gate',href:'#/store/'+k2}, h('img',{src:img,alt:'',loading:'lazy'}), h('span',{class:'mono',text:en}), h('b',{text:zh}), h('small',{text:sub}))));
   } return null; }
 function storeHome(body){
-  const x=sfhCtx(), now=Date.now();
+  const x=sfhCtx(), now=Date.now(); { const fs=featStrip(); if(fs) body.append(fs); }
   for (const b of sfhBlocks()){ if(!sfhLive(b,now)) continue; const c=b.cfg||{}; let el=null;
     try{ el=SFH_COMP[b.k]?SFH_COMP[b.k].r(c,b):sfhBuiltin(b.k,x,c); if(b.k!=='code') el=sfhCustom(c,b,el); }catch(e){ console.warn('首頁區塊錯誤',b.k,e); el=null; }
     if (!el) continue;
@@ -6286,7 +6383,10 @@ function recRank(list){ const c=recCtx(), S0=list.map(p=>({p,s:recScore(p,c)})).
     const x=head.splice(bi,1)[0]; out.push(x.p); cnt.set(x.p.shop,(cnt.get(x.p.shop)||0)+1); }
   return out.concat(tail.map(x=>x.p)); }
 function bfSort(list,s){
-  if (s==='rec'||!s) return recRank(list);
+  if (s==='rec'||!s) return boostOrder(recRank(list));
+  if (s==='new') return boostOrder(bfSort0(list,s));
+  return bfSort0(list,s); }
+function bfSort0(list,s){
   const by={new:(a,b)=>toMs(b.createdAt)-toMs(a.createdAt),end:(a,b)=>(live(a)?a.endsAtMs:9e15)-(live(b)?b.endsAtMs:9e15),low:(a,b)=>(priceOf(a)??1e12)-(priceOf(b)??1e12),high:(a,b)=>(priceOf(b)??-1)-(priceOf(a)??-1),bids:(a,b)=>bidsFor(b.id).length-bidsFor(a.id).length,records:(a,b)=>(b.photoCount||1)-(a.photoCount||1)}[s]||(()=>0);
   return [...list].sort((a,b)=>((a.status==='sold')-(b.status==='sold'))||by(a,b));
 }
@@ -6391,7 +6491,7 @@ function renderStoreTabs(){
 }
 let lastTab='', bfKey='';
 function renderShop(force){
-  const T=S.storeTab||'hub';
+  featSub(); const T=S.storeTab||'hub';
   const bk=T+'|'+(T==='cat'?S.storeCat:''); if (bk!==bfKey){ bfKey=bk; bfReset(); S.bf.view=lsGet('vein.view','grid'); S.bfOpen={}; }
   if (S.bfPending){ const v=S.bf.view; bfReset(); S.bf.view=v; Object.assign(S.bf,S.bfPending); S.bfPending=null; }
   const sig=shopSignature()+'|'+T+'|'+JSON.stringify([S.bf,S.storeCat,S.azOpen,S.bfOpen,S.auCat]); if(!force&&sig===shopRSig) return; shopRSig=sig;
@@ -6994,7 +7094,7 @@ function syncSubs(){
     L.push(S.db.collection(b+'/answers').onSnapshot(sn=>{ for(const [k,a] of S.answers) if(a.shop===u) S.answers.delete(k); sn.docs.forEach(d=>S.answers.set(d.id,{...d.data(),shop:u})); renderAll(); },()=>{}));
     subs.set(u,L); }
 }
-function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.me) setTimeout(()=>{ pushRefresh(); },4000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
+function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.me&&hasShop()) setTimeout(()=>{ try{ ptsSub(); featSub(); }catch(e){} },2500); if(S.me) setTimeout(()=>{ try{ proTour(); }catch(e){} },5000); if(S.me) setTimeout(()=>{ pushRefresh(); },4000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
 async function boot(){
   const c=window.claude;
   if (!c?.use){ S.failed=true; renderAll(); return; }
@@ -7314,6 +7414,14 @@ const GUIDES=[
   ['自動產生圖片','植物照片滿版當背景，螢光綠排版，有編號、備註、價格與 QR Code。'],
   ['一起送出','手機按「分享圖片＋文字」一次送出；電腦先下載圖片再「複製文字＋連結」。']],
   tips:[],go:[]},
+ {id:'pro',cat:'seller',ic:'👑',t:'認證賣家：點數、置頂與商店精選',min:2,steps:[
+  ['每月 20 點','每月 1 號自動補到 20 點，在後台「銷售 → 精選與點數」看得到。用不完不會累積，管理員也可以幫你加點。'],
+  ['📌 置頂精選（1 點）','選一株在售的植物，24 小時內排在商品列表最上面，外框會有流動的螢光邊。可以連續置頂，時間會往後加。'],
+  ['👑 商店精選（10 點）','每 3 天一批、一批只有 5 個位置，先申請先得。選好日期與植物送出就扣點。精選會出現在商城最上方的大版位與輪播，列表裡排在置頂之前，外框是彩虹流光。'],
+  ['排序規則','同時有很多人置頂或精選時，會用推薦演算法排先後：照片完整、最近有成長紀錄、評價好的會更前面。'],
+  ['競標更好用','可以設定起標時間、5 分鐘起的短標；開始時會通知追蹤你的人。結標前有觀戰人數、加油與加價特效。'],
+  ['其他認證功能','賣場裝修、上傳影片、上架無上限。']],
+  tips:['植物頁上方「你的植物」列有「👑 置頂／精選」，可以直接幫這株置頂或申請精選。'],go:[['去用點數','adm:boost']]},
  {id:'orders',cat:'buyer',ic:'💳',t:'買賣流程：下單、匯款、出貨、評價',min:2,steps:[
   ['下單','直購的加入購物車結帳；競標出價最高者得標；只展示的可以議價，賣家同意會自動轉成訂單。群組商品點進去挑編號。'],
   ['匯款','訂單會顯示賣家的匯款帳號，匯款後在訂單填寫後五碼。'],
@@ -7336,7 +7444,14 @@ function guideBody(g,inDlg){
     g.tips.length?h('div',{class:'gd-tips'}, h('b',{text:'💡 小提醒'}), ...g.tips.map(t=>h('p',{text:t}))):null,
     h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:16px'}, ...g.go.map(([l,k])=>h('button',{class:'btn volt',type:'button',onclick:()=>guideGo(k),text:l+' →'})), inDlg?h('a',{class:'btn soft',href:'#/guide',onclick:()=>{ dlg.close(); try{ adm.close(); }catch(e){} },text:'所有教學'}):null));
 }
-function openGuide(id){ const g=GUIDES.find(x=>x.id===id); if(!g) return; openDialog('教學', guideBody(g,true), false); lsSet('vein.guide.'+id,1); }
+// 認證賣家：登入時跳出單頁教學（最多 5 次）
+function proTour(force){ const g=GUIDES.find(x=>x.id==='pro'); if(!g) return; const n=+(S.prefs?.proTour||0);
+  if(!force){ if(!S.me||!isVerified(S.me)||!S.prefsReady||n>=5||sessionStorage.getItem('vein.proTour')||dlg.open||adm.open) return; try{ sessionStorage.setItem('vein.proTour','1'); }catch(e){} savePrefs({proTour:n+1}); }
+  const body=h('div',{class:'pt'}, h('div',{class:'pt-hero'}, h('span',{class:'pt-k',text:'VERIFIED SELLER'}), h('h2',{text:'認證賣家的新武器 👑'}), h('p',{text:'每月 20 點，讓你的植物被更多人看到。'}),
+      h('div',{class:'pt-demo'}, h('div',{class:'pt-card bst-pn'}, h('span',{class:'bst-tag pn',text:'📌 置頂精選'}), h('b',{text:'1 點'}), h('small',{text:'24 小時'})), h('div',{class:'pt-card bst-ft'}, h('span',{class:'bst-tag ft',text:'👑 商店精選'}), h('b',{text:'10 點'}), h('small',{text:'3 天 · 每批 5 位'})))),
+    guideBody(g,true), !force?h('div',{class:'row',style:'justify-content:flex-end;margin-top:8px'}, h('button',{type:'button',class:'bf-lk',onclick:()=>{ savePrefs({proTour:5}); dlg.close(); },text:'不用再提醒'})):null);
+  openDialog('認證賣家教學', body, false); }
+function openGuide(id){ if(id==='pro') return proTour(true); const g=GUIDES.find(x=>x.id===id); if(!g) return; openDialog('教學', guideBody(g,true), false); lsSet('vein.guide.'+id,1); }
 function renderGuide(id){
   const box=$('#guidePage'), g=GUIDES.find(x=>x.id===id);
   if (g){ lsSet('vein.guide.'+g.id,1); box.replaceChildren(h('nav',{class:'crumbs'}, h('a',{href:'#/guide',text:'教學中心'}), h('span',{text:'›'}), h('b',{text:g.t})), h('div',{class:'gd-page'}, guideBody(g,false),
@@ -8216,7 +8331,8 @@ function ownBar(p){ if(!p||!S.me||!holds(p)) return null; const L=listed(p), sol
   return h('div',{class:'own-bar'}, p.purgeAt?purgeBox([p]):null, h('span',{class:'own-t'}, h('i',{text:'🌱'}), h('b',{text:'你的植物'}), h('small',{text:saleState(p)[1].split(' · ')[0]})),
     h('div',{class:'own-a'}, h('button',{type:'button',class:'btn ink sm',onclick:()=>editPlant(p.id,'rec'),text:'📸 加紀錄／換封面'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>editPlant(p.id,'data'),text:'✏️ 改資料'}),
       canSell?h('button',{type:'button',class:'btn '+(L?'soft':'lime')+' sm',onclick:()=>editPlant(p.id,'sale'),text:L?'🏷 改價格／販售':'🏷 上架販售'}):null,
-      ownerOf(p)===S.me&&!S.work?h('button',{type:'button',class:'btn soft sm',onclick:()=>openF2F(p),text:'🤝 面對面轉移'}):null)); }
+      ownerOf(p)===S.me&&!S.work?h('button',{type:'button',class:'btn soft sm',onclick:()=>openF2F(p),text:'🤝 面對面轉移'}):null,
+      isVerified(S.me)&&p.shop===S.me&&onSale(p)&&!S.work?h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.boostPick=p.id; openAdmin(); setTimeout(()=>{ S.admTab='boost'; renderAdmin(true); },60); },text:'👑 置頂／精選'}):null)); }
 // ===== 現場轉讓：買家碰 NFC 或掃賣家的 QR → 「請求轉讓」→ 主人 5 分鐘內確認 =====
 const XR_MS=5*60e3;
 // 進站時記下來源：?nfc=1（碰 NFC 貼紙）或 ?xq=代碼（掃面對面轉移的 QR），之後把網址清乾淨
@@ -9086,6 +9202,8 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if (T==='offers') return admOffers(main);
   if (T==='auc') return admAuctions(main);
   if (T==='raffle') return admRaffles(main);
+  if (T==='boost') return admBoost(main);
+  if (T==='pts'&&S.admin) return admPts(main);
   if (T==='qa') return admQA(main);
   if (T==='shop') return admShop(main);
   if (T==='sellers'&&S.admin) return admSellers(main);
@@ -9111,10 +9229,10 @@ function renderAdmNav(){
   else if (hasShop()) G.push(
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
-    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['raffle','抽獎',rOpen]]},
+    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
-  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
+  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return (S.admTab==='lot'||(S.admTab==='new'&&S.newPreset?.list)?'list':S.admTab)===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });

@@ -368,3 +368,54 @@ exports.retention = onSchedule({ schedule: '10 4 * * *', timeZone: 'Asia/Taipei'
   } catch (e) { logger.warn('ret plants', e.message); }
   logger.info('retention', stat);
 });
+
+// ================= 精選點數：置頂精選（1 點／24 小時）、商店精選（10 點／3 天，每批 5 個）=================
+const FEAT_BASE = Date.UTC(2026, 10, 1) - 8 * 36e5, FEAT_LEN = 3 * 864e5, FEAT_MAX = 5, PIN_COST = 1, FEAT_COST = 10, PIN_MS = 864e5, MONTHLY = 20;
+const monthKey = (t = Date.now()) => new Date(t + 8 * 36e5).toISOString().slice(0, 7);
+async function isVerifiedSeller(uid) {
+  try { const v = await db.doc('site/verified').get(); const x = ((v.exists && v.data().uids) || {})[uid]; if (x && !(typeof x === 'object' && x.until && x.until < Date.now())) return true; } catch (e) {}
+  try { const s = await db.doc('site/sellers').get(); if (s.exists && s.data().house === uid) return true; } catch (e) {}
+  try { const a = await db.doc('site/admins').get(); if (a.exists && (a.data().uids || {})[uid]) return true; } catch (e) {}
+  return false;
+}
+// 每月補點：交易裡先補（這個月還沒補過就補到 20）
+function refill(cur, now) { const mk = monthKey(now); if (cur.mon === mk) return cur; const bal = Math.max(cur.bal || 0, MONTHLY), d = bal - (cur.bal || 0);
+  return { ...cur, bal, mon: mk, log: d ? [...(cur.log || []), { d, why: mk + ' 每月補充', at: now }].slice(-50) : (cur.log || []) }; }
+exports.boostProcess = onDocumentCreated('boostReq/{id}', async ev => {
+  const r = ev.data?.data(), ref = ev.data.ref; if (!r || !r.uid) return; const now = Date.now();
+  const done = (status, msg, extra) => ref.update({ status, msg: msg || '', doneAt: Date.now(), ...(extra || {}) }).catch(() => {});
+  if (!(await isVerifiedSeller(r.uid))) return done('fail', '認證賣家才能使用');
+  const pref = db.doc('pts/' + r.uid);
+  try {
+    if (r.kind === 'sync') { await db.runTransaction(async tx => { const d = await tx.get(pref); const cur = d.exists ? d.data() : { bal: 0, log: [] }; tx.set(pref, refill(cur, now)); }); return done('ok'); }
+    const plRef = db.doc(`shops/${r.uid}/plants/${r.pid}`);
+    if (r.kind === 'pin') {
+      await db.runTransaction(async tx => { const [d, pl] = await Promise.all([tx.get(pref), tx.get(plRef)]);
+        if (!pl.exists) throw new Error('找不到這株'); const p = pl.data(); if (p.status === 'sold' || p.listed === false || p.blocked) throw new Error('這株目前沒有在販售');
+        const cur = refill(d.exists ? d.data() : { bal: 0, log: [] }, now); if ((cur.bal || 0) < PIN_COST) throw new Error('點數不夠');
+        const until = Math.max(now, +p.pinUntil || 0) + PIN_MS;
+        tx.set(pref, { ...cur, bal: cur.bal - PIN_COST, log: [...(cur.log || []), { d: -PIN_COST, why: '置頂 ' + (p.code || ''), at: now }].slice(-50) });
+        tx.update(plRef, { pinUntil: until }); });
+      return done('ok');
+    }
+    if (r.kind === 'feat') {
+      const cur0 = Math.floor((now - FEAT_BASE) / FEAT_LEN), b = Math.round(+r.b);
+      if (!(b >= cur0 && b <= cur0 + 10)) return done('fail', '這個日期不能申請');
+      const fRef = db.doc('feat/' + b);
+      await db.runTransaction(async tx => { const [d, pl, f] = await Promise.all([tx.get(pref), tx.get(plRef), tx.get(fRef)]);
+        if (!pl.exists) throw new Error('找不到這株'); const p = pl.data(); if (p.status === 'sold' || p.listed === false || p.blocked) throw new Error('這株目前沒有在販售');
+        const slots = f.exists ? (f.data().slots || []) : []; if (slots.length >= FEAT_MAX) throw new Error('這一批已經滿了'); if (slots.some(x => x.pid === r.pid)) throw new Error('這株已經在這一批了');
+        const cur = refill(d.exists ? d.data() : { bal: 0, log: [] }, now); if ((cur.bal || 0) < FEAT_COST) throw new Error('點數不夠');
+        tx.set(pref, { ...cur, bal: cur.bal - FEAT_COST, log: [...(cur.log || []), { d: -FEAT_COST, why: '商店精選 ' + (p.code || ''), at: now }].slice(-50) });
+        tx.set(fRef, { start: FEAT_BASE + b * FEAT_LEN, end: FEAT_BASE + (b + 1) * FEAT_LEN, slots: [...slots, { uid: r.uid, pid: r.pid, at: now }] }); });
+      return done('ok');
+    }
+    return done('fail', '未知的申請');
+  } catch (e) { return done('fail', e.message || '請稍後再試'); }
+});
+// 每月 1 號凌晨：所有認證賣家補到 20 點
+exports.ptsMonthly = onSchedule({ schedule: '3 0 1 * *', timeZone: 'Asia/Taipei' }, async () => {
+  const v = await db.doc('site/verified').get(), now = Date.now(); const ids = Object.entries((v.exists && v.data().uids) || {}).filter(([, x]) => !(typeof x === 'object' && x.until && x.until < now)).map(([u]) => u);
+  for (const u of ids) { try { await db.runTransaction(async tx => { const r = db.doc('pts/' + u), d = await tx.get(r); tx.set(r, refill(d.exists ? d.data() : { bal: 0, log: [] }, now)); }); } catch (e) {} }
+  logger.info('pts monthly', { n: ids.length });
+});
