@@ -6548,7 +6548,7 @@ function renderShop(force){
   featSub(); const T=S.storeTab||'hub';
   const bk=T+'|'+(T==='cat'?S.storeCat:''); if (bk!==bfKey){ bfKey=bk; bfReset(); S.bf.view=lsGet('vein.view','grid'); S.bfOpen={}; }
   if (S.bfPending){ const v=S.bf.view; bfReset(); S.bf.view=v; Object.assign(S.bf,S.bfPending); S.bfPending=null; }
-  const sig=shopSignature()+'|'+T+'|'+JSON.stringify([S.bf,S.storeCat,S.azOpen,S.bfOpen,S.auCat]); if(!force&&sig===shopRSig) return; shopRSig=sig;
+  const sig=shopSignature()+'|'+T+'|'+JSON.stringify([S.bf,S.storeCat,S.azOpen,S.bfOpen,S.auCat]); if(!force&&sig===shopRSig) return; const hv=PAGE+'|'+T+'|'+S.sellerId; if(HOLD.on&&HOLD.pv===hv) return; HOLD.pv=hv; shopRSig=sig;
   if (T!==lastTab){ heroSig=''; lastTab=T; }
   renderStoreTabs();
   $('#storeTools').hidden=true;
@@ -7112,17 +7112,32 @@ function purgeShop(u){ for(const [k,p] of S.plants) if(p.shop===u) S.plants.dele
    自己的賣場與管理員：全部即時同步。別人的賣場：先即時同步最新的一批，
    往下捲、搜尋、打開植物頁／履歷／查驗／賣場時才補讀其餘的。 */
 const PLANT_PAGE=36; const PL=new Map();
+/* 開站：所有賣場的第一批資料到齊（或最多等 5 秒）才一起畫，不會一株一株冒出來、畫面一直閃。
+   上次看到的植物先存在手機，下次打開立刻顯示，新資料到了再無聲替換。 */
+const HOLD={on:false,n:0,tm:0};
+function holdTok(){ if(!HOLD.on) return null; HOLD.n++; return {d:false}; }
+function subRen(k){ if(k&&!k.d){ k.d=true; HOLD.n--; } if(HOLD.on){ if(HOLD.n>0) return; holdEnd(); return; } renderAll(); }
+function holdEnd(){ if(!HOLD.on) return; HOLD.on=false; clearTimeout(HOLD.tm); for(const [k,p] of S.plants) if(p._c&&!subs.has(p.shop)) S.plants.delete(k); S.ready=true; shopRSig=''; renderAll(); setTimeout(snapSave,1500); }
+const SNAP_KEY='vein.snap.v1';
+function snapLoad(){ try{ const o=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); if(!o||Date.now()-o.at>3*864e5) return false;
+  o.shops.forEach(([u,s])=>S.shops.set(u,s)); S.sellers={approved:{},house:null,...o.sellers}; o.plants.forEach(p=>{ if(!S.plants.has(p.id)) S.plants.set(p.id,{...p,_c:1}); }); S.snap=true; S.ready=true; return true; }catch(e){ return false; } }
+let snapT=0;
+function snapSave(){ clearTimeout(snapT); snapT=setTimeout(()=>{ try{ if(HOLD.on||!S.shopsReady) return; const me=S.me;
+  const o={at:Date.now(),shops:[...S.shops.entries()],sellers:S.sellers,plants:[...S.plants.values()].filter(p=>p.shop!==me&&!p.hidden&&approved(p.shop)).map(p=>{ const {_c,...x}=p; return x; })};
+  const s=JSON.stringify(o); if(s.length<2.5e6) localStorage.setItem(SNAP_KEY,s); }catch(e){} },800); }
+addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') snapSave(); });
 if (new URLSearchParams(location.search).has('dbg')){ window.__S=S; window.__PL=PL; }
-function plantSub(u){ const fullNow=u===S.me||S.admin; const st={full:fullNow,cursor:null,live:new Set(),busy:false}; PL.set(u,st);
+function plantSub(u){ const fullNow=u===S.me||S.admin; const st={full:fullNow,cursor:null,live:new Set(),busy:false,k:holdTok()}; PL.set(u,st);
   const q=fullNow?S.db.collection('shops/'+u+'/plants'):S.db.collection('shops/'+u+'/plants').orderBy('createdAt','desc').limit(PLANT_PAGE);
   return q.onSnapshot(sn=>{ const now=new Set(sn.docs.map(d=>d.id));
       const windowFull=!fullNow&&sn.size>=PLANT_PAGE;
-      for (const id of st.live) if(!now.has(id)&&!windowFull) S.plants.delete(id); // 被刪掉的（視窗滿時可能只是被擠出去，先留著）
+      for (const id of st.live) if(!now.has(id)&&!windowFull) S.plants.delete(id);
+      if (!st.first&&!windowFull) for(const [k,p] of S.plants) if(p._c&&p.shop===u&&!now.has(k)) S.plants.delete(k); // 被刪掉的（視窗滿時可能只是被擠出去，先留著）
       if (fullNow) for(const [k,p] of S.plants) if(p.shop===u&&!now.has(k)) S.plants.delete(k);
       sn.docs.forEach(d=>S.plants.set(d.id,{id:d.id,...d.data(),shop:u})); st.live=now;
       if (!fullNow){ if(sn.size<PLANT_PAGE) st.full=true; else if(!st.cursor){ const last=sn.docs[sn.docs.length-1]?.data()?.createdAt; st.cursor=last||null; } }
       if (u===S.me&&fullNow&&shopOf(S.me)&&!sn.metadata?.hasPendingWrites){ const stt=computeShopStats(sn.docs); if(Number(shopOf(S.me).nPlants)!==sn.size||JSON.stringify(shopOf(S.me).stats||{})!==JSON.stringify(stt)){ const n=sn.size; clearTimeout(st.np); st.np=setTimeout(()=>{ S.db.doc('shops/'+S.me).update({nPlants:n,stats:stt}).catch(()=>{}); },3000); } }
-      S.ready=true; renderAll(); if(!st.first){ st.first=true; if(!st.full&&(S.wantAll||S.wantShop===u)) plantMore(u,true).then(()=>renderAll()); } },()=>{}); }
+      S.ready=true; subRen(st.k); if(!st.first){ st.first=true; if(!st.full&&(S.wantAll||S.wantShop===u)) plantMore(u,true).then(()=>renderAll()); } },()=>{}); }
 async function plantMore(u,all){ const st=PL.get(u); if(!st||st.full||st.busy||!S.db) return 0; st.busy=true;
   try{ let q=S.db.collection('shops/'+u+'/plants');
     if (all){ const sn=await q.get(); sn.docs.forEach(d=>{ if(!st.live.has(d.id)||!S.plants.has(d.id)) S.plants.set(d.id,{id:d.id,...d.data(),shop:u}); }); st.full=true; return sn.size; }
@@ -7139,14 +7154,15 @@ function storeMoreSentinel(body){ if(plantsAllLoaded()||!body.isConnected) retur
   smIO?.disconnect(); smIO=new IntersectionObserver(async es=>{ if(!es.some(e=>e.isIntersecting)) return; smIO.disconnect(); await plantMoreAll(); if(sen.isConnected){ if(plantsAllLoaded()) sen.remove(); else setTimeout(()=>{ if(sen.isConnected) smIO.observe(sen); },400); } },{rootMargin:'600px 0px'}); smIO.observe(sen); }
 function syncSubs(){
   if (!S.db) return;
+  if (!HOLD.started){ HOLD.started=true; HOLD.on=true; HOLD.tm=setTimeout(holdEnd,5000); setTimeout(()=>{ if(HOLD.on&&HOLD.n<=0) holdEnd(); },0); }
   const want=new Set([...S.shops.keys()].filter(u=>approved(u)||u===S.me||S.admin)); if(S.me) want.add(S.me);
   for (const [u,un] of subs) if(!want.has(u)){ un.forEach(f=>{ try{ f(); }catch(e){} }); subs.delete(u); purgeShop(u); }
   for (const u of want) if(!subs.has(u)){ const b='shops/'+u, L=[];
     L.push(plantSub(u));
-    if(!(u===S.me||S.admin)) L.push(S.db.collection(b+'/plants').where('mode','==','auction').onSnapshot(sn=>{ sn.docs.forEach(d=>S.plants.set(d.id,{id:d.id,...d.data(),shop:u})); renderAll(); },()=>{}));
-    L.push(S.db.collection(b+'/raffles').onSnapshot(sn=>{ for(const [k,r] of S.raffles) if(r.shop===u) S.raffles.delete(k); sn.docs.forEach(d=>S.raffles.set(u+'~'+d.id,{id:d.id,...d.data(),shop:u})); renderAll(); },()=>{}));
-    L.push(S.db.collection(b+'/orders').onSnapshot(sn=>{ for(const [k,o] of S.sorders) if(o.shop===u) S.sorders.delete(k); sn.docs.forEach(d=>S.sorders.set(u+'/'+d.id,{id:d.id,...d.data(),shop:u})); renderAll(); },()=>{}));
-    L.push(S.db.collection(b+'/answers').onSnapshot(sn=>{ for(const [k,a] of S.answers) if(a.shop===u) S.answers.delete(k); sn.docs.forEach(d=>S.answers.set(d.id,{...d.data(),shop:u})); renderAll(); },()=>{}));
+    if(!(u===S.me||S.admin)){ const k=holdTok(); L.push(S.db.collection(b+'/plants').where('mode','==','auction').onSnapshot(sn=>{ const ids=new Set(sn.docs.map(d=>d.id)); for(const [id,p] of S.plants) if(p._c&&p.shop===u&&p.mode==='auction'&&!ids.has(id)) S.plants.delete(id); sn.docs.forEach(d=>S.plants.set(d.id,{id:d.id,...d.data(),shop:u})); subRen(k); },()=>subRen(k))); }
+    { const hk=holdTok(); L.push(S.db.collection(b+'/raffles').onSnapshot(sn=>{ for(const [k,r] of S.raffles) if(r.shop===u) S.raffles.delete(k); sn.docs.forEach(d=>S.raffles.set(u+'~'+d.id,{id:d.id,...d.data(),shop:u})); subRen(hk); },()=>subRen(hk))); }
+    { const hk=holdTok(); L.push(S.db.collection(b+'/orders').onSnapshot(sn=>{ for(const [k,o] of S.sorders) if(o.shop===u) S.sorders.delete(k); sn.docs.forEach(d=>S.sorders.set(u+'/'+d.id,{id:d.id,...d.data(),shop:u})); subRen(hk); },()=>subRen(hk))); }
+    { const hk=holdTok(); L.push(S.db.collection(b+'/answers').onSnapshot(sn=>{ for(const [k,a] of S.answers) if(a.shop===u) S.answers.delete(k); sn.docs.forEach(d=>S.answers.set(d.id,{...d.data(),shop:u})); subRen(hk); },()=>subRen(hk))); }
     subs.set(u,L); }
 }
 function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.me&&hasShop()) setTimeout(()=>{ try{ ptsSub(); featSub(); }catch(e){} },2500); if(S.me) setTimeout(()=>{ try{ proTour(); }catch(e){} },5000); if(S.me) setTimeout(()=>{ pushRefresh(); },4000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } setTimeout(favLoad,1500); }
@@ -7154,7 +7170,7 @@ async function boot(){
   const c=window.claude;
   if (!c?.use){ S.failed=true; renderAll(); return; }
   const [db,user,assets]=await Promise.all([c.use('db'),c.use('user'),c.use('assets')]);
-  S.db=db; S.user=user; S.assets=assets;
+  S.db=db; S.user=user; S.assets=assets; if(snapLoad()) renderAll();
   if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.realMe=S.me; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write');
     // 小編模式：用自己的帳號登入，但以受邀賣場的身分管理（資料庫規則會依權限把關）
     let act=null; try{ act=sessionStorage.getItem('vein.actAs'); }catch(e){}
