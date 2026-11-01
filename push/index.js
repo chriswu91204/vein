@@ -419,3 +419,13 @@ exports.ptsMonthly = onSchedule({ schedule: '3 0 1 * *', timeZone: 'Asia/Taipei'
   for (const u of ids) { try { await db.runTransaction(async tx => { const r = db.doc('pts/' + u), d = await tx.get(r); tx.set(r, refill(d.exists ? d.data() : { bal: 0, log: [] }, now)); }); } catch (e) {} }
   logger.info('pts monthly', { n: ids.length });
 });
+
+// 賣場改名：送出申請 → 通知管理員；審核結果 → 通知賣家
+exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
+  const b = ev.data.before.data() || {}, a = ev.data.after.data() || {}, uid = ev.params.uid;
+  const bq = b.nameReq && b.nameReq.name, aq = a.nameReq && a.nameReq.name;
+  if (aq && aq !== bq) { try { const ad = await db.doc('site/admins').get(); const L = ad.exists ? (Array.isArray(ad.data().uids) ? ad.data().uids : Object.keys(ad.data().uids || {})) : []; try { const sl = await db.doc('site/sellers').get(); if (sl.exists && sl.data().house && !L.includes(sl.data().house)) L.push(sl.data().house); } catch (e) {}
+      for (const u of L) await push(u, '✏️ 賣場改名申請', (b.name || '') + ' → ' + aq, '/#admin/sellers', 'rename-' + uid); } catch (e) {} }
+  if (bq && !aq) { if (a.name === bq && b.name !== a.name) await push(uid, '✅ 賣場改名通過', '現在的名稱：' + a.name, '/#/seller/' + uid, 'rename-' + uid);
+    else if (a.nameRej && a.nameRej.name === bq) await push(uid, '賣場改名沒有通過', '「' + bq + '」' + (a.nameRej.why ? '：' + a.nameRej.why : ''), '/#admin/shop:basic', 'rename-' + uid); }
+});

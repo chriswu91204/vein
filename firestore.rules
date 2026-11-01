@@ -101,10 +101,14 @@ service cloud.firestore {
     // 賣場
     match /shops/{uid} {
       allow read: if true;
-      allow create, update: if seller(uid) || modOnly(['store', 'avatar', 'banner']);
+      // 改名：已核准的賣場不能直接改名，要送 nameReq 給管理員審核
+      function shopOK(u) { return exists(/databases/$(database)/documents/site/sellers) && get(/databases/$(database)/documents/site/sellers).data.get('approved', {}).get(u, false) == true; }
+      function nameSame() { return request.resource.data.get('name', '') == resource.data.get('name', ''); }
+      allow create: if seller(uid);
+      allow update: if (seller(uid) && (nameSame() || !shopOK(uid) || isAdmin())) || modOnly(['store', 'avatar', 'banner', 'name', 'nameReq', 'nameRej', 'nameLog']);
       allow delete: if seller(uid) || isAdmin();
       // 小編：有「賣場設定與裝修」權限可以改賣場資料；有「植物與商品」權限只能動群組與統計欄位
-      allow update: if (staff(uid, 'design') && blockedUnchanged())
+      allow update: if (staff(uid, 'design') && blockedUnchanged() && nameSame())
         || (staff(uid, 'plants') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['groups', 'serialNext', 'nPlants', 'stats', 'updatedAt']));
     }
     match /shops/{uid}/staff/{sid} {
