@@ -5006,7 +5006,15 @@ function openPhone(reason){
 }
 function saveSocial(patch){ if(S.work){ toast('小編模式不能用賣場的身分出價、追蹤、下單或抽獎，請先切回自己的帳號'); return Promise.reject(new Error('work')); } if(!S.socialReady){ toast('資料還在載入，請稍候'); return Promise.reject(new Error('nr')); } const cur={...mySocial(),...patch}; S.social.set(S.me,cur); S.socialAll.set(S.me,cur); renderAll(); return socialQ(()=>S.db.doc('social/'+S.me).set(cur)).catch(e=>{ toast('儲存失敗，請稍後再試'); throw e; }); }
 function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>toast('沒有存成功，請稍後再試')); }
-function toggleFav(id){ if(needLogin()) return; const f=new Set(S.prefs.favs||[]); const on=!f.has(id); on?f.add(id):f.delete(id); savePrefs({favs:[...f]},on?'已加入收藏':'已取消收藏'); }
+function toggleFav(id){ if(needLogin()) return; const f=new Set(S.prefs.favs||[]); const on=!f.has(id); on?f.add(id):f.delete(id); const fs={...(S.prefs.favShop||{})}; if(on&&S.plants.get(id)?.shop) fs[id]=S.plants.get(id).shop; else if(!on) delete fs[id]; savePrefs({favs:[...f],favShop:fs},on?'已加入收藏':'已取消收藏'); }
+// 收藏的植物不一定在「每家最新幾株」裡：重新整理後直接把收藏的那幾株讀回來
+let favLoading=false, favLegacy=false;
+async function favLoad(){ if(favLoading||!S.db||!S.me||!S.prefsReady||!S.shopsReady) return; const ids=(S.prefs.favs||[]).filter(i=>!S.plants.has(i)); if(!ids.length) return; favLoading=true;
+  try{ const fs=S.prefs.favShop||{}, known=ids.filter(i=>fs[i]&&fs[i]!=='-'), unk=ids.filter(i=>!fs[i]); let n=0;
+    await Promise.all(known.map(async i=>{ try{ const d=await S.db.doc('shops/'+fs[i]+'/plants/'+i).get(); if(d.exists&&!S.plants.has(i)){ S.plants.set(i,{id:i,...d.data(),shop:fs[i]}); n++; } }catch(e){} }));
+    if(unk.length&&!favLegacy){ favLegacy=true; await ensurePlants(); const add={...fs}; unk.forEach(i=>{ add[i]=S.plants.get(i)?.shop||'-'; }); S.prefs={...S.prefs,favShop:add}; prefsQ(()=>S.db.doc(`data/users/${ME()}/prefs`).set(S.prefs)).catch(()=>{}); n++; }
+    if(n) renderAll();
+  } finally{ favLoading=false; } }
 function favBtn(id){ const on=(S.prefs.favs||[]).includes(id); return h('button',{class:'fav'+(on?' on':''),type:'button','aria-label':on?'取消收藏':'加入收藏','aria-pressed':String(on),onclick:e=>{ e.stopPropagation(); toggleFav(id); }}, svg('i-heart')); }
 function toggleFollow(shop){ if(needLogin()) return; if(shop===S.me){ toast('這是你自己的賣場'); return; } const f=new Set(mySocial().follows||[]); const on=!f.has(shop); on?f.add(shop):f.delete(shop); saveSocial({follows:[...f]}).then(()=>toast(on?'已追蹤 '+shopName(shop):'已取消追蹤')).catch(()=>{}); }
 function followBtn(shop,cls){ const on=following(shop); return h('button',{class:'btn sm '+(on?'soft':(cls||'ink')),type:'button','aria-pressed':String(on),onclick:e=>{ e.stopPropagation(); toggleFollow(shop); },text:on?'已追蹤':'＋ 追蹤'}); }
@@ -6561,7 +6569,7 @@ function renderShop(force){
         h('p',{text:'上架後，每一株都會附編號與成長紀錄出現在這裡。'}))));
     const ev0=body.querySelector('.empty-shop video'); if(ev0) ev0.muted=true; return;
   }
-  setTimeout(()=>storeMoreSentinel(body),0);
+  if(T!=='auction') setTimeout(()=>storeMoreSentinel(body),0);
   if (T==='hub') pdRender('hub',body,null); else if (T==='home') storeHome(body); else if (T==='auction') pdRender('auction',body,storeAuction); else if (T==='buy') storeBuy(body); else if (T==='sellers') pdRender('sellers',body,storeSellers); else if (T==='cat') browse(body,{cat:S.storeCat,base:pub().filter(p=>spKey(p)===S.storeCat),head:catHead(S.storeCat)}); else storeSearch(body);
 }
 
@@ -7128,19 +7136,20 @@ async function ensurePlants(u){ const us=u?[u]:[...PL.keys()]; const todo=us.fil
 // 商店往下捲到底：自動再讀下一批
 let smIO=null;
 function storeMoreSentinel(body){ if(plantsAllLoaded()||!body.isConnected) return; const sen=h('div',{class:'sm-sen'}, h('i',{class:'lb-spin',style:'position:static'}), h('span',{text:'載入更多植物…'})); body.append(sen);
-  smIO?.disconnect(); smIO=new IntersectionObserver(async es=>{ if(!es.some(e=>e.isIntersecting)) return; smIO.disconnect(); await plantMoreAll(); },{rootMargin:'600px 0px'}); smIO.observe(sen); }
+  smIO?.disconnect(); smIO=new IntersectionObserver(async es=>{ if(!es.some(e=>e.isIntersecting)) return; smIO.disconnect(); await plantMoreAll(); if(sen.isConnected){ if(plantsAllLoaded()) sen.remove(); else setTimeout(()=>{ if(sen.isConnected) smIO.observe(sen); },400); } },{rootMargin:'600px 0px'}); smIO.observe(sen); }
 function syncSubs(){
   if (!S.db) return;
   const want=new Set([...S.shops.keys()].filter(u=>approved(u)||u===S.me||S.admin)); if(S.me) want.add(S.me);
   for (const [u,un] of subs) if(!want.has(u)){ un.forEach(f=>{ try{ f(); }catch(e){} }); subs.delete(u); purgeShop(u); }
   for (const u of want) if(!subs.has(u)){ const b='shops/'+u, L=[];
     L.push(plantSub(u));
+    if(!(u===S.me||S.admin)) L.push(S.db.collection(b+'/plants').where('mode','==','auction').onSnapshot(sn=>{ sn.docs.forEach(d=>S.plants.set(d.id,{id:d.id,...d.data(),shop:u})); renderAll(); },()=>{}));
     L.push(S.db.collection(b+'/raffles').onSnapshot(sn=>{ for(const [k,r] of S.raffles) if(r.shop===u) S.raffles.delete(k); sn.docs.forEach(d=>S.raffles.set(u+'~'+d.id,{id:d.id,...d.data(),shop:u})); renderAll(); },()=>{}));
     L.push(S.db.collection(b+'/orders').onSnapshot(sn=>{ for(const [k,o] of S.sorders) if(o.shop===u) S.sorders.delete(k); sn.docs.forEach(d=>S.sorders.set(u+'/'+d.id,{id:d.id,...d.data(),shop:u})); renderAll(); },()=>{}));
     L.push(S.db.collection(b+'/answers').onSnapshot(sn=>{ for(const [k,a] of S.answers) if(a.shop===u) S.answers.delete(k); sn.docs.forEach(d=>S.answers.set(d.id,{...d.data(),shop:u})); renderAll(); },()=>{}));
     subs.set(u,L); }
 }
-function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.me&&hasShop()) setTimeout(()=>{ try{ ptsSub(); featSub(); }catch(e){} },2500); if(S.me) setTimeout(()=>{ try{ proTour(); }catch(e){} },5000); if(S.me) setTimeout(()=>{ pushRefresh(); },4000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } }
+function checkReady(){ if(S.shopsReady) setTimeout(()=>{ try{ ensureCode(); }catch(e){} },3000); if(S.me&&hasShop()) setTimeout(()=>{ try{ ptsSub(); featSub(); }catch(e){} },2500); if(S.me) setTimeout(()=>{ try{ proTour(); }catch(e){} },5000); if(S.me) setTimeout(()=>{ pushRefresh(); },4000); if(S.shopsReady&&S.admPend){ S.admPend=false; if(isAdmHash(location.hash)) setTimeout(route,0); } if(S.shopsReady&&S.sellersReady){ if(![...S.shops.keys()].some(u=>approved(u)||u===S.me)) S.ready=true; syncSubs(); renderAll(); } setTimeout(favLoad,1500); }
 async function boot(){
   const c=window.claude;
   if (!c?.use){ S.failed=true; renderAll(); return; }
@@ -7183,7 +7192,7 @@ async function boot(){
     db.doc(`data/users/${S.me}/bank`).onSnapshot(d=>{ S.bank=d.exists?d.data():null; },()=>{});
     if(!S.work) chatBoot(db); careBoot(db);
   }
-  if (S.me) db.doc(`data/users/${ME()}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); }, ()=>{});
+  if (S.me) db.doc(`data/users/${ME()}/prefs`).onSnapshot(d=>{ S.prefsReady=true; if(d.exists&&!d.metadata.hasPendingWrites) S.prefs={favs:[],cart:[],...d.data()}; renderAll(); setTimeout(favLoad,300); }, ()=>{});
   setTimeout(()=>{ if(!S.ready){ S.ready=true; renderAll(); } }, 4000);
   if (isAdmHash(location.hash)) route();
 }
