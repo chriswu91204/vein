@@ -7117,7 +7117,7 @@ const PLANT_PAGE=36; const PL=new Map();
 const HOLD={on:false,n:0,tm:0};
 function holdTok(){ if(!HOLD.on) return null; HOLD.n++; return {d:false}; }
 function subRen(k){ if(k&&!k.d){ k.d=true; HOLD.n--; } if(HOLD.on){ if(HOLD.n>0) return; holdEnd(); return; } renderAll(); }
-function holdEnd(){ if(!HOLD.on) return; HOLD.on=false; clearTimeout(HOLD.tm); for(const [k,p] of S.plants) if(p._c&&!subs.has(p.shop)) S.plants.delete(k); S.ready=true; shopRSig=''; renderAll(); setTimeout(snapSave,1500); }
+function holdEnd(){ if(!HOLD.on) return; HOLD.on=false; clearTimeout(HOLD.tm); for(const [k,p] of S.plants) if(p._c&&!subs.has(p.shop)) S.plants.delete(k); S.ready=true; HOLD.pv=''; renderAll(); setTimeout(snapSave,1500); }
 const SNAP_KEY='vein.snap.v1';
 function snapLoad(){ try{ const o=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); if(!o||Date.now()-o.at>3*864e5) return false;
   o.shops.forEach(([u,s])=>S.shops.set(u,s)); S.sellers={approved:{},house:null,...o.sellers}; o.plants.forEach(p=>{ if(!S.plants.has(p.id)) S.plants.set(p.id,{...p,_c:1}); }); S.snap=true; S.ready=true; return true; }catch(e){ return false; } }
