@@ -4149,6 +4149,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .play-tabs button{flex:1;min-width:0;white-space:nowrap;overflow:visible!important;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 10px;border-radius:18px;border:1.5px solid var(--line);background:var(--surface);font:inherit;font-weight:700;font-size:15px;color:var(--fg);cursor:pointer;position:relative}
 .play-tabs button i{font-style:normal;font-size:18px}
 .play-tabs button small{font-size:11.5px;color:var(--fg2);font-weight:600;background:rgba(0,0,0,.06);border-radius:999px;padding:1px 7px}
+.play-tabs button em.soon{background:#FF9A1F;animation:none}
 .play-tabs button em{position:absolute;top:-9px;right:8px;font-style:normal;font-size:10.5px;font-weight:800;color:#fff;background:linear-gradient(90deg,#FF3D00,#FF9A1F);border-radius:999px;padding:3px 8px;animation:pbPulse 1.2s infinite}
 @media (max-width:520px){.play-tabs{gap:6px}.play-tabs button{padding:11px 4px;font-size:13.5px;gap:4px;border-radius:16px}.play-tabs button i{font-size:15px}.play-tabs button small{display:none}}
 .play-tabs button[aria-pressed=true]{background:#0E1210;color:#fff;border-color:#0E1210}
@@ -7295,13 +7296,13 @@ function playRender(){ const tabs=$('#playTabs'), body=$('#playBody'), rf=$('#pl
   const T=S.playTab;
   const sig=JSON.stringify([T,E.map(p=>p.id+encState(p)),D.map(d=>d.id+dropState(d)),R.length]);
   if(sig===playSig&&body.firstChild!==undefined&&tabs.firstChild) return; playSig=sig;
-  const tb=(k,ic,l,n,hot)=>h('button',{type:'button','aria-pressed':String(T===k),class:hot?'hot':'',onclick:()=>{ S.playTab=k; playSig=''; renderRafflePage(); }}, h('i',{text:ic}), h('span',{text:l}), hot?h('em',{text:hot}):n?h('small',{text:String(n)}):null);
-  tabs.replaceChildren(tb('enc','⚔','遭遇戰',E.length,eLive?'出現中':''), tb('drop','🎁','福利組合',D.length,dLive?'開搶中':''), tb('raffle','🎲','抽獎',R.length,''));
+  const tb=(k,ic,l,n,hot)=>h('button',{type:'button','aria-pressed':String(T===k),class:hot?'hot':'',onclick:()=>{ S.playTab=k; playSig=''; renderRafflePage(); }}, h('i',{text:ic}), h('span',{text:l}), hot?h('em',{class:/孵化|即將/.test(hot)?'soon':'',text:hot}):n?h('small',{text:String(n)}):null);
+  tabs.replaceChildren(tb('enc','⚔','遭遇戰',E.length,eLive?'戰鬥中':E.length?'孵化中':''), tb('drop','🎁','福利組合',D.length,dLive?'開搶中':D.length?'即將開搶':''), tb('raffle','🎲','抽獎',R.length,''));
   rf.hidden=T!=='raffle';
   if(T==='enc'){ const z=encZone(); body.replaceChildren(z?h('div',{class:'play-enc'}, z):h('div',{class:'play-empty'}, h('b',{text:'🥚'}), h('h3',{text:'目前沒有遭遇戰'}), h('p',{text:'追蹤喜歡的溫室，遭遇戰開始時會通知你'}), h('button',{type:'button',class:'btn soft',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}))); }
   else if(T==='drop') body.replaceChildren(D.length?h('div',{class:'play-drop'}, ...D.sort((a,b)=>a.at-b.at).map(d=>dropView(d,{shop:true}))):h('div',{class:'play-empty'}, h('b',{text:'🎁'}), h('h3',{text:'目前沒有福利組合'}), h('button',{type:'button',class:'btn soft',onclick:()=>dropIntro(true),text:'福利組合怎麼玩？'})));
   else body.replaceChildren(); }
-function playBadge(){ const E=encAll(), live=E.some(p=>encState(p)==='live'), D=dropAll().some(d=>dropState(d)==='live'), txt=live?'出現中':D?'開搶中':E.length?'孵化中':'';
+function playBadge(){ const E=encAll(), live=E.some(p=>encState(p)==='live'), D=dropAll().some(d=>dropState(d)==='live'), txt=live?'戰鬥中':D?'開搶中':E.length?'孵化中':'';
   document.querySelectorAll('.play-badge').forEach(b=>{ b.hidden=!txt; b.textContent=txt; b.className='play-badge'+(live?' live':''); }); }
 setInterval(()=>{ try{ playBadge(); if(PAGE==='raffle') playRender(); }catch(e){} },5000);
 function rafflePageOrig(box){
