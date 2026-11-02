@@ -9344,7 +9344,7 @@ function openPlant(id, fromImg, tab){
   if (sheet.open) sheet.close(); if (dlg.open) dlg.close(); try{ if(adm.open) adm.close(); }catch(e){}
   S.pTab=tab||null; go('#/plant/'+encodeURIComponent(id));
 }
-function leavePlant(){ try{ arenaStop(); }catch(e){} if(S.pagePhotoUnsub){ S.pagePhotoUnsub(); S.pagePhotoUnsub=null; } S.pageP=null; }
+function leavePlant(){ try{ arenaStop(); }catch(e){} try{ ENCV?.stop?.(); ENCV=null; document.querySelectorAll('.en-proj,.en-tball').forEach(x=>x.remove()); }catch(e){} if(S.pagePhotoUnsub){ S.pagePhotoUnsub(); S.pagePhotoUnsub=null; } S.pageP=null; }
 const saleState=p=>!listed(p)?['off','未販售 · 只公開履歷']:p.status==='sold'?['sold','已售出']:live(p)?['live','競標中']:aucSoon(p)?['live','即將開始 · '+fmtDate(tsLocal(p.startsAtMs))]:isAuc(p)?['sold','競標已結束']:p.status==='available'?['on',p.price?'可直購':'可洽詢']:['sold',STATUS[p.status]||''];
 /* ---- 不在 VEIN 上的親本（國外進口、向別人購買…）：名稱、來源、照片影片 ---- */
 const EXT_SRC=['國外進口','向他人購買','朋友贈送','自己舊有收藏','其他'];
@@ -12357,7 +12357,7 @@ function encPanel(p,deal){
   const V={pid,el,stop:()=>{ clearInterval(iv); },busy:()=>busy};
   ENCV=V;
   const pop=(txt,cls,x,y)=>{ const d=h('span',{class:'en-dmg '+(cls||''),text:txt,style:`left:${x??(40+Math.random()*20)}%;top:${y??(30+Math.random()*16)}%`}); fx.append(d); setTimeout(()=>d.remove(),1300); };
-  const flyIn=(e,from)=>{ const r=stage.getBoundingClientRect(), m=mon.getBoundingClientRect(); const s=h('span',{class:'en-proj',text:e}); document.documentElement.append(s);
+  const flyIn=(e,from)=>{ const r=stage.getBoundingClientRect(), m=mon.getBoundingClientRect(); if(!r.width||!m.width||document.hidden||PAGE!=='plant') return; const s=h('span',{class:'en-proj',text:e}); document.documentElement.append(s);
     const fx0=from?from.left+from.width/2:r.left+(Math.random()<.5?-20:r.width+20), fy0=from?from.top+from.height/2:r.top+Math.random()*r.height, tx=m.left+m.width/2+(Math.random()-.5)*m.width*.4, ty=m.top+m.height/2+(Math.random()-.5)*m.height*.4;
     const a=s.animate([{transform:`translate(${fx0}px,${fy0}px) scale(.6) rotate(0deg)`,opacity:1},{transform:`translate(${(fx0+tx)/2}px,${Math.min(fy0,ty)-80}px) scale(1.5) rotate(200deg)`,opacity:1,offset:.55},{transform:`translate(${tx}px,${ty}px) scale(.9) rotate(400deg)`,opacity:1}],{duration:REDUCE?10:520,easing:'cubic-bezier(.3,.6,.4,1)'});
     a.onfinish=()=>{ s.remove(); if(!el.isConnected) return; mon.classList.remove('hit'); void mon.offsetWidth; mon.classList.add('hit'); const b=h('i',{class:'en-boom',style:`left:${tx-r.left}px;top:${ty-r.top}px`}); fx.append(b); setTimeout(()=>b.remove(),500); }; };
@@ -12374,7 +12374,7 @@ function encPanel(p,deal){
   cap.addEventListener('keyup',e=>{ if(e.key===' '||e.key==='Enter') lpStop(); });
   // 別人收服：先播丟球、搖晃的動畫，跑完才公布結果
   let otherAnim=false;
-  function otherCatch(){ if(otherAnim||busy) return; otherAnim=true; el.classList.add('catching'); const sr=stage.getBoundingClientRect(), mr=mon.getBoundingClientRect(); const ball=h('span',{class:'en-tball'}, h('i')); document.documentElement.append(ball);
+  function otherCatch(){ if(otherAnim||busy||PAGE!=='plant'||!stage.getBoundingClientRect().width) return; otherAnim=true; el.classList.add('catching'); const sr=stage.getBoundingClientRect(), mr=mon.getBoundingClientRect(); const ball=h('span',{class:'en-tball'}, h('i')); document.documentElement.append(ball);
     const bx=mr.left+mr.width/2-22, by=mr.top+mr.height*.62-22, sx=sr.left+sr.width/2-22, sy=sr.bottom+40;
     ball.animate([{transform:`translate(${sx}px,${sy}px) scale(.5)`},{transform:`translate(${(sx+bx)/2+40}px,${sr.top-30}px) scale(1.15) rotate(360deg)`,offset:.5},{transform:`translate(${bx}px,${by}px) scale(1) rotate(720deg)`}],{duration:REDUCE?10:700,easing:'cubic-bezier(.25,.7,.4,1)',fill:'forwards'}).finished.then(()=>{ mon.classList.add('sucked'); ball.classList.add('flash','wobble'); }).catch(()=>{});
     const pp=S.plants.get(pid)||p, left=Math.max(800,(+pp.encDone?.at||Date.now())+ENC_CATCH-Date.now());
@@ -12410,7 +12410,7 @@ function encPanel(p,deal){
     res.replaceChildren(kind==='won'?h('div',{class:'en-rb won'}, h('span',{class:'en-ri',text:'🏆'}), h('b',{text:who===S.me?'你收服了！':'已被收服'}), h('span',{text:(who&&who!==S.me?nameOf(who)+' · ':'')+(price?money(price):'')}), who===S.me?h('button',{type:'button',class:'btn lime sm',onclick:()=>openMe('orders'),text:'看訂單 →'}):null)
       :kind==='soon'?h('div',{class:'en-rb soon'}, h('span',{class:'en-ri',text:'👀'}), h('b',{text:'即將出現'}), h('span',{text:fmtDate(tsLocal(p.startsAtMs))}))
       :h('div',{class:'en-rb end'}, h('span',{class:'en-ri',text:'💨'}), h('b',{text:'頭目逃跑了'}), h('span',{text:fledWhy(S.plants.get(pid)||p)}))); }
-  const tick=()=>{ if(!el.isConnected){ V.stop(); return; } const pp=S.plants.get(pid)||p, now=Date.now(), st=encState(pp), c=encCalc(pp,now,encPendOf(pid));
+  const tick=()=>{ if(!el.isConnected||PAGE!=='plant'||S.pageP!==pid){ V.stop(); if(ENCV===V) ENCV=null; return; } const pp=S.plants.get(pid)||p, now=Date.now(), st=encState(pp), c=encCalc(pp,now,encPendOf(pid));
     if(st!==st0){ st0=st; el.dataset.st=st; stTag.textContent={live:'LIVE',soon:'即將出現',won:'已收服',end:'頭目逃跑了',catch:'收服中…'}[st]; if(st==='catch') otherCatch(); stTag.className='en-st '+st;
       if(st==='won') showRes('won',pp.encDone?.price||pp.soldPrice,pp.encDone?.uid||pp.buyer); else if(st==='end'){ if(REDUCE) showRes('end'); else { el.classList.add('fleeing'); for(let i=0;i<7;i++){ const s=h('span',{class:'en-dust',text:'💨',style:`left:${40+Math.random()*14}%;top:${48+Math.random()*16}%;--d:${(i*.09).toFixed(2)}s`}); fx.append(s); setTimeout(()=>s.remove(),1700); } setTimeout(()=>{ el.classList.remove('fleeing'); showRes('end'); },1400); } } else if(st==='soon') showRes('soon'); else { res.hidden=true; } }
     const end=encEnd(pp), fl=!!pp.encFloorAt;
