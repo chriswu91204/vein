@@ -442,16 +442,18 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 });
 
 // ===================== 遭遇戰：收服判定（伺服器擲骰，避免作弊）=====================
-// 價格公式和網站一致：起始價隨時間降到最低價；攻擊讓時間走快（最多快一半）；收服失敗會回血（時間倒退）
+// 價格公式和網站一致：
+//  HP = 時間剩下的比例 ×（1 − 攻擊量/1000）² ＋ 回血；HP 越低攻擊越沒力，但一定打得完
+//  攻擊量 = 全場總攻擊次數 × 人數倍率（1 人 ×0.1、2 人 ×0.8，之後每人 +0.3，最高 ×5）→ 一個人打要超久，人多很快
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
-const encG = n => n <= 20 ? n : 20 + 0.15 * (n - 20), encCrowd = u => u <= 1 ? 0.1 : Math.min(2, 0.8 + 0.3 * (u - 2));
-async function encHitsN(pid) { let H = 0, u = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { const n = +d.data().n || 0; if (n > 0) { H += encG(n); u++; } }); } catch (e) {} return { H, u }; }
-function encAdv(H, dur) { const b = dur / 600; return H <= 240 ? b * (H - H * H / 600) : b * 144 + b * 0.2 * (H - 240); }
+const encCrowd = u => u <= 0 ? 0 : u === 1 ? 0.1 : Math.min(5, 0.8 + 0.3 * (u - 2));
+const ENC_FULL = 1000;
+async function encHitsN(pid) { let N = 0, u = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { const n = +d.data().n || 0; if (n > 0) { N += n; u++; } }); } catch (e) {} return { N, u }; }
 function encCalc(p, hits, now) {
   const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
-  const adv = encAdv(hits.H || 0, dur) * encCrowd(hits.u || 0), e = Math.max(0, now - encT0(p)) + adv - (+p.encHealMs || 0);
-  const k = Math.max(0, Math.min(1, e / dur)), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((S0 - R * k) / step) * step));
-  return { price, hp: R ? (price - F) / R : 0, floor: k >= 1, dur, e };
+  const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p)) - (+p.encHealMs || 0)) / dur)), A = (hits.N || 0) * encCrowd(hits.u || 0), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2);
+  const hp = Math.max(0, Math.min(1, (1 - tf) * ha + (+p.encHealHp || 0))), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((F + R * hp) / step) * step));
+  return { price, hp: R ? (price - F) / R : 0, floor: hp <= 0.0005, dur, raw: hp };
 }
 const encIdle = p => +p.encIdle || 10 * 6e4;
 function encLiveAt(p, now) {
@@ -480,10 +482,10 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
         tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: c.price, encDone: { uid: t.uid, price: c.price, at: n2 }, updatedAt: n2, ...fl });
         return { res: 'ok', price: c.price, chance: Math.round(ch * 100), p };
       }
-      // 回血：時間倒退 6%（價格回升），但不會超過起始價
-      const heal = Math.min(c.dur * 0.06, Math.max(0, c.e));
-      tx.update(pref, { encHealMs: (+p.encHealMs || 0) + heal, updatedAt: n2, ...fl });
-      const after = encCalc({ ...p, encHealMs: (+p.encHealMs || 0) + heal }, hits, n2);
+      // 回血：HP 回升 6%，但不會超過滿血
+      const add = Math.max(0, Math.min(0.06, 1 - c.raw)), nh = (+p.encHealHp || 0) + add;
+      tx.update(pref, { encHealHp: nh, updatedAt: n2, ...fl });
+      const after = encCalc({ ...p, encHealHp: nh }, hits, n2);
       return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD };
     });
   } catch (e) { logger.warn('encTry', e.message); return done({ res: 'busy' }); }
