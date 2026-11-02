@@ -4140,6 +4140,23 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .myst-t small{color:#FFB36B;font-size:11.5px;margin-top:4px}.myst-t b{font-size:20px;color:#FFF3B0;text-shadow:0 0 12px rgba(255,140,30,.7)}
 .myst-p{font-size:12px;color:rgba(255,255,255,.6)}
 .myst.row{flex-direction:row;min-height:0;align-items:center}.myst.row .myst-i{flex:none;width:90px;min-height:0;padding:8px}.myst.row .ez-egg{width:56px;height:73px}
+.nav-play{position:relative}
+.play-badge{position:absolute;top:-6px;left:50%;margin-left:4px;font-style:normal;font-size:9.5px;font-weight:800;line-height:1;padding:3px 6px;border-radius:999px;background:#FF8A1F;color:#fff;white-space:nowrap;box-shadow:0 0 0 2px var(--paper,#fff)}
+.play-badge.live{background:linear-gradient(90deg,#FF3D00,#FF9A1F);animation:pbPulse 1.2s ease-in-out infinite}
+@keyframes pbPulse{50%{box-shadow:0 0 0 2px var(--paper,#fff),0 0 12px 2px rgba(255,90,20,.7)}}
+.tabbar .play-badge{top:2px;margin-left:6px}
+.play-tabs{display:flex;gap:8px;margin:0 0 16px;padding-top:12px;overflow:visible}
+.play-tabs button{flex:1;min-width:0;white-space:nowrap;overflow:visible!important;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 10px;border-radius:18px;border:1.5px solid var(--line);background:var(--surface);font:inherit;font-weight:700;font-size:15px;color:var(--fg);cursor:pointer;position:relative}
+.play-tabs button i{font-style:normal;font-size:18px}
+.play-tabs button small{font-size:11.5px;color:var(--fg2);font-weight:600;background:rgba(0,0,0,.06);border-radius:999px;padding:1px 7px}
+.play-tabs button em{position:absolute;top:-9px;right:8px;font-style:normal;font-size:10.5px;font-weight:800;color:#fff;background:linear-gradient(90deg,#FF3D00,#FF9A1F);border-radius:999px;padding:3px 8px;animation:pbPulse 1.2s infinite}
+@media (max-width:520px){.play-tabs{gap:6px}.play-tabs button{padding:11px 4px;font-size:13.5px;gap:4px;border-radius:16px}.play-tabs button i{font-size:15px}.play-tabs button small{display:none}}
+.play-tabs button[aria-pressed=true]{background:#0E1210;color:#fff;border-color:#0E1210}
+.play-tabs button[aria-pressed=true] small{background:rgba(255,255,255,.15);color:#fff}
+.play-tabs button.hot:not([aria-pressed=true]){border-color:#FF8A1F}
+.play-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:48px 16px;text-align:center;color:var(--fg2)}
+.play-empty b{font-size:48px}.play-empty h3{margin:0;color:var(--fg)}
+.play-enc .ez{margin:0}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -4693,7 +4710,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
     <a href="#/" data-pg="home">首頁</a>
     <a href="#/store" data-pg="shop">商店</a>
     <a href="#/store/auction" data-pg="auction">競標</a>
-    <a href="#/raffle" data-pg="raffle">抽獎</a>
+    <a href="#/raffle" data-pg="raffle" class="nav-play">玩法<i class="play-badge" hidden></i></a>
     <a href="#/verify" data-pg="verify">溯源</a>
     <a href="#/sell" data-pg="sell" class="nav-sell" id="navSell">免費開店</a>
   </nav>
@@ -4711,7 +4728,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
   <a href="#/" data-pg="home"><svg class="i"><use href="#i-home"/></svg>首頁</a>
   <a href="#/store" data-pg="shop"><svg class="i"><use href="#i-bag"/></svg>商店</a>
   <a href="#/store/auction" data-pg="auction"><svg class="i"><use href="#i-gavel"/></svg>競標</a>
-  <a href="#/raffle" data-pg="raffle"><svg class="i"><use href="#i-gift"/></svg>抽獎</a>
+  <a href="#/raffle" data-pg="raffle" class="nav-play"><svg class="i"><use href="#i-gift"/></svg>玩法<i class="play-badge" hidden></i></a>
   <a href="#/verify" data-pg="verify"><svg class="i"><use href="#i-scan"/></svg>溯源</a>
   <a href="#/me" id="tabMe" data-pg="me"><svg class="i"><use href="#i-user"/></svg>我的</a>
 </nav>
@@ -4839,12 +4856,16 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
   <div class="page" id="pgMe" hidden><section class="sec wrap page-top" id="me"><div id="mePage"></div></section></div>
   <div class="page" id="pgRaffle" hidden>
   <section class="sec wrap page-top" id="raffle">
-    <div class="sh"><h2>Raffle<small>免費參加，到點公開開獎</small></h2></div>
+    <div class="sh"><h2>Play<small>特殊玩法</small></h2></div>
+    <nav class="play-tabs" id="playTabs"></nav>
+    <div id="playBody"></div>
+    <div id="playRaffle">
     <div class="rmodes">
       <div class="rm open"><span class="tag lime">公開抽獎</span><h3>人人都能參加</h3><p>登入後按「參加抽獎」，每人一次。</p></div>
       <div class="rm buyers"><span class="tag dark">買家限定</span><h3>買過就能報名</h3><p>在該賣家完成購買的會員才能參加，開獎時再確認一次。</p></div>
     </div>
     <div id="raffleBody"></div>
+    </div>
   </section>
   </div>
   <div class="page" id="pgSeller" hidden>
@@ -7262,7 +7283,27 @@ async function renderLp(id){ const box=$('#lpPage'); if(!box) return; S.lpId=id;
   if (!draft&&(lp?.missing||lp?.on===false)){ box.append(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:'這個活動頁不存在或已結束'}), h('a',{class:'btn soft',href:'#/store',text:'回植物商店'}))); return; }
   if (lp?.title) document.title=lp.title+' · VEIN';
   pdRender('lp:'+id, box, null); }
-function renderRafflePage(){ const box=$('#raffleBody'); if(!box) return; box.replaceChildren(); pdRender('raffle',box,rafflePageOrig); }
+function renderRafflePage(){ playRender(); const box=$('#raffleBody'); if(!box||$('#playRaffle')?.hidden) return; box.replaceChildren(); pdRender('raffle',box,rafflePageOrig); }
+/* ---- 特殊玩法頁：遭遇戰／福利組合／抽獎 ---- */
+const encAll=()=>all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.shop)&&isEnc(p)&&['soon','live'].includes(encState(p)));
+const dropAll=()=>[...S.drops.values()].filter(d=>approved(d.shop)&&dropState(d)!=='end');
+let playSig='';
+function playRender(){ const tabs=$('#playTabs'), body=$('#playBody'), rf=$('#playRaffle'); if(!tabs||!body) return;
+  const E=encAll(), D=dropAll(), R=pubRaffles().filter(r=>['open','soon'].includes(rState(r)));
+  const eLive=E.filter(p=>encState(p)==='live').length, dLive=D.filter(d=>dropState(d)==='live').length;
+  if(!S.playTab) S.playTab=E.length?'enc':D.length?'drop':'raffle';
+  const T=S.playTab;
+  const sig=JSON.stringify([T,E.map(p=>p.id+encState(p)),D.map(d=>d.id+dropState(d)),R.length]);
+  if(sig===playSig&&body.firstChild!==undefined&&tabs.firstChild) return; playSig=sig;
+  const tb=(k,ic,l,n,hot)=>h('button',{type:'button','aria-pressed':String(T===k),class:hot?'hot':'',onclick:()=>{ S.playTab=k; playSig=''; renderRafflePage(); }}, h('i',{text:ic}), h('span',{text:l}), hot?h('em',{text:hot}):n?h('small',{text:String(n)}):null);
+  tabs.replaceChildren(tb('enc','⚔','遭遇戰',E.length,eLive?'出現中':''), tb('drop','🎁','福利組合',D.length,dLive?'開搶中':''), tb('raffle','🎲','抽獎',R.length,''));
+  rf.hidden=T!=='raffle';
+  if(T==='enc'){ const z=encZone(); body.replaceChildren(z?h('div',{class:'play-enc'}, z):h('div',{class:'play-empty'}, h('b',{text:'🥚'}), h('h3',{text:'目前沒有遭遇戰'}), h('p',{text:'追蹤喜歡的溫室，遭遇戰開始時會通知你'}), h('button',{type:'button',class:'btn soft',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}))); }
+  else if(T==='drop') body.replaceChildren(D.length?h('div',{class:'play-drop'}, ...D.sort((a,b)=>a.at-b.at).map(d=>dropView(d,{shop:true}))):h('div',{class:'play-empty'}, h('b',{text:'🎁'}), h('h3',{text:'目前沒有福利組合'}), h('button',{type:'button',class:'btn soft',onclick:()=>dropIntro(true),text:'福利組合怎麼玩？'})));
+  else body.replaceChildren(); }
+function playBadge(){ const E=encAll(), live=E.some(p=>encState(p)==='live'), D=dropAll().some(d=>dropState(d)==='live'), txt=live?'出現中':D?'開搶中':E.length?'孵化中':'';
+  document.querySelectorAll('.play-badge').forEach(b=>{ b.hidden=!txt; b.textContent=txt; b.className='play-badge'+(live?' live':''); }); }
+setInterval(()=>{ try{ playBadge(); if(PAGE==='raffle') playRender(); }catch(e){} },5000);
 function rafflePageOrig(box){
   const rs=pubRaffles(); box.replaceChildren();
   if (!rs.length){ box.append(h('div',{class:'empty'}, h('h3',{text:S.ready?'目前沒有抽獎':'載入中…'}), h('p',{text:'追蹤賣家，開抽時就不會錯過。'}))); return; }
@@ -7348,7 +7389,7 @@ $('#vcode').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefaul
 
 /* ---------- account ---------- */
 const sheet=$('#sheet');
-function renderNav(){
+function renderNav(){ try{ playBadge(); }catch(e){}
   let bb=$('#banBar'); if(S.me&&banned(S.me)){ if(!bb){ bb=h('div',{id:'banBar',class:'banbar'}); document.body.append(bb); } bb.textContent='你的帳號已被停權：'+(S.bans[S.me]?.reason||'違反平台規範')+'。如有疑問請聯絡 '+(storeContact()||'平台管理員')+'。'; } else if(bb) bb.remove();
   const b=$('#navMe'); b.replaceChildren(S.meInfo?.id&&S.meInfo.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:''}):svg('i-user'));
   const n=(S.prefs.favs||[]).length; $('#favBadge').hidden=!n; $('#favBadge').textContent=String(n);
