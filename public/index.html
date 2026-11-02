@@ -12307,8 +12307,8 @@ const encT0=p=>+p.startsAtMs||+p.aucStartAt||toMs(p.listedAt||p.createdAt)||0;
 function encHitsOf(pid){ let n=0,u=0; for(const x of S.encHits.values()) if(x.pid===pid){ n+=+x.n||0; u++; } return {n,u}; }
 // 攻擊：每一下讓降價時間快轉；越打越沒力，從 100% 慢慢降到 20% 後維持（永遠有效，價格最低到最低價）
 function encAdv(H,dur){ const b=dur/600; return H<=240?b*(H-H*H/600):b*144+b*.2*(H-240); }
-// 人越多越痛：每個人前 20 下全算、之後只算 15%（一個人打再久也佔不到便宜）；參戰人數越多，整體攻擊力倍率越高（1 人 ×0.7 … 5 人以上 ×2）
-const encG=n=>n<=20?n:20+.15*(n-20), encCrowd=u=>Math.min(2,.4+.3*Math.max(1,u));
+// 人越多越痛：每個人前 20 下全算、之後只算 15%（一個人打再久也佔不到便宜）；參戰人數越多，整體攻擊力倍率越高（1 人 ×0.1、2 人 ×0.8，之後每多 1 人 +0.3，最高 ×2）
+const encG=n=>n<=20?n:20+.15*(n-20), encCrowd=u=>u<=1?.1:Math.min(2,.8+.3*(u-2));
 function encEff(pid,extraMine=0){ let H=0,u=0,mine=false; for(const x of S.encHits.values()) if(x.pid===pid){ let n=+x.n||0; if(S.me&&x.uid===S.me){ n+=extraMine; mine=true; } if(n>0){ H+=encG(n); u++; } } if(!mine&&extraMine>0){ H+=encG(extraMine); u++; } return {H,u}; }
 function encAdvOf(pid,dur,extraMine=0){ const E=encEff(pid,extraMine); return encAdv(E.H,dur)*encCrowd(E.u); }
 function encCalc(p,now=Date.now(),extra=0){ const S0=+p.encStart, F=Math.min(Math.max(0,+p.encFloor||0),S0), R=Math.max(0,S0-F), dur=Math.max(6e4,+p.encDecay||36e5);

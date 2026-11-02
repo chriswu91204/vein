@@ -444,7 +444,7 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 // ===================== 遭遇戰：收服判定（伺服器擲骰，避免作弊）=====================
 // 價格公式和網站一致：起始價隨時間降到最低價；攻擊讓時間走快（最多快一半）；收服失敗會回血（時間倒退）
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
-const encG = n => n <= 20 ? n : 20 + 0.15 * (n - 20), encCrowd = u => Math.min(2, 0.4 + 0.3 * Math.max(1, u));
+const encG = n => n <= 20 ? n : 20 + 0.15 * (n - 20), encCrowd = u => u <= 1 ? 0.1 : Math.min(2, 0.8 + 0.3 * (u - 2));
 async function encHitsN(pid) { let H = 0, u = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { const n = +d.data().n || 0; if (n > 0) { H += encG(n); u++; } }); } catch (e) {} return { H, u }; }
 function encAdv(H, dur) { const b = dur / 600; return H <= 240 ? b * (H - H * H / 600) : b * 144 + b * 0.2 * (H - 240); }
 function encCalc(p, hits, now) {
