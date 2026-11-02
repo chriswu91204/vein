@@ -37,6 +37,8 @@ async function push(uid, title, body, link, tag) {
   logger.info('push', { uid, title, ok: res.successCount, fail: res.failureCount });
   return res.successCount;
 }
+// 訂單有新留言／對方更新 → 記給收的人，網站在那筆訂單上亮提示
+async function ordAct(uid, shop, oid, k) { if (!uid || !shop || !oid) return; try { await db.doc('ordAct/' + uid).set({ [shop + '~' + oid]: { at: Date.now(), k } }, { merge: true }); } catch (e) { logger.warn('ordAct', e.message); } }
 async function displayName(uid) {
   try { const s = await db.doc('shops/' + uid).get(); if (s.exists && s.data().name) return s.data().name; } catch (e) {}
   try { const p = await db.doc('profiles/' + uid).get(); if (p.exists && p.data().name) return p.data().name; } catch (e) {}
@@ -112,6 +114,7 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
   // 新訂單 → 賣家
   for (const [oid, o] of Object.entries(after.orders || {})) {
     const bo = (before.orders || {})[oid];
+    if (o.seller && (!bo || JSON.stringify({ c: bo.cancelled, r: bo.cancelReq, j: bo.cancelRej, s: bo.status, p: bo.paid }) !== JSON.stringify({ c: o.cancelled, r: o.cancelReq, j: o.cancelRej, s: o.status, p: o.paid }))) await ordAct(o.seller, o.seller, oid, 'upd');
     if (bo && !bo.cancelled && o.cancelled && o.seller) { await push(o.seller, o.cancelledBy === 'agree' ? '買家同意取消訂單' : '訂單已取消', me + (o.cancelledBy === 'agree' ? ' 同意取消訂單（' : ' 取消了訂單（') + nt(o.total) + '）', '/#orders/orders', 'order-' + oid); continue; }
     if (bo && o.seller && o.cancelReq && (!bo.cancelReq || bo.cancelReq.at !== o.cancelReq.at)) { await push(o.seller, '✋ 買家申請取消訂單', me + (o.cancelReq.why ? '：「' + String(o.cancelReq.why).slice(0, 40) + '」' : '') + '，請到訂單同意或不同意', '/#orders/orders', 'order-' + oid); continue; }
     if (bo && o.seller && o.cancelRej && (!bo.cancelRej || bo.cancelRej.at !== o.cancelRej.at)) { await push(o.seller, '買家不同意取消', me + ' 希望訂單繼續', '/#orders/orders', 'order-' + oid); continue; }
@@ -140,6 +143,8 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
 exports.pushOrder = onDocumentWritten({ document: 'shops/{shop}/orders/{oid}', ...HOT }, async ev => {
   const a = ev.data.after.exists ? ev.data.after.data() : null, b = ev.data.before.exists ? ev.data.before.data() : null;
   if (!a || !a.buyer) return;
+  if (b && ((a.cancelReq && (!b.cancelReq || b.cancelReq.at !== a.cancelReq.at)) || (a.cancelRej && (!b.cancelRej || b.cancelRej.at !== a.cancelRej.at)) || (b.status !== a.status && !['paid', 'done'].includes(a.status)) || JSON.stringify(a.ship || null) !== JSON.stringify(b.ship || null))) await ordAct(a.buyer, ev.params.shop, ev.params.oid, 'upd');
+  if (a.status === 'paid' && (!b || b.status !== 'paid')) await ordAct(ev.params.shop, ev.params.shop, ev.params.oid, 'upd');
   if (a.cancelReq && (!b || !b.cancelReq || b.cancelReq.at !== a.cancelReq.at)) { await push(a.buyer, '✋ 賣家申請取消訂單', '「' + (await displayName(ev.params.shop)) + '」' + (a.cancelReq.why ? '：' + String(a.cancelReq.why).slice(0, 40) : '') + '，請到訂單同意或不同意', '/#/me/orders', 'ord-' + ev.params.oid); return; }
   if (a.cancelRej && (!b || !b.cancelRej || b.cancelRej.at !== a.cancelRej.at)) { await push(a.buyer, '賣家不同意取消', '「' + (await displayName(ev.params.shop)) + '」希望訂單繼續', '/#/me/orders', 'ord-' + ev.params.oid); return; }
   if (b && b.status === a.status) return;
@@ -158,6 +163,7 @@ exports.pushOrdMsg = onDocumentCreated({ document: 'ordmsg/{shop}/o/{oid}/m/{mid
   if (!buyer && m.to && m.to !== shop) { try { const sd = await db.doc('social/' + m.to).get(); if (sd.exists && (((sd.data().orders || {})[oid]) || {}).seller === shop) buyer = m.to; } catch (e) {} }
   if (!buyer && !fromSeller) buyer = m.from;
   const to = fromSeller ? buyer : shop; if (!to || to === m.from) return;
+  await ordAct(to, shop, oid, 'msg');
   const body = (m.text ? String(m.text) : '') || (m.img ? '📷 傳了一張照片' : '新留言');
   const link = to === shop ? '/#orders/orders/' + encodeURIComponent(shop + '~' + oid) : '/#/me/orders/' + encodeURIComponent(shop + '~' + oid);
   await push(to, '📝 訂單留言 · ' + await displayName(fromSeller ? shop : m.from), body.slice(0, 120), link, 'om-' + oid);
@@ -449,7 +455,10 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
 const encCrowd = u => Math.min(5, Math.max(0, u) / 10);
 const ENC_FULL = 10000, ENC_GRACE = 45000, ENC_SHOW = 4200; // 開場 45 秒集合時間；收服動畫 4.2 秒，大家一起看完才公布
-async function encHitsN(pid) { let N = 0, u = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { const n = +d.data().n || 0; if (n > 0) { N += n; u++; } }); } catch (e) {} return { N, u }; }
+// 只算這一場的攻擊（r＝這場開始時間），重開後舊攻擊不算
+async function encHitsRaw(pid) { const L = []; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => L.push(d.data())); } catch (e) {} return L; }
+function encHitsSum(L, p) { const r = encT0(p); let N = 0, u = 0; for (const x of L) { const n = +x.n || 0; if (n > 0 && (+x.r || 0) === r) { N += n; u++; } } return { N, u }; }
+async function encHitsN(p) { return encHitsSum(await encHitsRaw(p.id), p); }
 function encCalc(p, hits, now) {
   const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
   const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p) - ENC_GRACE) - (+p.encHealMs || 0)) / dur)), A = (hits.N || 0) * encCrowd(hits.u || 0), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2);
@@ -470,7 +479,7 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
   try { const bn = await db.doc('encBan/' + t.uid).get(); if (bn.exists && (bn.data().perm || +bn.data().until > now)) return done({ res: 'ban' }); } catch (e) {}
   const cdRef = db.doc('encCd/' + t.pid + '~' + t.uid);
   try { const cd = await cdRef.get(); if (cd.exists && now - (+cd.data().at || 0) < ENC_CD) return done({ res: 'cd', cd: ENC_CD - (now - cd.data().at) }); } catch (e) {}
-  const hits = await encHitsN(t.pid), pref = db.doc(`shops/${t.shop}/plants/${t.pid}`);
+  const hitsL = await encHitsRaw(t.pid), pref = db.doc(`shops/${t.shop}/plants/${t.pid}`);
   let out;
   try {
     out = await db.runTransaction(async tx => {
@@ -479,6 +488,7 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
       if (!encLiveAt(p, n2) || t.uid === t.shop) return { res: 'late' };
       if (n2 < encT0(p) + ENC_GRACE) return { res: 'ready' };
       if (p.encCatch && n2 < +p.encCatch.until) return { res: 'wait' };
+      const hits = encHitsSum(hitsL, p);
       const c = encCalc(p, hits, n2), ch = encChance(c.hp), roll = require('crypto').randomInt(0, 1e6) / 1e6;
       const fl = c.floor && !p.encFloorAt ? { encFloorAt: n2 } : {};
       if (roll < ch) {
@@ -507,7 +517,7 @@ exports.encSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Tai
     let snap; try { snap = await sd.collection('plants').where('mode', '==', 'encounter').get(); } catch (e) { continue; }
     for (const d of snap.docs) {
       const p = { id: d.id, shop: sd.id, ...d.data() }; if (!encLiveAt(p, now)) continue;
-      if (!p.encFloorAt) { const c = encCalc(p, await encHitsN(p.id), now); if (c.floor) await d.ref.update({ encFloorAt: now }).catch(() => {}); }
+      if (!p.encFloorAt) { const c = encCalc(p, await encHitsN(p), now); if (c.floor) await d.ref.update({ encFloorAt: now }).catch(() => {}); }
       if (!p.startNoted && encT0(p) <= now) {
         await d.ref.update({ startNoted: now }).catch(() => {});
         if (now - encT0(p) > 15 * 6e4) continue;

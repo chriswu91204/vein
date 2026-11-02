@@ -219,16 +219,22 @@ service cloud.firestore {
     function encOK() { return !exists(/databases/$(database)/documents/encBan/$(request.auth.uid))
       || (get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('perm', false) == false
         && get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('until', 0) < request.time.toMillis()); }
+    match /ordAct/{uid} {
+      allow read: if isMe(uid);
+    }
     match /encBan/{uid} {
       allow read: if isMe(uid) || isAdmin();
     }
     match /encHits/{id} {
       allow read: if true;
       allow create: if signedIn() && notBanned() && encOK() && request.resource.data.uid == request.auth.uid && id == request.resource.data.pid + '~' + request.auth.uid
-        && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 60;
+        && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'r', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 60;
       allow update: if signedIn() && encOK() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && request.resource.data.pid == resource.data.pid
-        && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= resource.data.n
-        && request.resource.data.n <= resource.data.n + 60 && request.resource.data.n <= 300000;
+        && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'r', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0
+        && (request.resource.data.get('r', 0) == resource.data.get('r', 0)
+              ? (request.resource.data.n >= resource.data.n && request.resource.data.n <= resource.data.n + 60)
+              : (request.resource.data.get('r', 0) > resource.data.get('r', 0) && request.resource.data.n <= 60))
+        && request.resource.data.n <= 300000;
     }
     // 遭遇戰：收服（伺服器擲骰後把結果寫回）
     match /encTry/{id} {
