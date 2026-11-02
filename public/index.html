@@ -4132,6 +4132,14 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .bc-h{display:flex;flex-direction:column;gap:8px}
 .bc-r{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
 .bc-r>div{display:flex;flex-direction:column;min-width:0}.bc-r span{font-size:13px;color:var(--fg2)}.bc-r small{font-size:11.5px;color:var(--fg2)}
+.myst{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;text-decoration:none;color:#fff;background:radial-gradient(120% 80% at 50% 110%,#5A1A06,#1A0A05 55%,#0B0605);box-shadow:inset 0 0 0 1px rgba(255,140,60,.25);min-height:260px}
+.myst-i{flex:1;display:grid;place-items:center;padding:18px 0 6px;min-height:170px}
+.myst-i .ez-egg{width:92px;height:120px}
+.myst-t{display:flex;flex-direction:column;gap:2px;padding:10px 12px 14px}
+.myst-s{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:rgba(255,220,180,.9)}.myst-s .av{border-radius:50%;object-fit:cover}
+.myst-t small{color:#FFB36B;font-size:11.5px;margin-top:4px}.myst-t b{font-size:20px;color:#FFF3B0;text-shadow:0 0 12px rgba(255,140,30,.7)}
+.myst-p{font-size:12px;color:rgba(255,255,255,.6)}
+.myst.row{flex-direction:row;min-height:0;align-items:center}.myst.row .myst-i{flex:none;width:90px;min-height:0;padding:8px}.myst.row .ez-egg{width:56px;height:73px}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -5620,6 +5628,7 @@ function featStrip(){ const FP=featNowIds().map(id=>S.plants.get(id)).filter(p=>
     h('div',{class:'ftx-g'}, ...FP.map((p,i)=>activate(h('article',{class:'ftx-c',style:'--d:'+i}, h('div',{class:'ftx-i'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{class:'ftx-crown',text:'👑'}), h('i',{class:'ftx-sh'})),
       h('div',{class:'ftx-t'}, h('small',{text:shopName(p.shop)}), h('b',{text:pName(p)}), h('span',{class:'mono',text:p.code}), h('strong',{text:priceLabel(p).main}))), ()=>openPlant(p.id))))); }
 function tile(p){
+  if (mystery(p)) return mysteryTile(p);
   if (p.__g||p.__c){ const el=groupTile(p), FT=isFeat(p), PN=!FT&&isPin(p); if(FT||PN){ el.classList.add(FT?'bst-ft':'bst-pn'); (el.querySelector('.ti,.gt-i')||el).append(...bstDeco(FT)); if(FT) el.append(h('span',{class:'bst-crown',text:'👑'})); } return el; }
   const first=p.coverThumb||p.thumb, two=!!(p.coverThumb&&p.coverThumb!==p.thumb), L=live(p), pl=priceLabel(p);
   const kick=L?h('div',{class:'k live'},'競標中 · 剩 ',h('span',{'data-ends':String(p.endsAtMs),text:fmtLeft(p.endsAtMs-Date.now())})):aucSoon(p)?h('div',{class:'k live'},'⏰ 開始倒數 ',h('span',{'data-ends':String(p.startsAtMs),text:fmtLeft(p.startsAtMs-Date.now())})):isAuc(p)?h('div',{class:'k',style:'color:var(--fg2)',text:'競標已結束'}):h('div',{class:'k',text:(Date.now()-toMs(p.createdAt)<7*864e5?'新到 · ':'')+(p.photoCount||1)+' 筆成長紀錄'});
@@ -6138,7 +6147,7 @@ function techRow(o){
   REDUCE?sec.classList.add('in'):trIO.observe(sec);
   return sec;
 }
-function aucCard(p){ const t=topBid(p.id), n=bidsFor(p.id).length, SN=aucSoon(p);
+function aucCard(p){ if(mystery(p)) return mysteryTile(p); const t=topBid(p.id), n=bidsFor(p.id).length, SN=aucSoon(p);
   const FT=isFeat(p), PN=!FT&&isPin(p);
   return spot(activate(h('article',{class:'lot'+(SN?' soon':'')+(FT?' bst-ft':PN?' bst-pn':'')}, FT?h('span',{class:'bst-crown',text:'👑'}):null, h('div',{class:'lot-i'}, pv(p), h('span',{class:'tag '+(SN?'lime':'live'),text:SN?'⏰ 即將開始':'LIVE'}), favBtn(p.id), ...(FT||PN?bstDeco(FT):[])),
     h('div',{class:'lot-h'}, h('div',{class:'lot-l mono'}, h('span',{text:'LOT '+p.code.slice(-4)}), h('span',{text:n+' BIDS'})),
@@ -6981,7 +6990,7 @@ function bfSort0(list,s){
 }
 function countBy(list,fn){ const m=new Map(); list.forEach(p=>[].concat(fn(p)).forEach(k=>{ if(k!=null&&k!=='') m.set(k,(m.get(k)||0)+1); })); return m; }
 /* 商品清單列（清單檢視） */
-function listRow(p){ const L=live(p), pl=priceLabel(p), inCart=cartIds().includes(p.id), own=p.shop===S.me;
+function listRow(p){ if(mystery(p)) return mysteryTile(p,true); const L=live(p), pl=priceLabel(p), inCart=cartIds().includes(p.id), own=p.shop===S.me;
   return activate(h('article',{class:'lrow'+(p.status==='sold'?' sold':'')},
     h('div',{class:'lr-i'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), L?h('span',{class:'tag live',text:'LIVE'}):null, favBtn(p.id)),
     h('div',{class:'lr-m'}, shopChip(p.shop,true), h('b',{class:'lr-n',text:short(p.species)}), h('span',{class:'lr-s',text:[normSp(p.species),spCn(p.species),p.cultivar].filter(Boolean).join(' · ')}), memoEl(p),
@@ -11219,7 +11228,7 @@ function chatConv(cid,opt={}){
   box.__destroy=()=>{ CH.views.delete(view); chatUnsub(cid); };
   return box;
 }
-function prodMini(p){ const st=saleState(p), L=live(p), tg=L?['live','LIVE · 剩 '+fmtLeft(p.endsAtMs-Date.now())]:p.status==='sold'?['grey','已售出']:onSale(p)?(isAuc(p)?['grey','競標']:['buy',p.grp?'群組 · 可挑編號':'直購']):['grey',st[1].split(' · ')[0]];
+function prodMini(p){ if(mystery(p)) return mysteryTile(p,true); const st=saleState(p), L=live(p), tg=L?['live','LIVE · 剩 '+fmtLeft(p.endsAtMs-Date.now())]:p.status==='sold'?['grey','已售出']:onSale(p)?(isAuc(p)?['grey','競標']:['buy',p.grp?'群組 · 可挑編號':'直購']):['grey',st[1].split(' · ')[0]];
   return h('a',{class:'cm-prod cm-prod2',href:'#/plant/'+encodeURIComponent(p.id),onclick:e=>{ e.preventDefault(); openPlant(p.id); }}, h('span',{class:'cmp-i'}, h('img',{src:cover(p),alt:''}), (p.media||[]).length>1?h('i',{text:'▦ '+(p.media||[]).length}):null), h('span',{class:'cmp-t'}, h('em',{class:'pk2-t '+tg[0],text:tg[1]}), h('b',{text:pName(p)}), h('code',{text:p.code}), memoOf(p)?h('small',{text:memoOf(p)}):null, h('strong',{class:onSale(p)?'':'dim',text:onSale(p)?priceLabel(p).main:(p.photoCount||0)+' 筆成長紀錄'}))); }
 function toastStay(msg){ const t=h('div',{class:'toast',text:msg}); document.body.append(t); return {set:x=>t.textContent=x,done:()=>t.remove()}; }
 
@@ -12449,6 +12458,14 @@ function admBcast(m){ m.append(admTop('推播通知'));
   const un=S.db.collection('broadcast').orderBy('at','desc').limit(20).onSnapshot(sn=>{ if(!hist.isConnected){ try{ un(); }catch(e){} return; }
     hist.replaceChildren(...(sn.docs.length?sn.docs.map(d=>{ const x=d.data(); return h('div',{class:'bc-r'}, h('div',{}, h('b',{text:x.title}), h('span',{text:x.body}), h('small',{text:fmtDate(tsLocal(x.at))+' · '+({all:'全部會員',sellers:'賣家',buyers:'買家'}[x.target]||'全部')})),
       h('span',{class:'tag '+(x.done?'lime':'grey'),text:x.done?'送達 '+(x.sent||0)+' 台':'傳送中…'})); }):[h('p',{class:'hint',text:'還沒有推播紀錄'})])); },()=>{}); }
+
+
+/* 孵化中的遭遇戰：所有列表都只顯示蛋，不露出植物 */
+function mysteryTile(p,row){ const cd=h('b',{class:'mono'}), egg=ezEgg(p.id); egg.style.animationDuration='2.6s';
+  const el=h('a',{class:'myst'+(row?' row':''),href:'#/plant/'+p.id}, h('div',{class:'myst-i'}, egg),
+    h('div',{class:'myst-t'}, h('span',{class:'myst-s'}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), h('small',{text:encState(p)==='end'?'💨 頭目逃跑了':'🥚 遭遇戰 · 孵化倒數'}), cd, h('span',{class:'myst-p',text:'起始 '+money(p.encStart)})));
+  const up=()=>{ const q=S.plants.get(p.id)||p; if(encState(q)!=='soon'){ cd.textContent=''; return; } cd.textContent=fmtLeft(q.startsAtMs-Date.now()); egg.__stage(ezStage(q.startsAtMs-Date.now())); };
+  up(); const iv=setInterval(()=>{ if(!el.isConnected){ clearInterval(iv); return; } up(); },1000); return el; }
 
 /* ---- 賣家後台：遭遇戰管理 ---- */
 function admEnc(m){ const me=S.work?.shop||S.me, ok=isVerified(me);
