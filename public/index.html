@@ -4190,6 +4190,10 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .et-hb i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7BE35A,#D4F25A);transition:width .6s}
 .etile[data-hp=mid] .et-hb i{background:linear-gradient(90deg,#FFB020,#FFE066)}.etile[data-hp=low] .et-hb i{background:linear-gradient(90deg,#FF3B30,#FF8A5B)}
 .et-pr{display:flex;align-items:baseline;justify-content:space-between;gap:6px}.et-pr b{font-size:19px;color:#FFE36B}.et-pr small{font-size:11px;color:rgba(255,255,255,.6)}
+.ec .ec-p{display:flex;flex-direction:column;align-items:center;padding:8px 18px;border-radius:16px;background:#F4F8E4;margin:2px 0 4px}.ec .ec-p small{font-size:11px;color:#6B6E6C}.ec .ec-p b{font-size:24px}
+.ec-l{margin:4px 0;padding:0 0 0 18px;text-align:left;font-size:13.5px;color:#3A3D3B;line-height:1.7;align-self:stretch}
+.ec-c{display:flex;gap:8px;align-items:flex-start;text-align:left;font-size:14px;font-weight:700;padding:10px 12px;border-radius:14px;background:#FFF8E1;align-self:stretch;cursor:pointer}
+.ec-c input{width:20px;height:20px;margin-top:1px;accent-color:#7FA300;flex:none}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -12307,7 +12311,7 @@ const encT0=p=>+p.startsAtMs||+p.aucStartAt||toMs(p.listedAt||p.createdAt)||0;
 function encHitsOf(pid){ let n=0,u=0; for(const x of S.encHits.values()) if(x.pid===pid){ n+=+x.n||0; u++; } return {n,u}; }
 // HP = 時間剩下的比例 ×（1 − 攻擊量/20000）² ＋ 回血。HP 越低攻擊越沒力，但一定打得完
 // 攻擊量 = 全場總攻擊次數 × 人數倍率＝人數 ÷ 10（最高 ×5）：要打的總次數＝20 萬 ÷ 人數，每人＝20 萬 ÷ 人數²（1 人 20 萬下、20 人每人 500 下）
-const encCrowd=u=>Math.min(5,Math.max(0,u)/10), ENC_FULL=20000;
+const encCrowd=u=>Math.min(5,Math.max(0,u)/10), ENC_FULL=10000;
 function encEff(pid,extraMine=0){ let N=0,u=0,mine=false; for(const x of S.encHits.values()) if(x.pid===pid){ let n=+x.n||0; if(S.me&&x.uid===S.me){ n+=extraMine; mine=true; } if(n>0){ N+=n; u++; } } if(!mine&&extraMine>0){ N+=extraMine; u++; } return {N,u}; }
 function encHpAt(p,now,extra){ const dur=Math.max(6e4,+p.encDecay||36e5), tf=Math.max(0,Math.min(1,(Math.max(0,now-encT0(p))-(+p.encHealMs||0))/dur)), E=encEff(p.id,extra), ha=Math.pow(Math.max(0,1-E.N*encCrowd(E.u)/ENC_FULL),2);
   return {hp:Math.max(0,Math.min(1,(1-tf)*ha+(+p.encHealHp||0))),u:E.u}; }
@@ -12358,11 +12362,11 @@ function encPanel(p,deal){
     const a=s.animate([{transform:`translate(${fx0}px,${fy0}px) scale(.6) rotate(0deg)`,opacity:1},{transform:`translate(${(fx0+tx)/2}px,${Math.min(fy0,ty)-80}px) scale(1.5) rotate(200deg)`,opacity:1,offset:.55},{transform:`translate(${tx}px,${ty}px) scale(.9) rotate(400deg)`,opacity:1}],{duration:REDUCE?10:520,easing:'cubic-bezier(.3,.6,.4,1)'});
     a.onfinish=()=>{ s.remove(); if(!el.isConnected) return; mon.classList.remove('hit'); void mon.offsetWidth; mon.classList.add('hit'); const b=h('i',{class:'en-boom',style:`left:${tx-r.left}px;top:${ty-r.top}px`}); fx.append(b); setTimeout(()=>b.remove(),500); }; };
   // 長按 1 秒才丟出（防誤觸）：按住時進度條跑滿才收服，中途放開就取消
-  let lp=0, lpT0=0; const LP=1000; const ballEl=cap.querySelector('.en-ball'); ballEl.insertAdjacentHTML('beforeend','<svg class="en-rg" viewBox="0 0 60 60" aria-hidden="true"><circle class="bg" cx="30" cy="30" r="27"/><circle class="fg" cx="30" cy="30" r="27" pathLength="100"/></svg>'); const rg=ballEl.querySelector('.en-rg .fg'), prog=cap.querySelector('.en-prog');
+  let lp=0, lpT0=0; const LP=2000; const ballEl=cap.querySelector('.en-ball'); ballEl.insertAdjacentHTML('beforeend','<svg class="en-rg" viewBox="0 0 60 60" aria-hidden="true"><circle class="bg" cx="30" cy="30" r="27"/><circle class="fg" cx="30" cy="30" r="27" pathLength="100"/></svg>'); const rg=ballEl.querySelector('.en-rg .fg'), prog=cap.querySelector('.en-prog');
   const setP=k=>{ rg.style.strokeDashoffset=String(100-k*100); prog.style.transform='scaleX('+k+')'; ballEl.style.transform='scale('+(1+k*.18)+') rotate('+(k*25)+'deg)'; };
   const lpStop=()=>{ cancelAnimationFrame(lp); lp=0; cap.classList.remove('hold'); setP(0); };
   const lpRun=now=>{ const k=Math.min(1,(now-lpT0)/LP); setP(k); if(k>=1){ lpStop(); try{ navigator.vibrate?.(25); }catch(x){} encCapture(); return; } lp=requestAnimationFrame(lpRun); };
-  cap.addEventListener('pointerdown',e=>{ if(cap.disabled||busy) return; e.preventDefault(); try{ cap.setPointerCapture(e.pointerId); }catch(x){} lpT0=performance.now(); cap.classList.add('hold'); try{ navigator.vibrate?.(8); }catch(x){} lp=requestAnimationFrame(lpRun); });
+  cap.addEventListener('pointerdown',e=>{ if(cap.disabled||busy) return; e.preventDefault(); if(needLogin()||needPhone()||needRecv()) return; if(!lsGet('vein.encOK.'+pid,false)){ encConsent(S.plants.get(pid)||p); return; } try{ cap.setPointerCapture(e.pointerId); }catch(x){} lpT0=performance.now(); cap.classList.add('hold'); try{ navigator.vibrate?.(8); }catch(x){} lp=requestAnimationFrame(lpRun); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>cap.addEventListener(ev,()=>{ if(lp){ lpStop(); if(!busy) toast('要按住不放才會丟出去'); } }));
   cap.addEventListener('contextmenu',e=>e.preventDefault());
   cap.addEventListener('touchstart',e=>{ if(e.cancelable) e.preventDefault(); },{passive:false});
@@ -12390,7 +12394,7 @@ function encPanel(p,deal){
     await ball.animate([{transform:`translate(${br.left+24}px,${br.top}px) scale(.5) rotate(0)`},{transform:`translate(${(br.left+bx)/2}px,${sr.top-40}px) scale(1.2) rotate(360deg)`,offset:.5},{transform:`translate(${bx}px,${by}px) scale(1) rotate(720deg)`}],{duration:REDUCE?10:700,easing:'cubic-bezier(.25,.7,.4,1)',fill:'forwards'}).finished.catch(()=>{});
     mon.classList.add('sucked'); ball.classList.add('flash');
     let out=null; const t0=Date.now();
-    try{ const ref=S.db.collection('encTry').doc(); await ref.set({uid:S.me,pid,shop:pp.shop,price:c.price,at:Date.now()});
+    try{ const ref=S.db.collection('encTry').doc(); await ref.set({uid:S.me,pid,shop:pp.shop,price:c.price,ok:true,at:Date.now()});
       out=await new Promise(res=>{ let un=null; const to=setTimeout(()=>{ try{ un&&un(); }catch(x){} res({res:'busy'}); },20000); un=ref.onSnapshot(d=>{ const v=d.exists?d.data():null; if(v&&v.res){ clearTimeout(to); try{ un&&un(); }catch(x){} res(v); } },()=>{}); }); }
     catch(e){ out={res:'err'}; }
     ball.classList.add('wobble'); const wait=Math.max(0,(REDUCE?300:2700)-(Date.now()-t0)); await new Promise(r=>setTimeout(r,wait)); ball.classList.remove('wobble');
@@ -12412,7 +12416,7 @@ function encPanel(p,deal){
     const end=encEnd(pp), fl=!!pp.encFloorAt;
     tm.textContent=st==='soon'?'開始 '+fmtLeft(pp.startsAtMs-now):st==='live'?(fl?'最低價！剩 ':'剩 ')+fmtLeft(end-now):''; tm.classList.toggle('hot',st==='live'&&(fl||end-now<6e4));
     const pS=money(c.price); if(pr.textContent!==pS){ pr.textContent=pS; pr.classList.remove('tk'); void pr.offsetWidth; pr.classList.add('tk'); }
-    capPr.textContent=pS; chEl.textContent='成功率 '+encChance(c.hp)+'%';
+    capPr.textContent=pS; chEl.textContent=cap.classList.contains('hold')?'繼續按住…放開就取消':'成功率 '+encChance(c.hp)+'% · 成功即以此價購買';
     const w=(st==='won'||st==='end')?0:c.hp*100; hpF.style.width=w+'%'; hpG.style.width=w+'%'; hpT.textContent=Math.round(w)+'%'; el.dataset.hp=w<25?'low':w<55?'mid':'hi';
     cap.disabled=st!=='live'||busy; atk.classList.toggle('off',st!=='live');
     const H=encHitsOf(pid), tot=H.n+encPendOf(pid);
@@ -12630,6 +12634,18 @@ function aeLine(p){ const st=encState(p), now=Date.now();
   if(st==='won') return '被 '+nameOf(p.encDone?.uid||p.buyer)+' 收服 · '+money(p.encDone?.price||p.soldPrice||0);
   return '頭目逃跑了 · '+fledWhy(p)+' · '+fmtDate(tsLocal(Math.min(encEnd(p),now))); }
 
+/* 第一次收服前：確認「收服成功＝以當下價格購買」 */
+function encConsent(p){ const chk=h('input',{type:'checkbox'}), go=h('button',{type:'button',class:'btn lime gt-go',disabled:true,text:'我了解，開始收服'}), c=encCalc(p);
+  chk.onchange=()=>{ go.disabled=!chk.checked; };
+  const ov=h('div',{class:'gt-ov',onclick:e=>{ if(e.target===ov) close(); }}, h('div',{class:'gt ec'},
+    h('div',{class:'gt-ic',text:'🌱'}), h('b',{class:'gt-t',text:'收服成功＝購買'}),
+    h('div',{class:'ec-p'}, h('small',{text:'現在價格'}), h('b',{class:'mono',text:money(c.price)})),
+    h('ul',{class:'ec-l'}, h('li',{text:'收服成功，就以那一刻的價格成立訂單'}), h('li',{text:'價格一直在變，以成功當下為準'}), h('li',{text:'成功後要取消，需要賣家同意'})),
+    h('label',{class:'ec-c'}, chk, h('span',{text:'我了解，收服成功即同意以該價格購買'})), go,
+    h('button',{type:'button',class:'gt-no',onclick:()=>close(),text:'先不要'})));
+  go.onclick=()=>{ lsSet('vein.encOK.'+p.id,true); close(); toast('長按膠囊 2 秒丟出'); };
+  function close(){ ov.classList.add('out'); setTimeout(()=>ov.remove(),180); blDone('encok'); }
+  topHost().append(ov); blPush('encok',()=>ov.remove()); }
 /* ---- 玩法介紹視窗（遭遇戰、福利組合共用）---- */
 function playIntro(o){ const host=topHost(); let i=0;
   const ov=h('div',{class:'pi-ov '+(o.cls||''),onclick:e=>{ if(e.target===ov) close(); }});
