@@ -4234,6 +4234,18 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ec-w b{font-size:14px;color:#B52A1C}
 .ec-wl{display:flex;flex-direction:column;gap:4px;margin-top:6px;font-size:13px;color:#5A2A22}
 .ec-wl span{display:flex;align-items:center;gap:8px}.ec-wl i{font-style:normal;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;background:#E84A3A;color:#fff;flex:none}
+.rlc{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin:10px 0 4px;cursor:pointer;user-select:none}
+.rlc-c{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:16px;background:#F4F8E4;text-align:left;min-height:64px}
+.rlc.rlc-dk .rlc-c{background:rgba(8,10,8,.62)!important;color:#fff!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);backdrop-filter:blur(4px)}
+.rlc.rlc-dk .rlc-c b{color:#fff}.rlc.rlc-dk .rlc-c small{color:rgba(255,255,255,.75);opacity:1}
+.rlc-c>i{font-style:normal;font-size:26px;flex:none;width:40px;text-align:center}
+.rlc-c b{display:block;font-size:15px}.rlc-c small{display:block;font-size:12.5px;opacity:.72;margin-top:2px}
+.rlc-c.in{animation:rlcIn .45s ease-out}
+@keyframes rlcIn{from{opacity:0;transform:translateY(6px)}}
+.rlc-d{display:flex;gap:5px}.rlc-d i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.25}.rlc-d i.on{opacity:.9;width:16px;border-radius:3px}
+.ms .rlc{color:#fff;margin:12px 0 2px}
+.en-rules{color:#fff;margin:8px 0 0}
+.en-hint{margin:2px 0 -4px;text-align:center;font-size:12.5px;color:rgba(255,255,255,.75)}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -12365,7 +12377,7 @@ function encCalc(p,now=Date.now(),extra=0){ const S0=+p.encStart, F=Math.min(Mat
   return {price,hp:R?(price-F)/R:0,F,S0,R,floor:a.hp<=.0005,hitVal:Math.max(0,R*(a.hp-b.hp)),crowd:encCrowd(a.u)}; }
 const encIdle=p=>+p.encIdle||10*6e4;
 function encEnd(p){ let e=+p.endsAtMs||Infinity; if(p.encFloorAt) e=Math.min(e,+p.encFloorAt+encIdle(p)); return e; }
-const ENC_CATCH=4200, ENC_GRACE=120000;
+const ENC_CATCH=4200, ENC_GRACE=45000;
 const encReady=(p,now=Date.now())=>now<encT0(p)+ENC_GRACE;
 function encState(p,now=Date.now()){ if(!isEnc(p)) return null; if(p.encCatch&&now<+p.encCatch.until) return 'catch'; if(p.encDone&&now<(+p.encDone.at||0)+ENC_CATCH) return 'catch'; if(p.encDone||p.status==='sold'||p.status==='reserved') return 'won'; if(+p.startsAtMs>now) return 'soon'; if(now>=encEnd(p)) return 'end'; return 'live'; }
 const encLive=p=>encState(p)==='live';
@@ -12374,7 +12386,7 @@ const encBanned=()=>{ const b=S.encBan; if(!b) return null; if(b.perm) return {p
 const encBanMsg=()=>{ const b=encBanned(); return !b?'':b.perm?'你取消過 3 次遭遇戰訂單，遭遇戰功能已永久鎖定':'你取消過遭遇戰訂單，遭遇戰功能鎖定到 '+fmtDate(tsLocal(b.until)); };
 const mystery=p=>isEnc(p)&&(encState(p)==='soon'||(encState(p)==='end'&&p.encClosed==='soon'));
 const fledWhy=p=>p.encClosed?'賣家提前收兵':p.encFloorAt&&Date.now()>=+p.encFloorAt+encIdle(p)?'掉到最低價也沒人收服':'時間到了，沒人收服';
-const encChance=hp=>Math.round((0.12+0.83*Math.pow(Math.max(0,Math.min(1,hp)),0.7))*100);
+const encChance=hp=>Math.round((0.03+0.92*Math.pow(Math.max(0,Math.min(1,hp)),1.6))*100);
 const ENC_EMO=['🔥','⚡','💥','🗡️','❄️','🌪️'];
 const ENCQ={pend:new Map(),t:0,last:0,burst:[]};
 function encFlush(){ clearTimeout(ENCQ.t); ENCQ.t=0; if(!S.db||!S.me) return;
@@ -12390,7 +12402,9 @@ function encPanel(p,deal){
   const img=h('img',{src:cover(p),alt:''}), mon=h('div',{class:'en-mon'}, h('i',{class:'en-ring r1'}), h('i',{class:'en-ring r2'}), h('div',{class:'en-face'}, img), h('i',{class:'en-shd'}));
   const hpF=h('i',{class:'en-hpf'}), hpG=h('i',{class:'en-hpg'}), hpT=h('b',{class:'en-hpt mono'});
   const pr=h('b',{class:'en-pr mono'}), stTag=h('span',{class:'en-st'}), tm=h('span',{class:'en-tm mono'}), fx=h('div',{class:'en-fx'}), crowd=h('div',{class:'en-cr'});
-  const chEl=h('small',{}), capPr=h('b',{}), cap=h('button',{type:'button',class:'en-cap'}, h('i',{class:'en-prog'}), h('span',{class:'en-ball'}, h('i')), h('span',{class:'en-ct'}, h('span',{}, '長按收服 ', capPr), chEl));
+  const chEl=h('small',{}), capPr=h('b',{}), cap=h('button',{type:'button',class:'en-cap'}, h('i',{class:'en-prog'}), h('span',{class:'en-ball'}, h('i')), h('span',{class:'en-ct'}, h('span',{}, '長按 · 用 ', capPr, ' 買下'), chEl));
+  const capHint=h('p',{class:'en-hint',text:'👇 覺得價格可以就長按，有機會用這個價格買到'});
+  const rulesEl=encRules(true); rulesEl.classList.add('en-rules');
   const atk=h('div',{class:'en-atk'}, ...ENC_EMO.map(e=>h('button',{type:'button',class:'en-e','aria-label':'攻擊',onclick:ev=>encAttack(e,ev.currentTarget)}, h('span',{text:e}))));
   const res=h('div',{class:'en-res',hidden:true}), stage=h('div',{class:'en-stage'}, h('div',{class:'en-grid'}), mon, fx);
   const el=h('div',{class:'enc','data-pid':pid},
@@ -12398,7 +12412,8 @@ function encPanel(p,deal){
     h('div',{class:'en-hp'}, h('span',{class:'en-hpl',text:'HP'}), h('div',{class:'en-hpb'}, hpG, hpF, h('i',{class:'en-hpseg'})), hpT),
     stage,
     h('div',{class:'en-prw'}, h('small',{text:'現在價格'}), pr, h('div',{class:'en-rng'}, h('span',{text:'最低 '+money(p.encFloor)}), h('span',{text:'起始 '+money(p.encStart)}))),
-    own?h('p',{class:'en-own',text:'你的遭遇戰 · 等訓練家來收服'}):h('div',{class:'en-ctl'}, atk, cap),
+    rulesEl,
+    own?h('p',{class:'en-own',text:'你的遭遇戰 · 等訓練家來收服'}):h('div',{class:'en-ctl'}, atk, capHint, cap),
     crowd, res);
   deal.replaceChildren(el);
   let lastN=null, lastPrice=null, lastHeal=(+p.encHealMs||0)+(+p.encHealHp||0), dmgAcc=0, dmgT=0, busy=false, cdUntil=0, st0=null;
@@ -12468,7 +12483,7 @@ function encPanel(p,deal){
     const end=encEnd(pp), fl=!!pp.encFloorAt;
     tm.textContent=rdy?'開打倒數 '+fmtLeft(encT0(pp)+ENC_GRACE-now):st==='soon'?'開始 '+fmtLeft(pp.startsAtMs-now):st==='live'?(fl?'最低價！剩 ':'剩 ')+fmtLeft(end-now):''; tm.classList.toggle('hot',st==='live'&&(fl||end-now<6e4));
     const pS=money(c.price); if(pr.textContent!==pS){ pr.textContent=pS; pr.classList.remove('tk'); void pr.offsetWidth; pr.classList.add('tk'); }
-    capPr.textContent=pS; chEl.textContent=cap.classList.contains('hold')?'繼續按住…放開就取消':'成功率 '+encChance(c.hp)+'% · 成功即以此價購買';
+    capPr.textContent=pS; chEl.textContent=cap.classList.contains('hold')?'繼續按住…放開就取消':'收服成功率 '+encChance(c.hp)+'%'; rulesEl.hidden=!(rdy||st==='soon'); capHint.hidden=st!=='live'||rdy;
     const w=(st==='won'||st==='end')?0:c.hp*100; hpF.style.width=w+'%'; hpG.style.width=w+'%'; hpT.textContent=Math.round(w)+'%'; el.dataset.hp=w<25?'low':w<55?'mid':'hi';
     cap.disabled=st!=='live'||busy||rdy; atk.classList.toggle('off',st!=='live'||rdy);
     const H=encHitsOf(pid), tot=H.n+encPendOf(pid);
@@ -12606,7 +12621,7 @@ function mysteryScreen(box,p){ const id=p.id, cd=h('b',{class:'ms-cd mono'}), st
     h('a',{class:'ms-shop',href:'#/seller/'+p.shop}, avatar(p.shop,26), h('span',{text:shopName(p.shop)})),
     (p.shop===S.me||p.shop===S.work?.shop)?h('button',{type:'button',class:'ms-own',onclick:()=>{ go('#admin/enc'); },text:'這是你的遭遇戰 · 到後台管理 →'}):null,
     h('small',{class:'ms-k mono',text:'MYSTERY ENCOUNTER'}),
-    stg, h('small',{class:'ms-lb',text:'孵化倒數'}), cd,
+    stg, h('small',{class:'ms-lb',text:'孵化倒數'}), cd, encRules(true),
     h('div',{class:'ms-info'}, h('div',{}, h('small',{text:'起始價'}), h('b',{class:'mono',text:money(p.encStart)})), h('div',{}, h('small',{text:'最低價'}), h('b',{class:'mono',text:money(p.encFloor)})), h('div',{}, h('small',{text:'開始'}), h('b',{text:fmtHM(p.startsAtMs)}))),
     fav, h('button',{type:'button',class:'ms-how',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}));
   box.replaceChildren(h('div',{class:'ms-page'}, wrap)); paintFav(); if(p.shop===S.me||p.shop===S.work?.shop) fav.remove();
@@ -12686,6 +12701,13 @@ function aeLine(p){ const st=encState(p), now=Date.now();
   if(st==='won') return '被 '+nameOf(p.encDone?.uid||p.buyer)+' 收服 · '+money(p.encDone?.price||p.soldPrice||0);
   return '頭目逃跑了 · '+fledWhy(p)+' · '+fmtDate(tsLocal(Math.min(encEnd(p),now))); }
 
+/* 遭遇戰規則輪播（等孵化、集合時間顯示）：一次一句，清楚不花 */
+const ENC_RULES=[['🥚','破殼後先集合 45 秒','這段時間價格不動，等大家到齊'],['📉','價格＝HP','時間越久、被打越多，價格越低'],['🔥','一起丟表情攻擊','參戰的人越多，價格掉得越快'],['🌱','覺得價格可以，就長按收服','有機會用當下的價格買到'],['🎲','價格越低越難收服','失敗的話植物會大回血、價格回升'],['✅','收服成功＝買下','以成功那一刻的價格成立訂單']];
+function encRules(dark){ let i=0; const ic=h('i'), b=h('b'), s=h('small'), dots=h('span',{class:'rlc-d'}, ...ENC_RULES.map(()=>h('i')));
+  const el=h('div',{class:'rlc'+(dark?' rlc-dk':'')}, h('div',{class:'rlc-c'}, ic, h('div',{}, b, s)), dots);
+  const show=()=>{ const [x,y,z]=ENC_RULES[i]; ic.textContent=x; b.textContent=y; s.textContent=z; el.querySelector('.rlc-c').classList.remove('in'); void el.offsetWidth; el.querySelector('.rlc-c').classList.add('in'); dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i)); };
+  show(); const iv=setInterval(()=>{ if(!el.isConnected){ clearInterval(iv); return; } i=(i+1)%ENC_RULES.length; show(); },3800);
+  el.onclick=()=>{ i=(i+1)%ENC_RULES.length; show(); }; return el; }
 /* 第一次收服前：確認「收服成功＝以當下價格購買」 */
 function encConsent(p){ const chk=h('input',{type:'checkbox'}), go=h('button',{type:'button',class:'btn lime gt-go',disabled:true,text:'我了解，開始收服'}), c=encCalc(p);
   chk.onchange=()=>{ go.disabled=!chk.checked; };
