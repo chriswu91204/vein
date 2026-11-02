@@ -4120,6 +4120,13 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ms.fleeing .ez-egg{animation:msRoll 1.5s cubic-bezier(.5,0,.9,.5) forwards}
 @keyframes msRoll{0%{transform:none;opacity:1;filter:none}20%{transform:rotate(-18deg)}100%{transform:translateX(320px) rotate(560deg);opacity:0}}
 .ms.fled .ms-cd{color:#FFB36B;font-size:32px;animation:none}
+.bc{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
+@media (max-width:760px){.bc{grid-template-columns:1fr}}
+.bc-pv{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:20px;background:rgba(245,245,245,.92);box-shadow:0 10px 30px -14px rgba(0,0,0,.35);max-width:380px}
+.bc-pv img{width:38px;height:38px;border-radius:10px}.bc-pv div{display:flex;flex-direction:column;min-width:0}.bc-pv small{color:#888;font-size:11px}.bc-pv b{font-size:14.5px}.bc-pv span{font-size:13.5px;color:#333}
+.bc-h{display:flex;flex-direction:column;gap:8px}
+.bc-r{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.bc-r>div{display:flex;flex-direction:column;min-width:0}.bc-r span{font-size:13px;color:var(--fg2)}.bc-r small{font-size:11.5px;color:var(--fg2)}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -9814,6 +9821,7 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if (T==='house'&&S.admin) return admHouse(main);
   if (T==='mod'&&S.admin) return admMod(main);
   if (T==='users'&&S.admin) return admUsers(main);
+  if (T==='bcast'&&S.admin) return admBcast(main);
   if (T==='site'&&S.admin) return admSite(main);
   if (T==='sfront'&&S.admin) return admStorefront(main);
   if (T==='spot'&&S.admin) return admSpot(main);
@@ -9836,7 +9844,7 @@ function renderAdmNav(){
     {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
-  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
+  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return (S.admTab==='lot'||(S.admTab==='new'&&S.newPreset?.list)?'list':S.admTab)===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });
@@ -12334,6 +12342,28 @@ function mysteryScreen(box,p){ const id=p.id, cd=h('b',{class:'ms-cd mono'}), st
 function msFled(wrap,anim){ wrap.classList.add('fled'); if(anim&&!REDUCE) wrap.classList.add('fleeing');
   const t=wrap.querySelector('.ms-t'), lb=wrap.querySelector('.ms-lb'), cd=wrap.querySelector('.ms-cd'), fav=wrap.querySelector('.ms-fav');
   if(lb) lb.textContent='孵化取消'; if(cd) cd.textContent='頭目逃跑了'; if(fav) fav.remove(); wrap.querySelector('.ms-info div:last-child')?.remove(); const ms=wrap.querySelector('.ms-info'); if(ms) ms.style.gridTemplateColumns='1fr 1fr'; }
+
+/* ---- 管理員：推播通知給全站 ---- */
+function admBcast(m){ m.append(admTop('推播通知'));
+  const LINKS=[['/','首頁'],['/#/store/auction','競標'],['/#/store/mall','商城'],['/#/raffle','抽獎'],['/#/guide','教學'],['custom','自訂連結']];
+  const ti=h('input',{maxlength:40,placeholder:'例如 🎉 新玩法上線：遭遇戰'}), bd=h('textarea',{rows:3,maxlength:120,placeholder:'例如 野生植物出現了！丟表情攻擊、按下收服，價格越低越難收服'});
+  const lk=h('select',{}, ...LINKS.map(([v,l])=>h('option',{value:v,text:l}))), cu=h('input',{placeholder:'/#/seller/... 或 /#/plant/...',hidden:true}), tg=h('select',{}, h('option',{value:'all',text:'全部會員'}), h('option',{value:'sellers',text:'只有賣家'}), h('option',{value:'buyers',text:'只有買家（非賣家）'}));
+  lk.onchange=()=>{ cu.hidden=lk.value!=='custom'; };
+  const pvT=h('b',{}), pvB=h('span',{}), pv=h('div',{class:'bc-pv'}, h('img',{src:'/icon-192.png',alt:''}), h('div',{}, h('small',{text:'VEIN · 現在'}), pvT, pvB));
+  const sync=()=>{ pvT.textContent=ti.value||'通知標題'; pvB.textContent=bd.value||'通知內容'; }; ti.oninput=sync; bd.oninput=sync; sync();
+  const msg=h('p',{class:'hint'}), send=h('button',{type:'button',class:'btn lime',text:'送出推播'});
+  send.onclick=async()=>{ const title=ti.value.trim(), body=bd.value.trim(), link=lk.value==='custom'?cu.value.trim():lk.value;
+    if(!title||!body){ msg.textContent='請填標題和內容'; return; } if(link&&!/^\/(#\/.*)?$/.test(link)){ msg.textContent='連結要以 / 或 /#/ 開頭'; return; }
+    if(!confirm('確定推播給「'+tg.selectedOptions[0].text+'」？送出後無法收回。')) return;
+    send.disabled=true; try{ await S.db.collection('broadcast').doc().set({title,body,link:link||'/',target:tg.value,by:S.realMe||S.me,at:Date.now()}); toast('推播已送出'); ti.value=''; bd.value=''; sync(); msg.textContent='已送出，稍後下方會顯示送達數量'; }
+    catch(e){ msg.textContent='送出失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } finally{ send.disabled=false; } };
+  const hist=h('div',{class:'bc-h'});
+  m.append(h('div',{class:'bc'}, h('div',{class:'bc-f form'}, field('標題',ti), field('內容',bd), h('div',{class:'two'}, field('點了打開',lk), field('發送對象',tg)), cu, h('small',{class:'hint',text:'預覽'}), pv, h('div',{class:'row',style:'gap:10px;align-items:center'}, send, msg)), h('div',{}, h('h4',{text:'最近的推播'}), hist)));
+  if(m.__bcUn) try{ m.__bcUn(); }catch(e){}
+  const un=S.db.collection('broadcast').orderBy('at','desc').limit(20).onSnapshot(sn=>{ if(!hist.isConnected){ try{ un(); }catch(e){} return; }
+    hist.replaceChildren(...(sn.docs.length?sn.docs.map(d=>{ const x=d.data(); return h('div',{class:'bc-r'}, h('div',{}, h('b',{text:x.title}), h('span',{text:x.body}), h('small',{text:fmtDate(tsLocal(x.at))+' · '+({all:'全部會員',sellers:'賣家',buyers:'買家'}[x.target]||'全部')})),
+      h('span',{class:'tag '+(x.done?'lime':'grey'),text:x.done?'送達 '+(x.sent||0)+' 台':'傳送中…'})); }):[h('p',{class:'hint',text:'還沒有推播紀錄'})])); },()=>{}); }
+
 /* ---- 賣家後台：遭遇戰管理 ---- */
 function admEnc(m){ const me=S.work?.shop||S.me, ok=isVerified(me);
   const add=()=>{ if(!ok){ toast('遭遇戰是認證賣家功能'); return; } pickPlant('選一株放進遭遇戰',mine().filter(p=>!isEnc(p)&&!isAuc(p)&&p.status==='available'&&!inDrop(p.id)),p=>{ S.saleModePre={id:p.id,at:Date.now()}; editPlant(p.id,'sale'); }); };

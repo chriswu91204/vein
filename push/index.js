@@ -513,3 +513,29 @@ exports.encSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Tai
     }
   } catch (e) { logger.warn('dropNotify', e.message); }
 });
+
+// ===================== 管理員推播：送給全站（或只送賣家／買家）=====================
+exports.broadcast = onDocumentCreated({ document: 'broadcast/{id}', timeoutSeconds: 300, memory: '512MiB' }, async ev => {
+  const x = ev.data.data() || {}, ref = ev.data.ref; if (!x.title || x.done) return;
+  try {
+    const ad = await db.doc('site/admins').get(), A = ad.exists ? (Array.isArray(ad.data().uids) ? ad.data().uids : Object.keys(ad.data().uids || {})) : [];
+    const sl = await db.doc('site/sellers').get(), house = sl.exists ? sl.data().house : null, approved = sl.exists ? (sl.data().approved || {}) : {};
+    // 只有管理員能建立（資料庫規則已把關）
+    const per = new Map();
+    (await db.collectionGroup('devices').get()).forEach(d => { const p = d.ref.path.split('/'); if (p[0] !== 'data' || p[1] !== 'users' || p[3] !== 'push') return; const v = d.data(); if (!v.token || v.on === false) return;
+      const uid = p[2], key = v.dev || ((v.ua || '') + '|' + (v.scr || '')) || v.token; if (!per.has(uid)) per.set(uid, new Map()); const m = per.get(uid), o = m.get(key);
+      if (!o || (+v.at || 0) > o.at) m.set(key, { token: v.token, at: +v.at || 0, ref: d.ref }); });
+    const T = []; for (const [uid, m] of per) { const isS = !!approved[uid]; if (x.target === 'sellers' && !isS) continue; if (x.target === 'buyers' && isS) continue; for (const v of m.values()) T.push(v); }
+    const seen = new Set(), L = T.filter(v => !seen.has(v.token) && seen.add(v.token));
+    let sent = 0, fail = 0;
+    for (let i = 0; i < L.length; i += 500) {
+      const part = L.slice(i, i + 500);
+      const res = await admin.messaging().sendEachForMulticast({ tokens: part.map(v => v.token), data: { title: x.title, body: x.body || '', link: x.link || '/', tag: 'bc-' + ev.params.id },
+        webpush: { headers: { Urgency: 'high', TTL: '86400' }, fcmOptions: { link: SITE + (x.link || '/') } } });
+      sent += res.successCount; fail += res.failureCount;
+      await Promise.all(res.responses.map((r, k) => (!r.success && /registration-token-not-registered|invalid-argument|invalid-registration/.test(r.error?.code || '')) ? part[k].ref.delete().catch(() => {}) : null));
+    }
+    await ref.update({ done: true, sent, fail, users: per.size, doneAt: Date.now() });
+    logger.info('broadcast', { id: ev.params.id, sent, fail });
+  } catch (e) { logger.warn('broadcast', e.message); await ref.update({ done: true, sent: 0, err: e.message }).catch(() => {}); }
+});

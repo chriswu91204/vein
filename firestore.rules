@@ -247,6 +247,14 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/drops/$(request.resource.data.did)).data.at <= request.time.toMillis();
       allow delete: if isAdmin() || (signedIn() && resource.data.shop == request.auth.uid);
     }
+    // 管理員推播：建立後伺服器送給全站
+    match /broadcast/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.by == request.auth.uid
+        && request.resource.data.keys().hasOnly(['title', 'body', 'link', 'target', 'by', 'at'])
+        && request.resource.data.title is string && request.resource.data.title.size() <= 40
+        && request.resource.data.body is string && request.resource.data.body.size() <= 120;
+    }
     // 置頂／商店精選申請：賣家建立，伺服器驗證點數與名額後處理
     match /boostReq/{id} {
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
