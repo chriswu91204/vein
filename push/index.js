@@ -461,7 +461,7 @@ function encLiveAt(p, now) {
   if (p.mode !== 'encounter' || !(+p.encStart > 0) || p.encDone || p.status === 'sold' || p.status === 'reserved' || p.listed === false || p.blocked) return false;
   if (+p.startsAtMs > now) return false; let end = +p.endsAtMs || Infinity; if (p.encFloorAt) end = Math.min(end, +p.encFloorAt + encIdle(p)); return now < end;
 }
-const encChance = hp => 0.03 + 0.92 * Math.pow(Math.max(0, Math.min(1, hp)), 1.6);
+const encChance = hp => 0.10 + 0.85 * Math.pow(Math.max(0, Math.min(1, hp)), 1.6);
 const ENC_CD = 15000;
 exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev => {
   const t = ev.data.data() || {}, ref = ev.data.ref, now = Date.now();
