@@ -4194,6 +4194,36 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ec-l{margin:4px 0;padding:0 0 0 18px;text-align:left;font-size:13.5px;color:#3A3D3B;line-height:1.7;align-self:stretch}
 .ec-c{display:flex;gap:8px;align-items:flex-start;text-align:left;font-size:14px;font-weight:700;padding:10px 12px;border-radius:14px;background:#FFF8E1;align-self:stretch;cursor:pointer}
 .ec-c input{width:20px;height:20px;margin-top:1px;accent-color:#7FA300;flex:none}
+.ohd{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.ofb{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.ofb button{flex:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font:inherit;font-size:14px;font-weight:600;color:var(--fg);cursor:pointer}
+.ofb button b{font-size:12px;min-width:20px;padding:1px 6px;border-radius:999px;background:rgba(0,0,0,.06);font-weight:700}
+.ofb button[aria-pressed=true]{background:#0E1210;color:#fff;border-color:#0E1210}.ofb button[aria-pressed=true] b{background:#D4F25A;color:#0A0C0B}
+.ofb button.hot:not([aria-pressed=true]){border-color:#FF8A1F}.ofb button.hot b{background:#FF5A1F;color:#fff}
+.ofq{width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;font:inherit;background:var(--surface)}
+.olist{display:flex;flex-direction:column;gap:10px}
+.or{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;padding:12px;border-radius:20px;border:1.5px solid var(--line);background:var(--surface);font:inherit;color:var(--fg);cursor:pointer;transition:transform .12s,box-shadow .2s}
+.or:hover{box-shadow:0 10px 26px -16px rgba(0,0,0,.35)}.or:active{transform:scale(.99)}
+.or.me{border-color:#FF8A1F;box-shadow:inset 4px 0 0 #FF8A1F}.or.off{opacity:.6}
+.or-im{position:relative;width:74px;height:74px;flex:none}
+.or-im img,.or-im i{position:absolute;top:0;width:56px;height:70px;border-radius:12px;object-fit:cover;border:2px solid var(--surface);box-shadow:0 4px 10px -4px rgba(0,0,0,.4);left:calc(var(--i,0)*9px);transform:rotate(calc((var(--i,0) - 1)*4deg));background:#eef1ea;display:grid;place-items:center;font-style:normal}
+.or-im em{position:absolute;right:-2px;bottom:-2px;font-style:normal;font-size:11px;font-weight:800;padding:1px 7px;border-radius:999px;background:#0E1210;color:#fff;border:2px solid var(--surface)}
+.or-m{display:flex;flex-direction:column;gap:4px;min-width:0}
+.or-who{display:flex;align-items:center;gap:6px;min-width:0}.or-who b{font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.or-who small{font-size:11px;color:var(--fg2);font-family:ui-monospace,monospace}.or-who .av{border-radius:50%;object-fit:cover;flex:none}
+.or-it{font-size:12.5px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.or-dots{display:flex;align-items:center;gap:4px}.or-dots i{width:14px;height:4px;border-radius:2px;background:rgba(0,0,0,.1)}.or-dots i.d{background:#9BC400}.or-dots i.c{background:#FF8A1F;width:20px}.or-dots small{margin-left:6px;font-size:12px;font-weight:700;color:var(--fg)}
+.or-st.x{font-size:12px;font-weight:700;color:#999}
+.or-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right}
+.or-r b{font-size:16px}.or-r small{font-size:11px;color:var(--fg2)}
+.or-nx{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.05);color:var(--fg2);white-space:nowrap}
+.or-nx.go{background:#FF8A1F;color:#fff;box-shadow:0 6px 14px -6px rgba(255,120,30,.8)}
+.otd{border-radius:22px;padding:14px;background:linear-gradient(135deg,#0E1210,#1C2A14);color:#fff;margin:0 0 14px}
+.otd-h b{font-size:16px}
+.otd-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.otd-c{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:16px;border:0;background:rgba(255,255,255,.07);color:rgba(255,255,255,.55);font:inherit;cursor:pointer}
+.otd-c i{font-style:normal;font-size:18px}.otd-c b{font-size:22px;color:#fff}.otd-c span{font-size:12px}
+.otd-c.on{background:rgba(255,138,31,.22);color:#FFD2A6}.otd-c.on b{color:#FFB36B}.otd-c.sel{box-shadow:inset 0 0 0 2px #D4F25A}
+@media (max-width:520px){.or{grid-template-columns:auto minmax(0,1fr);}.or-r{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:8px}.or-im{width:62px;height:66px}.or-im img,.or-im i{width:48px;height:62px}}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -7584,10 +7614,13 @@ function renderMe(force){
       if (rv.length>36&&!S.meRvAll) add(h('button',{class:'btn soft',type:'button',style:'display:block;margin:16px auto',onclick:()=>{ S.meRvAll=true; renderMe(true); },text:'看更早的紀錄'})); } }
   else if (T==='orders'){ if(!ords.length) empty('還沒有訂單','直購商品可以加入購物車後送出訂單。'); else {
     const needMe=o=>(o.status==='confirmed'&&o.payMethod==='transfer')||(o.status==='confirmed'&&ordNeedRecv(o))||o.status==='shipped'||(o.status==='done'&&!mySocial().reviews?.[o.id]);
-    const F=[['act','進行中',o=>!['done','cancelled'].includes(o.status)],['me','要我處理',needMe],['done','已完成',o=>o.status==='done'],['all','全部',()=>true]];
-    if (!S.boF) S.boF=ords.some(needMe)?'me':ords.some(F[0][2])?'act':'all'; const cur=F.find(f=>f[0]===S.boF)||F[3], L=ords.filter(cur[2]);
-    add(h('div',{class:'bo-f'}, ...F.map(([k,l,fn])=>{ const n=ords.filter(fn).length; return h('button',{type:'button','aria-pressed':String(S.boF===k),class:k==='me'&&n?'hot':'',onclick:()=>{ S.boF=k; renderMe(true); }}, l, h('b',{text:String(n)})); })));
-    add(L.length?h('div',{class:'list'}, ...L.map(orderCard)):h('div',{class:'empty'}, h('h3',{text:S.boF==='me'?'沒有需要你處理的訂單 🎉':'這裡沒有訂單'}))); } }
+    const needMe2=o=>ordNext(o,'buyer')[1]===1;
+    const F=[['me','要我處理',needMe2,1],['act','進行中',o=>!['done','cancelled'].includes(o.status)],['done','已完成',o=>o.status==='done'],['cancelled','已取消',o=>o.status==='cancelled'],['all','全部',()=>true]];
+    if (!S.boF||!F.some(f=>f[0]===S.boF)) S.boF=ords.some(needMe2)?'me':ords.some(F[1][2])?'act':'all'; const cur=F.find(f=>f[0]===S.boF)||F[4], q=(S.boQ||'').trim();
+    const L=ords.filter(cur[2]).filter(o=>!q||smatch([shopName(o.shop),o.id,...(o.items||[]).map(i=>S.plants.get(i)?.code||'')].join(' '),q));
+    const qi=h('input',{type:'search',class:'ofq',placeholder:'搜尋賣家、編號',value:S.boQ||''}); qi.addEventListener('input',()=>{ S.boQ=qi.value; clearTimeout(qi._t); qi._t=setTimeout(()=>{ renderMe(true); const n=document.querySelector('#mePage .ofq'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },350); });
+    add(h('div',{class:'ohd'}, ordFilterBar(F,S.boF,k=>{ S.boF=k; renderMe(true); },ords), ords.length>5?qi:null));
+    add(L.length?h('div',{class:'olist'}, ...L.map(o=>ordRow(o,'buyer'))):h('div',{class:'empty'}, h('h3',{text:S.boF==='me'?'沒有需要你處理的訂單 🎉':'這裡沒有訂單'}))); } }
   else if (T==='mine'){ if(!owned.length) empty('還沒有植物','交易完成或別人轉移給你的植株會出現在這裡，可以查看履歷或再轉移。'); else main.append(h('div',{class:'row',style:'justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap'}, h('span',{class:'hint',text:'也可以在「植物管理」繼續記錄。'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openPlants('reg'),text:'🌱 到植物管理'})), h('div',{class:'list'}, ...owned.map(p=>h('div',{class:'ocard'}, h('button',{type:'button',class:'oi',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:''}), h('span',{class:'mono',text:p.code+' · '+short(p.species)})), ownerTimeline(p), transferForm(p,()=>renderMe(true)))))); }
   else if (T==='offers'){ if(!offs.length) empty('還沒有議價','在植株頁按「議價／出價」可以向賣家提出價格。'); else add(h('div',{class:'list'}, ...offs.map(offerCard))); }
   else if (T==='favs'){ if(!favs.length) empty('還沒有收藏','在植株卡片右上角點愛心，就會收在這裡。',h('a',{class:'btn lime',href:'#/store',text:'逛商店'}));
@@ -12890,23 +12923,44 @@ function ordOpenPend(){ const k=S.ordPend; if(!k||!S.me) return; const [shop,oid
 async function setOrder(o,status,patch){ const base={buyer:o.buyer,items:o.items||[],total:o.total||0,note:o.note||'',at:o.at,payMethod:o.payMethod||'transfer',src:o.src||null,...(o.ship?{ship:o.ship}:{})};
   const so=S.sorders.get(o.shop+'/'+o.id)||{}; await S.db.doc(`shops/${S.me}/orders/${o.id}`).set({...base,...so,id:undefined,shop:undefined,...(patch||{}),status,updatedAt:Date.now()}); }
 async function ensureDeal(o){ const id=S.me+'_'+o.id; if(S.deals.has(id)) return; await S.db.doc('deals/'+id).set({seller:S.me,buyer:o.buyer,orderId:o.id,payMethod:o.payMethod||'transfer',bank:(o.payMethod||'transfer')==='transfer'?(S.bank||null):null,at:Date.now()}); }
+
+/* ===== 訂單列表（買家、賣家共用）：一眼看到對象、商品、金額、目前進度和下一步 ===== */
+function ordNext(o,side){ const st=o.status, cr=cancelReqOf(o);
+  if(cr&&cr.by!==side) return ['回覆取消申請',1];
+  if(cr) return ['取消申請中',0];
+  if(side==='buyer'){ if(st==='pending') return ['等賣家確認',0]; if(st==='confirmed'&&ordNeedRecv(o)) return ['填收件資料',1]; if(st==='confirmed') return [o.payMethod==='transfer'?'去匯款':'跟賣家約付款',1];
+    if(st==='paid') return ['等賣家對帳',0]; if(st==='preparing') return ['賣家備貨中',0]; if(st==='shipped') return ['確認收到貨',1]; if(st==='done') return mySocial().reviews?.[o.id]?['已完成',0]:['給評價',1]; return ['已取消',0]; }
+  if(st==='pending') return ['接受訂單',1]; if(st==='confirmed') return ['等買家付款',0]; if(st==='paid') return ['確認收款',1]; if(st==='preparing') return ['出貨',1]; if(st==='shipped') return ['等買家收貨',0]; if(st==='done') return ['已完成',0]; return ['已取消',0]; }
+function ordRow(o,side){ const ps=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), [nx,me]=ordNext(o,side), st=o.status, si=OSTEPS.findIndex(x=>x[0]===st), who=side==='buyer'?o.shop:o.buyer;
+  const qty=(o.items||[]).reduce((n,i)=>n+Math.max(1,+(o.qty?.[i])||1),0);
+  return h('button',{type:'button',class:'or'+(me?' me':'')+(st==='cancelled'?' off':''),onclick:()=>openOrder(o)},
+    h('span',{class:'or-im'}, ...(ps.length?ps:[null]).slice(0,3).map((p,i)=>p?h('img',{src:cover(p),alt:'',style:'--i:'+i}):h('i',{text:'🌿'})), qty>1?h('em',{text:String(qty)}):null),
+    h('span',{class:'or-m'},
+      h('span',{class:'or-who'}, side==='buyer'?avatar(who,18):h('span',{class:'av',style:'width:18px;height:18px;font-size:9px',text:[...nameOf(who)].slice(-1).join('')}), h('b',{text:side==='buyer'?shopName(who):nameOf(who)}), h('small',{text:'#'+String(o.id).slice(-6)})),
+      h('span',{class:'or-it',text:ps.length?(ps[0].code+' '+pName(ps[0])+(ps.length>1?' 等 '+ps.length+' 件':'')):'（商品資料讀取中）'}),
+      st==='cancelled'?h('span',{class:'or-st x',text:'已取消'}):h('span',{class:'or-dots'}, ...OSTEPS.map((s,i)=>h('i',{class:i<si?'d':i===si?'c':''})), h('small',{text:OST[st]||''}))),
+    h('span',{class:'or-r'}, h('b',{class:'mono',text:money(ordGrand(o))}), h('span',{class:'or-nx'+(me?' go':''),text:nx+(me?' →':'')}), h('small',{text:ago(o.at)}))); }
+function ordFilterBar(F,cur,set,list){ return h('div',{class:'ofb'}, ...F.map(([k,l,fn,hot])=>{ const n=list.filter(fn).length; return h('button',{type:'button','aria-pressed':String(cur===k),class:hot&&n?'hot':'',onclick:()=>set(k)}, l, h('b',{text:String(n)})); })); }
+
 function admOrders(m){
   const os=sellerOrders(S.me); resolveNames(os.map(o=>o.buyer));
   const tabs=[['pending','待確認',['pending']],['pay','待付款',['confirmed','paid']],['prep','待出貨',['preparing']],['ship','出貨中',['shipped']],['done','已完成',['done']],['cancelled','已取消',['cancelled']]];
   if (!tabs.some(t=>t[0]===S.admSub)) S.admSub='pending';
   const cur=tabs.find(t=>t[0]===S.admSub);
-  m.append(admTop('訂單與出貨'), !S.bank?.account?h('div',{class:'panel',style:'background:#FFF8E1'}, h('b',{text:'還沒設定匯款帳號'}), h('p',{class:'hint',text:'請到「賣場設定」填匯款帳號。'})):null,
-    (()=>{ const TIP={pending:'要你確認',pay:'等買家付款',prep:'要你出貨',ship:'在路上',done:'已完成',cancelled:'已取消'}, IC={pending:'🔔',pay:'💳',prep:'📦',ship:'🚚',done:'✅',cancelled:'✕'};
-      const card=([k,l,sts])=>{ const L=os.filter(o=>sts.includes(o.status)), n=L.length, hot=(k==='pending'||k==='prep'||(k==='pay'&&L.some(o=>o.status==='paid')))&&n;
-        return h('button',{type:'button',class:'od-c'+(S.admSub===k?' on':'')+(hot?' hot':''),onclick:()=>{ S.admSub=k; S.odQ=''; renderAdmin(true); }}, h('i',{text:IC[k]}), h('b',{class:'mono',text:String(n)}), h('span',{text:l}), h('small',{text:TIP[k]})); };
-      return h('div',{}, h('div',{class:'od-dash'}, ...tabs.slice(0,4).map(card)), h('div',{class:'od-more'}, ...tabs.slice(4).map(([k,l,sts])=>h('button',{type:'button',class:S.admSub===k?'on':'',onclick:()=>{ S.admSub=k; renderAdmin(true); }}, l+' '+os.filter(o=>sts.includes(o.status)).length)),
-        (()=>{ const q=h('input',{type:'search',placeholder:'搜尋買家、編號、訂單號',value:S.odQ||''}); q.addEventListener('input',()=>{ S.odQ=q.value; clearTimeout(q._t); q._t=setTimeout(()=>{ renderAdmin(true); const n=document.querySelector('.od-more input'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },350); }); return q; })())); })());
-  if (os.some(o=>o.status!=='cancelled')) m.append(h('div',{class:'bo-ex'}, h('div',{}, h('b',{text:'🏷 印花牌'}), h('small',{text:'匯出 Excel／CSV'})), h('button',{type:'button',class:'btn ink sm',onclick:()=>openTagExport(os),text:'選擇匯出 →'})));
-  const oq=(S.odQ||'').trim().toLowerCase(), act0=['pending','pay','prep'].includes(S.admSub);
-  const list=os.filter(o=>cur[2].includes(o.status)).filter(o=>!oq||smatch([nameOf(o.buyer),o.id,...(o.items||[]).map(i=>S.plants.get(i)?.code||'')].join(' '),oq)).sort((a,b)=>act0?a.at-b.at:b.at-a.at);
-  if (!list.length){ m.append(h('div',{class:'empty'}, h('h3',{text:oq?'找不到符合的訂單':{pending:'沒有要確認的訂單 🎉',pay:'沒有等付款的訂單',prep:'沒有要出貨的訂單 🎉',ship:'沒有運送中的訂單'}[S.admSub]||'沒有訂單'}), h('p',{text:'有新訂單會通知你。'}))); return; }
-  if (act0&&list.length>1) m.append(h('p',{class:'hint',style:'margin:-4px 0 10px',text:'最早的在最上面。'}));
-  m.append(h('div',{class:'list'}, ...list.map(o=>sellerOrdCard(o))));
+  const exp=os.some(o=>o.status!=='cancelled')?h('button',{type:'button',class:'btn soft sm',onclick:()=>openTagExport(os),text:'🏷 匯出印花牌'}):null;
+  m.append(admTop('訂單與出貨', exp), !S.bank?.account?h('div',{class:'panel',style:'background:#FFF8E1'}, h('b',{text:'還沒設定匯款帳號'}), h('p',{class:'hint',text:'請到「賣場設定」填匯款帳號。'})):null);
+  const todo=[['pending','🔔','待確認',o=>o.status==='pending'],['pay','💳','待對帳',o=>o.status==='paid'],['prep','📦','待出貨',o=>o.status==='preparing'],['cx','✋','取消申請',o=>{ const r=cancelReqOf(o); return r&&r.by==='buyer'; }]];
+  const tot=os.filter(o=>ordNext(o,'seller')[1]).length;
+  m.append(h('div',{class:'otd'}, h('div',{class:'otd-h'}, h('b',{text:tot?'要你處理 '+tot+' 筆':'目前沒有要處理的 🎉'})), h('div',{class:'otd-g'}, ...todo.map(([k,ic,l,fn])=>{ const n=os.filter(fn).length; return h('button',{type:'button',class:'otd-c'+(n?' on':'')+(S.admSub===k?' sel':''),onclick:()=>{ S.admSub=k; S.odQ=''; renderAdmin(true); }}, h('i',{text:ic}), h('b',{class:'mono',text:String(n)}), h('span',{text:l})); }))));
+  const F=[['pending','待確認',o=>o.status==='pending'],['pay','待付款',o=>['confirmed','paid'].includes(o.status)],['prep','待出貨',o=>o.status==='preparing'],['ship','運送中',o=>o.status==='shipped'],['done','已完成',o=>o.status==='done'],['cancelled','已取消',o=>o.status==='cancelled'],['cx','取消申請',todo[3][3]],['all','全部',()=>true]];
+  if (!F.some(f=>f[0]===S.admSub)) S.admSub=os.some(o=>o.status==='pending')?'pending':'all';
+  const cur2=F.find(f=>f[0]===S.admSub), qi=h('input',{type:'search',class:'ofq',placeholder:'搜尋買家、編號、訂單號',value:S.odQ||''});
+  qi.addEventListener('input',()=>{ S.odQ=qi.value; clearTimeout(qi._t); qi._t=setTimeout(()=>{ renderAdmin(true); const n=document.querySelector('.ohd .ofq'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },350); });
+  m.append(h('div',{class:'ohd'}, ordFilterBar(F.filter(f=>f[0]!=='cx'||os.some(f[2])),S.admSub,k=>{ S.admSub=k; renderAdmin(true); },os), qi));
+  const oq=(S.odQ||'').trim().toLowerCase(), act0=['pending','pay','prep','cx'].includes(S.admSub);
+  const list=os.filter(cur2[2]).filter(o=>!oq||smatch([nameOf(o.buyer),o.id,...(o.items||[]).map(i=>S.plants.get(i)?.code||'')].join(' '),oq)).sort((a,b)=>act0?a.at-b.at:b.at-a.at);
+  if (!list.length){ m.append(h('div',{class:'empty'}, h('h3',{text:oq?'找不到符合的訂單':{pending:'沒有要確認的訂單 🎉',pay:'沒有等付款的訂單',prep:'沒有要出貨的訂單 🎉',ship:'沒有運送中的訂單'}[S.admSub]||'沒有訂單'}))); return; }
+  m.append(h('div',{class:'olist'}, ...list.map(o=>ordRow(o,'seller'))));
 }
 function sellerOrdCard(o,inD){ const rr=()=>{ renderAdmin(true); ordDetRefresh(); }; const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), qn=p=>Math.max(1,+(o.qty?.[p.id])||1), lotIt=p=>isLot(p)||!!o.qty?.[p.id], lotShort=o.status==='pending'&&items.some(p=>lotIt(p)&&lotLeft(p)<qn(p)), soldElse=lotShort||items.some(p=>!lotIt(p)&&p.status==='sold'&&p.buyer&&p.buyer!==o.buyer), d=o.deal, act=[];
     const run=async(fn,msg)=>{ try{ await fn(); toast(msg); rr(); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } };
