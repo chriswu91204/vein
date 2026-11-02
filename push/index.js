@@ -448,11 +448,11 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 //  攻擊量 = 全場總攻擊次數 × 人數倍率＝人數 ÷ 10（最高 ×5）→ 一個人打要超久，人多很快
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
 const encCrowd = u => Math.min(5, Math.max(0, u) / 10);
-const ENC_FULL = 10000;
+const ENC_FULL = 10000, ENC_GRACE = 120000, ENC_SHOW = 4200; // 開場 2 分鐘集合時間；收服動畫 4.2 秒，大家一起看完才公布
 async function encHitsN(pid) { let N = 0, u = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { const n = +d.data().n || 0; if (n > 0) { N += n; u++; } }); } catch (e) {} return { N, u }; }
 function encCalc(p, hits, now) {
   const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
-  const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p)) - (+p.encHealMs || 0)) / dur)), A = (hits.N || 0) * encCrowd(hits.u || 0), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2);
+  const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p) - ENC_GRACE) - (+p.encHealMs || 0)) / dur)), A = (hits.N || 0) * encCrowd(hits.u || 0), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2);
   const hp = Math.max(0, Math.min(1, (1 - tf) * ha + (+p.encHealHp || 0))), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((F + R * hp) / step) * step));
   return { price, hp: R ? (price - F) / R : 0, floor: hp <= 0.0005, dur, raw: hp };
 }
@@ -470,7 +470,6 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
   try { const bn = await db.doc('encBan/' + t.uid).get(); if (bn.exists && (bn.data().perm || +bn.data().until > now)) return done({ res: 'ban' }); } catch (e) {}
   const cdRef = db.doc('encCd/' + t.pid + '~' + t.uid);
   try { const cd = await cdRef.get(); if (cd.exists && now - (+cd.data().at || 0) < ENC_CD) return done({ res: 'cd', cd: ENC_CD - (now - cd.data().at) }); } catch (e) {}
-  await cdRef.set({ at: now }).catch(() => {});
   const hits = await encHitsN(t.pid), pref = db.doc(`shops/${t.shop}/plants/${t.pid}`);
   let out;
   try {
@@ -478,17 +477,19 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
       const s = await tx.get(pref); if (!s.exists) return { res: 'late' };
       const p = { id: t.pid, shop: t.shop, ...s.data() }, n2 = Date.now();
       if (!encLiveAt(p, n2) || t.uid === t.shop) return { res: 'late' };
+      if (n2 < encT0(p) + ENC_GRACE) return { res: 'ready' };
+      if (p.encCatch && n2 < +p.encCatch.until) return { res: 'wait' };
       const c = encCalc(p, hits, n2), ch = encChance(c.hp), roll = require('crypto').randomInt(0, 1e6) / 1e6;
       const fl = c.floor && !p.encFloorAt ? { encFloorAt: n2 } : {};
       if (roll < ch) {
-        tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: c.price, encDone: { uid: t.uid, price: c.price, at: n2 }, updatedAt: n2, ...fl });
-        return { res: 'ok', price: c.price, chance: Math.round(ch * 100), p };
+        tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: c.price, encDone: { uid: t.uid, price: c.price, at: n2 }, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: true, heal: 0 }, updatedAt: n2, ...fl });
+        return { res: 'ok', price: c.price, chance: Math.round(ch * 100), until: n2 + ENC_SHOW, p };
       }
       // 回血：HP 回升 6%，但不會超過滿血
       const add = Math.max(0, Math.min(0.06, 1 - c.raw)), nh = (+p.encHealHp || 0) + add;
-      tx.update(pref, { encHealHp: nh, updatedAt: n2, ...fl });
+      tx.update(pref, { encHealHp: nh, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: false, heal: add }, updatedAt: n2, ...fl });
       const after = encCalc({ ...p, encHealHp: nh }, hits, n2);
-      return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD };
+      return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD, until: n2 + ENC_SHOW };
     });
   } catch (e) { logger.warn('encTry', e.message); return done({ res: 'busy' }); }
   if (out.res === 'ok') {
@@ -496,6 +497,7 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
     try { await db.doc('social/' + t.uid).set({ orders: { [oid]: { seller: t.shop, items: [t.pid], total: out.price, note: '⚔ 遭遇戰收服', payMethod: 'transfer', src: 'enc', at: now } } }, { merge: true }); } catch (e) { logger.warn('encOrder', e.message); }
     try { await push(t.uid, '🎉 收服成功', pLabel(out.p) + ' 以 ' + nt(out.price) + ' 收服，訂單已成立', '/#orders/orders', 'enc-' + t.pid); } catch (e) {}
   }
+  if (out.res === 'ok' || out.res === 'fail') await cdRef.set({ at: Date.now() }).catch(() => {});
   const { p, ...rest } = out; await done(rest);
 });
 // 遭遇戰：開始時推給追蹤的人；價格掉到最低時記下時間（之後多久沒人收服就結束）
