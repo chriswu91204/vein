@@ -112,7 +112,9 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
   // 新訂單 → 賣家
   for (const [oid, o] of Object.entries(after.orders || {})) {
     const bo = (before.orders || {})[oid];
-    if (bo && !bo.cancelled && o.cancelled && o.seller) { await push(o.seller, '訂單已取消', me + ' 取消了訂單（' + nt(o.total) + '）', '/#orders/orders', 'order-' + oid); continue; }
+    if (bo && !bo.cancelled && o.cancelled && o.seller) { await push(o.seller, o.cancelledBy === 'agree' ? '買家同意取消訂單' : '訂單已取消', me + (o.cancelledBy === 'agree' ? ' 同意取消訂單（' : ' 取消了訂單（') + nt(o.total) + '）', '/#orders/orders', 'order-' + oid); continue; }
+    if (bo && o.seller && o.cancelReq && (!bo.cancelReq || bo.cancelReq.at !== o.cancelReq.at)) { await push(o.seller, '✋ 買家申請取消訂單', me + (o.cancelReq.why ? '：「' + String(o.cancelReq.why).slice(0, 40) + '」' : '') + '，請到訂單同意或不同意', '/#orders/orders', 'order-' + oid); continue; }
+    if (bo && o.seller && o.cancelRej && (!bo.cancelRej || bo.cancelRej.at !== o.cancelRej.at)) { await push(o.seller, '買家不同意取消', me + ' 希望訂單繼續', '/#orders/orders', 'order-' + oid); continue; }
     if (bo || !o.seller || o.cancelled) continue;
     const n = (o.items || []).length, q = Object.values(o.qty || {}).reduce((a, b) => a + b, 0);
     await push(o.seller, '📦 新訂單', me + ' 下單 ' + (q ? q + ' 株' : n + ' 件') + '，共 ' + nt(o.total) + '，請到訂單接受', '/#orders/orders', 'order-' + oid);
@@ -137,9 +139,12 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
 // 訂單狀態 → 買家
 exports.pushOrder = onDocumentWritten({ document: 'shops/{shop}/orders/{oid}', ...HOT }, async ev => {
   const a = ev.data.after.exists ? ev.data.after.data() : null, b = ev.data.before.exists ? ev.data.before.data() : null;
-  if (!a || !a.buyer || (b && b.status === a.status)) return;
+  if (!a || !a.buyer) return;
+  if (a.cancelReq && (!b || !b.cancelReq || b.cancelReq.at !== a.cancelReq.at)) { await push(a.buyer, '✋ 賣家申請取消訂單', '「' + (await displayName(ev.params.shop)) + '」' + (a.cancelReq.why ? '：' + String(a.cancelReq.why).slice(0, 40) : '') + '，請到訂單同意或不同意', '/#/me/orders', 'ord-' + ev.params.oid); return; }
+  if (a.cancelRej && (!b || !b.cancelRej || b.cancelRej.at !== a.cancelRej.at)) { await push(a.buyer, '賣家不同意取消', '「' + (await displayName(ev.params.shop)) + '」希望訂單繼續', '/#/me/orders', 'ord-' + ev.params.oid); return; }
+  if (b && b.status === a.status) return;
   const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
-  const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
+  const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: b && b.status !== 'pending' ? ['訂單已取消', '「' + sn + '」的訂單已取消'] : ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
   if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', auc ? 'won-' + String(ev.params.oid).slice(4) : 'ord-' + ev.params.oid);
   if (a.status === 'paid' && (!b || b.status !== 'paid')) await push(ev.params.shop, '💳 買家已匯款', (await displayName(a.buyer)) + ' 填了匯款資訊，請對帳', '/#orders/orders', 'paid-' + ev.params.oid);
 });
