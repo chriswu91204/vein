@@ -4006,6 +4006,74 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .encbox .aud{display:flex;flex-direction:column;gap:8px}
 @media (max-width:640px){.dp-h h3{font-size:20px}.dp-cu{min-width:40px}.dp-cu b{font-size:20px}.dp-g{grid-template-columns:1fr}.en-pr{font-size:34px}.en-stage{height:220px}.en-mon{width:150px;height:150px}.pi-t{font-size:32px}}
 @media (prefers-reduced-motion:reduce){.enc *,.dp *,.pi *{animation:none!important;transition:none!important}}
+/* ===== 競標頁：遭遇戰孵化區 ===== */
+#encZone:empty{display:none}
+.ez{position:relative;margin:0 0 18px;padding:14px 0 6px;border-radius:26px;background:radial-gradient(120% 90% at 50% 120%,#5A1A06 0%,#1A0A05 45%,#0B0605 100%);color:#fff;overflow:hidden;isolation:isolate;box-shadow:0 26px 60px -30px rgba(255,90,20,.6),inset 0 0 0 1px rgba(255,140,60,.18)}
+.ez::before{content:'';position:absolute;inset:auto -10% -30% -10%;height:70%;z-index:-1;background:radial-gradient(50% 60% at 50% 100%,rgba(255,120,30,.55),transparent 70%);animation:ezHeat 2.2s ease-in-out infinite alternate}
+@keyframes ezHeat{to{opacity:.6;transform:scaleY(1.12)}}
+.ez-h{display:flex;align-items:center;gap:10px;padding:0 16px 10px}
+.ez-t{display:flex;align-items:center;gap:6px;margin:0;font-size:22px;font-weight:900;letter-spacing:.08em}
+.ez-ti{display:inline-block;animation:ezFl .5s ease-in-out infinite alternate;filter:drop-shadow(0 0 10px rgba(255,140,40,.9))}
+@keyframes ezFl{to{transform:scale(1.15) rotate(-6deg)}}
+.ez-tt{background:linear-gradient(0deg,#FF3D00,#FF9A1F 45%,#FFE36B 80%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,110,20,.7));background-size:100% 200%;animation:ezTt 1.6s ease-in-out infinite alternate}
+@keyframes ezTt{to{background-position:0 100%}}
+.ez-h small{flex:1;color:rgba(255,200,150,.75);font-size:12.5px}
+.ez .dr-q{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+.ez-l{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:4px 16px 12px;scroll-snap-type:x mandatory}
+.ez-c{position:relative;flex:none;width:200px;height:300px;scroll-snap-align:start;border:0;border-radius:22px;padding:0;font:inherit;color:#fff;text-align:left;cursor:pointer;overflow:hidden;background:linear-gradient(180deg,#2A120A,#120705);box-shadow:inset 0 0 0 1px rgba(255,140,60,.25),0 16px 30px -18px rgba(0,0,0,.8);display:flex;flex-direction:column;isolation:isolate}
+.ez-c[data-st=live]{box-shadow:inset 0 0 0 2px #FF8A1F,0 0 26px -4px rgba(255,120,30,.8)}
+.ez-fire{position:absolute;inset:auto 0 0 0;height:62%;z-index:0;pointer-events:none}
+.ez-fl{position:absolute;bottom:-18px;left:calc(-2% + var(--i)*21%);width:56px;height:118px;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;background:radial-gradient(60% 55% at 50% 72%,#FFF6C2 0%,#FFD24A 25%,#FF8A1F 50%,#FF3D00 72%,transparent 74%);filter:blur(3px);mix-blend-mode:screen;transform-origin:50% 100%;animation:ezFlame calc(.9s + var(--i)*.13s) ease-in-out infinite alternate;opacity:1}
+.ez-fl:nth-child(2n){height:150px;animation-direction:alternate-reverse}
+@keyframes ezFlame{0%{transform:scale(1,1) translateX(0) skewX(0)}50%{transform:scale(.9,1.18) translateX(4px) skewX(-5deg)}100%{transform:scale(1.08,.86) translateX(-3px) skewX(4deg)}}
+.ez-em{position:absolute;bottom:10px;left:var(--x);width:4px;height:4px;border-radius:50%;background:#FFC24A;box-shadow:0 0 8px #FF8A1F;opacity:0;transform:scale(var(--s));animation:ezEm 2.6s var(--d) linear infinite}
+@keyframes ezEm{10%{opacity:1}100%{transform:translate(12px,-200px) scale(var(--s));opacity:0}}
+.ez-stg{position:relative;z-index:1;height:170px;display:grid;place-items:center}
+.ez-egg{position:relative;width:96px;height:124px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(70% 60% at 35% 30%,#FFFDF0 0%,#EDE7C8 45%,#C9C08E 80%,#9E9468 100%);box-shadow:inset -10px -12px 20px rgba(80,60,20,.35),0 14px 24px -8px rgba(0,0,0,.7),0 0 30px rgba(255,140,40,.35);transform-origin:50% 90%;animation:ezWob 3.2s ease-in-out infinite}
+.ez-egg::before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(9px 9px at 30% 40%,#6E9A00 60%,transparent 62%),radial-gradient(12px 10px at 66% 30%,#6E9A00 60%,transparent 62%),radial-gradient(8px 8px at 58% 66%,#6E9A00 60%,transparent 62%),radial-gradient(10px 9px at 28% 72%,#6E9A00 60%,transparent 62%);opacity:.7}
+.ez-shine{position:absolute;left:22%;top:14%;width:18px;height:30px;border-radius:50%;background:rgba(255,255,255,.75);filter:blur(2px);transform:rotate(20deg)}
+.ez-glow{position:absolute;inset:-20%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,230,120,.0),transparent);transition:background .6s}
+.ez-ck{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ez-ck path{fill:none;stroke:#3A2A10;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:90;stroke-dashoffset:90;transition:stroke-dashoffset 1.2s ease-out}
+.ez-ck path.on{stroke-dashoffset:0}
+.ez-c[data-sg="3"] .ez-ck path.on,.ez-c[data-sg="4"] .ez-ck path.on,.ez-c[data-sg="5"] .ez-ck path.on,.ez-c[data-sg="6"] .ez-ck path.on{stroke:#FFE9A0;filter:drop-shadow(0 0 3px #FFD24A) drop-shadow(0 0 6px #FF8A1F)}
+.ez-c[data-sg="1"] .ez-egg{animation-duration:2.6s}
+.ez-c[data-sg="2"] .ez-egg{animation-duration:2s}
+.ez-c[data-sg="3"] .ez-egg{animation-duration:1.4s}
+.ez-c[data-sg="4"] .ez-egg{animation:ezWob2 .9s ease-in-out infinite}
+.ez-c[data-sg="5"] .ez-egg{animation:ezWob2 .45s ease-in-out infinite}
+.ez-c[data-sg="6"] .ez-egg{animation:ezShake .12s linear infinite}
+.ez-c[data-sg="4"] .ez-glow{background:radial-gradient(closest-side,rgba(255,230,120,.35),transparent)}
+.ez-c[data-sg="5"] .ez-glow,.ez-c[data-sg="6"] .ez-glow{background:radial-gradient(closest-side,rgba(255,240,160,.7),transparent);animation:ezPulse .5s ease-in-out infinite alternate}
+@keyframes ezWob{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-7deg)}84%{transform:rotate(6deg)}92%{transform:rotate(-3deg)}}
+@keyframes ezWob2{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes ezShake{0%{transform:translate(0,0) rotate(-4deg)}25%{transform:translate(-2px,1px) rotate(5deg)}50%{transform:translate(2px,-1px) rotate(-5deg)}75%{transform:translate(-1px,-1px) rotate(4deg)}100%{transform:translate(1px,1px) rotate(-4deg)}}
+@keyframes ezPulse{to{transform:scale(1.15);opacity:.7}}
+.ez-mon{position:relative;width:120px;height:140px;display:grid;place-items:center}
+.ez-face{position:relative;z-index:2;width:104px;height:104px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #FFB020,0 0 30px rgba(255,140,30,.8);animation:enBob 2.2s ease-in-out infinite}
+.ez-face img{width:100%;height:100%;object-fit:cover}
+.ez-sh{position:absolute;bottom:0;width:58px;height:40px;background:radial-gradient(70% 80% at 50% 0%,#FFFDF0,#C9C08E);clip-path:polygon(0 0,18% 30%,34% 0,52% 34%,70% 0,86% 30%,100% 0,100% 100%,0 100%);border-radius:0 0 30px 30px;z-index:3;box-shadow:0 6px 12px rgba(0,0,0,.5)}
+.ez-sh.l{left:2px;transform:rotate(-14deg)}.ez-sh.r{right:2px;transform:rotate(14deg) scaleX(-1)}
+.ez-mon.hatch .ez-face{animation:ezHatch .8s cubic-bezier(.2,1.6,.4,1) both,enBob 2.2s .8s ease-in-out infinite}
+.ez-mon.hatch .ez-sh.l{animation:ezShL .7s cubic-bezier(.2,1.2,.4,1) both}.ez-mon.hatch .ez-sh.r{animation:ezShR .7s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes ezHatch{from{transform:scale(.1) translateY(40px);filter:brightness(3)}}
+@keyframes ezShL{from{transform:translate(28px,-30px) rotate(0)}}
+@keyframes ezShR{from{transform:translate(-28px,-30px) rotate(0) scaleX(-1)}}
+.ez-burst{position:absolute;left:50%;top:50%;z-index:4}
+.ez-burst i{position:absolute;width:6px;height:22px;margin:-11px -3px;border-radius:3px;background:linear-gradient(#FFF6C2,#FF8A1F);animation:ezB 1s ease-out forwards}
+@keyframes ezB{from{transform:rotate(var(--a)) translateY(0);opacity:1}to{transform:rotate(var(--a)) translateY(-90px);opacity:0}}
+.ez-tx{position:relative;z-index:2;margin-top:auto;padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;background:linear-gradient(transparent,rgba(10,4,2,.85) 40%)}
+.ez-shop{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,220,180,.85);font-weight:700}
+.ez-shop .av{border-radius:50%;object-fit:cover}
+.ez-shop span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ez-nm{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ez-lb{color:#FFB36B;font-size:11px;letter-spacing:.1em;margin-top:2px}
+.ez-cd{font-size:22px;line-height:1.1;color:#FFE36B;text-shadow:0 0 14px rgba(255,140,30,.8)}
+.ez-c[data-sg="5"] .ez-cd,.ez-c[data-sg="6"] .ez-cd{color:#FF5A2A;animation:enBlink .5s steps(2) infinite}
+.ez-hp{height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:4px}
+.ez-hpf{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#FF3D00,#FFD24A);transition:width .5s}
+.ez-pr{font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px}
+@media (prefers-reduced-motion:reduce){.ez *{animation:none!important}}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -4670,6 +4738,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
     <div id="sellerStrip"></div>
     <div id="catRow"></div>
     <div id="dropRail"></div>
+    <div id="encZone"></div>
     <div id="storeTools">
     <div class="toolbar">
       <div class="chips" id="chips">
@@ -6961,7 +7030,7 @@ function renderShop(force){
   renderStoreTabs();
   $('#storeTools').hidden=true;
   $('#sellerStrip').hidden=!(T==='home'||T==='sellers'); renderSellerStrip();
-  $('#catRow').hidden=!(T==='auction'||T==='buy'); renderCats(); try{ renderMineBar(T); }catch(e){ console.warn('mineBar',e); } try{ const dr=$('#dropRail'); if(dr){ const r=(T==='home'||T==='hub'||T==='buy')?dropRail():null; dr.replaceChildren(...(r?[r]:[])); } }catch(e){ console.warn('dropRail',e); }
+  $('#catRow').hidden=!(T==='auction'||T==='buy'); renderCats(); try{ renderMineBar(T); }catch(e){ console.warn('mineBar',e); } try{ const dr=$('#dropRail'); if(dr){ const r=(T==='home'||T==='hub'||T==='buy')?dropRail():null; dr.replaceChildren(...(r?[r]:[])); } const ez=$('#encZone'); if(ez){ const z=T==='auction'?encZone():null; ez.replaceChildren(...(z?[z]:[])); } }catch(e){ console.warn('dropRail',e); }
   const stt=document.querySelector('.cslot[data-pos="store-top"]'); if(stt) stt.hidden=T!=='home';
   if (T==='home') renderHero(); else { $('#shopHero').hidden=true; clearInterval(heroTimer); }
   $('#ticker').hidden=true;
@@ -12163,6 +12232,31 @@ function encPanel(p,deal){
   tick(); const iv=setInterval(tick,250);
   if(!own) setTimeout(()=>encIntro(false),400);
 }
+/* ---- 競標頁：遭遇戰孵化區（火焰裡的蛋，越接近開始裂得越多，開始就破殼）---- */
+const EZ_CRACK=['M50 8 L46 22 L54 30 L48 42','M22 40 L32 46 L28 58 L38 64','M78 44 L68 52 L74 62 L64 70','M50 42 L44 56 L52 66 L46 80 L54 92','M30 70 L40 78 L34 90 L44 100','M70 74 L60 84 L68 94 L58 106','M18 62 L28 68','M82 66 L72 74','M40 104 L50 112 L60 104'];
+function ezStage(ms){ return ms>864e5?0:ms>6*36e5?1:ms>36e5?2:ms>15*6e4?3:ms>3*6e4?4:ms>3e4?5:6; }
+function ezEgg(){ const svg='<svg viewBox="0 0 100 130" class="ez-ck" aria-hidden="true">'+EZ_CRACK.map((d,i)=>'<path d="'+d+'" data-i="'+i+'"/>').join('')+'</svg>';
+  const egg=h('div',{class:'ez-egg'}, h('i',{class:'ez-shine'}), h('i',{class:'ez-glow'})); egg.insertAdjacentHTML('beforeend',svg); return egg; }
+function ezFire(){ return h('div',{class:'ez-fire'}, ...[0,1,2,3,4].map(i=>h('i',{class:'ez-fl',style:'--i:'+i})), ...Array.from({length:7},(_,i)=>h('b',{class:'ez-em',style:`--x:${10+Math.random()*80}%;--d:${(Math.random()*2.4).toFixed(2)}s;--s:${(.5+Math.random()).toFixed(2)}`}))); }
+function ezCard(p){ const pid=p.id, cd=h('b',{class:'ez-cd mono'}), lab=h('small',{class:'ez-lb'}), pr=h('span',{class:'ez-pr mono'}), hp=h('i',{class:'ez-hpf'});
+  const stage=h('div',{class:'ez-stg'}), card=h('button',{type:'button',class:'ez-c',onclick:()=>openPlant(pid)},
+    ezFire(), stage,
+    h('div',{class:'ez-tx'}, h('span',{class:'ez-shop'}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), h('b',{class:'ez-nm',text:pName(p)}), lab, cd, h('div',{class:'ez-hp'}, hp), pr));
+  let st0=null, sg0=-1, iv=0;
+  const up=()=>{ const q=S.plants.get(pid)||p, st=encState(q), now=Date.now();
+    if(st!==st0){ const was=st0; st0=st; card.dataset.st=st;
+      if(st==='soon'){ stage.replaceChildren(ezEgg()); sg0=-1; }
+      else { const hatch=was==='soon'; card.dataset.sg=''; stage.replaceChildren(h('div',{class:'ez-mon'+(hatch?' hatch':'')}, h('i',{class:'ez-sh l'}), h('i',{class:'ez-sh r'}), h('div',{class:'ez-face'}, h('img',{src:cover(q),alt:'',loading:'lazy'})))); if(hatch&&!REDUCE){ const b=h('div',{class:'ez-burst'}, ...Array.from({length:14},(_,i)=>h('i',{style:`--a:${i*360/14}deg`}))); stage.append(b); setTimeout(()=>b.remove(),1200); } } }
+    if(st==='soon'){ const left=q.startsAtMs-now, sg=ezStage(left); if(sg!==sg0){ sg0=sg; card.dataset.sg=sg; const n=[0,1,2,4,5,7,9][sg]; stage.querySelectorAll('.ez-ck path').forEach((x,i)=>x.classList.toggle('on',i<n)); }
+      lab.textContent='孵化倒數'; cd.textContent=fmtLeft(left); pr.textContent='起始 '+money(q.encStart); card.querySelector('.ez-hp').hidden=true; }
+    else if(st==='live'){ const c=encCalc(q); lab.textContent='已出現！'; cd.textContent=money(c.price); hp.style.width=c.hp*100+'%'; card.querySelector('.ez-hp').hidden=false; pr.textContent='剩 '+fmtLeft(encEnd(q)-now); }
+    else { lab.textContent=st==='won'?'已被收服':'逃走了'; cd.textContent=st==='won'?money(q.encDone?.price||q.soldPrice||0):'—'; card.querySelector('.ez-hp').hidden=true; pr.textContent=''; } };
+  up(); iv=setInterval(()=>{ if(!card.isConnected){ clearInterval(iv); return; } up(); },1000); return card; }
+function encZone(){ const now=Date.now(), L=pub().filter(p=>isEnc(p)&&['soon','live'].includes(encState(p))).sort((a,b)=>{ const sa=encState(a), sb=encState(b); if(sa!==sb) return sa==='live'?-1:1; return sa==='live'?encEnd(a)-encEnd(b):a.startsAtMs-b.startsAtMs; }).slice(0,16);
+  if(!L.length) return null;
+  return h('section',{class:'ez'}, h('div',{class:'ez-h'}, h('h3',{class:'ez-t'}, h('span',{class:'ez-ti',text:'🔥'}), h('span',{class:'ez-tt','data-t':'遭遇戰',text:'遭遇戰'})), h('small',{text:L.filter(p=>encState(p)==='live').length?L.filter(p=>encState(p)==='live').length+' 隻出沒中':L.length+' 顆蛋孵化中'}), h('button',{type:'button',class:'dr-q',onclick:()=>encIntro(true),text:'?'})),
+    h('div',{class:'ez-l'}, ...L.map(ezCard))); }
+
 /* ---- 玩法介紹視窗（遭遇戰、福利組合共用）---- */
 function playIntro(o){ const host=topHost(); let i=0;
   const ov=h('div',{class:'pi-ov '+(o.cls||''),onclick:e=>{ if(e.target===ov) close(); }});
