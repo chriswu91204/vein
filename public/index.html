@@ -4163,6 +4163,12 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ez.ez-full .ez-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));overflow:visible;scroll-snap-type:none;gap:12px;padding:4px 14px 14px}
 .ez.ez-full .ez-c{width:auto}
 @media (max-width:520px){.ez.ez-full .ez-l{grid-template-columns:1fr 1fr;gap:10px;padding:4px 10px 12px}.ez.ez-full .ez-c{height:280px}.ez.ez-full .ez-egg{width:88px;height:114px}.ez.ez-full .ez-cd{font-size:19px}}
+.en-cap{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;--p:0}
+.en-prog{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(212,242,90,.55),rgba(255,255,255,.65));transform-origin:left;transform:scaleX(var(--p));pointer-events:none;z-index:0}
+.en-cap>.en-ball,.en-cap>.en-ct{position:relative;z-index:1}
+.en-cap.hold{transform:scale(.97)}.en-cap.hold .en-ball{animation:enWig .25s ease-in-out infinite}
+.en-cap.hold::after,.en-cap:disabled::after{animation:none;opacity:0}
+.enc[data-st=catch] .en-atk{opacity:.35;pointer-events:none}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -5449,7 +5455,7 @@ const allQuestions=shop=>{ const out=[]; for(const [uid,doc] of S.social) for(co
 const nameOf=uid=>S.names.get(uid)||(uid===S.me?(S.meInfo?.name||'你'):'會員');
 let nb=false;
 async function resolveNames(ids){ if(!S.user||nb) return; const miss=[...new Set(ids)].filter(i=>i&&!S.names.has(i)); if(!miss.length) return; nb=true; try{ const ps=await S.user.profiles(miss.slice(0,64)); let any=false; miss.slice(0,64).forEach(i=>{ S.names.set(i,ps[i]?.name||''); if(ps[i]?.name) any=true; }); if(any) renderAll(); }catch(e){} finally{ nb=false; } }
-function priceLabel(p){ if(isEnc(p)){ const st=encState(p); return {main:money(st==='won'?(p.encDone?.price||p.soldPrice||0):encCalc(p).price),sub:st==='live'?'⚔ 遭遇戰 · 降價中':st==='soon'?'⚔ 遭遇戰 · 即將出現':st==='end'?'💨 頭目逃跑了':'⚔ 遭遇戰'}; } if(isAuc(p)){ const t=topBid(p.id); return {main:money(t?t.amt:p.startPrice),sub:t?'目前出價':'起標價'}; } return p.price?{main:money(p.price),sub:isLot(p)?'每株 · 剩 '+lotLeft(p)+' 株':'直購價'}:{main:STATUS[p.status]||'洽詢',sub:'價格請洽詢'}; }
+function priceLabel(p){ if(isEnc(p)){ const st=encState(p); return {main:money(st==='won'?(p.encDone?.price||p.soldPrice||0):encCalc(p).price),sub:st==='catch'?'⚔ 收服中…':st==='live'?'⚔ 遭遇戰 · 降價中':st==='soon'?'⚔ 遭遇戰 · 即將出現':st==='end'?'💨 頭目逃跑了':'⚔ 遭遇戰'}; } if(isAuc(p)){ const t=topBid(p.id); return {main:money(t?t.amt:p.startPrice),sub:t?'目前出價':'起標價'}; } return p.price?{main:money(p.price),sub:isLot(p)?'每株 · 剩 '+lotLeft(p)+' 株':'直購價'}:{main:STATUS[p.status]||'洽詢',sub:'價格請洽詢'}; }
 const storeContact=()=>S.site.line?('LINE '+S.site.line):(S.site.contact||'');
 const shopContact=uid=>{ const s=shopOf(uid); return s?.line?('LINE '+s.line):(s?.contact||''); };
 /* orders */
@@ -5459,7 +5465,7 @@ const AUTO_DONE=14*864e5;
 // 訂單狀態：賣家文件（shops/{賣家}/orders）＋私密交易文件（deals，只有買賣雙方看得到：匯款帳號、匯款資訊、物流、收貨）
 function ordState(o){ const b=o.base||'pending'; if(b==='cancelled') return 'cancelled'; if(o.deal?.receivedAt||b==='done') return 'done';
   if (b==='shipped') return Date.now()-(o.shippedAt||0)>AUTO_DONE?'done':'shipped'; if(b==='preparing') return 'preparing'; if(b==='confirmed') return o.deal?.pay?'paid':'confirmed'; return 'pending'; }
-function fillOrder(o){ const so=S.sorders.get(o.shop+'/'+o.id), deal=S.deals.get(o.shop+'_'+o.id); const x={...o,base:so?.status||'pending',shippedAt:so?.shippedAt||so?.updatedAt||null,deal,payMethod:o.payMethod||so?.payMethod||'transfer',src:so?.src||o.src}; x.status=ordState(x); return x; }
+function fillOrder(o){ const so=S.sorders.get(o.shop+'/'+o.id), deal=S.deals.get(o.shop+'_'+o.id); const x={...o,base:(o.cancelled||S.social.get(o.buyer)?.orders?.[o.id]?.cancelled)?'cancelled':(so?.status||'pending'),shippedAt:so?.shippedAt||so?.updatedAt||null,deal,payMethod:o.payMethod||so?.payMethod||'transfer',src:so?.src||o.src}; x.status=ordState(x); return x; }
 function buyerOrders(uid){ const d=S.social.get(uid)?.orders||{}, map=new Map();
   Object.entries(d).forEach(([id,o])=>map.set(o.seller+'/'+id,{id,...o,buyer:uid,shop:o.seller}));
   for (const so of S.sorders.values()) if(so.buyer===uid&&!map.has(so.shop+'/'+so.id)) map.set(so.shop+'/'+so.id,{id:so.id,seller:so.shop,shop:so.shop,items:so.items,total:so.total,note:so.note,at:so.at,buyer:uid,payMethod:so.payMethod,src:so.src});
@@ -7291,7 +7297,7 @@ async function renderLp(id){ const box=$('#lpPage'); if(!box) return; S.lpId=id;
   pdRender('lp:'+id, box, null); }
 function renderRafflePage(){ playRender(); const box=$('#raffleBody'); if(!box||$('#playRaffle')?.hidden) return; box.replaceChildren(); pdRender('raffle',box,rafflePageOrig); }
 /* ---- 特殊玩法頁：遭遇戰／福利組合／抽獎 ---- */
-const encAll=()=>all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.shop)&&isEnc(p)&&['soon','live'].includes(encState(p)));
+const encAll=()=>all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.shop)&&isEnc(p)&&['soon','live','catch'].includes(encState(p)));
 const dropAll=()=>[...S.drops.values()].filter(d=>approved(d.shop)&&dropState(d)!=='end');
 let playSig='';
 function playRender(){ const tabs=$('#playTabs'), body=$('#playBody'), rf=$('#playRaffle'); if(!tabs||!body) return;
@@ -7660,7 +7666,7 @@ function openTagExport(ords){
     list, h('div',{class:'sd-g'}, h('b',{text:'欄位'}), colBox), repT, h('div',{class:'sd-g'}, h('b',{text:'格式'}), fmtSeg), h('div',{class:'tx-go'}, exBtn));
   if(adm.open){ const host=adm, prevOv=document.documentElement.style.overflow; const ov=h('div',{class:'od2-ov',onclick:e=>{ if(e.target===ov) close(); }}, h('div',{class:'od2 tx-pn'}, h('div',{class:'od2-h'}, h('button',{type:'button',class:'od2-x','aria-label':'關閉',onclick:()=>close(),text:'✕'}), h('div',{class:'od2-t'}, h('small',{text:'訂單管理'}), h('b',{text:'匯出花牌資料'}))), h('div',{class:'od2-b',style:'padding-bottom:16px'}, body))); const close=()=>{ ov.remove(); document.documentElement.style.overflow=prevOv; blDone('tagx'); }; host.append(ov); blPush('tagx',()=>{ ov.remove(); document.documentElement.style.overflow=prevOv; }); } else openDialog('匯出花牌資料', body, true); paint();
 }
-async function cancelOrder(o){ const x={...mySocial().orders}; delete x[o.id]; try{ await saveSocial({orders:x}); toast('已取消訂單'); }catch(e){} }
+async function cancelOrder(o){ const x={...mySocial().orders}; if(!x[o.id]) return; x[o.id]={...x[o.id],cancelled:true,cancelledAt:Date.now(),cancelledBy:'buyer'}; try{ await saveSocial({orders:x}); toast('已取消訂單'); }catch(e){} }
 
 /* ---------- cart ---------- */
 function openCart(){ if(needLogin()) return; openDialog('購物車', h('div',{id:'cartBody'}), true); S.openCart=true; renderCart(); }
@@ -9902,7 +9908,7 @@ function renderAdmNav(){
   else if (hasShop()) G.push(
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
-    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
+    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live','catch'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
   if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
@@ -12160,7 +12166,7 @@ function admEditor(m, id){
   const salePanel=h('div',{class:'panel'}, h('h3',{text:'販售'}));
   if (!listed(p)){ salePanel.append(h('p',{class:'hint',text:p.status==='sold'?'這株已售出。':'這株目前沒有上架，只公開成長履歷與血統。填好價格按「上架這一株」就能開賣。'}), p.status!=='sold'&&!p.blocked?quickListForm(p,()=>renderAdmin(true)):null); }
   else { const sf=h('form',{class:'form'}, field('狀態', h('select',{'data-e':'status'}, ...Object.entries(STATUS).map(([k,v])=>h('option',{value:k,text:v,selected:k===p.status})))), sale.el, h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'儲存販售設定'}), p.status!=='sold'&&!live(p)?confirmBtn('下架（保留履歷）','soft',()=>unlistPlant(p)):null));
-    sf.addEventListener('submit',async e=>{ e.preventDefault(); const s=sale.read(sf); if(s.err){ sf.querySelector('.err').textContent=s.err; return; } await updatePlant(p.id,{status:sf.querySelector('[data-e=status]').value,...s},'已儲存販售設定'); renderAdmin(true); });
+    sf.addEventListener('submit',async e=>{ e.preventDefault(); const s=sale.read(sf); if(s.err){ sf.querySelector('.err').textContent=s.err; return; } const st=sf.querySelector('[data-e=status]').value, fresh=st==='available'&&(p.status!=='available'||p.encDone||p.buyer||p.soldPrice); await updatePlant(p.id,{status:st,...(fresh?{buyer:null,soldPrice:null,soldAt:null,encDone:null,encFloorAt:null,encHealMs:0,encClosed:null,startNoted:false,endNotified:false}:{}),...s},fresh?'已重新開賣，舊的成交紀錄已清掉':'已儲存販售設定'); renderAdmin(true); });
     salePanel.append(sf); }
   const kidsN=all().filter(x=>momId(x)===p.id||dadId(x)===p.id).length;
   const delBtn=h('button',{class:'btn soft sm danger',type:'button',disabled:isLocked(p),onclick:async e=>{ const b=e.currentTarget; if(!confirmTwice(b,'再按一次永久刪除 '+p.code)) return; b.disabled=true; const r=await deletePlants([p]); if(r.n){ toast('已刪除 '+p.code); S.admEdit=null; renderAdmin(true); } else { b.disabled=false; toast('刪除失敗'); } },text:'🗑 刪除這株'});
@@ -12262,8 +12268,10 @@ function encCalc(p,now=Date.now(),extra=0){ const S0=+p.encStart, F=Math.min(Mat
   return {price,hp:R?(price-F)/R:0,F,S0,R,floor:k>=1,hitVal:R/600}; }
 const encIdle=p=>+p.encIdle||10*6e4;
 function encEnd(p){ let e=+p.endsAtMs||Infinity; if(p.encFloorAt) e=Math.min(e,+p.encFloorAt+encIdle(p)); return e; }
-function encState(p,now=Date.now()){ if(!isEnc(p)) return null; if(p.encDone||p.status==='sold'||p.status==='reserved') return 'won'; if(+p.startsAtMs>now) return 'soon'; if(now>=encEnd(p)) return 'end'; return 'live'; }
+const ENC_CATCH=3600;
+function encState(p,now=Date.now()){ if(!isEnc(p)) return null; if(p.encDone&&now<(+p.encDone.at||0)+ENC_CATCH) return 'catch'; if(p.encDone||p.status==='sold'||p.status==='reserved') return 'won'; if(+p.startsAtMs>now) return 'soon'; if(now>=encEnd(p)) return 'end'; return 'live'; }
 const encLive=p=>encState(p)==='live';
+const encOn=p=>['live','catch'].includes(encState(p));
 const mystery=p=>isEnc(p)&&(encState(p)==='soon'||(encState(p)==='end'&&p.encClosed==='soon'));
 const fledWhy=p=>p.encClosed?'賣家提前收兵':p.encFloorAt&&Date.now()>=+p.encFloorAt+encIdle(p)?'掉到最低價也沒人收服':'時間到了，沒人收服';
 const encChance=hp=>Math.round((0.12+0.83*Math.pow(Math.max(0,Math.min(1,hp)),0.7))*100);
@@ -12282,7 +12290,7 @@ function encPanel(p,deal){
   const img=h('img',{src:cover(p),alt:''}), mon=h('div',{class:'en-mon'}, h('i',{class:'en-ring r1'}), h('i',{class:'en-ring r2'}), h('div',{class:'en-face'}, img), h('i',{class:'en-shd'}));
   const hpF=h('i',{class:'en-hpf'}), hpG=h('i',{class:'en-hpg'}), hpT=h('b',{class:'en-hpt mono'});
   const pr=h('b',{class:'en-pr mono'}), stTag=h('span',{class:'en-st'}), tm=h('span',{class:'en-tm mono'}), fx=h('div',{class:'en-fx'}), crowd=h('div',{class:'en-cr'});
-  const chEl=h('small',{}), capPr=h('b',{}), cap=h('button',{type:'button',class:'en-cap',onclick:()=>encCapture()}, h('span',{class:'en-ball'}, h('i')), h('span',{class:'en-ct'}, h('span',{}, '收服 ', capPr), chEl));
+  const chEl=h('small',{}), capPr=h('b',{}), cap=h('button',{type:'button',class:'en-cap'}, h('i',{class:'en-prog'}), h('span',{class:'en-ball'}, h('i')), h('span',{class:'en-ct'}, h('span',{}, '長按收服 ', capPr), chEl));
   const atk=h('div',{class:'en-atk'}, ...ENC_EMO.map(e=>h('button',{type:'button',class:'en-e','aria-label':'攻擊',onclick:ev=>encAttack(e,ev.currentTarget)}, h('span',{text:e}))));
   const res=h('div',{class:'en-res',hidden:true}), stage=h('div',{class:'en-stage'}, h('div',{class:'en-grid'}), mon, fx);
   const el=h('div',{class:'enc','data-pid':pid},
@@ -12301,6 +12309,22 @@ function encPanel(p,deal){
     const fx0=from?from.left+from.width/2:r.left+(Math.random()<.5?-20:r.width+20), fy0=from?from.top+from.height/2:r.top+Math.random()*r.height, tx=m.left+m.width/2+(Math.random()-.5)*m.width*.4, ty=m.top+m.height/2+(Math.random()-.5)*m.height*.4;
     const a=s.animate([{transform:`translate(${fx0}px,${fy0}px) scale(.6) rotate(0deg)`,opacity:1},{transform:`translate(${(fx0+tx)/2}px,${Math.min(fy0,ty)-80}px) scale(1.5) rotate(200deg)`,opacity:1,offset:.55},{transform:`translate(${tx}px,${ty}px) scale(.9) rotate(400deg)`,opacity:1}],{duration:REDUCE?10:520,easing:'cubic-bezier(.3,.6,.4,1)'});
     a.onfinish=()=>{ s.remove(); if(!el.isConnected) return; mon.classList.remove('hit'); void mon.offsetWidth; mon.classList.add('hit'); const b=h('i',{class:'en-boom',style:`left:${tx-r.left}px;top:${ty-r.top}px`}); fx.append(b); setTimeout(()=>b.remove(),500); }; };
+  // 長按 1 秒才丟出（防誤觸）：按住時進度條跑滿才收服，中途放開就取消
+  let lp=0, lpT0=0; const LP=1000;
+  const lpStop=()=>{ cancelAnimationFrame(lp); lp=0; cap.classList.remove('hold'); cap.style.setProperty('--p','0'); };
+  const lpRun=now=>{ const k=Math.min(1,(now-lpT0)/LP); cap.style.setProperty('--p',String(k)); if(k>=1){ lpStop(); try{ navigator.vibrate?.(25); }catch(x){} encCapture(); return; } lp=requestAnimationFrame(lpRun); };
+  cap.addEventListener('pointerdown',e=>{ if(cap.disabled||busy) return; e.preventDefault(); try{ cap.setPointerCapture(e.pointerId); }catch(x){} lpT0=performance.now(); cap.classList.add('hold'); try{ navigator.vibrate?.(8); }catch(x){} lp=requestAnimationFrame(lpRun); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>cap.addEventListener(ev,()=>{ if(lp){ lpStop(); if(!busy) toast('要按住不放才會丟出去'); } }));
+  cap.addEventListener('contextmenu',e=>e.preventDefault());
+  cap.addEventListener('keydown',e=>{ if((e.key===' '||e.key==='Enter')&&!lp&&!e.repeat){ e.preventDefault(); lpT0=performance.now(); cap.classList.add('hold'); lp=requestAnimationFrame(lpRun); } });
+  cap.addEventListener('keyup',e=>{ if(e.key===' '||e.key==='Enter') lpStop(); });
+  // 別人收服：先播丟球、搖晃的動畫，跑完才公布結果
+  let otherAnim=false;
+  function otherCatch(){ if(otherAnim||busy) return; otherAnim=true; el.classList.add('catching'); const sr=stage.getBoundingClientRect(), mr=mon.getBoundingClientRect(); const ball=h('span',{class:'en-tball'}, h('i')); document.documentElement.append(ball);
+    const bx=mr.left+mr.width/2-22, by=mr.top+mr.height*.62-22, sx=sr.left+sr.width/2-22, sy=sr.bottom+40;
+    ball.animate([{transform:`translate(${sx}px,${sy}px) scale(.5)`},{transform:`translate(${(sx+bx)/2+40}px,${sr.top-30}px) scale(1.15) rotate(360deg)`,offset:.5},{transform:`translate(${bx}px,${by}px) scale(1) rotate(720deg)`}],{duration:REDUCE?10:700,easing:'cubic-bezier(.25,.7,.4,1)',fill:'forwards'}).finished.then(()=>{ mon.classList.add('sucked'); ball.classList.add('flash','wobble'); }).catch(()=>{});
+    const pp=S.plants.get(pid)||p, left=Math.max(800,(+pp.encDone?.at||Date.now())+ENC_CATCH-Date.now());
+    setTimeout(()=>{ ball.classList.remove('wobble'); ball.classList.add('lock'); setTimeout(()=>ball.remove(),900); el.classList.remove('catching'); },left-200); }
   function encAttack(e,btn){ const pp=S.plants.get(pid)||p; if(encState(pp)!=='live'){ toast(encState(pp)==='soon'?'還沒開始':'已經結束了'); return; } if(needLogin()) return;
     const now=Date.now(); ENCQ.burst=ENCQ.burst.filter(t=>now-t<1000); if(ENCQ.burst.length>=8) return; ENCQ.burst.push(now);
     const mine=+(S.encHits.get(pid+'~'+S.me)?.n||0)+encPendOf(pid); if(mine>=1000){ toast('你的攻擊次數用完了'); return; }
@@ -12333,14 +12357,14 @@ function encPanel(p,deal){
       :kind==='soon'?h('div',{class:'en-rb soon'}, h('span',{class:'en-ri',text:'👀'}), h('b',{text:'即將出現'}), h('span',{text:fmtDate(tsLocal(p.startsAtMs))}))
       :h('div',{class:'en-rb end'}, h('span',{class:'en-ri',text:'💨'}), h('b',{text:'頭目逃跑了'}), h('span',{text:fledWhy(S.plants.get(pid)||p)}))); }
   const tick=()=>{ if(!el.isConnected){ V.stop(); return; } const pp=S.plants.get(pid)||p, now=Date.now(), st=encState(pp), c=encCalc(pp,now,encPendOf(pid));
-    if(st!==st0){ st0=st; el.dataset.st=st; stTag.textContent={live:'LIVE',soon:'即將出現',won:'已收服',end:'頭目逃跑了'}[st]; stTag.className='en-st '+st;
+    if(st!==st0){ st0=st; el.dataset.st=st; stTag.textContent={live:'LIVE',soon:'即將出現',won:'已收服',end:'頭目逃跑了',catch:'收服中…'}[st]; if(st==='catch') otherCatch(); stTag.className='en-st '+st;
       if(st==='won') showRes('won',pp.encDone?.price||pp.soldPrice,pp.encDone?.uid||pp.buyer); else if(st==='end'){ if(REDUCE) showRes('end'); else { el.classList.add('fleeing'); for(let i=0;i<7;i++){ const s=h('span',{class:'en-dust',text:'💨',style:`left:${40+Math.random()*14}%;top:${48+Math.random()*16}%;--d:${(i*.09).toFixed(2)}s`}); fx.append(s); setTimeout(()=>s.remove(),1700); } setTimeout(()=>{ el.classList.remove('fleeing'); showRes('end'); },1400); } } else if(st==='soon') showRes('soon'); else { res.hidden=true; } }
     const end=encEnd(pp), fl=!!pp.encFloorAt;
     tm.textContent=st==='soon'?'開始 '+fmtLeft(pp.startsAtMs-now):st==='live'?(fl?'最低價！剩 ':'剩 ')+fmtLeft(end-now):''; tm.classList.toggle('hot',st==='live'&&(fl||end-now<6e4));
     const pS=money(c.price); if(pr.textContent!==pS){ pr.textContent=pS; pr.classList.remove('tk'); void pr.offsetWidth; pr.classList.add('tk'); }
     capPr.textContent=pS; chEl.textContent='成功率 '+encChance(c.hp)+'%';
     const w=(st==='won'||st==='end')?0:c.hp*100; hpF.style.width=w+'%'; hpG.style.width=w+'%'; hpT.textContent=Math.round(w)+'%'; el.dataset.hp=w<25?'low':w<55?'mid':'hi';
-    cap.disabled=st!=='live'; atk.classList.toggle('off',st!=='live');
+    cap.disabled=st!=='live'||busy; atk.classList.toggle('off',st!=='live');
     const H=encHitsOf(pid), tot=H.n+encPendOf(pid);
     if(lastN!=null&&tot>lastN){ const others=tot-lastN-(V.myAdds||0); if(others>0) for(let i=0;i<Math.min(others,6);i++) setTimeout(()=>flyIn(ENC_EMO[Math.floor(Math.random()*ENC_EMO.length)]),i*90); }
     V.myAdds=0; lastN=tot;
@@ -12455,9 +12479,10 @@ function ezCard(p){ const pid=p.id, cd=h('b',{class:'ez-cd mono'}), lab=h('small
     if(st==='soon'){ const left=q.startsAtMs-now, sg=ezStage(left); if(sg!==sg0){ sg0=sg; card.dataset.sg=sg; stage.querySelector('.ez-egg')?.__stage?.(sg); }
       lab.textContent='孵化倒數'; cd.textContent=fmtLeft(left); pr.textContent='起始 '+money(q.encStart); card.querySelector('.ez-hp').hidden=true; }
     else if(st==='live'){ const c=encCalc(q); lab.textContent='已出現！'; cd.textContent=money(c.price); hp.style.width=c.hp*100+'%'; card.querySelector('.ez-hp').hidden=false; pr.textContent='剩 '+fmtLeft(encEnd(q)-now); }
+    else if(st==='catch'){ lab.textContent='有人正在收服…'; card.querySelector('.ez-hp').hidden=true; pr.textContent=''; }
     else { if(st==='end'&&!card.classList.contains('fled')){ card.classList.add('fled'); } lab.textContent=st==='won'?'已被收服':'頭目逃跑了'; cd.textContent=st==='won'?money(q.encDone?.price||q.soldPrice||0):'—'; card.querySelector('.ez-hp').hidden=true; pr.textContent=''; } };
   up(); iv=setInterval(()=>{ if(!card.isConnected){ clearInterval(iv); return; } up(); },1000); return card; }
-function encZone(o={}){ const A=all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.shop)&&isEnc(p)&&['soon','live'].includes(encState(p))).sort((a,b)=>{ const sa=encState(a), sb=encState(b); if(sa!==sb) return sa==='live'?-1:1; return sa==='live'?encEnd(a)-encEnd(b):a.startsAtMs-b.startsAtMs; });
+function encZone(o={}){ const A=all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.shop)&&isEnc(p)&&['soon','live','catch'].includes(encState(p))).sort((a,b)=>{ const sa=encState(a), sb=encState(b); if(sa!==sb) return sa==='live'?-1:1; return sa==='live'?encEnd(a)-encEnd(b):a.startsAtMs-b.startsAtMs; });
   if(!A.length) return null;
   const liveL=A.filter(p=>encState(p)==='live'), L=o.grid?A:(liveL.length?liveL:A.slice(0,4)), more=!o.grid;
   const sub=liveL.length?liveL.length+' 隻戰鬥中'+(A.length>liveL.length?' · '+(A.length-liveL.length)+' 顆孵化中':''):A.length+' 顆蛋孵化中';
@@ -12543,6 +12568,7 @@ function admEnc(m){ const me=S.work?.shop||S.me, ok=isVerified(me);
 function aeLine(p){ const st=encState(p), now=Date.now();
   if(st==='soon') return fmtDate(tsLocal(p.startsAtMs))+' 破殼 · 還有 '+fmtLeft(p.startsAtMs-now)+' · '+money(p.encStart)+' → '+money(p.encFloor);
   if(st==='live'){ const c=encCalc(p); return '現在 '+money(c.price)+' · HP '+Math.round(c.hp*100)+'% · 剩 '+fmtLeft(encEnd(p)-now)+(p.encFloorAt?' · 已到最低價':''); }
+  if(st==='catch') return '收服中…';
   if(st==='won') return '被 '+nameOf(p.encDone?.uid||p.buyer)+' 收服 · '+money(p.encDone?.price||p.soldPrice||0);
   return '頭目逃跑了 · '+fledWhy(p)+' · '+fmtDate(tsLocal(Math.min(encEnd(p),now))); }
 

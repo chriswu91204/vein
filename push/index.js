@@ -111,7 +111,9 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
   const me = await displayName(uid);
   // 新訂單 → 賣家
   for (const [oid, o] of Object.entries(after.orders || {})) {
-    if ((before.orders || {})[oid] || !o.seller) continue;
+    const bo = (before.orders || {})[oid];
+    if (bo && !bo.cancelled && o.cancelled && o.seller) { await push(o.seller, '訂單已取消', me + ' 取消了訂單（' + nt(o.total) + '）', '/#orders/orders', 'order-' + oid); continue; }
+    if (bo || !o.seller || o.cancelled) continue;
     const n = (o.items || []).length, q = Object.values(o.qty || {}).reduce((a, b) => a + b, 0);
     await push(o.seller, '📦 新訂單', me + ' 下單 ' + (q ? q + ' 株' : n + ' 件') + '，共 ' + nt(o.total) + '，請到訂單接受', '/#orders/orders', 'order-' + oid);
   }
