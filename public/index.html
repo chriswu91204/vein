@@ -4043,22 +4043,20 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ez-stg{position:relative;z-index:1;height:170px;display:grid;place-items:center}
 .ez-egg{position:relative;width:104px;height:135px;transform-origin:50% 92%;animation:ezWob 3.2s ease-in-out infinite}
 .eg-svg{position:relative;z-index:1;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 18px rgba(255,120,30,.25))}
-.eg-kg{fill:#FFB02E;filter:blur(1.6px);opacity:0;transition:opacity .8s}
-.eg-kl{fill:rgba(255,255,255,.75)}
-.eg-kd{fill:#2A1708}
-.eg-kc{fill:#FFE9A8;opacity:0;transition:opacity .8s}
-[data-sg="3"] .eg-kc{opacity:.45}[data-sg="4"] .eg-kc{opacity:.8}[data-sg="5"] .eg-kc,[data-sg="6"] .eg-kc{opacity:1}
-[data-sg="3"] .eg-kg{opacity:.25}[data-sg="4"] .eg-kg{opacity:.5}[data-sg="5"] .eg-kg,[data-sg="6"] .eg-kg{opacity:.9;animation:egPulse .7s ease-in-out infinite alternate}
-[data-sg="5"] .eg-kd,[data-sg="6"] .eg-kd{fill:#5A2606}
+.eg-kl{fill:rgba(255,255,255,.85)}
+.eg-kd{fill:#3A2C1E}
+.eg-kc{fill:#FFE7A0;opacity:0;transition:opacity .8s}
+.eg-gl{opacity:0;filter:blur(1.8px);transition:opacity .8s}.eg-gl .eg-kl,.eg-gl .eg-kc{display:none}.eg-gl .eg-kd{fill:#FFA62A}
+[data-sg="6"] .eg-kc{opacity:.7}
+[data-sg="5"] .eg-gl{opacity:.3}[data-sg="6"] .eg-gl{opacity:.5;animation:egPulse .7s ease-in-out infinite alternate}
 @keyframes egPulse{to{opacity:.45}}
-.eg-in{opacity:0;transition:opacity .6s}[data-sg="5"] .eg-in,[data-sg="6"] .eg-in{opacity:1}
+.eg-in{opacity:0;transition:opacity .6s}[data-sg="6"] .eg-in{opacity:1}
 .eg-top{transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
-.eg-half{display:none}[data-sg="5"] .eg-half,[data-sg="6"] .eg-half{display:inline}[data-sg="5"] .eg-whole,[data-sg="6"] .eg-whole{display:none}
-[data-sg="5"] .eg-top{transform:translate(-.3px,-1px) rotate(-1.5deg)}
+.eg-half{display:none}[data-sg="6"] .eg-half{display:inline}[data-sg="6"] .eg-whole{display:none}
 [data-sg="6"] .eg-top{animation:egLift 1.1s ease-in-out infinite}
 @keyframes egLift{0%,100%{transform:translate(-.4px,-1.8px) rotate(-2.5deg)}50%{transform:translate(.6px,-3.2px) rotate(-5deg)}}
-.eg-hole{fill:#FFE9B0;stroke:rgba(70,30,5,.85);stroke-width:.7;stroke-linejoin:miter;opacity:0;transform-box:fill-box;transform-origin:center;transition:opacity .4s,transform .4s}
-[data-sg="5"] .eg-hole.h0,[data-sg="6"] .eg-hole{opacity:1}
+.eg-hole{opacity:0;stroke-linejoin:miter;transition:opacity .4s}
+[data-sg="5"] .eg-hole.h0,[data-sg="6"] .eg-hole.h1{opacity:1}
 [data-sg="6"] .eg-hole{animation:egHole .6s ease-in-out infinite alternate}
 @keyframes egHole{from{filter:drop-shadow(0 0 1px #FFB02A)}to{filter:drop-shadow(0 0 3px #FF9A1A)}}
 .ez-glow{position:absolute;inset:-20%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,230,120,.0),transparent);transition:background .6s}
@@ -12529,21 +12527,30 @@ let EGG_N=0;
 function eggRng(id){ let s=0; for(const c of String(id||'x')) s=(s*131+c.charCodeAt(0))>>>0; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
 const EGG_PATH='M50 3C77 3 95 48 94 83C93 112 74 127 50 127C26 127 7 112 6 83C5 48 23 3 50 3Z';
 function eggInside(x,y){ const cy=74, ry=y<cy?71:53, rx=44*(y<cy?Math.sqrt(Math.max(0,1-Math.pow((cy-y)/ry,2))):Math.sqrt(Math.max(0,1-Math.pow((y-cy)/ry,2)))); return Math.abs(x-50)<rx-3; }
-// 蛋殼裂痕（參考孵蛋插畫）：裂縫畫成「有粗細的實心裂口」——起點粗、往尖端收細，邊緣有一道亮邊做出殼的厚度。
-// 1) 先在蛋腰敲出裂點 → 2) 沿蛋腰往左右裂成大鋸齒（之後上半殼就從這裡掀開）→ 3) 鋸齒的尖角往上、往下長出長裂痕，四面八方都有
-// → 4) 裂縫裡透出光 → 5) 缺一角、上半殼被頂起
-function eggCrackGeo(R){ const cy=60+R()*9, tilt=(R()-.5)*.14, x0=50+(R()-.5)*10, yAt=x=>cy+tilt*(x-50)+.006*Math.pow(x-50,2);
-  const up0=R()<.5, half=dir=>{ const pts=[]; let x=x0, u=up0, g=0; while(g++<14){ const nx=x+dir*(8.5+R()*4), ny=yAt(nx)+(u?-1:1)*(4.5+R()*3.5); pts.push([nx,ny]); x=nx; u=!u; if(Math.abs(nx-50)>52) break; } return pts; };
-  const c0=[x0,yAt(x0)], Rh=half(1), Lh=half(-1);
-  // 從鋸齒尖角長出去的裂痕：尖角朝上的往上長、朝下的往下長，帶一點往外斜，中途折幾下
-  const sec=[]; const grow=(o,ang,len,w,from,at)=>{ let x=o[0], y=o[1], a=ang, L=0; const pts=[[x,y]]; let k=0; while(L<len&&k++<8){ const s=5.5+R()*6; a+=(k%2?1:-1)*(.35+R()*.45); const nx=x+Math.cos(a)*s, ny=y+Math.sin(a)*s; if(!eggInside(nx,ny)) break; x=nx; y=ny; L+=s; pts.push([x,y]); }
-      if(pts.length>1) sec.push({pts,w,from,at}); return pts; };
-  [[Rh,'r'],[Lh,'l']].forEach(([H,side])=>H.forEach((q,i)=>{ if(i>4||!eggInside(q[0],q[1])) return; const isUp=q[1]<yAt(q[0]); if(R()<.22&&i>0) return;
-    const dir=side==='r'?1:-1, ang=(isUp?-Math.PI/2:Math.PI/2)+dir*(isUp?1:-1)*(.25+R()*.45), pts=grow(q,ang,isUp?24+R()*26:24+R()*22,2.1+R()*.6,side,i);
-    if(pts.length>3&&R()<.7){ const m=pts[1+Math.floor(R()*(pts.length-2))]; grow(m,ang+(R()<.5?-1:1)*(.7+R()*.4),7+R()*9,1.2,side,i+.5); } }));
-  // 裂點本身再往上、往下各裂一條
-  grow(c0,-Math.PI/2+(R()-.5)*.8,20+R()*14,2.1,'c',0); grow(c0,Math.PI/2+(R()-.5)*.8,22+R()*14,2.1,'c',0);
-  return {c0,Rh,Lh,sec,yAt}; }
+// 蛋殼裂痕（照使用者給的參考圖）：細細的髮絲裂紋，從上半部一個敲擊點開始，一邊長一邊分岔，
+// 碰到別條裂紋就接上去 → 慢慢在蛋殼上織成一塊一塊的碎片網；快孵化時敲擊點破一個洞、上半殼沿著不規則的裂口被頂開
+function segHit(a,b,c,d){ const r=[b[0]-a[0],b[1]-a[1]], s=[d[0]-c[0],d[1]-c[1]], den=r[0]*s[1]-r[1]*s[0]; if(Math.abs(den)<1e-9) return null;
+  const u=((c[0]-a[0])*s[1]-(c[1]-a[1])*s[0])/den, v=((c[0]-a[0])*r[1]-(c[1]-a[1])*r[0])/den; return u>1e-4&&u<=1&&v>=0&&v<=1?u:null; }
+function eggCrackGeo(R){ const P0=[42+R()*16,38+R()*12], seg=[], cracks=[], tips=[];
+  const add=(x,y,a,t,max,w,kind,parent)=>{ const c={pts:[[x,y]],ts:[t],w,kind}; cracks.push(c); tips.push({c,x,y,a,a0:a,t,len:0,max,parent}); };
+  // 上半殼的斷口：從敲擊點往左右各一條、大致水平但歪歪扭扭
+  add(P0[0],P0[1],0+(R()-.5)*.4,0,200,1.35,'brk'); add(P0[0],P0[1],Math.PI+(R()-.5)*.4,0,200,1.35,'brk');
+  const nr=4+Math.floor(R()*2); for(let i=0;i<nr;i++) add(P0[0],P0[1],(i/nr)*6.283+R()*.9,0,26+R()*30,1.2,'rad');
+  let budget=560;
+  while(tips.length&&budget-->0){ tips.sort((a,b)=>a.t-b.t); const tp=tips.shift(), c=tp.c;
+    const s=1.8+R()*2.2; tp.a+=(R()-.5)*.62; if(c.kind==='brk') tp.a+=(R()-.5)*.5-Math.atan2(Math.sin(tp.a-tp.a0),Math.cos(tp.a-tp.a0))*.12;
+    const a=[tp.x,tp.y]; let b=[tp.x+Math.cos(tp.a)*s,tp.y+Math.sin(tp.a)*s], end=false;
+    let best=null; for(const g of seg){ if(g.c===c&&g.i>=c.pts.length-2) continue; if(g.c===tp.parent&&Math.hypot(g.a[0]-a[0],g.a[1]-a[1])<.01) continue; const u=segHit(a,b,g.a,g.b); if(u!=null&&(!best||u<best)) best=u; }
+    if(best!=null&&tp.len>.5){ b=[a[0]+(b[0]-a[0])*best,a[1]+(b[1]-a[1])*best]; end=true; }
+    if(!eggInside(b[0],b[1])){ b=[a[0]+Math.cos(tp.a)*s*2.2,a[1]+Math.sin(tp.a)*s*2.2]; end=true; }
+    const L=Math.hypot(b[0]-a[0],b[1]-a[1]); seg.push({a,b,c,i:c.pts.length-1}); c.pts.push(b); c.ts.push(tp.t+L); tp.x=b[0]; tp.y=b[1]; tp.t+=L; tp.len+=L;
+    if(!end&&tp.len<tp.max) tips.push(tp);
+    else if(end&&c.kind!=='brk'&&R()<.7&&budget>40){ const k=1+Math.floor(R()*(c.pts.length-1)), q=c.pts[Math.min(k,c.pts.length-1)]; add(q[0],q[1],tp.a+(R()<.5?-1:1)*(1+R()*.9),c.ts[Math.min(k,c.ts.length-1)]+2,12+R()*28,Math.max(.65,c.w*.85),'sub',c); }
+    if(!end&&tp.len>5&&R()<.11) add(tp.x,tp.y,tp.a+(R()<.5?-1:1)*(.6+R()*.8),tp.t,8+R()*24,Math.max(.6,c.w*.8),'sub',c); }
+  const T=Math.max(...cracks.map(c=>c.ts[c.ts.length-1]));
+  const brk=cracks.filter(c=>c.kind==='brk'), line=[...brk[1].pts.slice().reverse(),...brk[0].pts.slice(1)].sort((p,q)=>p[0]-q[0]);
+  const hole=k=>{ const n=11+Math.floor(R()*4), r0=k?10.5:6.8; return Array.from({length:n},(_,i)=>{ const a=i/n*6.283+R()*.3, r=r0*(i%2?.72+R()*.2:.92+R()*.35); return [P0[0]+Math.cos(a)*r*1.1,P0[1]+Math.sin(a)*r]; }); };
+  return {P0,cracks,T,line,holes:[hole(0),hole(1)]}; }
 // 把折線做成「起點粗、尖端細」的實心裂口；f＝已經裂到的比例，tipR＝尖端剩多粗（裂到邊緣的主裂縫不收尖）
 function eggTaper(pts,f,w0,tipR,k){ if(f<=0) return ''; const D=[0]; for(let i=1;i<pts.length;i++) D.push(D[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
   const Lc=D[D.length-1]*Math.min(1,f), P=[pts[0]], W=[]; for(let i=1;i<pts.length;i++){ if(D[i]<=Lc){ P.push(pts[i]); continue; } const r=(Lc-D[i-1])/(D[i]-D[i-1]||1); P.push([pts[i-1][0]+(pts[i][0]-pts[i-1][0])*r,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*r]); break; }
@@ -12556,14 +12563,9 @@ function ezEgg(id){ const R=eggRng(id), u='eg'+(++EGG_N), G=eggCrackGeo(R), f=v=
     const md=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2]; let d='M'+md(pts[n-1],pts[0]).map(f).join(' '); for(let k=0;k<n;k++){ const q=pts[k], m2=md(q,pts[(k+1)%n]); d+='Q'+f(q[0])+' '+f(q[1])+' '+f(m2[0])+' '+f(m2[1]); }
     return '<path d="'+d+'Z" opacity="'+(.3+R()*.4).toFixed(2)+'"/>'; }).join('');
   const P=a=>a.map(q=>f(q[0])+' '+f(q[1])).join('L');
-  const full=[[-6,G.Lh[G.Lh.length-1][1]],...G.Lh.slice().reverse(),G.c0,...G.Rh,[106,G.Rh[G.Rh.length-1][1]]];
-  const topClip='M-4 -4L104 -4L'+P(full.slice().reverse())+'Z', botClip='M-4 140L104 140L'+P(full.slice().reverse())+'Z';
-  // 每條裂痕一組四層：光暈、亮邊（殼的厚度）、深色裂口、裂口裡透出的光
-  const CR=[{pts:[G.c0,...G.Rh],w:3,tip:.6,g:'z'},{pts:[G.c0,...G.Lh],w:3,tip:.6,g:'z'},...G.sec.map(s=>({pts:s.pts,w:s.w,tip:0,g:'s',side:s.from,at:s.at}))];
-  const crk=CR.map(()=>'<g class="eg-k"><path class="eg-kg"/><path class="eg-kl" transform="translate(.45 .6)"/><path class="eg-kd"/><path class="eg-kc"/></g>').join('');
-  // 缺角：鋸齒上最靠中間、朝上的兩個尖角
-  const pk=[...G.Rh.slice(0,4),...G.Lh.slice(0,4)].filter(q=>q[1]<G.yAt(q[0])).sort((a,b)=>Math.abs(a[0]-50)-Math.abs(b[0]-50)).slice(0,2);
-  const chip=(q,k)=>{ const s=k?4:3.2; return '<path class="eg-hole h'+k+'" d="M'+f(q[0]-s)+' '+f(q[1]+.4)+'L'+f(q[0]-s*.2)+' '+f(q[1]-s*1.25)+'L'+f(q[0]+s*.95)+' '+f(q[1]-s*.35)+'L'+f(q[0]+s*.25)+' '+f(q[1]+.9)+'Z"/>'; };
+  const ln=G.line, topClip='M-4 -4L104 -4L104 '+f(ln[ln.length-1][1])+'L'+P(ln.slice().reverse())+'L-4 '+f(ln[0][1])+'Z', botClip='M-4 140L104 140L104 '+f(ln[ln.length-1][1])+'L'+P(ln.slice().reverse())+'L-4 '+f(ln[0][1])+'Z';
+  const CR=G.cracks, crk=CR.map(()=>'<g class="eg-k"><path class="eg-kl" transform="translate(.3 .42)"/><path class="eg-kd"/><path class="eg-kc"/></g>').join('');
+  const holes=G.holes.map((hp,k)=>'<g class="eg-hole h'+k+'"><path d="M'+P(hp)+'Z" fill="url(#'+u+'hl)"/><path d="M'+P(hp)+'Z" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.5" stroke-linejoin="round" clip-path="url(#'+u+'hc'+k+')" transform="translate(-.5 -.7)"/><path d="M'+P(hp)+'Z" fill="none" stroke="#3B2A18" stroke-width=".8"/></g>').join('');
   const svg='<svg viewBox="-4 -4 108 140" class="eg-svg" aria-hidden="true"><defs>'+
     '<radialGradient id="'+u+'b" cx=".36" cy=".3" r=".78"><stop offset="0" style="stop-color:var(--e1)"/><stop offset=".42" style="stop-color:var(--e2)"/><stop offset=".78" style="stop-color:var(--e3)"/><stop offset="1" style="stop-color:var(--e4)"/></radialGradient>'+
     '<radialGradient id="'+u+'r" cx=".5" cy="1.05" r=".75"><stop offset="0" stop-color="#FF8A2A" stop-opacity=".75"/><stop offset=".55" stop-color="#FF5A10" stop-opacity=".18"/><stop offset="1" stop-color="#FF5A10" stop-opacity="0"/></radialGradient>'+
@@ -12572,7 +12574,7 @@ function ezEgg(id){ const R=eggRng(id), u='eg'+(++EGG_N), G=eggCrackGeo(R), f=v=
     '<radialGradient id="'+u+'in" cx=".5" cy=".55" r=".5"><stop offset="0" stop-color="#FFF6C8"/><stop offset=".6" stop-color="#FFC24A"/><stop offset="1" stop-color="#FF7A1A"/></radialGradient>'+
     '<filter id="'+u+'g" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="'+Math.floor(R()*99)+'"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.15"/></filter>'+
     '<filter id="'+u+'f" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter>'+
-    '<clipPath id="'+u+'c"><path d="'+EGG_PATH+'"/></clipPath><clipPath id="'+u+'t"><path d="'+topClip+'"/></clipPath><clipPath id="'+u+'d"><path d="'+botClip+'"/></clipPath>'+
+    '<radialGradient id="'+u+'hl" cx=".5" cy=".6" r=".6"><stop offset="0" stop-color="#FFF3C0"/><stop offset=".35" stop-color="#FFB43A"/><stop offset=".75" stop-color="#7A2E06"/><stop offset="1" stop-color="#2A1004"/></radialGradient>'+G.holes.map((hp,k)=>'<clipPath id="'+u+'hc'+k+'"><path d="M'+P(hp)+'Z"/></clipPath>').join('')+'<clipPath id="'+u+'c"><path d="'+EGG_PATH+'"/></clipPath><clipPath id="'+u+'t"><path d="'+topClip+'"/></clipPath><clipPath id="'+u+'d"><path d="'+botClip+'"/></clipPath>'+
     '<g id="'+u+'sh"><g clip-path="url(#'+u+'c)"><path d="'+EGG_PATH+'" fill="url(#'+u+'b)"/>'+
       '<g style="fill:var(--sp)" filter="url(#'+u+'f)" opacity=".55">'+spots+'</g><g style="fill:var(--sp)">'+spots+'</g>'+
       '<rect x="-4" y="-4" width="108" height="140" filter="url(#'+u+'g)" opacity=".22" style="mix-blend-mode:multiply"/>'+
@@ -12583,14 +12585,14 @@ function ezEgg(id){ const R=eggRng(id), u='eg'+(++EGG_N), G=eggCrackGeo(R), f=v=
     '<g clip-path="url(#'+u+'c)"><path class="eg-in" d="'+EGG_PATH+'" fill="url(#'+u+'in)"/></g>'+
     '<use class="eg-half" href="#'+u+'sh" clip-path="url(#'+u+'d)"/>'+
     '<use class="eg-whole" href="#'+u+'sh"/>'+
-    '<g class="eg-top eg-half" style="transform-origin:'+f(full[0][0])+'px '+f(full[0][1])+'px"><use href="#'+u+'sh" clip-path="url(#'+u+'t)"/></g>'+
-    '<g class="eg-cracks" clip-path="url(#'+u+'c)">'+crk+chip(pk[0]||G.c0,0)+chip(pk[1]||G.c0,1)+'</g></svg>';
+    '<g class="eg-top eg-half" style="transform-origin:'+f(ln[0][0])+'px '+f(ln[0][1])+'px"><use href="#'+u+'sh" clip-path="url(#'+u+'t)"/></g>'+
+    '<g class="eg-cracks" clip-path="url(#'+u+'c)"><g class="eg-gl">'+crk.replace(/eg-k"/g,'eg-k g"')+'</g>'+crk+holes+'</g></svg>';
   const egg=h('div',{class:'ez-egg',style:eggVars(id)}, h('i',{class:'ez-glow'})); egg.insertAdjacentHTML('beforeend',svg);
-  // 每個階段：主裂縫（從裂點往左右）裂到多少；尖角上的裂痕要等主裂縫裂到那裡才長；裂點本身的上下兩條先長
-  const ZF=[0,.1,.28,.5,.78,1,1], SF=[0,0,.45,.75,1,1,1], CF=[0,.55,.85,1,1,1,1];
-  const gs=[...egg.querySelectorAll('.eg-k')], cur=CR.map(()=>0);
-  const target=sg=>CR.map(c=>{ if(c.g==='z') return ZF[sg]; if(c.side==='c') return CF[sg]; const H=c.side==='r'?G.Rh:G.Lh, reach=ZF[sg]*(H.length); if(c.at%1) return sg>=4&&reach>=Math.floor(c.at)+1?1:0; return reach>=Math.floor(c.at)+1?SF[sg]*Math.min(1,(reach-Math.floor(c.at))/1.5):0; });
-  const draw=()=>CR.forEach((c,i)=>{ const [g,l,d,k]=gs[i].children, v=cur[i]; g.setAttribute('d',eggTaper(c.pts,v,c.w*2.8,c.tip,1)); l.setAttribute('d',eggTaper(c.pts,v,c.w,c.tip,1.05)); d.setAttribute('d',eggTaper(c.pts,v,c.w,c.tip,1)); k.setAttribute('d',eggTaper(c.pts,v,c.w,c.tip,.4)); });
+  // 每個階段裂到多遠（從敲擊點沿著裂紋走的距離）：一開始只有敲擊點附近幾條，越接近孵化越布滿整顆蛋
+  const TF=[0,.08,.2,.38,.6,.85,1], cur=[0], gs=[...egg.querySelectorAll('.eg-cracks>.eg-k')], gl=[...egg.querySelectorAll('.eg-gl .eg-k')];
+  const draw=()=>{ const Tc=cur[0]*G.T; CR.forEach((c,i)=>{ const L=c.ts[c.ts.length-1]-c.ts[0], fr=L>0?Math.max(0,Math.min(1,(Tc-c.ts[0])/L)):0, [l,d,k]=gs[i].children, w=c.w;
+    l.setAttribute('d',eggTaper(c.pts,fr,w*.9,.75,1)); d.setAttribute('d',eggTaper(c.pts,fr,w,.75,1)); k.setAttribute('d',eggTaper(c.pts,fr,w,.75,.38)); gl[i].children[1].setAttribute('d',eggTaper(c.pts,fr,w*3.2,.8,1)); }); };
+  const target=sg=>[TF[sg]];
   let raf=0; egg.__stage=sg=>{ sg=Math.max(0,Math.min(6,sg|0)); egg.dataset.sg=sg; const to=target(sg), from=cur.slice(), t0=performance.now(), T=REDUCE||!egg.isConnected?0:1100; cancelAnimationFrame(raf);
     if(!T){ to.forEach((v,i)=>{ cur[i]=v; }); draw(); return; }
     const step=now=>{ const p=Math.min(1,(now-t0)/T), e=1-Math.pow(1-p,3); to.forEach((v,i)=>{ cur[i]=from[i]+(v-from[i])*e; }); draw(); if(p<1&&egg.isConnected) raf=requestAnimationFrame(step); }; raf=requestAnimationFrame(step); };
