@@ -120,7 +120,7 @@ async function start() {
   }
   const cache = new Map();
   const user = {
-    async me() { return u ? { id: u.uid, name: u.displayName || '', avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber } : { id: null, name: '', avatarUrl: '' }; },
+    async me() { return u ? { id: u.uid, name: u.displayName || '', avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber, phone: auth.currentUser?.phoneNumber || null } : { id: null, name: '', avatarUrl: '' }; },
     async id() { return u ? u.uid : null; },
     async isOwner() { return isOwner; },
     async canEdit() { return isAdmin; },
