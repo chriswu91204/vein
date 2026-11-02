@@ -214,7 +214,7 @@ service cloud.firestore {
       allow read: if isMe(uid) || isAdmin();
       allow write: if isAdmin();
     }
-    // 遭遇戰：每個人自己的攻擊次數（只能往上加，每次最多 +60，上限 20000）
+    // 遭遇戰：每個人自己的攻擊次數（只能往上加，每次最多 +60，上限 300000）
     function vSeller(u) { return exists(/databases/$(database)/documents/site/verified) && u in get(/databases/$(database)/documents/site/verified).data.get('uids', {}); }
     match /encHits/{id} {
       allow read: if true;
@@ -222,7 +222,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 60;
       allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && request.resource.data.pid == resource.data.pid
         && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= resource.data.n
-        && request.resource.data.n <= resource.data.n + 60 && request.resource.data.n <= 20000;
+        && request.resource.data.n <= resource.data.n + 60 && request.resource.data.n <= 300000;
     }
     // 遭遇戰：收服（伺服器擲骰後把結果寫回）
     match /encTry/{id} {
