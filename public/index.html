@@ -3741,6 +3741,21 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .she-p{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}.she-p small{color:var(--fg2)}
 /* ===== 我的競標／我感興趣 ===== */
 #mineBar:empty{display:none}
+.mn-hs{margin-left:auto;position:relative;flex:none}
+.mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
+.mn-ha{display:flex}.mn-ha .av{border:2px solid var(--surface);border-radius:50%;margin-left:-8px;object-fit:cover}.mn-ha .av:first-child{margin-left:0}
+.mn-hb b{font-size:13px}.mn-hb i{font-style:normal;font-size:10px;color:var(--fg2)}
+.mn-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:5;width:min(280px,80vw);max-height:60vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:8px;box-shadow:0 24px 48px -18px rgba(0,0,0,.35);animation:mnIn .2s both}
+.mn-pop[hidden]{display:none}
+.mn-pt{display:block;font-size:11px;color:var(--fg2);padding:4px 8px 6px;letter-spacing:.06em}
+.mn-pop a{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;color:var(--fg);text-decoration:none;font-size:14px;font-weight:600}
+.mn-pop a:hover,.mn-pop a:active{background:rgba(0,0,0,.05)}
+.mn-pop a .av{border-radius:50%;object-fit:cover;flex:none}
+.mn-pop a span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-pop a em{font-style:normal;font-size:12px;color:var(--fg2);font-weight:500}
+.mn-pop a::after{content:'›';color:var(--fg2)}
+.mn .od2-h{overflow:visible}.mn .od2{overflow:visible}.mn .od2-b{border-radius:0 0 24px 24px}
+.mn .od2-h{border-radius:24px 24px 0 0}@media (max-width:640px){.mn .od2-h,.mn .od2-b{border-radius:0}}
 .mnb{position:relative;display:flex;align-items:center;gap:14px;width:100%;max-width:560px;margin:0 0 14px;padding:12px 14px 12px 12px;border:0;border-radius:20px;background:linear-gradient(120deg,#0E1210 0%,#18201A 60%,#1F2A16 100%);color:#fff;font:inherit;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 14px 30px -18px rgba(0,0,0,.55);isolation:isolate}
 .mnb::before{content:'';position:absolute;inset:-40% -10%;background:radial-gradient(closest-side,rgba(212,242,90,.28),transparent 70%) no-repeat;background-size:45% 100%;background-position:-60% 0;animation:mnbSweep 4.5s ease-in-out infinite;z-index:-1}
 @keyframes mnbSweep{0%{background-position:-60% 0}60%,100%{background-position:160% 0}}
@@ -5623,8 +5638,9 @@ function renderMineBar(T){ const box=$('#mineBar'); if(!box) return; const K=T==
     h('span',{class:'mnb-tx'}, h('b',{}, K==='auc'?'我的競標':'我感興趣', hot?h('span',{class:'mnb-dot'}):null), subEl),
     h('span',{class:'mnb-go',text:'→'}))); }
 function openMine(K,tab0){ let tab=tab0||null, timer=0;
-  const ov=h('div',{class:'od2-ov mn',onclick:e=>{ if(e.target===ov) close(); }}), body=h('div',{class:'od2-b'});
-  ov.append(h('div',{class:'od2'}, h('div',{class:'od2-h'}, h('button',{type:'button',class:'od2-x','aria-label':'關閉',onclick:()=>close(),text:'✕'}), h('div',{class:'od2-t'}, h('small',{text:K==='auc'?'MY BIDS':'MY PICKS'}), h('b',{text:K==='auc'?'我的競標':'我感興趣'}))), body));
+  const ov=h('div',{class:'od2-ov mn',onclick:e=>{ if(e.target===ov) close(); else if(!e.target.closest('.mn-hs')) ov.querySelector('.mn-pop')?.setAttribute('hidden',''); }}), body=h('div',{class:'od2-b'});
+  const hs=h('div',{class:'mn-hs'});
+  ov.append(h('div',{class:'od2'}, h('div',{class:'od2-h'}, h('button',{type:'button',class:'od2-x','aria-label':'關閉',onclick:()=>close(),text:'✕'}), h('div',{class:'od2-t'}, h('small',{text:K==='auc'?'MY BIDS':'MY PICKS'}), h('b',{text:K==='auc'?'我的競標':'我感興趣'})), hs), body));
   const cd=p=>{ const ms=(p.startsAtMs>Date.now()?p.startsAtMs:p.endsAtMs)-Date.now(); return (p.startsAtMs>Date.now()?'▶':'')+fmtLeft(ms); };
   const row=(x,i)=>{ const p=x.p, sh=p.shop; let st='grey', pill='', price='', meta=[], extra=null;
     if(K==='auc'){ const t=topBid(p.id), my=x.b?.amt; st=x.b?bidState(p,x.b):(live(p)?'live':'grey');
@@ -5649,8 +5665,12 @@ function openMine(K,tab0){ let tab=tab0||null, timer=0;
     const EM={act:['🔨','還沒有進行中的出價'],end:['⏳','還沒有結束的競標'],watch:['♡','收藏競標中的植物，會出現在這裡'],fav:['♡','點植物右上角的愛心收藏'],rv:['👀','還沒有看過的植物'],buy:['🛍','還沒有買過']}[tab];
     body.replaceChildren(
       h('div',{class:'mn-seg'}, ...D.tabs.map(([k,l,a])=>h('button',{type:'button','aria-pressed':String(k===tab),onclick:()=>{ tab=k; draw(); body.scrollTop=0; }}, l, h('i',{text:String(a.length)})))),
-      shops.size>1?h('div',{class:'mn-shops'}, ...[...shops].sort((a,b)=>b[1]-a[1]).map(([u,n])=>h('a',{href:'#/seller/'+u,onclick:()=>close()}, avatar(u,24), shopName(u), h('small',{text:String(n)})))):null,
       L.length?h('div',{class:'mn-l'}, ...L.map(row)):h('div',{class:'mn-e'}, h('b',{text:EM[0]}), h('span',{text:EM[1]})));
+    // 右上角：相關賣場（點開清單，直接進賣場）
+    const SL=[...shops].sort((a,b)=>b[1]-a[1]);
+    hs.replaceChildren(); if(SL.length){ const pop=h('div',{class:'mn-pop',hidden:true}, h('small',{class:'mn-pt',text:'相關賣場'}), ...SL.map(([u,n])=>h('a',{href:'#/seller/'+u,onclick:()=>close()}, avatar(u,28), h('span',{text:shopName(u)}), h('em',{text:n+' 株'}))));
+      const btn=h('button',{type:'button',class:'mn-hb','aria-label':'相關賣場',onclick:e=>{ e.stopPropagation(); pop.hidden=!pop.hidden; }}, h('span',{class:'mn-ha'}, ...SL.slice(0,3).map(([u])=>avatar(u,22))), h('b',{text:SL.length+' 家賣場'}), h('i',{text:'▾'}));
+      hs.append(btn,pop); }
     if(D.miss.length) mineFetch(D.miss).then(ok=>{ if(ok&&ov.isConnected) draw(); }); };
   const tick=()=>{ ov.querySelectorAll('.mn-cdw').forEach(el=>{ const p=S.plants.get(el.dataset.p); if(p) el.textContent=cd(p); }); };
   let sig=''; const watch=()=>{ const s=JSON.stringify(mineData(K).tabs.map(x=>x[2].map(y=>y.id+(topBid(y.id)?.amt||0)+live(y.p)+y.p.status))); if(sig&&s!==sig) draw(); sig=s; };
