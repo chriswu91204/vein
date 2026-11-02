@@ -3857,6 +3857,11 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 @keyframes enWin{from{transform:rotate(var(--a)) translateX(0) scale(1.4)}to{transform:rotate(var(--a)) translateX(calc(var(--d) * 1.6)) scale(.3);opacity:0}}
 .en-cr{text-align:center;font-size:12px;color:rgba(255,255,255,.55);margin-top:10px;min-height:1em}
 .en-own{text-align:center;color:rgba(255,255,255,.6);font-size:13px;margin:14px 0 0}
+.en-fb{position:absolute;left:50%;top:30%;z-index:9;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 22px;border-radius:18px;background:linear-gradient(135deg,#FF3D00,#FF8A1F);color:#fff;box-shadow:0 0 0 3px #fff,0 0 40px rgba(255,90,20,.8);white-space:nowrap;pointer-events:none;animation:enFb 2.6s cubic-bezier(.2,1.4,.4,1) both}
+.en-fb.oth{background:linear-gradient(135deg,#2E7D32,#9BD61F);box-shadow:0 0 0 3px #fff,0 0 40px rgba(155,214,31,.85)}
+.en-fb b{font-size:24px;font-weight:900;letter-spacing:.06em;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.en-fb span{font-size:16px;font-weight:800}
+@keyframes enFb{0%{transform:translate(-50%,-50%) scale(.2) rotate(-8deg);opacity:0}14%{transform:translate(-50%,-50%) scale(1.12) rotate(3deg);opacity:1}22%,82%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}100%{transform:translate(-50%,-80%) scale(.9);opacity:0}}
 .en-res{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:rgba(5,8,6,.72);backdrop-filter:blur(3px);animation:gtF .4s both}
 .en-rb{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;animation:gtP .5s cubic-bezier(.2,1.5,.4,1) both}
 .en-ri{font-size:56px;filter:drop-shadow(0 0 20px rgba(255,213,74,.6))}
@@ -12460,7 +12465,7 @@ function encPanel(p,deal){
     const left=Math.max(600,+ec.until-Date.now());
     setTimeout(()=>{ if(!el.isConnected){ ball.remove(); return; } ball.classList.remove('wobble');
       if(ec.ok){ ball.classList.add('lock'); const burst=h('div',{class:'en-win'}, ...Array.from({length:22},(_,i)=>h('i',{style:`--a:${i*360/22}deg;--d:${60+Math.random()*90}px;--c:${['#D4F25A','#FFD54A','#fff','#7FE3FF'][i%4]}`}))); fx.append(burst); setTimeout(()=>{ ball.remove(); burst.remove(); },1600); if(mine) toast('🎉 收服成功！訂單已成立'); }
-      else { ball.classList.add('burst'); setTimeout(()=>ball.remove(),500); mon.classList.remove('sucked'); mon.classList.add('escape'); setTimeout(()=>mon.classList.remove('escape'),900); healFx(); if(mine) toast('收服失敗！植物回血了'); }
+      else { ball.classList.add('burst'); setTimeout(()=>ball.remove(),500); mon.classList.remove('sucked'); mon.classList.add('escape'); setTimeout(()=>mon.classList.remove('escape'),900); healFx(); const fb=h('div',{class:'en-fb'+(mine?'':' oth')}, h('b',{text:mine?'收服失敗！':'有人收服失敗'}), h('span',{text:mine?'再加把勁 💪':'你的機會來了 🔥'})); fx.append(fb); setTimeout(()=>fb.remove(),2600); }
       el.classList.remove('catching'); if(mine) busy=false; },left); }
   async function encCapture(){ const pp=S.plants.get(pid)||p; if(busy) return; if(encState(pp)!=='live'||encReady(pp)){ toast(encState(pp)==='catch'?'有人正在收服，等結果出來':encReady(pp)?'還在集合中，等開打':'現在不能收服'); return; }
     if(needLogin()||needPhone()||needRecv()) return; if(Date.now()<cdUntil){ toast('喘口氣，'+Math.ceil((cdUntil-Date.now())/1000)+' 秒後再丟'); return; }
