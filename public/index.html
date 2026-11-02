@@ -4074,6 +4074,51 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ez-hpf{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#FF3D00,#FFD24A);transition:width .5s}
 .ez-pr{font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px}
 @media (prefers-reduced-motion:reduce){.ez *{animation:none!important}}
+.ms-page{padding:12px 0 24px}
+.ms{position:relative;max-width:520px;margin:0 auto;border-radius:30px;padding:22px 18px 22px;color:#fff;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;overflow:hidden;isolation:isolate;background:radial-gradient(120% 90% at 50% 115%,#6A2208 0%,#1E0B05 50%,#0B0605 100%);box-shadow:0 30px 70px -30px rgba(255,90,20,.6),inset 0 0 0 1px rgba(255,140,60,.2)}
+.ms-bg{position:absolute;inset:auto 0 0 0;height:60%;z-index:-1}.ms-bg .ez-fire{height:100%}
+.ms-bg .ez-fl{width:90px;height:190px}.ms-bg .ez-fl:nth-child(2n){height:240px}
+.ms-shop{display:inline-flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.08);padding:4px 14px 4px 4px;border-radius:999px}
+.ms-shop .av{border-radius:50%;object-fit:cover}
+.ms-k{letter-spacing:.35em;color:#FFB36B;font-size:11px;margin-top:10px}
+.ms-t{margin:0;font-size:30px;font-weight:900;letter-spacing:.06em;background:linear-gradient(0deg,#FF3D00,#FF9A1F 45%,#FFE36B 80%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,110,20,.6))}
+.ms-stg{height:230px;display:grid;place-items:center}
+.ms-stg .ez-egg{width:150px;height:194px}
+.ms[data-sg="1"] .ez-egg{animation-duration:2.6s}.ms[data-sg="2"] .ez-egg{animation-duration:2s}.ms[data-sg="3"] .ez-egg{animation-duration:1.4s}
+.ms[data-sg="4"] .ez-egg{animation:ezWob2 .9s ease-in-out infinite}.ms[data-sg="5"] .ez-egg{animation:ezWob2 .45s ease-in-out infinite}.ms[data-sg="6"] .ez-egg{animation:ezShake .12s linear infinite}
+.ms[data-sg="3"] .ez-ck path.on,.ms[data-sg="4"] .ez-ck path.on,.ms[data-sg="5"] .ez-ck path.on,.ms[data-sg="6"] .ez-ck path.on{stroke:#FFE9A0;filter:drop-shadow(0 0 3px #FFD24A) drop-shadow(0 0 6px #FF8A1F)}
+.ms[data-sg="4"] .ez-glow{background:radial-gradient(closest-side,rgba(255,230,120,.35),transparent)}
+.ms[data-sg="5"] .ez-glow,.ms[data-sg="6"] .ez-glow{background:radial-gradient(closest-side,rgba(255,240,160,.7),transparent);animation:ezPulse .5s ease-in-out infinite alternate}
+.ms.hatching .ez-egg{animation:msHatch 1.1s ease-in forwards}
+@keyframes msHatch{0%{transform:scale(1)}60%{transform:scale(1.15) rotate(6deg);filter:brightness(2)}100%{transform:scale(2.2);opacity:0;filter:brightness(4)}}
+.ms-lb{color:#FFB36B;font-size:12px;letter-spacing:.2em}
+.ms-cd{font-size:40px;line-height:1.1;color:#FFE36B;text-shadow:0 0 18px rgba(255,140,30,.8)}
+.ms[data-sg="5"] .ms-cd,.ms[data-sg="6"] .ms-cd{color:#FF5A2A;animation:enBlink .5s steps(2) infinite}
+.ms-info{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin:12px 0 6px}
+.ms-info div{padding:10px 6px;border-radius:16px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.ms-info small{display:block;font-size:11px;color:rgba(255,255,255,.55)}.ms-info b{font-size:15px}
+.ms-fav{width:100%;justify-content:center;margin-top:6px}.ms-fav.on{background:rgba(212,242,90,.18);color:#D4F25A}
+.ms-how{border:0;background:none;color:rgba(255,255,255,.6);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;margin-top:4px}
+.mn-egg{width:100%;height:100%;display:grid;place-items:center;font-size:34px;background:linear-gradient(160deg,#2A120A,#120705)}
+.ae-g{margin:0 0 18px}
+.ae-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:15px}.ae-h small{color:var(--fg2);font-weight:500}
+.ae-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:18px;background:var(--surface);border:1px solid var(--line);margin-bottom:8px}
+.ae-r.ae-live{border-color:#FF8A1F;box-shadow:inset 3px 0 0 #FF8A1F}.ae-r.ae-won{box-shadow:inset 3px 0 0 #D6A624}
+.ae-r img{width:56px;height:68px;border-radius:12px;object-fit:cover;flex:none}
+.ae-tx{flex:1;min-width:180px;display:flex;flex-direction:column;gap:2px}.ae-tx small{color:var(--fg2);font-size:12.5px}
+.ae-act{display:flex;gap:6px;flex-wrap:wrap}
+.enc.fleeing .en-face{animation:enFlee 1.35s cubic-bezier(.55,0,.9,.45) forwards}
+.enc.fleeing .en-ring{animation:none;opacity:0;transition:opacity .4s .3s}
+@keyframes enFlee{0%{transform:none}12%{transform:translate(-10px,2px) rotate(-8deg)}22%{transform:translate(-16px,-4px) rotate(-12deg) scale(1.06)}30%{transform:translate(-8px,-14px) rotate(-6deg)}100%{transform:translate(460px,-30px) rotate(30deg) scale(.55);opacity:0;filter:blur(4px)}}
+.en-dust{position:absolute;font-size:30px;opacity:0;animation:enDust 1.2s var(--d) ease-out forwards}
+@keyframes enDust{0%{opacity:0;transform:translate(0,0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translate(-120px,10px) scale(1.6)}}
+.ez-c.fled .ez-face{animation:ezFled 1.2s cubic-bezier(.55,0,.9,.45) forwards}
+@keyframes ezFled{to{transform:translate(220px,-20px) rotate(25deg) scale(.6);opacity:0}}
+.ez-c.fled{filter:grayscale(.6)}
+.ms.fled .ez-egg{opacity:.35;filter:grayscale(1);animation:none}
+.ms.fleeing .ez-egg{animation:msRoll 1.5s cubic-bezier(.5,0,.9,.5) forwards}
+@keyframes msRoll{0%{transform:none;opacity:1;filter:none}20%{transform:rotate(-18deg)}100%{transform:translateX(320px) rotate(560deg);opacity:0}}
+.ms.fled .ms-cd{color:#FFB36B;font-size:32px;animation:none}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -5281,7 +5326,7 @@ const privFor=p=>isPriv(p)&&p.shop!==S.me&&!(S.owners?.get?.(p.id)?.current===S.
 const LOCK_IMG='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#E6E8E1"/><g fill="none" stroke="#9A9E95" stroke-width="9" stroke-linecap="round"><rect x="68" y="94" width="64" height="52" rx="12" fill="#D3D6CD" stroke="none"/><path d="M80 94V78a20 20 0 0 1 40 0v16"/></g><circle cx="100" cy="118" r="6" fill="#9A9E95"/></svg>');
 // 商店就是商店：在商店的主頁／商城／商家／搜尋只顯示直購，競標一律在「競標」頁
 const mallNow=()=>PAGE==='shop'&&S.storeTab!=='auction';
-const pub0=()=>{ const m=mallNow(); return all().filter(p=>listed(p)&&!p.hidden&&!p.private&&!p.blocked&&approved(p.shop)&&!(m&&isAuc(p))); };
+const pub0=()=>{ const m=mallNow(); return all().filter(p=>listed(p)&&!p.hidden&&!p.private&&!p.blocked&&approved(p.shop)&&!(m&&isAuc(p))&&!mystery(p)); };
 // 群組販售：同一群組的植株在商店裡合併成一張群組卡（id 以 g: 開頭），點進去再挑編號
 let pubCache=null, pubKey=null;
 const pub=()=>{ const k=mallNow(); if(!pubCache||pubKey!==k){ pubKey=k; pubCache=collapseGroups(pub0()); queueMicrotask(()=>{ pubCache=null; }); } return pubCache.slice(); };
@@ -5356,7 +5401,7 @@ const allQuestions=shop=>{ const out=[]; for(const [uid,doc] of S.social) for(co
 const nameOf=uid=>S.names.get(uid)||(uid===S.me?(S.meInfo?.name||'你'):'會員');
 let nb=false;
 async function resolveNames(ids){ if(!S.user||nb) return; const miss=[...new Set(ids)].filter(i=>i&&!S.names.has(i)); if(!miss.length) return; nb=true; try{ const ps=await S.user.profiles(miss.slice(0,64)); let any=false; miss.slice(0,64).forEach(i=>{ S.names.set(i,ps[i]?.name||''); if(ps[i]?.name) any=true; }); if(any) renderAll(); }catch(e){} finally{ nb=false; } }
-function priceLabel(p){ if(isEnc(p)){ const st=encState(p); return {main:money(st==='won'?(p.encDone?.price||p.soldPrice||0):encCalc(p).price),sub:st==='live'?'⚔ 遭遇戰 · 降價中':st==='soon'?'⚔ 遭遇戰 · 即將出現':'⚔ 遭遇戰'}; } if(isAuc(p)){ const t=topBid(p.id); return {main:money(t?t.amt:p.startPrice),sub:t?'目前出價':'起標價'}; } return p.price?{main:money(p.price),sub:isLot(p)?'每株 · 剩 '+lotLeft(p)+' 株':'直購價'}:{main:STATUS[p.status]||'洽詢',sub:'價格請洽詢'}; }
+function priceLabel(p){ if(isEnc(p)){ const st=encState(p); return {main:money(st==='won'?(p.encDone?.price||p.soldPrice||0):encCalc(p).price),sub:st==='live'?'⚔ 遭遇戰 · 降價中':st==='soon'?'⚔ 遭遇戰 · 即將出現':st==='end'?'💨 頭目逃跑了':'⚔ 遭遇戰'}; } if(isAuc(p)){ const t=topBid(p.id); return {main:money(t?t.amt:p.startPrice),sub:t?'目前出價':'起標價'}; } return p.price?{main:money(p.price),sub:isLot(p)?'每株 · 剩 '+lotLeft(p)+' 株':'直購價'}:{main:STATUS[p.status]||'洽詢',sub:'價格請洽詢'}; }
 const storeContact=()=>S.site.line?('LINE '+S.site.line):(S.site.contact||'');
 const shopContact=uid=>{ const s=shopOf(uid); return s?.line?('LINE '+s.line):(s?.contact||''); };
 /* orders */
@@ -5783,7 +5828,7 @@ function renderSeller(force){
   const uid=S.sellerId, box=$('#sellerBody'), s=shopOf(uid);
   if (!s||!(approved(uid)||uid===S.me||S.admin)){ sfSig=''; box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:S.ready?'找不到這個賣家':'載入中…'}), h('a',{class:'btn soft',href:'#/store',text:'回到商店'}))); return; }
   const V=proOf(uid), VB=isVerified(uid), st=V?((PREVIEW&&S.previewStore&&uid===S.me)?S.previewStore:(s.store||{})):{};
-  const mineAll=all().filter(p=>p.shop===uid&&!privFor(p)&&(!p.hidden||uid===S.me)), forSale=mineAll.filter(p=>listed(p)&&p.status!=='sold'), sold=mineAll.filter(p=>listed(p)&&p.status==='sold');
+  const mineAll=all().filter(p=>p.shop===uid&&!privFor(p)&&!mystery(p)&&(!p.hidden||uid===S.me)), forSale=mineAll.filter(p=>listed(p)&&p.status!=='sold'), sold=mineAll.filter(p=>listed(p)&&p.status==='sold');
   const rs=[...S.raffles.values()].filter(r=>r.shop===uid&&!r.hidden), rv=reviewsFor(uid), rt=rating(uid);
   const sig=JSON.stringify([uid,s,V,S.sellerTab,S.spView,S.sfF,mineAll.map(p=>p.id+p.status+(p.price||'')+(topBid(p.id)?.amt||'')+listed(p)+cover(p)),rs.length,rv.length,followers(uid),following(uid)]);
   if (!force&&sig===sfSig) return; sfSig=sig;
@@ -5986,10 +6031,10 @@ function openMine(K,tab0){ let tab=tab0||null, timer=0;
       price=priceLabel(p).main;
       if(x.o) meta.push(h('span',{text:(OST[x.o.status]||'')+' · '+fmtMD(x.o.at)})); else if(x.at) meta.push(h('span',{text:'看過 '+fmtMD(x.at)}));
       else meta.push(h('span',{text:sold?'已經被買走了':live(p)?bidsFor(p.id).length+' 人出價':isAuc(p)?'競標':'直購'})); }
-    const live0=live(p)||p.startsAtMs>Date.now();
+    const live0=live(p)||p.startsAtMs>Date.now(), mys=mystery(p);
     return h('div',{class:'mn-r '+(['lead','out','won'].includes(st)?st:''),style:'--i:'+Math.min(i,12),role:'button',tabindex:'0',onclick:()=>{ close(); openPlant(p.id); }},
-      h('span',{class:'mn-im'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), live0&&isAuc(p)?h('em',{class:'mn-cdw','data-p':p.id,text:cd(p)}):null),
-      h('span',{class:'mn-tx'}, h('code',{text:p.code||''}), h('b',{text:pName(p)}), h('span',{class:'mn-m'}, ...meta),
+      h('span',{class:'mn-im'}, mys?h('span',{class:'mn-egg',text:'🥚'}):h('img',{src:cover(p),alt:'',loading:'lazy'}), live0&&isAuc(p)?h('em',{class:'mn-cdw','data-p':p.id,text:cd(p)}):null),
+      h('span',{class:'mn-tx'}, h('code',{text:mys?'???':(p.code||'')}), h('b',{text:mys?'??? 神秘植物':pName(p)}), h('span',{class:'mn-m'}, ...meta),
         h('a',{class:'mn-sh',href:'#/seller/'+sh,onclick:e=>{ e.stopPropagation(); close(); }}, avatar(sh,20), h('span',{text:shopName(sh)}))),
       h('span',{class:'mn-rt'}, pill?h('span',{class:'mn-pill '+st,text:pill}):null, h('b',{text:price}), extra)); };
   const draw=()=>{ const D=mineData(K); if(!tab) tab=(D.tabs.find(x=>x[2].length)||D.tabs[0])[0];
@@ -9250,6 +9295,7 @@ function privScreen(box,p){ box.replaceChildren(h('div',{class:'priv-scr'}, h('d
 function buildPlantPage(id){
   leavePlant();
   const box=$('#plantPage'), p=S.plants.get(id);
+  if (p&&mystery(p)){ S.pendingPlant=null; mysteryScreen(box,p); return; }
   if (p&&p.shop!==S.me) try{ noteView(id); }catch(e){}
   if (!p){ S.pendingPlant=id; box.replaceChildren(h('div',{class:'empty',style:'margin-top:20px'}, h('h3',{text:S.ready?'找不到這株植物':'載入中…'}), S.ready?h('a',{class:'btn soft',href:'#/store',text:'回植物商店'}):null)); return; }
   if (privFor(p)){ S.pendingPlant=null; privScreen(box,p); return; }
@@ -9756,6 +9802,7 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if (T==='orders'){ if(S.admEdit&&S.admEdit.includes('~')){ S.ordPend=S.admEdit; S.ordPendN=0; S.admEdit=null; setTimeout(ordOpenPend,300); } return admOrders(main); }
   if (T==='offers') return admOffers(main);
   if (T==='auc') return admAuctions(main);
+  if (T==='enc') return admEnc(main);
   if (T==='raffle') return admRaffles(main);
   if (T==='boost') return admBoost(main);
   if (T==='pts'&&S.admin) return admPts(main);
@@ -9784,7 +9831,7 @@ function renderAdmNav(){
   else if (hasShop()) G.push(
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
-    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
+    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
   if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
@@ -10401,6 +10448,7 @@ async function updatePlant(id, patch, msg){ const p=S.plants.get(id); try{ await
 function saleFields(p){
   const mode=h('select',{'data-k':'mode',class:'vh','aria-hidden':'true',tabindex:'-1'}, h('option',{value:'fixed',text:'直購',selected:!p||p.mode!=='auction'}), h('option',{value:'auction',text:'競標',selected:p?.mode==='auction'}), h('option',{value:'encounter',text:'遭遇戰',selected:p?.mode==='encounter'}));
   const encOK=isVerified(S.work?.shop||S.me)||p?.mode==='encounter';
+  if(p&&p.mode!=='encounter'&&encOK&&S.saleModePre&&S.saleModePre.id===p.id&&Date.now()-S.saleModePre.at<15000) mode.value='encounter';
   const fl=(label,req,input,tip)=>h('label',{class:'field'}, h('span',{}, label, req==null?null:reqTag(req), tip?h('em',{class:'f-tip',text:tip}):null), input);
   const modeSeg=h('div',{class:'mseg',role:'radiogroup'}, ...[['fixed','🏷','直購','標價直接買'],['auction','⚡','競標','出價高者得'],...(encOK?[['encounter','⚔','遭遇戰','價格一路降，收服就買下']]:[])].map(([v,ic,t,d])=>h('button',{type:'button',role:'radio','data-v':v,'aria-checked':String(mode.value===v),onclick:()=>{ mode.value=v; mode.dispatchEvent(new Event('change')); modeSeg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===v))); }}, h('i',{text:ic}), h('b',{text:t}), h('small',{text:d}))));
   const def=new Date(Date.now()+3*864e5); def.setMinutes(0,0,0);
@@ -10451,7 +10499,7 @@ function saleFields(p){
       if(!end||isNaN(end)||end<st+5*6e4) return {err:'結束時間要在開始 5 分鐘之後。'};
       const keep=E0&&encLive(E0)&&!at&&+E0.encStart===S0&&+E0.encFloor===F;
       return {mode:'encounter',encStart:S0,encFloor:F,encDecay:dec*6e4,encIdle:Number(v('eIdle')||10)*6e4,startsAtMs:at,aucStartAt:st,endsAtMs:end,price:null,startPrice:null,step:null,snipe:null,elig:null,needV:null,endNotified:false,
-        ...(keep?{}:{encHealMs:0,encFloorAt:null,encDone:null,startNoted:false}),...(p?.status==='reserved'&&!p.encDone?{}:{})}; }
+        ...(keep?{}:{encHealMs:0,encFloorAt:null,encDone:null,encClosed:null,startNoted:false}),...(p?.status==='reserved'&&!p.encDone?{}:{})}; }
     if (mode.value==='auction'){ const end=new Date(v('endsAt')).getTime(); if(!end||isNaN(end)) return {err:'請設定結束時間。'};
       const at=sMode==='at'?new Date(v('startsAt')).getTime():null; if(sMode==='at'&&(!at||isNaN(at))) return {err:'請設定起標時間。'}; if(at&&at<Date.now()-6e4&&!(p&&p.startsAtMs===at)) return {err:'起標時間要在現在之後。'};
       const st=at||Date.now(); if(end<st+2*6e4&&(!p||p.endsAtMs!==end)) return {err:'競標至少要 2 分鐘（結束時間要在起標時間 2 分鐘之後）。'}; if(end<Date.now()+2*6e4&&(!p||p.endsAtMs!==end)) return {err:'結束時間至少要在 2 分鐘後。'};
@@ -12145,6 +12193,8 @@ const encIdle=p=>+p.encIdle||10*6e4;
 function encEnd(p){ let e=+p.endsAtMs||Infinity; if(p.encFloorAt) e=Math.min(e,+p.encFloorAt+encIdle(p)); return e; }
 function encState(p,now=Date.now()){ if(!isEnc(p)) return null; if(p.encDone||p.status==='sold'||p.status==='reserved') return 'won'; if(+p.startsAtMs>now) return 'soon'; if(now>=encEnd(p)) return 'end'; return 'live'; }
 const encLive=p=>encState(p)==='live';
+const mystery=p=>isEnc(p)&&(encState(p)==='soon'||(encState(p)==='end'&&p.encClosed==='soon'))&&p.shop!==S.me&&p.shop!==S.work?.shop;
+const fledWhy=p=>p.encClosed?'賣家提前收兵':p.encFloorAt&&Date.now()>=+p.encFloorAt+encIdle(p)?'掉到最低價也沒人收服':'時間到了，沒人收服';
 const encChance=hp=>Math.round((0.12+0.83*Math.pow(Math.max(0,Math.min(1,hp)),0.7))*100);
 const ENC_EMO=['🔥','⚡','💥','🗡️','❄️','🌪️'];
 const ENCQ={pend:new Map(),t:0,last:0,burst:[]};
@@ -12210,10 +12260,10 @@ function encPanel(p,deal){
   function showRes(kind,price,who){ res.hidden=false; el.classList.add('done-'+kind);
     res.replaceChildren(kind==='won'?h('div',{class:'en-rb won'}, h('span',{class:'en-ri',text:'🏆'}), h('b',{text:who===S.me?'你收服了！':'已被收服'}), h('span',{text:(who&&who!==S.me?nameOf(who)+' · ':'')+(price?money(price):'')}), who===S.me?h('button',{type:'button',class:'btn lime sm',onclick:()=>openMe('orders'),text:'看訂單 →'}):null)
       :kind==='soon'?h('div',{class:'en-rb soon'}, h('span',{class:'en-ri',text:'👀'}), h('b',{text:'即將出現'}), h('span',{text:fmtDate(tsLocal(p.startsAtMs))}))
-      :h('div',{class:'en-rb end'}, h('span',{class:'en-ri',text:'💨'}), h('b',{text:'植物逃走了'}), h('span',{text:'沒有人收服'}))); }
+      :h('div',{class:'en-rb end'}, h('span',{class:'en-ri',text:'💨'}), h('b',{text:'頭目逃跑了'}), h('span',{text:fledWhy(S.plants.get(pid)||p)}))); }
   const tick=()=>{ if(!el.isConnected){ V.stop(); return; } const pp=S.plants.get(pid)||p, now=Date.now(), st=encState(pp), c=encCalc(pp,now,encPendOf(pid));
-    if(st!==st0){ st0=st; el.dataset.st=st; stTag.textContent={live:'LIVE',soon:'即將出現',won:'已收服',end:'已結束'}[st]; stTag.className='en-st '+st;
-      if(st==='won') showRes('won',pp.encDone?.price||pp.soldPrice,pp.encDone?.uid||pp.buyer); else if(st==='end') showRes('end'); else if(st==='soon') showRes('soon'); else { res.hidden=true; } }
+    if(st!==st0){ st0=st; el.dataset.st=st; stTag.textContent={live:'LIVE',soon:'即將出現',won:'已收服',end:'頭目逃跑了'}[st]; stTag.className='en-st '+st;
+      if(st==='won') showRes('won',pp.encDone?.price||pp.soldPrice,pp.encDone?.uid||pp.buyer); else if(st==='end'){ if(REDUCE) showRes('end'); else { el.classList.add('fleeing'); for(let i=0;i<7;i++){ const s=h('span',{class:'en-dust',text:'💨',style:`left:${40+Math.random()*14}%;top:${48+Math.random()*16}%;--d:${(i*.09).toFixed(2)}s`}); fx.append(s); setTimeout(()=>s.remove(),1700); } setTimeout(()=>{ el.classList.remove('fleeing'); showRes('end'); },1400); } } else if(st==='soon') showRes('soon'); else { res.hidden=true; } }
     const end=encEnd(pp), fl=!!pp.encFloorAt;
     tm.textContent=st==='soon'?'開始 '+fmtLeft(pp.startsAtMs-now):st==='live'?(fl?'最低價！剩 ':'剩 ')+fmtLeft(end-now):''; tm.classList.toggle('hot',st==='live'&&(fl||end-now<6e4));
     const pS=money(c.price); if(pr.textContent!==pS){ pr.textContent=pS; pr.classList.remove('tk'); void pr.offsetWidth; pr.classList.add('tk'); }
@@ -12241,21 +12291,71 @@ function ezFire(){ return h('div',{class:'ez-fire'}, ...[0,1,2,3,4].map(i=>h('i'
 function ezCard(p){ const pid=p.id, cd=h('b',{class:'ez-cd mono'}), lab=h('small',{class:'ez-lb'}), pr=h('span',{class:'ez-pr mono'}), hp=h('i',{class:'ez-hpf'});
   const stage=h('div',{class:'ez-stg'}), card=h('button',{type:'button',class:'ez-c',onclick:()=>openPlant(pid)},
     ezFire(), stage,
-    h('div',{class:'ez-tx'}, h('span',{class:'ez-shop'}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), h('b',{class:'ez-nm',text:pName(p)}), lab, cd, h('div',{class:'ez-hp'}, hp), pr));
+    h('div',{class:'ez-tx'}, h('span',{class:'ez-shop'}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), h('b',{class:'ez-nm',text:mystery(p)?'??? 神秘植物':pName(p)}), lab, cd, h('div',{class:'ez-hp'}, hp), pr));
   let st0=null, sg0=-1, iv=0;
   const up=()=>{ const q=S.plants.get(pid)||p, st=encState(q), now=Date.now();
     if(st!==st0){ const was=st0; st0=st; card.dataset.st=st;
       if(st==='soon'){ stage.replaceChildren(ezEgg()); sg0=-1; }
-      else { const hatch=was==='soon'; card.dataset.sg=''; stage.replaceChildren(h('div',{class:'ez-mon'+(hatch?' hatch':'')}, h('i',{class:'ez-sh l'}), h('i',{class:'ez-sh r'}), h('div',{class:'ez-face'}, h('img',{src:cover(q),alt:'',loading:'lazy'})))); if(hatch&&!REDUCE){ const b=h('div',{class:'ez-burst'}, ...Array.from({length:14},(_,i)=>h('i',{style:`--a:${i*360/14}deg`}))); stage.append(b); setTimeout(()=>b.remove(),1200); } } }
+      else { const hatch=was==='soon'; card.dataset.sg=''; const nm=card.querySelector('.ez-nm'); if(nm) nm.textContent=pName(q); stage.replaceChildren(h('div',{class:'ez-mon'+(hatch?' hatch':'')}, h('i',{class:'ez-sh l'}), h('i',{class:'ez-sh r'}), h('div',{class:'ez-face'}, h('img',{src:cover(q),alt:'',loading:'lazy'})))); if(hatch&&!REDUCE){ const b=h('div',{class:'ez-burst'}, ...Array.from({length:14},(_,i)=>h('i',{style:`--a:${i*360/14}deg`}))); stage.append(b); setTimeout(()=>b.remove(),1200); } } }
     if(st==='soon'){ const left=q.startsAtMs-now, sg=ezStage(left); if(sg!==sg0){ sg0=sg; card.dataset.sg=sg; const n=[0,1,2,4,5,7,9][sg]; stage.querySelectorAll('.ez-ck path').forEach((x,i)=>x.classList.toggle('on',i<n)); }
       lab.textContent='孵化倒數'; cd.textContent=fmtLeft(left); pr.textContent='起始 '+money(q.encStart); card.querySelector('.ez-hp').hidden=true; }
     else if(st==='live'){ const c=encCalc(q); lab.textContent='已出現！'; cd.textContent=money(c.price); hp.style.width=c.hp*100+'%'; card.querySelector('.ez-hp').hidden=false; pr.textContent='剩 '+fmtLeft(encEnd(q)-now); }
-    else { lab.textContent=st==='won'?'已被收服':'逃走了'; cd.textContent=st==='won'?money(q.encDone?.price||q.soldPrice||0):'—'; card.querySelector('.ez-hp').hidden=true; pr.textContent=''; } };
+    else { if(st==='end'&&!card.classList.contains('fled')){ card.classList.add('fled'); } lab.textContent=st==='won'?'已被收服':'頭目逃跑了'; cd.textContent=st==='won'?money(q.encDone?.price||q.soldPrice||0):'—'; card.querySelector('.ez-hp').hidden=true; pr.textContent=''; } };
   up(); iv=setInterval(()=>{ if(!card.isConnected){ clearInterval(iv); return; } up(); },1000); return card; }
-function encZone(){ const now=Date.now(), L=pub().filter(p=>isEnc(p)&&['soon','live'].includes(encState(p))).sort((a,b)=>{ const sa=encState(a), sb=encState(b); if(sa!==sb) return sa==='live'?-1:1; return sa==='live'?encEnd(a)-encEnd(b):a.startsAtMs-b.startsAtMs; }).slice(0,16);
+function encZone(){ const now=Date.now(), L=all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.shop)&&isEnc(p)&&['soon','live'].includes(encState(p))).sort((a,b)=>{ const sa=encState(a), sb=encState(b); if(sa!==sb) return sa==='live'?-1:1; return sa==='live'?encEnd(a)-encEnd(b):a.startsAtMs-b.startsAtMs; }).slice(0,16);
   if(!L.length) return null;
   return h('section',{class:'ez'}, h('div',{class:'ez-h'}, h('h3',{class:'ez-t'}, h('span',{class:'ez-ti',text:'🔥'}), h('span',{class:'ez-tt','data-t':'遭遇戰',text:'遭遇戰'})), h('small',{text:L.filter(p=>encState(p)==='live').length?L.filter(p=>encState(p)==='live').length+' 隻出沒中':L.length+' 顆蛋孵化中'}), h('button',{type:'button',class:'dr-q',onclick:()=>encIntro(true),text:'?'})),
     h('div',{class:'ez-l'}, ...L.map(ezCard))); }
+
+
+/* ---- 遭遇戰：孵化中的神秘頁（看不到植物長相）---- */
+function mysteryScreen(box,p){ const id=p.id, cd=h('b',{class:'ms-cd mono'}), stg=h('div',{class:'ms-stg'}), fav=h('button',{type:'button',class:'btn lime ms-fav'});
+  const egg=ezEgg(); stg.append(egg);
+  const paintFav=()=>{ const on=(S.prefs.favs||[]).includes(id); fav.textContent=on?'🔔 開始時會通知你':'🔔 開始時通知我'; fav.classList.toggle('on',on); };
+  fav.onclick=()=>{ if(needLogin()) return; if(!(S.prefs.favs||[]).includes(id)) toggleFav(id); else toast('已設定通知'); setTimeout(paintFav,50); };
+  const wrap=h('div',{class:'ms','data-sg':'0'}, h('div',{class:'ms-bg'}, ezFire()),
+    h('a',{class:'ms-shop',href:'#/seller/'+p.shop}, avatar(p.shop,26), h('span',{text:shopName(p.shop)})),
+    h('small',{class:'ms-k mono',text:'MYSTERY ENCOUNTER'}), h('h2',{class:'ms-t',text:'??? 神秘植物'}),
+    stg, h('small',{class:'ms-lb',text:'孵化倒數'}), cd,
+    h('div',{class:'ms-info'}, h('div',{}, h('small',{text:'起始價'}), h('b',{class:'mono',text:money(p.encStart)})), h('div',{}, h('small',{text:'最低價'}), h('b',{class:'mono',text:money(p.encFloor)})), h('div',{}, h('small',{text:'開始'}), h('b',{text:fmtHM(p.startsAtMs)}))),
+    fav, h('button',{type:'button',class:'ms-how',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}));
+  box.replaceChildren(h('div',{class:'ms-page'}, wrap)); paintFav();
+  let sg0=-1; const iv=setInterval(()=>{ if(!wrap.isConnected){ clearInterval(iv); return; } const q=S.plants.get(id)||p;
+    if(encState(q)==='end'){ clearInterval(iv); msFled(wrap,true); return; }
+    if(!mystery(q)){ clearInterval(iv); wrap.classList.add('hatching'); setTimeout(()=>{ if(location.hash.includes(id)) buildPlantPage(id); },REDUCE?0:1100); return; }
+    const left=q.startsAtMs-Date.now(), sg=ezStage(left); cd.textContent=fmtLeft(left); if(sg!==sg0){ sg0=sg; wrap.dataset.sg=sg; const n=[0,1,2,4,5,7,9][sg]; egg.querySelectorAll('.ez-ck path').forEach((x,i)=>x.classList.toggle('on',i<n)); } },500);
+  cd.textContent=encState(p)==='end'?'':fmtLeft(p.startsAtMs-Date.now()); if(encState(p)==='end'){ clearInterval(iv); msFled(wrap,false); } }
+function msFled(wrap,anim){ wrap.classList.add('fled'); if(anim&&!REDUCE) wrap.classList.add('fleeing');
+  const t=wrap.querySelector('.ms-t'), lb=wrap.querySelector('.ms-lb'), cd=wrap.querySelector('.ms-cd'), fav=wrap.querySelector('.ms-fav');
+  if(lb) lb.textContent='孵化取消'; if(cd) cd.textContent='頭目逃跑了'; if(fav) fav.remove(); wrap.querySelector('.ms-info div:last-child')?.remove(); const ms=wrap.querySelector('.ms-info'); if(ms) ms.style.gridTemplateColumns='1fr 1fr'; }
+/* ---- 賣家後台：遭遇戰管理 ---- */
+function admEnc(m){ const me=S.work?.shop||S.me, ok=isVerified(me);
+  const add=()=>{ if(!ok){ toast('遭遇戰是認證賣家功能'); return; } pickPlant('選一株放進遭遇戰',mine().filter(p=>!isEnc(p)&&!isAuc(p)&&p.status==='available'&&!inDrop(p.id)),p=>{ S.saleModePre={id:p.id,at:Date.now()}; editPlant(p.id,'sale'); }); };
+  m.append(admTop('遭遇戰', h('button',{class:'btn lime',type:'button',onclick:add,text:'+ 新增遭遇戰'})));
+  if(!ok){ m.append(h('div',{class:'empty'}, h('h3',{text:'🔒 認證賣家專屬'}))); return; }
+  const body=h('div',{}); m.append(body);
+  const ST={soon:['🥚','孵化中'],live:['⚔','出沒中'],won:['🏆','已收服'],end:['💨','頭目逃跑了']};
+  let sig='';
+  const paint=()=>{ const L=mine().filter(isEnc), s=JSON.stringify(L.map(p=>[p.id,encState(p),p.encDone?.uid||'',p.endsAtMs,p.startsAtMs,p.encStart,p.encFloor]));
+    if(s===sig){ body.querySelectorAll('[data-live]').forEach(el=>{ const p=S.plants.get(el.dataset.live); if(p) el.textContent=aeLine(p); }); return; } sig=s;
+    if(!L.length){ body.replaceChildren(h('div',{class:'empty'}, h('h3',{text:'⚔ 還沒有遭遇戰'}), h('button',{class:'btn lime',type:'button',onclick:add,text:'選一株開始'}))); return; }
+    const by=k=>L.filter(p=>encState(p)===k);
+    body.replaceChildren(...['live','soon','won','end'].filter(k=>by(k).length).map(k=>h('section',{class:'ae-g'}, h('h4',{class:'ae-h'}, h('span',{text:ST[k][0]}), ST[k][1], h('small',{text:String(by(k).length)})),
+      ...by(k).sort((a,b)=>(a.startsAtMs||a.aucStartAt||0)-(b.startsAtMs||b.aucStartAt||0)).map(p=>{ const st=encState(p), H=encHitsOf(p.id);
+        return h('div',{class:'ae-r ae-'+st}, h('img',{src:cover(p),alt:''}),
+          h('div',{class:'ae-tx'}, h('b',{text:p.code+' · '+pName(p)}), h('small',{'data-live':p.id,text:aeLine(p)}), st==='live'||st==='won'?h('small',{text:'⚔ '+H.u+' 位訓練家 · '+H.n+' 次攻擊'}):null),
+          h('div',{class:'ae-act'},
+            h('button',{class:'btn soft sm',type:'button',onclick:()=>editPlant(p.id,'sale'),text:st==='end'?'再開一次':'設定'}),
+            st==='won'?h('button',{class:'btn lime sm',type:'button',onclick:()=>{ S.admMode='order'; S.admTab='orders'; renderAdmin(true); },text:'看訂單'}):null,
+            st==='live'||st==='soon'?h('button',{class:'btn soft sm',type:'button',onclick:async()=>{ if(!confirm(st==='soon'?'取消這場遭遇戰？':'提前結束這場遭遇戰？')) return; try{ await S.db.doc('shops/'+p.shop+'/plants/'+p.id).update({endsAtMs:Date.now(),encClosed:st,...(st==='soon'?{startsAtMs:null,aucStartAt:Date.now()-1}:{}),updatedAt:Date.now()}); const q=S.plants.get(p.id); if(q) S.plants.set(p.id,{...q,endsAtMs:Date.now(),encClosed:st,...(st==='soon'?{startsAtMs:null,aucStartAt:Date.now()-1}:{})}); toast('已結束'); sig=''; paint(); }catch(e){ toast('操作失敗'); } },text:st==='soon'?'取消':'提前結束'}):null,
+            h('button',{class:'btn soft sm',type:'button',onclick:()=>{ adm.close(); go('#/plant/'+p.id); },text:'看頁面'}))); }))));
+  };
+  paint(); const iv=setInterval(()=>{ if(!body.isConnected){ clearInterval(iv); return; } paint(); },1000); }
+function aeLine(p){ const st=encState(p), now=Date.now();
+  if(st==='soon') return fmtDate(tsLocal(p.startsAtMs))+' 破殼 · 還有 '+fmtLeft(p.startsAtMs-now)+' · '+money(p.encStart)+' → '+money(p.encFloor);
+  if(st==='live'){ const c=encCalc(p); return '現在 '+money(c.price)+' · HP '+Math.round(c.hp*100)+'% · 剩 '+fmtLeft(encEnd(p)-now)+(p.encFloorAt?' · 已到最低價':''); }
+  if(st==='won') return '被 '+nameOf(p.encDone?.uid||p.buyer)+' 收服 · '+money(p.encDone?.price||p.soldPrice||0);
+  return '頭目逃跑了 · '+fledWhy(p)+' · '+fmtDate(tsLocal(Math.min(encEnd(p),now))); }
 
 /* ---- 玩法介紹視窗（遭遇戰、福利組合共用）---- */
 function playIntro(o){ const host=topHost(); let i=0;
