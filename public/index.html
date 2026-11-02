@@ -3829,7 +3829,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .en-e:active{transform:scale(.88)}
 .en-e.fire span{animation:enFire .35s}
 @keyframes enFire{40%{transform:scale(1.5) rotate(-12deg)}}
-.en-cap{position:relative;display:flex;align-items:center;gap:12px;padding:10px 18px 10px 10px;border:0;border-radius:999px;background:linear-gradient(90deg,#1F3A12,#2E5A10 60%,#3F7A12);color:#fff;font:inherit;cursor:pointer;box-shadow:0 0 0 1.5px rgba(212,242,90,.7),0 14px 30px -12px rgba(212,242,90,.6),inset 0 -3px 0 rgba(0,0,0,.25);overflow:hidden}
+.en-cap{position:relative;display:flex;align-items:center;gap:16px;padding:12px 18px 12px 16px;border:0;border-radius:999px;background:linear-gradient(90deg,#1F3A12,#2E5A10 60%,#3F7A12);color:#fff;font:inherit;cursor:pointer;box-shadow:0 0 0 1.5px rgba(212,242,90,.7),0 14px 30px -12px rgba(212,242,90,.6),inset 0 -3px 0 rgba(0,0,0,.25);overflow:hidden}
 .en-cap .en-ct>span{color:#D4F25A}
 .en-cap::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);background-size:250% 100%;animation:mnbSweep 2.6s infinite}
 .en-cap:disabled{filter:grayscale(1);opacity:.5;cursor:default}
@@ -4164,11 +4164,18 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ez.ez-full .ez-c{width:auto}
 @media (max-width:520px){.ez.ez-full .ez-l{grid-template-columns:1fr 1fr;gap:10px;padding:4px 10px 12px}.ez.ez-full .ez-c{height:280px}.ez.ez-full .ez-egg{width:88px;height:114px}.ez.ez-full .ez-cd{font-size:19px}}
 .en-cap{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;--p:0}
-.en-prog{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(212,242,90,.55),rgba(255,255,255,.65));transform-origin:left;transform:scaleX(var(--p));pointer-events:none;z-index:0}
+.en-prog{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(212,242,90,.18),rgba(212,242,90,.42));box-shadow:inset -3px 0 0 #D4F25A;transform-origin:left;transform:scaleX(var(--p));pointer-events:none;z-index:0}
 .en-cap>.en-ball,.en-cap>.en-ct{position:relative;z-index:1}
 .en-cap.hold{transform:scale(.97)}.en-cap.hold .en-ball{animation:enWig .25s ease-in-out infinite}
 .en-cap.hold::after,.en-cap:disabled::after{animation:none;opacity:0}
 .enc[data-st=catch] .en-atk{opacity:.35;pointer-events:none}
+.en-ball{overflow:visible}
+.en-rg{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;transform:rotate(-90deg);pointer-events:none;z-index:2}
+.en-rg circle{fill:none;stroke-width:5}.en-rg .bg{stroke:rgba(255,255,255,.12)}
+.en-rg .fg{stroke:#D4F25A;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 4px rgba(212,242,90,.9))}
+.en-cap .en-ball{transition:transform .08s linear}
+.en-cap.hold .en-ball{animation:none}
+.en-prog{transform:scaleX(0)}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -12310,12 +12317,14 @@ function encPanel(p,deal){
     const a=s.animate([{transform:`translate(${fx0}px,${fy0}px) scale(.6) rotate(0deg)`,opacity:1},{transform:`translate(${(fx0+tx)/2}px,${Math.min(fy0,ty)-80}px) scale(1.5) rotate(200deg)`,opacity:1,offset:.55},{transform:`translate(${tx}px,${ty}px) scale(.9) rotate(400deg)`,opacity:1}],{duration:REDUCE?10:520,easing:'cubic-bezier(.3,.6,.4,1)'});
     a.onfinish=()=>{ s.remove(); if(!el.isConnected) return; mon.classList.remove('hit'); void mon.offsetWidth; mon.classList.add('hit'); const b=h('i',{class:'en-boom',style:`left:${tx-r.left}px;top:${ty-r.top}px`}); fx.append(b); setTimeout(()=>b.remove(),500); }; };
   // 長按 1 秒才丟出（防誤觸）：按住時進度條跑滿才收服，中途放開就取消
-  let lp=0, lpT0=0; const LP=1000;
-  const lpStop=()=>{ cancelAnimationFrame(lp); lp=0; cap.classList.remove('hold'); cap.style.setProperty('--p','0'); };
-  const lpRun=now=>{ const k=Math.min(1,(now-lpT0)/LP); cap.style.setProperty('--p',String(k)); if(k>=1){ lpStop(); try{ navigator.vibrate?.(25); }catch(x){} encCapture(); return; } lp=requestAnimationFrame(lpRun); };
+  let lp=0, lpT0=0; const LP=1000; const ballEl=cap.querySelector('.en-ball'); ballEl.insertAdjacentHTML('beforeend','<svg class="en-rg" viewBox="0 0 60 60" aria-hidden="true"><circle class="bg" cx="30" cy="30" r="27"/><circle class="fg" cx="30" cy="30" r="27" pathLength="100"/></svg>'); const rg=ballEl.querySelector('.en-rg .fg'), prog=cap.querySelector('.en-prog');
+  const setP=k=>{ rg.style.strokeDashoffset=String(100-k*100); prog.style.transform='scaleX('+k+')'; ballEl.style.transform='scale('+(1+k*.18)+') rotate('+(k*25)+'deg)'; };
+  const lpStop=()=>{ cancelAnimationFrame(lp); lp=0; cap.classList.remove('hold'); setP(0); };
+  const lpRun=now=>{ const k=Math.min(1,(now-lpT0)/LP); setP(k); if(k>=1){ lpStop(); try{ navigator.vibrate?.(25); }catch(x){} encCapture(); return; } lp=requestAnimationFrame(lpRun); };
   cap.addEventListener('pointerdown',e=>{ if(cap.disabled||busy) return; e.preventDefault(); try{ cap.setPointerCapture(e.pointerId); }catch(x){} lpT0=performance.now(); cap.classList.add('hold'); try{ navigator.vibrate?.(8); }catch(x){} lp=requestAnimationFrame(lpRun); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>cap.addEventListener(ev,()=>{ if(lp){ lpStop(); if(!busy) toast('要按住不放才會丟出去'); } }));
   cap.addEventListener('contextmenu',e=>e.preventDefault());
+  cap.addEventListener('touchstart',e=>{ if(e.cancelable) e.preventDefault(); },{passive:false});
   cap.addEventListener('keydown',e=>{ if((e.key===' '||e.key==='Enter')&&!lp&&!e.repeat){ e.preventDefault(); lpT0=performance.now(); cap.classList.add('hold'); lp=requestAnimationFrame(lpRun); } });
   cap.addEventListener('keyup',e=>{ if(e.key===' '||e.key==='Enter') lpStop(); });
   // 別人收服：先播丟球、搖晃的動畫，跑完才公布結果
