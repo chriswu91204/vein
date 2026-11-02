@@ -3756,21 +3756,19 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .mn-pop a::after{content:'›';color:var(--fg2)}
 .mn .od2-h{overflow:visible}.mn .od2{overflow:visible}.mn .od2-b{border-radius:0 0 24px 24px}
 .mn .od2-h{border-radius:24px 24px 0 0}@media (max-width:640px){.mn .od2-h,.mn .od2-b{border-radius:0}}
-.mnb{position:relative;display:flex;align-items:center;gap:14px;width:100%;max-width:560px;margin:0 0 14px;padding:12px 14px 12px 12px;border:0;border-radius:20px;background:linear-gradient(120deg,#0E1210 0%,#18201A 60%,#1F2A16 100%);color:#fff;font:inherit;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 14px 30px -18px rgba(0,0,0,.55);isolation:isolate}
-.mnb::before{content:'';position:absolute;inset:-40% -10%;background:radial-gradient(closest-side,rgba(212,242,90,.28),transparent 70%) no-repeat;background-size:45% 100%;background-position:-60% 0;animation:mnbSweep 4.5s ease-in-out infinite;z-index:-1}
-@keyframes mnbSweep{0%{background-position:-60% 0}60%,100%{background-position:160% 0}}
-.mnb:active{transform:scale(.985)}
-.mnb-st{position:relative;width:74px;height:52px;flex:none}
-.mnb-st img,.mnb-st i{position:absolute;top:0;width:44px;height:52px;border-radius:12px;object-fit:cover;border:2px solid #0E1210;background:#2a332c;left:calc(var(--i)*15px);transform:rotate(calc((var(--i) - 1)*6deg));box-shadow:0 6px 14px -6px rgba(0,0,0,.6)}
-.mnb-st i{display:grid;place-items:center;font-style:normal;font-size:22px}
-.mnb-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.mnb-tx b{font-size:16px;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
-.mnb-tx small{color:rgba(255,255,255,.66);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mnb-tx small em{font-style:normal;color:var(--lime);font-weight:700}
-.mnb-tx small em.bad{color:#FF7A6B}
-.mnb-dot{width:8px;height:8px;border-radius:50%;background:#FF5A47;box-shadow:0 0 0 0 rgba(255,90,71,.7);animation:mnbPing 1.6s infinite}
-@keyframes mnbPing{to{box-shadow:0 0 0 9px rgba(255,90,71,0)}}
-.mnb-go{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--lime);color:#0A0C0B;font-weight:900;font-size:18px}
+.sto-head{position:relative}
+#mineBar{position:absolute;right:0;top:0;z-index:3}
+.mnb{position:relative;display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border:0;border-radius:999px;background:#0E1210;color:#fff;font:inherit;font-size:13.5px;cursor:pointer;overflow:hidden;box-shadow:0 10px 22px -12px rgba(0,0,0,.6);isolation:isolate;white-space:nowrap}
+.mnb::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(212,242,90,.35) 50%,transparent 70%) no-repeat;background-size:220% 100%;background-position:120% 0;animation:mnbSweep 4.5s ease-in-out infinite;z-index:-1}
+@keyframes mnbSweep{0%{background-position:120% 0}55%,100%{background-position:-120% 0}}
+.mnb:active{transform:scale(.96)}
+.mnb-st{position:relative;display:flex;height:28px}
+.mnb-st img,.mnb-st i{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #0E1210;background:#2a332c;margin-left:calc(var(--i)*-10px);display:grid;place-items:center;font-style:normal;font-size:14px}
+.mnb b{font-weight:700;letter-spacing:.02em}
+.mnb-n{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#FF5A47;color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;animation:mnbPing 1.6s infinite}
+.mnb-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(212,242,90,.7);animation:mnbPing2 1.6s infinite}
+@keyframes mnbPing{0%{box-shadow:0 0 0 0 rgba(255,90,71,.7)}100%{box-shadow:0 0 0 8px rgba(255,90,71,0)}}
+@keyframes mnbPing2{100%{box-shadow:0 0 0 8px rgba(212,242,90,0)}}
 .mn .od2-b{padding-top:0;gap:0}
 .mn-seg{position:sticky;top:0;z-index:2;display:flex;gap:6px;padding:12px 0 10px;background:var(--paper)}
 .mn-seg button{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 6px;font:inherit;font-size:14px;font-weight:600;color:var(--fg2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -4400,11 +4398,10 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
   <div class="page" id="pgShop" hidden>
   <!-- SHOP -->
   <section class="sec wrap page-top" id="shop">
-    <div class="sto-head"><h2 class="hd2" id="storeH">Store<small><b id="storeHb">植物商店</b><span id="storeSub" hidden></span></small></h2><nav class="st-tabs" id="storeTabs" aria-label="商店分頁"></nav></div>
+    <div class="sto-head"><h2 class="hd2" id="storeH">Store<small><b id="storeHb">植物商店</b><span id="storeSub" hidden></span></small></h2><nav class="st-tabs" id="storeTabs" aria-label="商店分頁"></nav><div id="mineBar"></div></div>
     <div class="cslot" data-pos="store-top"></div>
     <div id="shopHero" class="hero-c" hidden></div>
     <div id="sellerStrip"></div>
-    <div id="mineBar"></div>
     <div id="catRow"></div>
     <div id="storeTools">
     <div class="toolbar">
@@ -5632,11 +5629,11 @@ function renderMineBar(T){ const box=$('#mineBar'); if(!box) return; const K=T==
   } else if(S.me) sub=[D.tabs[0][2].length?'收藏 '+D.tabs[0][2].length:null, D.tabs[2][2].length?'買過 '+D.tabs[2][2].length:null, D.tabs[1][2].length?'看過 '+D.tabs[1][2].length:null].filter(Boolean);
   if(!sub||!sub.length) sub=[K==='auc'?'出價過的植物都在這裡':'收藏、看過、買過的植物都在這裡'];
   const subEl=h('small',{}); sub.forEach((s,i)=>{ if(i) subEl.append(' · '); subEl.append(s); });
-  const hot=S.me&&K==='auc'&&D.tabs[0][2].some(x=>bidState(x.p,x.b)==='out');
-  box.replaceChildren(h('button',{type:'button',class:'mnb',onclick:()=>{ if(needLogin()) return; openMine(K); }},
-    h('span',{class:'mnb-st'}, ...(imgs.length?imgs:[null]).map((p,i)=>p?h('img',{src:cover(p),alt:'',style:'--i:'+i}):h('i',{style:'--i:0',text:K==='auc'?'🔨':'♡'}))),
-    h('span',{class:'mnb-tx'}, h('b',{}, K==='auc'?'我的競標':'我感興趣', hot?h('span',{class:'mnb-dot'}):null), subEl),
-    h('span',{class:'mnb-go',text:'→'}))); }
+  const hot=S.me&&K==='auc'&&D.tabs[0][2].some(x=>bidState(x.p,x.b)==='lead');
+  const nOut=S.me&&K==='auc'?D.tabs[0][2].filter(x=>bidState(x.p,x.b)==='out').length:0;
+  box.replaceChildren(h('button',{type:'button',class:'mnb',title:subEl.textContent,onclick:()=>{ if(needLogin()) return; openMine(K); }},
+    h('span',{class:'mnb-st'}, ...(imgs.length?imgs.slice(0,2):[null]).map((p,i)=>p?h('img',{src:cover(p),alt:'',style:'--i:'+i}):h('i',{style:'--i:0',text:K==='auc'?'🔨':'♡'}))),
+    h('b',{text:K==='auc'?'我的競標':'我感興趣'}), nOut?h('em',{class:'mnb-n',text:String(nOut)}):hot?h('span',{class:'mnb-dot'}):null)); }
 function openMine(K,tab0){ let tab=tab0||null, timer=0;
   const ov=h('div',{class:'od2-ov mn',onclick:e=>{ if(e.target===ov) close(); else if(!e.target.closest('.mn-hs')) ov.querySelector('.mn-pop')?.setAttribute('hidden',''); }}), body=h('div',{class:'od2-b'});
   const hs=h('div',{class:'mn-hs'});
