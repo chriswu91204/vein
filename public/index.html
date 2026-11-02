@@ -1572,7 +1572,7 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .sf-prof .ring.big{margin-top:-56px}
 .sf-pi h1{font-size:clamp(26px,3.4vw,40px);font-weight:800;line-height:1.1}
 .sf-nums{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;border-top:1px solid var(--line);padding-top:14px}
-.sf-nums div{text-align:center}.sf-nums b{display:block;font-size:20px;font-weight:700}.sf-nums span{font-size:12px;color:var(--fg2)}
+.sf-nums div,.sf-num{text-align:center}.sf-num{border:0;background:none;font:inherit;color:inherit;cursor:pointer;border-radius:14px;padding:4px 2px;transition:background .15s}.sf-num:hover,.sf-num:active{background:rgba(0,0,0,.05)}.sf-num span{text-decoration:underline;text-decoration-color:rgba(0,0,0,.25);text-underline-offset:3px}.sf-nums b{display:block;font-size:20px;font-weight:700}.sf-nums span{font-size:12px;color:var(--fg2)}
 .sf-prof .sp-btns{grid-row:1;grid-column:3;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .vbadge{display:inline-flex;align-items:center;font-size:11px;font-weight:800;letter-spacing:.04em;background:var(--sprout);color:#111;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
 .vbadge.lg{font-size:13px;padding:4px 12px;margin:0}
@@ -5859,7 +5859,7 @@ function renderSeller(force){
       h('div',{class:'row',style:'gap:10px;flex-wrap:wrap'}, h('h1',{text:s.name}), VB?h('span',{class:'vbadge lg',text:'✓ 認證賣家'}):null, founderBadge(uid), !approved(uid)?h('span',{class:'tag grey',text:'審核中'}):null),
       h('div',{class:'hint',text:[s.location,'加入於 '+fmtDay(tsLocal(s.createdAt||Date.now())),'賣家代碼 '+shopCode(uid)].filter(Boolean).join(' · ')}),
       s.bio?h('p',{class:'sp-bio',text:s.bio}):null, (()=>{ const L=earned(uid).filter(b=>b.k!=='verified'&&b.k!=='founder'); return h('button',{type:'button',class:'sf-bdg',onclick:()=>openBadges(uid)}, ...L.slice(0,6).map(b=>badgeChip(b)), h('span',{class:'sf-bdg-m',text:L.length?'全部徽章 '+earned(uid).length+' →':'🏅 看徽章'})); })()),
-    h('div',{class:'sf-nums'}, ...[[String(forSale.length),'在售'],[String(mineAll.length),'登錄植株'],[String(followers(uid)),'追蹤者'],[rt.n?rt.avg.toFixed(1)+'★':'—','評分'],[String(sold.length),'已售出']].map(([v,l])=>h('div',{}, h('b',{text:v}), h('span',{text:l})))),
+    h('div',{class:'sf-nums'}, ...[[String(forSale.length),'在售',()=>goAll('all')],[String(mineAll.length),'登錄植株',()=>goAll('reg')],[String(followers(uid)),'追蹤者',null],[rt.n?rt.avg.toFixed(1)+'★':'—','評分',rt.n?()=>{ sfTab('reviews'); sfJump(); }:null],[String(sold.length),'已售出',sold.length?()=>goAll('sold'):null]].map(([v,l,fn])=>fn?h('button',{type:'button',class:'sf-num',onclick:fn}, h('b',{text:v}), h('span',{text:l})):h('div',{}, h('b',{text:v}), h('span',{text:l})))),
     h('div',{class:'sp-btns'}, uid!==S.me?followBtn(uid,'pri'):h('button',{class:'btn ink sm',type:'button',onclick:()=>{ S.admTab='shop'; S.shopTab='design'; openAdmin(); },text:'裝修賣場'}),
       chatBtn(uid,null,'soft sm'), shopContact(uid)?h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(s.line||s.contact),text:'LINE'}):null,
       h('button',{class:'btn soft sm',type:'button',onclick:()=>openShopShare(uid)}, h('i',{class:'shbtn-i',text:'↗'}), '轉發賣場')));
@@ -5882,12 +5882,12 @@ function renderSeller(force){
     raffles:x=>{ if(!rs.length) return null; const L=rs.sort((a,b)=>b.endsAtMs-a.endsAtMs).slice(0,8), m=viewOf(x); if(m==='grid') return sec('raffle','抽獎','',h('div',{class:'rgrid'}, ...L.map(raffleCard))); return prodView(L,{kicker:'RAFFLE',title:'抽獎',card:raffleCard,mode:m,cls:'rf-rail'}); },
   };
   const secs=V&&Array.isArray(st.sections)&&st.sections.length?[...st.sections.filter(x=>x.on!==false),...SF_SECTIONS.filter(x=>!st.sections.some(y=>y.k===x[0])).map(x=>({k:x[0],id:x[0]}))]:SF_SECTIONS.map(x=>({k:x[0],id:x[0]}));
-  const goAll=k=>{ S.sfF={k,sort:'new'}; sfTab('all'); };
+  const goAll=k=>{ S.sfF={k,sort:'new'}; sfTab('all'); renderSeller(true); sfJump(); };
   const ctx={uid,s,forSale,avail,rv,rt,sold,mineAll,preview:PREVIEW,goAll};
   const runSec=x=>{ let el=null; try{ el=blocks[x.k]?blocks[x.k](x):(V&&SF_COMP[x.k]?SF_COMP[x.k].r(x.cfg||SF_COMP[x.k].def(),ctx):null); }catch(e){ console.warn('[VEIN] 區塊', x.k, e); } if(el&&x.id) el.dataset.bid=x.id; if(el&&x.cfg) applySx(el,x.cfg); return el; };
   // ---- all products ----
   const F=S.sfF||(S.sfF={k:'all',sort:'new'});
-  const allGrid=()=>{ const ks=[['all','全部',forSale],['live','競標中',forSale.filter(live)],['fixed','直購',forSale.filter(p=>!isAuc(p))],['mother','母株',forSale.filter(p=>(p.kind||'mother')==='mother')],['pup','側芽',forSale.filter(p=>p.kind==='pup')],['seedling','實生苗',forSale.filter(p=>p.kind==='seedling')],['sold','已售出',sold]].filter(x=>x[0]==='all'||x[2].length);
+  const allGrid=()=>{ const ks=[['all','全部',forSale],['live','競標中',forSale.filter(live)],['fixed','直購',forSale.filter(p=>!isAuc(p))],['mother','母株',forSale.filter(p=>(p.kind||'mother')==='mother')],['pup','側芽',forSale.filter(p=>p.kind==='pup')],['seedling','實生苗',forSale.filter(p=>p.kind==='seedling')],['sold','已售出',sold],['reg','全部登錄',mineAll]].filter(x=>x[0]==='all'||x[2].length);
     const cur=(ks.find(x=>x[0]===F.k)||ks[0]); const L=bfSort(collapseFam(collapseGroups(cur[2])),F.sort);
     return h('section',{class:'sf-sec'}, h('div',{class:'sf-allbar'}, h('div',{class:'chips'}, ...ks.map(([k,l,list])=>h('button',{class:'chip',type:'button','aria-pressed':String(cur[0]===k),onclick:()=>{ F.k=k; renderSeller(true); }}, l+' '+list.length))),
       h('div',{class:'row',style:'gap:8px'}, h('select',{class:'chip',onchange:e=>{ F.sort=e.target.value; renderSeller(true); }}, ...BF_SORTS.map(([k,l])=>h('option',{value:k,text:l,selected:F.sort===k}))), h('div',{class:'segs'}, h('button',{type:'button','aria-pressed':String(S.spView!=='list'),onclick:()=>{ S.spView='grid'; renderSeller(true); },text:'格狀'}), h('button',{type:'button','aria-pressed':String(S.spView==='list'),onclick:()=>{ S.spView='list'; renderSeller(true); },text:'清單'})))),
@@ -9037,6 +9037,7 @@ function histBtn(p,cls,label){ return h('a',{class:'btn '+(cls||'soft')+' hbtn',
 function leaveHistory(){ if(S.histUnsub){ S.histUnsub(); S.histUnsub=null; } S.histFor=null; S.histDocs=null; histSig=''; }
 let histSig='', histIO=null;
 const HK={par:['🧬','親本來源'],rec:['📷','紀錄'],note:['✍️','事件'],reg:['🏷','登錄'],kid:['🌱','繁殖'],own:['🤝','所有權'],sale:['🛒','上架']};
+function sfJump(){ setTimeout(()=>document.querySelector('#pgSeller .sf-tabs, .sf-tabs')?.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'start'}),150); }
 function sfTab(k){ S.sfTabNav=true; go('#/seller/'+S.sellerId+(k==='home'?'':'/'+k)); }
 /* ---- 上一頁／下一頁：每個跳出來的視窗（商品視窗、我的、相片、限動…）都算一頁，手機返回鍵或瀏覽器上一頁會先關掉它，而不是直接離開網站 ---- */
 const BL=window.__BL=[]; let blSkip=0;
