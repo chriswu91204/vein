@@ -4029,12 +4029,12 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ez-em{position:absolute;bottom:10px;left:var(--x);width:4px;height:4px;border-radius:50%;background:#FFC24A;box-shadow:0 0 8px #FF8A1F;opacity:0;transform:scale(var(--s));animation:ezEm 2.6s var(--d) linear infinite}
 @keyframes ezEm{10%{opacity:1}100%{transform:translate(12px,-200px) scale(var(--s));opacity:0}}
 .ez-stg{position:relative;z-index:1;height:170px;display:grid;place-items:center}
-.ez-egg{position:relative;width:96px;height:124px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(70% 60% at 35% 30%,#FFFDF0 0%,#EDE7C8 45%,#C9C08E 80%,#9E9468 100%);box-shadow:inset -10px -12px 20px rgba(80,60,20,.35),0 14px 24px -8px rgba(0,0,0,.7),0 0 30px rgba(255,140,40,.35);transform-origin:50% 90%;animation:ezWob 3.2s ease-in-out infinite}
-.ez-egg::before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(9px 9px at 30% 40%,#6E9A00 60%,transparent 62%),radial-gradient(12px 10px at 66% 30%,#6E9A00 60%,transparent 62%),radial-gradient(8px 8px at 58% 66%,#6E9A00 60%,transparent 62%),radial-gradient(10px 9px at 28% 72%,#6E9A00 60%,transparent 62%);opacity:.7}
+.ez-egg{position:relative;width:96px;height:124px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(70% 60% at 35% 30%,var(--e1,#FFFDF0) 0%,var(--e2,#EDE7C8) 45%,var(--e3,#C9C08E) 80%,var(--e4,#9E9468) 100%);box-shadow:inset -10px -12px 20px rgba(0,0,0,.3),0 14px 24px -8px rgba(0,0,0,.7),0 0 30px rgba(255,140,40,.35);transform-origin:50% 90%;animation:ezWob 3.2s ease-in-out infinite}
+.ez-egg::before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(9px 9px at 30% 40%,var(--sp,#6E9A00) 60%,transparent 62%),radial-gradient(12px 10px at 66% 30%,var(--sp,#6E9A00) 60%,transparent 62%),radial-gradient(8px 8px at 58% 66%,var(--sp,#6E9A00) 60%,transparent 62%),radial-gradient(10px 9px at 28% 72%,var(--sp,#6E9A00) 60%,transparent 62%);opacity:.75}
 .ez-shine{position:absolute;left:22%;top:14%;width:18px;height:30px;border-radius:50%;background:rgba(255,255,255,.75);filter:blur(2px);transform:rotate(20deg)}
 .ez-glow{position:absolute;inset:-20%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,230,120,.0),transparent);transition:background .6s}
 .ez-ck{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.ez-ck path{fill:none;stroke:#3A2A10;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:90;stroke-dashoffset:90;transition:stroke-dashoffset 1.2s ease-out}
+.ez-ck path{fill:none;stroke:var(--ck,#3A2A10);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:90;stroke-dashoffset:90;transition:stroke-dashoffset 1.2s ease-out}
 .ez-ck path.on{stroke-dashoffset:0}
 .ez-c[data-sg="3"] .ez-ck path.on,.ez-c[data-sg="4"] .ez-ck path.on,.ez-c[data-sg="5"] .ez-ck path.on,.ez-c[data-sg="6"] .ez-ck path.on{stroke:#FFE9A0;filter:drop-shadow(0 0 3px #FFD24A) drop-shadow(0 0 6px #FF8A1F)}
 .ez-c[data-sg="1"] .ez-egg{animation-duration:2.6s}
@@ -4052,7 +4052,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ez-mon{position:relative;width:120px;height:140px;display:grid;place-items:center}
 .ez-face{position:relative;z-index:2;width:104px;height:104px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #FFB020,0 0 30px rgba(255,140,30,.8);animation:enBob 2.2s ease-in-out infinite}
 .ez-face img{width:100%;height:100%;object-fit:cover}
-.ez-sh{position:absolute;bottom:0;width:58px;height:40px;background:radial-gradient(70% 80% at 50% 0%,#FFFDF0,#C9C08E);clip-path:polygon(0 0,18% 30%,34% 0,52% 34%,70% 0,86% 30%,100% 0,100% 100%,0 100%);border-radius:0 0 30px 30px;z-index:3;box-shadow:0 6px 12px rgba(0,0,0,.5)}
+.ez-sh{position:absolute;bottom:0;width:58px;height:40px;background:radial-gradient(70% 80% at 50% 0%,var(--e1,#FFFDF0),var(--e3,#C9C08E));clip-path:polygon(0 0,18% 30%,34% 0,52% 34%,70% 0,86% 30%,100% 0,100% 100%,0 100%);border-radius:0 0 30px 30px;z-index:3;box-shadow:0 6px 12px rgba(0,0,0,.5)}
 .ez-sh.l{left:2px;transform:rotate(-14deg)}.ez-sh.r{right:2px;transform:rotate(14deg) scaleX(-1)}
 .ez-mon.hatch .ez-face{animation:ezHatch .8s cubic-bezier(.2,1.6,.4,1) both,enBob 2.2s .8s ease-in-out infinite}
 .ez-mon.hatch .ez-sh.l{animation:ezShL .7s cubic-bezier(.2,1.2,.4,1) both}.ez-mon.hatch .ez-sh.r{animation:ezShR .7s cubic-bezier(.2,1.2,.4,1) both}
@@ -4080,6 +4080,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ms-bg .ez-fl{width:90px;height:190px}.ms-bg .ez-fl:nth-child(2n){height:240px}
 .ms-shop{display:inline-flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.08);padding:4px 14px 4px 4px;border-radius:999px}
 .ms-shop .av{border-radius:50%;object-fit:cover}
+.ms-own{border:0;border-radius:999px;background:rgba(212,242,90,.16);color:#D4F25A;font:inherit;font-size:12.5px;font-weight:700;padding:6px 12px;cursor:pointer;margin-top:6px}
 .ms-k{letter-spacing:.35em;color:#FFB36B;font-size:11px;margin-top:10px}
 .ms-t{margin:0;font-size:30px;font-weight:900;letter-spacing:.06em;background:linear-gradient(0deg,#FF3D00,#FF9A1F 45%,#FFE36B 80%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,110,20,.6))}
 .ms-stg{height:230px;display:grid;place-items:center}
@@ -6034,7 +6035,7 @@ function openMine(K,tab0){ let tab=tab0||null, timer=0;
     const live0=live(p)||p.startsAtMs>Date.now(), mys=mystery(p);
     return h('div',{class:'mn-r '+(['lead','out','won'].includes(st)?st:''),style:'--i:'+Math.min(i,12),role:'button',tabindex:'0',onclick:()=>{ close(); openPlant(p.id); }},
       h('span',{class:'mn-im'}, mys?h('span',{class:'mn-egg',text:'🥚'}):h('img',{src:cover(p),alt:'',loading:'lazy'}), live0&&isAuc(p)?h('em',{class:'mn-cdw','data-p':p.id,text:cd(p)}):null),
-      h('span',{class:'mn-tx'}, h('code',{text:mys?'???':(p.code||'')}), h('b',{text:mys?'??? 神秘植物':pName(p)}), h('span',{class:'mn-m'}, ...meta),
+      h('span',{class:'mn-tx'}, h('code',{text:mys?'???':(p.code||'')}), h('b',{text:mys?'🥚 孵化中':pName(p)}), h('span',{class:'mn-m'}, ...meta),
         h('a',{class:'mn-sh',href:'#/seller/'+sh,onclick:e=>{ e.stopPropagation(); close(); }}, avatar(sh,20), h('span',{text:shopName(sh)}))),
       h('span',{class:'mn-rt'}, pill?h('span',{class:'mn-pill '+st,text:pill}):null, h('b',{text:price}), extra)); };
   const draw=()=>{ const D=mineData(K); if(!tab) tab=(D.tabs.find(x=>x[2].length)||D.tabs[0])[0];
@@ -12193,7 +12194,7 @@ const encIdle=p=>+p.encIdle||10*6e4;
 function encEnd(p){ let e=+p.endsAtMs||Infinity; if(p.encFloorAt) e=Math.min(e,+p.encFloorAt+encIdle(p)); return e; }
 function encState(p,now=Date.now()){ if(!isEnc(p)) return null; if(p.encDone||p.status==='sold'||p.status==='reserved') return 'won'; if(+p.startsAtMs>now) return 'soon'; if(now>=encEnd(p)) return 'end'; return 'live'; }
 const encLive=p=>encState(p)==='live';
-const mystery=p=>isEnc(p)&&(encState(p)==='soon'||(encState(p)==='end'&&p.encClosed==='soon'))&&p.shop!==S.me&&p.shop!==S.work?.shop;
+const mystery=p=>isEnc(p)&&(encState(p)==='soon'||(encState(p)==='end'&&p.encClosed==='soon'));
 const fledWhy=p=>p.encClosed?'賣家提前收兵':p.encFloorAt&&Date.now()>=+p.encFloorAt+encIdle(p)?'掉到最低價也沒人收服':'時間到了，沒人收服';
 const encChance=hp=>Math.round((0.12+0.83*Math.pow(Math.max(0,Math.min(1,hp)),0.7))*100);
 const ENC_EMO=['🔥','⚡','💥','🗡️','❄️','🌪️'];
@@ -12285,18 +12286,21 @@ function encPanel(p,deal){
 /* ---- 競標頁：遭遇戰孵化區（火焰裡的蛋，越接近開始裂得越多，開始就破殼）---- */
 const EZ_CRACK=['M50 8 L46 22 L54 30 L48 42','M22 40 L32 46 L28 58 L38 64','M78 44 L68 52 L74 62 L64 70','M50 42 L44 56 L52 66 L46 80 L54 92','M30 70 L40 78 L34 90 L44 100','M70 74 L60 84 L68 94 L58 106','M18 62 L28 68','M82 66 L72 74','M40 104 L50 112 L60 104'];
 function ezStage(ms){ return ms>864e5?0:ms>6*36e5?1:ms>36e5?2:ms>15*6e4?3:ms>3*6e4?4:ms>3e4?5:6; }
-function ezEgg(){ const svg='<svg viewBox="0 0 100 130" class="ez-ck" aria-hidden="true">'+EZ_CRACK.map((d,i)=>'<path d="'+d+'" data-i="'+i+'"/>').join('')+'</svg>';
-  const egg=h('div',{class:'ez-egg'}, h('i',{class:'ez-shine'}), h('i',{class:'ez-glow'})); egg.insertAdjacentHTML('beforeend',svg); return egg; }
+const EGG_PAL=[['#FFFDF0','#EDE7C8','#C9C08E','#9E9468','#6E9A00'],['#F4FBFF','#BFE3F7','#7FB8DE','#4A7FA8','#FFFFFF'],['#FFF0F7','#F7BEDA','#D98AB8','#A3557F','#7A2E8C'],['#5A5A66','#2E2E36','#18181E','#0A0A0E','#FF6A1F'],['#FFF7D6','#FFD978','#E0A93A','#9C6A12','#6B3B00'],['#EFFFF8','#A8F0D4','#5CC9A3','#2E8A6C','#0E5A44'],['#F6F0FF','#D5C6F7','#A893E0','#6E57B0','#E8E8F0'],['#FFE9DE','#FFB08A','#F06A3C','#A8361A','#FFE36B']];
+const eggPal=id=>{ let x=0; for(const c of String(id||'')) x=(x*31+c.charCodeAt(0))>>>0; return EGG_PAL[x%EGG_PAL.length]; };
+const eggVars=id=>{ const c=eggPal(id); return `--e1:${c[0]};--e2:${c[1]};--e3:${c[2]};--e4:${c[3]};--sp:${c[4]};--ck:${c===EGG_PAL[3]?'#FF8A3D':'rgba(40,25,10,.75)'}`; };
+function ezEgg(id){ const svg='<svg viewBox="0 0 100 130" class="ez-ck" aria-hidden="true">'+EZ_CRACK.map((d,i)=>'<path d="'+d+'" data-i="'+i+'"/>').join('')+'</svg>';
+  const egg=h('div',{class:'ez-egg',style:eggVars(id)}, h('i',{class:'ez-shine'}), h('i',{class:'ez-glow'})); egg.insertAdjacentHTML('beforeend',svg); return egg; }
 function ezFire(){ return h('div',{class:'ez-fire'}, ...[0,1,2,3,4].map(i=>h('i',{class:'ez-fl',style:'--i:'+i})), ...Array.from({length:7},(_,i)=>h('b',{class:'ez-em',style:`--x:${10+Math.random()*80}%;--d:${(Math.random()*2.4).toFixed(2)}s;--s:${(.5+Math.random()).toFixed(2)}`}))); }
 function ezCard(p){ const pid=p.id, cd=h('b',{class:'ez-cd mono'}), lab=h('small',{class:'ez-lb'}), pr=h('span',{class:'ez-pr mono'}), hp=h('i',{class:'ez-hpf'});
   const stage=h('div',{class:'ez-stg'}), card=h('button',{type:'button',class:'ez-c',onclick:()=>openPlant(pid)},
     ezFire(), stage,
-    h('div',{class:'ez-tx'}, h('span',{class:'ez-shop'}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), h('b',{class:'ez-nm',text:mystery(p)?'??? 神秘植物':pName(p)}), lab, cd, h('div',{class:'ez-hp'}, hp), pr));
+    h('div',{class:'ez-tx'}, h('span',{class:'ez-shop'}, avatar(p.shop,18), h('span',{text:shopName(p.shop)})), h('b',{class:'ez-nm',text:mystery(p)?'':pName(p)}), lab, cd, h('div',{class:'ez-hp'}, hp), pr));
   let st0=null, sg0=-1, iv=0;
   const up=()=>{ const q=S.plants.get(pid)||p, st=encState(q), now=Date.now();
     if(st!==st0){ const was=st0; st0=st; card.dataset.st=st;
-      if(st==='soon'){ stage.replaceChildren(ezEgg()); sg0=-1; }
-      else { const hatch=was==='soon'; card.dataset.sg=''; const nm=card.querySelector('.ez-nm'); if(nm) nm.textContent=pName(q); stage.replaceChildren(h('div',{class:'ez-mon'+(hatch?' hatch':'')}, h('i',{class:'ez-sh l'}), h('i',{class:'ez-sh r'}), h('div',{class:'ez-face'}, h('img',{src:cover(q),alt:'',loading:'lazy'})))); if(hatch&&!REDUCE){ const b=h('div',{class:'ez-burst'}, ...Array.from({length:14},(_,i)=>h('i',{style:`--a:${i*360/14}deg`}))); stage.append(b); setTimeout(()=>b.remove(),1200); } } }
+      if(st==='soon'){ stage.replaceChildren(ezEgg(pid)); sg0=-1; }
+      else { const hatch=was==='soon'; card.dataset.sg=''; const nm=card.querySelector('.ez-nm'); if(nm) nm.textContent=pName(q); stage.replaceChildren(h('div',{class:'ez-mon'+(hatch?' hatch':''),style:eggVars(pid)}, h('i',{class:'ez-sh l'}), h('i',{class:'ez-sh r'}), h('div',{class:'ez-face'}, h('img',{src:cover(q),alt:'',loading:'lazy'})))); if(hatch&&!REDUCE){ const b=h('div',{class:'ez-burst'}, ...Array.from({length:14},(_,i)=>h('i',{style:`--a:${i*360/14}deg`}))); stage.append(b); setTimeout(()=>b.remove(),1200); } } }
     if(st==='soon'){ const left=q.startsAtMs-now, sg=ezStage(left); if(sg!==sg0){ sg0=sg; card.dataset.sg=sg; const n=[0,1,2,4,5,7,9][sg]; stage.querySelectorAll('.ez-ck path').forEach((x,i)=>x.classList.toggle('on',i<n)); }
       lab.textContent='孵化倒數'; cd.textContent=fmtLeft(left); pr.textContent='起始 '+money(q.encStart); card.querySelector('.ez-hp').hidden=true; }
     else if(st==='live'){ const c=encCalc(q); lab.textContent='已出現！'; cd.textContent=money(c.price); hp.style.width=c.hp*100+'%'; card.querySelector('.ez-hp').hidden=false; pr.textContent='剩 '+fmtLeft(encEnd(q)-now); }
@@ -12310,16 +12314,17 @@ function encZone(){ const now=Date.now(), L=all().filter(p=>listed(p)&&!p.hidden
 
 /* ---- 遭遇戰：孵化中的神秘頁（看不到植物長相）---- */
 function mysteryScreen(box,p){ const id=p.id, cd=h('b',{class:'ms-cd mono'}), stg=h('div',{class:'ms-stg'}), fav=h('button',{type:'button',class:'btn lime ms-fav'});
-  const egg=ezEgg(); stg.append(egg);
+  const egg=ezEgg(id); stg.append(egg);
   const paintFav=()=>{ const on=(S.prefs.favs||[]).includes(id); fav.textContent=on?'🔔 開始時會通知你':'🔔 開始時通知我'; fav.classList.toggle('on',on); };
   fav.onclick=()=>{ if(needLogin()) return; if(!(S.prefs.favs||[]).includes(id)) toggleFav(id); else toast('已設定通知'); setTimeout(paintFav,50); };
   const wrap=h('div',{class:'ms','data-sg':'0'}, h('div',{class:'ms-bg'}, ezFire()),
     h('a',{class:'ms-shop',href:'#/seller/'+p.shop}, avatar(p.shop,26), h('span',{text:shopName(p.shop)})),
-    h('small',{class:'ms-k mono',text:'MYSTERY ENCOUNTER'}), h('h2',{class:'ms-t',text:'??? 神秘植物'}),
+    (p.shop===S.me||p.shop===S.work?.shop)?h('button',{type:'button',class:'ms-own',onclick:()=>{ go('#admin/enc'); },text:'這是你的遭遇戰 · 到後台管理 →'}):null,
+    h('small',{class:'ms-k mono',text:'MYSTERY ENCOUNTER'}),
     stg, h('small',{class:'ms-lb',text:'孵化倒數'}), cd,
     h('div',{class:'ms-info'}, h('div',{}, h('small',{text:'起始價'}), h('b',{class:'mono',text:money(p.encStart)})), h('div',{}, h('small',{text:'最低價'}), h('b',{class:'mono',text:money(p.encFloor)})), h('div',{}, h('small',{text:'開始'}), h('b',{text:fmtHM(p.startsAtMs)}))),
     fav, h('button',{type:'button',class:'ms-how',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}));
-  box.replaceChildren(h('div',{class:'ms-page'}, wrap)); paintFav();
+  box.replaceChildren(h('div',{class:'ms-page'}, wrap)); paintFav(); if(p.shop===S.me||p.shop===S.work?.shop) fav.remove();
   let sg0=-1; const iv=setInterval(()=>{ if(!wrap.isConnected){ clearInterval(iv); return; } const q=S.plants.get(id)||p;
     if(encState(q)==='end'){ clearInterval(iv); msFled(wrap,true); return; }
     if(!mystery(q)){ clearInterval(iv); wrap.classList.add('hatching'); setTimeout(()=>{ if(location.hash.includes(id)) buildPlantPage(id); },REDUCE?0:1100); return; }
