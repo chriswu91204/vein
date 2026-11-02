@@ -12421,7 +12421,7 @@ function encPanel(p,deal){
     if(lastPrice!=null&&c.price<lastPrice){ dmgAcc+=lastPrice-c.price; if(!dmgT) dmgT=setTimeout(()=>{ if(dmgAcc>0&&!REDUCE) pop('-'+money(dmgAcc),'tick',62+Math.random()*10,52); dmgAcc=0; dmgT=0; },1500); }
     lastPrice=c.price;
     { const hl=(+pp.encHealMs||0)+(+pp.encHealHp||0); if(hl>lastHeal){ if(!busy) healFx(); } lastHeal=hl; }
-    crowd.textContent=H.u?'⚔ '+H.u+' 位訓練家 · '+tot+' 次攻擊 · 攻擊力 ×'+encCrowd(H.u).toFixed(1)+(H.u<5?'（人越多越痛）':''):(st==='live'?'丟表情攻擊，人越多打越痛':''); };
+    crowd.textContent=H.u?'⚔ '+H.u+' 位訓練家 · '+tot+' 次攻擊':(st==='live'?'丟表情攻擊':''); };
   const _att=encAttack; V.attack=(e,b)=>{ V.myAdds=(V.myAdds||0)+1; _att(e,b); };
   atk.querySelectorAll('.en-e').forEach((b,i)=>{ b.onclick=ev=>V.attack(ENC_EMO[i],ev.currentTarget); });
   tick(); const iv=setInterval(tick,250);
@@ -12643,7 +12643,7 @@ function playIntro(o){ const host=topHost(); let i=0;
   host.append(ov); blPush('pintro',()=>ov.remove()); }
 function encIntro(force){ const n=+lsGet('vein.encIntro',0); if(!force&&n>=2) return; if(!force) lsSet('vein.encIntro',n+1);
   const demo=h('div',{class:'pi-demo'}, h('span',{class:'mono',text:'HP'}), h('div',{class:'pi-hpb'}, h('i')), h('span',{class:'pi-dp mono',text:'NT$'}));
-  playIntro({cls:'enc-pi',hero:'🌿',en:'WILD ENCOUNTER',title:'遭遇戰',demo,go:'開戰',steps:[['📉','價格就是 HP','時間越久，價格掉越低'],['🔥','丟表情攻擊','人越多打越快，一個人要打很久'],['🌱','按下收服','價格越低，越難收服'],['💚','失敗會回血','收服失敗，價格會回升']]}); }
+  playIntro({cls:'enc-pi',hero:'🌿',en:'WILD ENCOUNTER',title:'遭遇戰',demo,go:'開戰',steps:[['📉','價格就是 HP','時間越久，價格掉越低'],['🔥','丟表情攻擊','讓價格往下掉'],['🌱','按下收服','價格越低，越難收服'],['💚','失敗會回血','收服失敗，價格會回升']]}); }
 
 /* ===================== 福利組合（認證賣家）=====================
    一場＝標題＋開搶時間（可設結束）＋好幾組；每組綁好幾株、一個價格。時間到先搶先贏。 */
