@@ -12269,10 +12269,12 @@ function admSideFill(box,p){
 const isEnc=p=>!!p&&p.mode==='encounter'&&+p.encStart>0;
 const encT0=p=>+p.startsAtMs||+p.aucStartAt||toMs(p.listedAt||p.createdAt)||0;
 function encHitsOf(pid){ let n=0,u=0; for(const x of S.encHits.values()) if(x.pid===pid){ n+=+x.n||0; u++; } return {n,u}; }
+// 攻擊：每一下讓降價時間快轉；越打越沒力，從 100% 慢慢降到 20% 後維持（永遠有效，價格最低到最低價）
+function encAdv(H,dur){ const b=dur/600; return H<=240?b*(H-H*H/600):b*144+b*.2*(H-240); }
 function encCalc(p,now=Date.now(),extra=0){ const S0=+p.encStart, F=Math.min(Math.max(0,+p.encFloor||0),S0), R=Math.max(0,S0-F), dur=Math.max(6e4,+p.encDecay||36e5);
-  const hits=encHitsOf(p.id).n+extra, adv=Math.min(dur*.5,hits*dur/600), e=Math.max(0,now-encT0(p))+adv-(+p.encHealMs||0);
+  const hits=encHitsOf(p.id).n+extra, adv=encAdv(hits,dur), e=Math.max(0,now-encT0(p))+adv-(+p.encHealMs||0);
   const k=Math.max(0,Math.min(1,e/dur)), step=R>=2000?10:1, price=Math.max(F,Math.min(S0,Math.round((S0-R*k)/step)*step));
-  return {price,hp:R?(price-F)/R:0,F,S0,R,floor:k>=1,hitVal:R/600}; }
+  return {price,hp:R?(price-F)/R:0,F,S0,R,floor:k>=1,hitVal:R/600*Math.max(.2,1-hits/300)}; }
 const encIdle=p=>+p.encIdle||10*6e4;
 function encEnd(p){ let e=+p.endsAtMs||Infinity; if(p.encFloorAt) e=Math.min(e,+p.encFloorAt+encIdle(p)); return e; }
 const ENC_CATCH=3600;
@@ -12339,7 +12341,7 @@ function encPanel(p,deal){
     const mine=+(S.encHits.get(pid+'~'+S.me)?.n||0)+encPendOf(pid); if(mine>=1000){ toast('你的攻擊次數用完了'); return; }
     ENCQ.pend.set(pid,encPendOf(pid)+1); if(!ENCQ.t) ENCQ.t=setTimeout(encFlush,1200);
     btn.classList.remove('fire'); void btn.offsetWidth; btn.classList.add('fire'); try{ navigator.vibrate?.(8); }catch(x){}
-    flyIn(e,btn.getBoundingClientRect()); const c=encCalc(pp); setTimeout(()=>pop('-'+money(Math.max(1,Math.round(c.hitVal))),'',null,null),480); }
+    flyIn(e,btn.getBoundingClientRect()); const c=encCalc(pp); setTimeout(()=>pop(c.price<=c.F?'最低價':'-'+money(Math.max(1,Math.round(c.hitVal))),c.price<=c.F?'tick':'',null,null),480); }
   async function encCapture(){ const pp=S.plants.get(pid)||p; if(busy) return; if(encState(pp)!=='live'){ toast('現在不能收服'); return; }
     if(needLogin()||needPhone()||needRecv()) return; if(Date.now()<cdUntil){ toast('喘口氣，'+Math.ceil((cdUntil-Date.now())/1000)+' 秒後再丟'); return; }
     encFlush(); const c=encCalc(pp,Date.now(),encPendOf(pid)); busy=true; el.classList.add('catching');

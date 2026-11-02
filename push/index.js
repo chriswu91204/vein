@@ -440,9 +440,10 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 // 價格公式和網站一致：起始價隨時間降到最低價；攻擊讓時間走快（最多快一半）；收服失敗會回血（時間倒退）
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
 async function encHitsN(pid) { let n = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { n += +d.data().n || 0; }); } catch (e) {} return n; }
+function encAdv(H, dur) { const b = dur / 600; return H <= 240 ? b * (H - H * H / 600) : b * 144 + b * 0.2 * (H - 240); }
 function encCalc(p, hits, now) {
   const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
-  const adv = Math.min(dur * 0.5, hits * dur / 600), e = Math.max(0, now - encT0(p)) + adv - (+p.encHealMs || 0);
+  const adv = encAdv(hits, dur), e = Math.max(0, now - encT0(p)) + adv - (+p.encHealMs || 0);
   const k = Math.max(0, Math.min(1, e / dur)), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((S0 - R * k) / step) * step));
   return { price, hp: R ? (price - F) / R : 0, floor: k >= 1, dur, e };
 }
