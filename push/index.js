@@ -433,3 +433,83 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
   if (bq && !aq) { if (a.name === bq && b.name !== a.name) await push(uid, '✅ 賣場改名通過', '現在的名稱：' + a.name, '/#/seller/' + uid, 'rename-' + uid);
     else if (a.nameRej && a.nameRej.name === bq) await push(uid, '賣場改名沒有通過', '「' + bq + '」' + (a.nameRej.why ? '：' + a.nameRej.why : ''), '/#admin/shop:basic', 'rename-' + uid); }
 });
+
+// ===================== 遭遇戰：收服判定（伺服器擲骰，避免作弊）=====================
+// 價格公式和網站一致：起始價隨時間降到最低價；攻擊讓時間走快（最多快一半）；收服失敗會回血（時間倒退）
+const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
+async function encHitsN(pid) { let n = 0; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => { n += +d.data().n || 0; }); } catch (e) {} return n; }
+function encCalc(p, hits, now) {
+  const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
+  const adv = Math.min(dur * 0.5, hits * dur / 600), e = Math.max(0, now - encT0(p)) + adv - (+p.encHealMs || 0);
+  const k = Math.max(0, Math.min(1, e / dur)), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((S0 - R * k) / step) * step));
+  return { price, hp: R ? (price - F) / R : 0, floor: k >= 1, dur, e };
+}
+const encIdle = p => +p.encIdle || 10 * 6e4;
+function encLiveAt(p, now) {
+  if (p.mode !== 'encounter' || !(+p.encStart > 0) || p.encDone || p.status === 'sold' || p.status === 'reserved' || p.listed === false || p.blocked) return false;
+  if (+p.startsAtMs > now) return false; let end = +p.endsAtMs || Infinity; if (p.encFloorAt) end = Math.min(end, +p.encFloorAt + encIdle(p)); return now < end;
+}
+const encChance = hp => 0.12 + 0.83 * Math.pow(Math.max(0, Math.min(1, hp)), 0.7);
+const ENC_CD = 15000;
+exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev => {
+  const t = ev.data.data() || {}, ref = ev.data.ref, now = Date.now();
+  const done = (o) => ref.update({ ...o, doneAt: Date.now() }).catch(() => {});
+  if (!t.uid || !t.pid || !t.shop || t.res) return;
+  const cdRef = db.doc('encCd/' + t.pid + '~' + t.uid);
+  try { const cd = await cdRef.get(); if (cd.exists && now - (+cd.data().at || 0) < ENC_CD) return done({ res: 'cd', cd: ENC_CD - (now - cd.data().at) }); } catch (e) {}
+  await cdRef.set({ at: now }).catch(() => {});
+  const hits = await encHitsN(t.pid), pref = db.doc(`shops/${t.shop}/plants/${t.pid}`);
+  let out;
+  try {
+    out = await db.runTransaction(async tx => {
+      const s = await tx.get(pref); if (!s.exists) return { res: 'late' };
+      const p = { id: t.pid, shop: t.shop, ...s.data() }, n2 = Date.now();
+      if (!encLiveAt(p, n2) || t.uid === t.shop) return { res: 'late' };
+      const c = encCalc(p, hits, n2), ch = encChance(c.hp), roll = require('crypto').randomInt(0, 1e6) / 1e6;
+      const fl = c.floor && !p.encFloorAt ? { encFloorAt: n2 } : {};
+      if (roll < ch) {
+        tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: c.price, encDone: { uid: t.uid, price: c.price, at: n2 }, updatedAt: n2, ...fl });
+        return { res: 'ok', price: c.price, chance: Math.round(ch * 100), p };
+      }
+      // 回血：時間倒退 6%（價格回升），但不會超過起始價
+      const heal = Math.min(c.dur * 0.06, Math.max(0, c.e));
+      tx.update(pref, { encHealMs: (+p.encHealMs || 0) + heal, updatedAt: n2, ...fl });
+      const after = encCalc({ ...p, encHealMs: (+p.encHealMs || 0) + heal }, hits, n2);
+      return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD };
+    });
+  } catch (e) { logger.warn('encTry', e.message); return done({ res: 'busy' }); }
+  if (out.res === 'ok') {
+    const oid = now.toString(36) + Math.random().toString(36).slice(2, 6);
+    try { await db.doc('social/' + t.uid).set({ orders: { [oid]: { seller: t.shop, items: [t.pid], total: out.price, note: '⚔ 遭遇戰收服', payMethod: 'transfer', src: 'enc', at: now } } }, { merge: true }); } catch (e) { logger.warn('encOrder', e.message); }
+    try { await push(t.uid, '🎉 收服成功', pLabel(out.p) + ' 以 ' + nt(out.price) + ' 收服，訂單已成立', '/#orders/orders', 'enc-' + t.pid); } catch (e) {}
+  }
+  const { p, ...rest } = out; await done(rest);
+});
+// 遭遇戰：開始時推給追蹤的人；價格掉到最低時記下時間（之後多久沒人收服就結束）
+exports.encSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now();
+  for (const sd of await db.collection('shops').listDocuments()) {
+    let snap; try { snap = await sd.collection('plants').where('mode', '==', 'encounter').get(); } catch (e) { continue; }
+    for (const d of snap.docs) {
+      const p = { id: d.id, shop: sd.id, ...d.data() }; if (!encLiveAt(p, now)) continue;
+      if (!p.encFloorAt) { const c = encCalc(p, await encHitsN(p.id), now); if (c.floor) await d.ref.update({ encFloorAt: now }).catch(() => {}); }
+      if (!p.startNoted && encT0(p) <= now) {
+        await d.ref.update({ startNoted: now }).catch(() => {});
+        if (now - encT0(p) > 15 * 6e4) continue;
+        const who = new Set(); try { (await db.collection('social').where('follows', 'array-contains', sd.id).get()).forEach(x => who.add(x.id)); } catch (e) {}
+        try { for (const u of await favoredBy(d.id)) who.add(u); } catch (e) {} who.delete(sd.id);
+        const sn = await displayName(sd.id);
+        for (const u of who) { try { await push(u, '⚔ 野生的植物出現了！', sn + ' 的 ' + pLabel(p) + ' 從 ' + nt(p.encStart) + ' 開始降價，快來收服', '/#/plant/' + d.id, 'enc-' + d.id); } catch (e) {} }
+      }
+    }
+  }
+  // 福利組合：開搶時推給追蹤的人
+  try {
+    for (const d of (await db.collection('drops').where('notified', '==', false).get()).docs) {
+      const x = d.data(); if (+x.at > now) continue; await d.ref.update({ notified: now }).catch(() => {}); if (now - x.at > 15 * 6e4) continue;
+      const who = new Set(); try { (await db.collection('social').where('follows', 'array-contains', x.shop).get()).forEach(s => who.add(s.id)); } catch (e) {} who.delete(x.shop);
+      const sn = await displayName(x.shop);
+      for (const u of who) { try { await push(u, '🎁 ' + sn + ' 福利組合開搶！', (x.title || '福利組合') + ' · ' + (x.bundles || []).length + ' 組，先搶先贏', '/#/seller/' + x.shop, 'drop-' + d.id); } catch (e) {} }
+    }
+  } catch (e) { logger.warn('dropNotify', e.message); }
+});

@@ -214,6 +214,39 @@ service cloud.firestore {
       allow read: if isMe(uid) || isAdmin();
       allow write: if isAdmin();
     }
+    // 遭遇戰：每個人自己的攻擊次數（只能往上加，每次最多 +60，上限 1000）
+    function vSeller(u) { return exists(/databases/$(database)/documents/site/verified) && u in get(/databases/$(database)/documents/site/verified).data.get('uids', {}); }
+    match /encHits/{id} {
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && request.resource.data.uid == request.auth.uid && id == request.resource.data.pid + '~' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 60;
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && request.resource.data.pid == resource.data.pid
+        && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= resource.data.n
+        && request.resource.data.n <= resource.data.n + 60 && request.resource.data.n <= 1000;
+    }
+    // 遭遇戰：收服（伺服器擲骰後把結果寫回）
+    match /encTry/{id} {
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+      allow create: if signedIn() && notBanned() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'pid', 'shop', 'price', 'at']);
+    }
+    // 福利組合：認證賣家建立；搶購：每一組只能被建立一次（先搶先贏），時間到才能搶
+    match /drops/{id} {
+      allow read: if true;
+      allow create, update: if seller(request.resource.data.shop) && vSeller(request.resource.data.shop) && (resource == null || resource.data.shop == request.resource.data.shop);
+      allow delete: if (signedIn() && resource.data.shop == request.auth.uid) || isAdmin();
+    }
+    match /dropClaims/{id} {
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'did', 'bid', 'shop', 'at'])
+        && id == request.resource.data.did + '~' + request.resource.data.bid
+        && exists(/databases/$(database)/documents/drops/$(request.resource.data.did))
+        && get(/databases/$(database)/documents/drops/$(request.resource.data.did)).data.shop == request.resource.data.shop
+        && request.resource.data.shop != request.auth.uid
+        && get(/databases/$(database)/documents/drops/$(request.resource.data.did)).data.at <= request.time.toMillis();
+      allow delete: if isAdmin() || (signedIn() && resource.data.shop == request.auth.uid);
+    }
     // 置頂／商店精選申請：賣家建立，伺服器驗證點數與名額後處理
     match /boostReq/{id} {
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
