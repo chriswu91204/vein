@@ -4224,6 +4224,10 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .otd-c i{font-style:normal;font-size:18px}.otd-c b{font-size:22px;color:#fff}.otd-c span{font-size:12px}
 .otd-c.on{background:rgba(255,138,31,.22);color:#FFD2A6}.otd-c.on b{color:#FFB36B}.otd-c.sel{box-shadow:inset 0 0 0 2px #D4F25A}
 @media (max-width:520px){.or{grid-template-columns:auto minmax(0,1fr);}.or-r{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:8px}.or-im{width:62px;height:66px}.or-im img,.or-im i{width:48px;height:62px}}
+.ec-w{align-self:stretch;text-align:left;padding:10px 12px;border-radius:14px;background:#FFEDEA;border:1.5px solid #FFB4A8;margin:2px 0}
+.ec-w b{font-size:14px;color:#B52A1C}
+.ec-wl{display:flex;flex-direction:column;gap:4px;margin-top:6px;font-size:13px;color:#5A2A22}
+.ec-wl span{display:flex;align-items:center;gap:8px}.ec-wl i{font-style:normal;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;background:#E84A3A;color:#fff;flex:none}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
 .mn-hb{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;cursor:pointer;color:var(--fg)}
@@ -7860,6 +7864,7 @@ async function boot(){
   db.collection('shops').onSnapshot(sn=>{ S.shopsReady=true; S.shops.clear(); sn.docs.forEach(d=>S.shops.set(d.id,d.data())); checkReady(); }, ()=>{ S.failed=true; renderAll(); });
   db.doc('site/sellers').onSnapshot(d=>{ S.sellersReady=true; S.sellers={approved:{},house:null,...(d.exists?d.data():{})}; checkReady(); }, ()=>{ S.sellersReady=true; checkReady(); });
   db.collection('social').onSnapshot(sn=>{ if(!sn.metadata?.fromCache) S.socialReady=true; const seen=new Set(); sn.docs.forEach(d=>{ seen.add(d.id); if(!(d.id===S.me&&d.metadata.hasPendingWrites)) S.socialAll.set(d.id,d.data()); }); [...S.socialAll.keys()].forEach(k=>{ if(!seen.has(k)&&k!==S.me) S.socialAll.delete(k); }); syncSocial(); renderAll(); }, ()=>{ S.socialReady=true; }, {meta:true}); setTimeout(()=>{ S.socialReady=true; },8000);
+  if (S.me) db.doc('encBan/'+S.me).onSnapshot(d=>{ S.encBan=d.exists?d.data():null; },()=>{});
   db.collection('encHits').onSnapshot(sn=>{ const M=new Map(); sn.docs.forEach(d=>{ const v=d.data(); const k=d.id; const cur=S.encHits.get(k); M.set(k,cur&&cur.uid===S.me&&+cur.n>+v.n?cur:v); }); S.encHits=M; },()=>{});
   db.collection('drops').onSnapshot(sn=>{ S.drops=new Map(sn.docs.map(d=>[d.id,{...d.data(),id:d.id}])); shopRSig=''; renderAll(); if(PAGE==='seller') renderSeller(true); },()=>{});
   db.collection('dropClaims').onSnapshot(sn=>{ S.dclaims=new Map(sn.docs.map(d=>[d.id,d.data()])); shopRSig=''; renderAll(); },()=>{});
@@ -12357,6 +12362,8 @@ const ENC_CATCH=3600;
 function encState(p,now=Date.now()){ if(!isEnc(p)) return null; if(p.encDone&&now<(+p.encDone.at||0)+ENC_CATCH) return 'catch'; if(p.encDone||p.status==='sold'||p.status==='reserved') return 'won'; if(+p.startsAtMs>now) return 'soon'; if(now>=encEnd(p)) return 'end'; return 'live'; }
 const encLive=p=>encState(p)==='live';
 const encOn=p=>['live','catch'].includes(encState(p));
+const encBanned=()=>{ const b=S.encBan; if(!b) return null; if(b.perm) return {perm:true}; return +b.until>Date.now()?{until:+b.until}:null; };
+const encBanMsg=()=>{ const b=encBanned(); return !b?'':b.perm?'你取消過 3 次遭遇戰訂單，遭遇戰功能已永久鎖定':'你取消過遭遇戰訂單，遭遇戰功能鎖定到 '+fmtDate(tsLocal(b.until)); };
 const mystery=p=>isEnc(p)&&(encState(p)==='soon'||(encState(p)==='end'&&p.encClosed==='soon'));
 const fledWhy=p=>p.encClosed?'賣家提前收兵':p.encFloorAt&&Date.now()>=+p.encFloorAt+encIdle(p)?'掉到最低價也沒人收服':'時間到了，沒人收服';
 const encChance=hp=>Math.round((0.12+0.83*Math.pow(Math.max(0,Math.min(1,hp)),0.7))*100);
@@ -12399,7 +12406,7 @@ function encPanel(p,deal){
   const setP=k=>{ rg.style.strokeDashoffset=String(100-k*100); prog.style.transform='scaleX('+k+')'; ballEl.style.transform='scale('+(1+k*.18)+') rotate('+(k*25)+'deg)'; };
   const lpStop=()=>{ cancelAnimationFrame(lp); lp=0; cap.classList.remove('hold'); setP(0); };
   const lpRun=now=>{ const k=Math.min(1,(now-lpT0)/LP); setP(k); if(k>=1){ lpStop(); try{ navigator.vibrate?.(25); }catch(x){} encCapture(); return; } lp=requestAnimationFrame(lpRun); };
-  cap.addEventListener('pointerdown',e=>{ if(cap.disabled||busy) return; e.preventDefault(); if(needLogin()||needPhone()||needRecv()) return; if(!lsGet('vein.encOK.'+pid,false)){ encConsent(S.plants.get(pid)||p); return; } try{ cap.setPointerCapture(e.pointerId); }catch(x){} lpT0=performance.now(); cap.classList.add('hold'); try{ navigator.vibrate?.(8); }catch(x){} lp=requestAnimationFrame(lpRun); });
+  cap.addEventListener('pointerdown',e=>{ if(cap.disabled||busy) return; e.preventDefault(); if(needLogin()||needPhone()||needRecv()) return; if(encBanned()){ toast(encBanMsg()); return; } if(!lsGet('vein.encOK2.'+pid,false)){ encConsent(S.plants.get(pid)||p); return; } try{ cap.setPointerCapture(e.pointerId); }catch(x){} lpT0=performance.now(); cap.classList.add('hold'); try{ navigator.vibrate?.(8); }catch(x){} lp=requestAnimationFrame(lpRun); });
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>cap.addEventListener(ev,()=>{ if(lp){ lpStop(); if(!busy) toast('要按住不放才會丟出去'); } }));
   cap.addEventListener('contextmenu',e=>e.preventDefault());
   cap.addEventListener('touchstart',e=>{ if(e.cancelable) e.preventDefault(); },{passive:false});
@@ -12412,7 +12419,7 @@ function encPanel(p,deal){
     ball.animate([{transform:`translate(${sx}px,${sy}px) scale(.5)`},{transform:`translate(${(sx+bx)/2+40}px,${sr.top-30}px) scale(1.15) rotate(360deg)`,offset:.5},{transform:`translate(${bx}px,${by}px) scale(1) rotate(720deg)`}],{duration:REDUCE?10:700,easing:'cubic-bezier(.25,.7,.4,1)',fill:'forwards'}).finished.then(()=>{ mon.classList.add('sucked'); ball.classList.add('flash','wobble'); }).catch(()=>{});
     const pp=S.plants.get(pid)||p, left=Math.max(800,(+pp.encDone?.at||Date.now())+ENC_CATCH-Date.now());
     setTimeout(()=>{ ball.classList.remove('wobble'); ball.classList.add('lock'); setTimeout(()=>ball.remove(),900); el.classList.remove('catching'); },left-200); }
-  function encAttack(e,btn){ const pp=S.plants.get(pid)||p; if(encState(pp)!=='live'){ toast(encState(pp)==='soon'?'還沒開始':'已經結束了'); return; } if(needLogin()) return;
+  function encAttack(e,btn){ const pp=S.plants.get(pid)||p; if(encState(pp)!=='live'){ toast(encState(pp)==='soon'?'還沒開始':'已經結束了'); return; } if(needLogin()) return; if(encBanned()){ toast(encBanMsg()); return; }
     const now=Date.now(); ENCQ.burst=ENCQ.burst.filter(t=>now-t<1000); if(ENCQ.burst.length>=8) return; ENCQ.burst.push(now);
     const mine=+(S.encHits.get(pid+'~'+S.me)?.n||0)+encPendOf(pid); if(mine>=300000){ toast('你的攻擊次數用完了'); return; }
     ENCQ.pend.set(pid,encPendOf(pid)+1); if(!ENCQ.t) ENCQ.t=setTimeout(encFlush,1200);
@@ -12436,6 +12443,7 @@ function encPanel(p,deal){
     } else { ball.classList.add('burst'); setTimeout(()=>ball.remove(),500); mon.classList.remove('sucked'); mon.classList.add('escape'); setTimeout(()=>mon.classList.remove('escape'),900);
       if(out.res==='fail'){ cdUntil=Date.now()+(+out.cd||15000); toast('收服失敗！植物回血了'); healFx(out.heal); }
       else if(out.res==='cd'){ cdUntil=Date.now()+(+out.cd||15000); toast('喘口氣，'+Math.ceil((+out.cd||15000)/1000)+' 秒後再丟'); }
+      else if(out.res==='ban') toast(encBanMsg()||'遭遇戰功能已鎖定');
       else if(out.res==='late') toast('慢了一步，已經結束了'); else toast('伺服器忙線中，請再試一次'); }
     el.classList.remove('catching'); busy=false; }
   function healFx(v){ for(let i=0;i<12;i++){ const s=h('i',{class:'en-heal',style:`left:${30+Math.random()*40}%;--d:${Math.random()*.5}s`}); fx.append(s); setTimeout(()=>s.remove(),1600); } pop('+'+(v?money(v):'HP'),'heal',50,24); mon.classList.add('healed'); setTimeout(()=>mon.classList.remove('healed'),1200); }
@@ -12458,7 +12466,7 @@ function encPanel(p,deal){
     if(lastPrice!=null&&c.price<lastPrice){ dmgAcc+=lastPrice-c.price; if(!dmgT) dmgT=setTimeout(()=>{ if(dmgAcc>0&&!REDUCE) pop('-'+money(dmgAcc),'tick',62+Math.random()*10,52); dmgAcc=0; dmgT=0; },1500); }
     lastPrice=c.price;
     { const hl=(+pp.encHealMs||0)+(+pp.encHealHp||0); if(hl>lastHeal){ if(!busy) healFx(); } lastHeal=hl; }
-    crowd.textContent=H.u?'⚔ '+H.u+' 位訓練家 · '+tot+' 次攻擊':(st==='live'?'丟表情攻擊':''); };
+    crowd.textContent=encBanned()&&!own?'🔒 '+encBanMsg():H.u?'⚔ '+H.u+' 位訓練家 · '+tot+' 次攻擊':(st==='live'?'丟表情攻擊':''); };
   const _att=encAttack; V.attack=(e,b)=>{ V.myAdds=(V.myAdds||0)+1; _att(e,b); };
   atk.querySelectorAll('.en-e').forEach((b,i)=>{ b.onclick=ev=>V.attack(ENC_EMO[i],ev.currentTarget); });
   tick(); const iv=setInterval(tick,250);
@@ -12674,9 +12682,10 @@ function encConsent(p){ const chk=h('input',{type:'checkbox'}), go=h('button',{t
     h('div',{class:'gt-ic',text:'🌱'}), h('b',{class:'gt-t',text:'收服成功＝購買'}),
     h('div',{class:'ec-p'}, h('small',{text:'現在價格'}), h('b',{class:'mono',text:money(c.price)})),
     h('ul',{class:'ec-l'}, h('li',{text:'收服成功，就以那一刻的價格成立訂單'}), h('li',{text:'價格一直在變，以成功當下為準'}), h('li',{text:'成功後要取消，需要賣家同意'})),
-    h('label',{class:'ec-c'}, chk, h('span',{text:'我了解，收服成功即同意以該價格購買'})), go,
+    h('div',{class:'ec-w'}, h('b',{text:'⚠️ 收服後取消訂單會受罰'}), h('div',{class:'ec-wl'}, h('span',{}, h('i',{text:'1'}), '第一次：鎖遭遇戰 1 週'), h('span',{}, h('i',{text:'2'}), '第二次：鎖 1 個月'), h('span',{}, h('i',{text:'3'}), '第三次：永久鎖定'))),
+    h('label',{class:'ec-c'}, chk, h('span',{text:'我了解，收服成功即同意以該價格購買，取消會受罰'})), go,
     h('button',{type:'button',class:'gt-no',onclick:()=>close(),text:'先不要'})));
-  go.onclick=()=>{ lsSet('vein.encOK.'+p.id,true); close(); toast('長按膠囊 2 秒丟出'); };
+  go.onclick=()=>{ lsSet('vein.encOK2.'+p.id,true); close(); toast('長按膠囊 2 秒丟出'); };
   function close(){ ov.classList.add('out'); setTimeout(()=>ov.remove(),180); blDone('encok'); }
   topHost().append(ov); blPush('encok',()=>ov.remove()); }
 /* ---- 玩法介紹視窗（遭遇戰、福利組合共用）---- */

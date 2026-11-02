@@ -143,6 +143,7 @@ exports.pushOrder = onDocumentWritten({ document: 'shops/{shop}/orders/{oid}', .
   if (a.cancelReq && (!b || !b.cancelReq || b.cancelReq.at !== a.cancelReq.at)) { await push(a.buyer, '✋ 賣家申請取消訂單', '「' + (await displayName(ev.params.shop)) + '」' + (a.cancelReq.why ? '：' + String(a.cancelReq.why).slice(0, 40) : '') + '，請到訂單同意或不同意', '/#/me/orders', 'ord-' + ev.params.oid); return; }
   if (a.cancelRej && (!b || !b.cancelRej || b.cancelRej.at !== a.cancelRej.at)) { await push(a.buyer, '賣家不同意取消', '「' + (await displayName(ev.params.shop)) + '」希望訂單繼續', '/#/me/orders', 'ord-' + ev.params.oid); return; }
   if (b && b.status === a.status) return;
+  if (a.status === 'cancelled' && a.src === 'enc') { try { await encStrike(a.buyer, ev.params.shop, ev.params.oid); } catch (e) { logger.warn('encStrike', e.message); } }
   const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
   const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: b && b.status !== 'pending' ? ['訂單已取消', '「' + sn + '」的訂單已取消'] : ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
   if (M) await push(a.buyer, M[0], M[1], '/#/me/orders', auc ? 'won-' + String(ev.params.oid).slice(4) : 'ord-' + ev.params.oid);
@@ -466,6 +467,7 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
   const t = ev.data.data() || {}, ref = ev.data.ref, now = Date.now();
   const done = (o) => ref.update({ ...o, doneAt: Date.now() }).catch(() => {});
   if (!t.uid || !t.pid || !t.shop || t.res) return;
+  try { const bn = await db.doc('encBan/' + t.uid).get(); if (bn.exists && (bn.data().perm || +bn.data().until > now)) return done({ res: 'ban' }); } catch (e) {}
   const cdRef = db.doc('encCd/' + t.pid + '~' + t.uid);
   try { const cd = await cdRef.get(); if (cd.exists && now - (+cd.data().at || 0) < ENC_CD) return done({ res: 'cd', cd: ENC_CD - (now - cd.data().at) }); } catch (e) {}
   await cdRef.set({ at: now }).catch(() => {});
@@ -550,3 +552,16 @@ exports.broadcast = onDocumentCreated({ document: 'broadcast/{id}', timeoutSecon
     logger.info('broadcast', { id: ev.params.id, sent, fail });
   } catch (e) { logger.warn('broadcast', e.message); await ref.update({ done: true, sent: 0, err: e.message }).catch(() => {}); }
 });
+
+// 遭遇戰收服後，買家申請取消（賣家同意）→ 記一次：第一次鎖 1 週、第二次 1 個月、第三次永久
+async function encStrike(uid, shop, oid) {
+  const so = await db.doc('social/' + uid).get(), o = so.exists ? (so.data().orders || {})[oid] : null;
+  if (!o || !o.cancelReq || o.cancelledBy === 'agree') return; // 賣家提出、買家同意的不算
+  const ref = db.doc('encBan/' + uid);
+  const r = await db.runTransaction(async tx => { const s = await tx.get(ref), cur = s.exists ? s.data() : { n: 0, log: [] };
+    if ((cur.log || []).some(x => x.oid === oid)) return null;
+    const n = (cur.n || 0) + 1, now = Date.now(), until = n >= 3 ? 0 : now + (n === 1 ? 7 : 30) * 864e5;
+    tx.set(ref, { n, perm: n >= 3, until, log: [...(cur.log || []), { oid, shop, at: now }].slice(-20), at: now }); return { n, until }; });
+  if (!r) return;
+  await push(uid, '⚠️ 遭遇戰功能已鎖定', r.n >= 3 ? '你已第 3 次取消遭遇戰訂單，遭遇戰功能永久鎖定' : '你取消了遭遇戰訂單（第 ' + r.n + ' 次），遭遇戰功能鎖定 ' + (r.n === 1 ? '1 週' : '1 個月'), '/#/raffle', 'encban');
+}

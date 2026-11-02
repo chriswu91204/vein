@@ -216,18 +216,24 @@ service cloud.firestore {
     }
     // 遭遇戰：每個人自己的攻擊次數（只能往上加，每次最多 +60，上限 300000）
     function vSeller(u) { return exists(/databases/$(database)/documents/site/verified) && u in get(/databases/$(database)/documents/site/verified).data.get('uids', {}); }
+    function encOK() { return !exists(/databases/$(database)/documents/encBan/$(request.auth.uid))
+      || (get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('perm', false) == false
+        && get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('until', 0) < request.time.toMillis()); }
+    match /encBan/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+    }
     match /encHits/{id} {
       allow read: if true;
-      allow create: if signedIn() && notBanned() && request.resource.data.uid == request.auth.uid && id == request.resource.data.pid + '~' + request.auth.uid
+      allow create: if signedIn() && notBanned() && encOK() && request.resource.data.uid == request.auth.uid && id == request.resource.data.pid + '~' + request.auth.uid
         && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 60;
-      allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && request.resource.data.pid == resource.data.pid
+      allow update: if signedIn() && encOK() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid && request.resource.data.pid == resource.data.pid
         && request.resource.data.keys().hasOnly(['pid', 'uid', 'n', 'at']) && request.resource.data.n is int && request.resource.data.n >= resource.data.n
         && request.resource.data.n <= resource.data.n + 60 && request.resource.data.n <= 300000;
     }
     // 遭遇戰：收服（伺服器擲骰後把結果寫回）
     match /encTry/{id} {
       allow read: if signedIn() && resource.data.uid == request.auth.uid;
-      allow create: if signedIn() && notBanned() && request.resource.data.uid == request.auth.uid
+      allow create: if signedIn() && notBanned() && encOK() && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['uid', 'pid', 'shop', 'price', 'ok', 'at']);
     }
     // 福利組合：認證賣家建立；搶購：每一組只能被建立一次（先搶先贏），時間到才能搶
