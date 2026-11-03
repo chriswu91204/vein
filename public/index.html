@@ -3004,7 +3004,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .vt-pi img{width:44px;height:52px;border-radius:9px;object-fit:cover;flex:none}.vt-pi span{display:flex;flex-direction:column;min-width:0}.vt-pi small{color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vt-bh{border:0;background:none;font:inherit;color:inherit;cursor:pointer;display:flex;gap:8px;align-items:baseline;padding:0}.vt-bh small{color:var(--fg2)}.vt-l{display:flex;flex-direction:column;gap:6px;margin-top:10px}
 .vt-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-radius:12px;background:var(--paper);cursor:pointer;border:1.5px solid transparent}.vt-r:hover{border-color:var(--line)}.vt-r.sel{border-color:var(--ink);background:var(--surface)}.vt-cb{width:18px;height:18px;accent-color:#1F5C3A}
-.vt-s.as{color:#B45309;font-weight:700}
+.vt-s.as{color:#B45309;font-weight:700}.vt-dz{font-size:11.5px;padding:2px 8px;border-radius:999px;background:#F1F6DC;color:#3B5A14;font-weight:700}
 .vt-st{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.vt-sc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);font:inherit;color:var(--fg);cursor:pointer}.vt-sc b{font-size:22px}.vt-sc span{font-size:12px;color:var(--fg2)}.vt-sc.on{background:var(--ink);color:#fff;border-color:var(--ink)}.vt-sc.on span{color:var(--lime)}
 .vt-gen summary{cursor:pointer;font-weight:700}.vt-tb{display:flex;gap:8px;margin:12px 0 8px;flex-wrap:wrap}.vt-tb .ofq{flex:1;min-width:180px}.vt-tb select{font:inherit;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg)}
 .vt-bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);margin-bottom:8px}.vt-bar.on{background:#111213;color:#fff;border-color:#111213}.vt-bar.on .btn.soft{background:rgba(255,255,255,.12);color:#fff}
@@ -9441,21 +9441,49 @@ ${D.showHead&&D.head?`<div class="sd-h">${e(D.head)}</div>`:''}
 ${D.showCode?`<div class="sd-c">${e(tagFmt(code))}</div>`:''}
 <i class="sd-fill"></i><div class="sd-bot"></div>
 ${D.showFoot?`<div class="sd-f">${e(D.foot||location.host)}</div>`:''}</div>`; }
+// 每個立牌可以有自己的設計（tags/代碼.design），沒有就用全站設計
+const stDOf=(x,G)=>x?.design?{...ST_DEF,...x.design}:(G||stD());
+function stOne(x,Q,G){ const D=stDOf(x,G), sn=D.autoShop&&x.target?.shop?shopName(x.target.shop):''; return standeeHTML(x.code,Q,D,sn); }
+// 匯出圖片：先在看不到的框裡排好版，再把每張轉成 300dpi PNG（字型內嵌，所以跟預覽一模一樣）
+const ST_FAM=['Anton','JetBrains+Mono:wght@700','Noto+Sans+TC:wght@500;700;900','Noto+Serif+TC:wght@700;900','Playfair+Display:ital,wght@1,800'];
+async function stFontCSS(chars){ const b64=async u=>{ const a=new Uint8Array(await (await fetch(u)).arrayBuffer()); let s=''; for(let i=0;i<a.length;i+=0x8000) s+=String.fromCharCode.apply(null,a.subarray(i,i+0x8000)); return btoa(s); };
+  let out=''; for(const f of ST_FAM){ try{ let css=await (await fetch('https://fonts.googleapis.com/css2?family='+f+'&text='+encodeURIComponent(chars))).text(); for(const m of [...css.matchAll(/url\((https:[^)]+)\)/g)]) css=css.replace(m[1],'data:font/woff2;base64,'+await b64(m[1])); out+=css; }catch(e){} } return out; }
+async function stExportPNG(L,name,bleed){ if(!L.length) return; const [Q,Z]=await Promise.all([loadQR(),loadZip()]); if(!Q||!Z){ toast('元件載入失敗，請再試一次'); return; } await stLoad(); const G=stD();
+  const ts=toastStay('準備圖片中…'), BL=bleed?ST_BL:0, W=ST_W+BL*2, H=ST_H+BL*2;
+  const extra=bleed?`.sd{--bl:${BL}mm;width:${W}mm;height:${H}mm;padding:0 ${6+BL}mm}.sd-top{margin-top:${6.5+BL}mm}.sd-f{bottom:${3.6+BL}mm}.sd-num{right:${5+BL}mm;top:${5+BL}mm}`:'';
+  const fr=h('iframe',{style:'position:fixed;left:-20000px;top:0;width:1400px;height:1000px;border:0'}); document.body.append(fr);
+  try{ const d=fr.contentDocument; d.open(); d.write(`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}body{margin:0}${stCSS()}${extra}</style></head><body>${L.map(x=>`<div data-c="${x.code}">${stOne(x,Q,G)}</div>`).join('')}<script>${ST_FIT}<\/script></body></html>`); d.close();
+    await new Promise(r=>setTimeout(r,300)); try{ await d.fonts.ready; }catch(e){} await new Promise(r=>setTimeout(r,200)); fr.contentWindow.stFit();
+    const chars=[...new Set((d.body.textContent+'VEIN0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-·.:/ ').replace(/\s+/g,''))].join('');
+    ts.set('準備字型…'); const fcss=await stFontCSS(chars), xs=new XMLSerializer(), wpx=W*96/25.4, hpx=H*96/25.4, k=300/96, z=new Z(), out=[];
+    const els=[...d.querySelectorAll('[data-c]')];
+    for(let i=0;i<els.length;i++){ ts.set('轉成圖片 '+(i+1)+'／'+els.length);
+      const xml=xs.serializeToString(els[i].firstElementChild);
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(wpx*k)}" height="${Math.round(hpx*k)}" viewBox="0 0 ${wpx.toFixed(2)} ${hpx.toFixed(2)}"><foreignObject x="0" y="0" width="${wpx.toFixed(2)}" height="${hpx.toFixed(2)}"><div xmlns="http://www.w3.org/1999/xhtml"><style><![CDATA[${fcss}*{box-sizing:border-box}${stCSS()}${extra}]]></style>${xml}</div></foreignObject></svg>`;
+      const im=new Image(); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); await im.decode(); await new Promise(r=>setTimeout(r,30));
+      const cv=document.createElement('canvas'); cv.width=Math.round(wpx*k); cv.height=Math.round(hpx*k); cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+      const blob=await new Promise(r=>cv.toBlob(r,'image/png')); out.push([els[i].dataset.c,blob]); }
+    const fn=c=>'立牌_'+tagFmt(c)+(bleed?'_含出血':'')+'.png';
+    if(out.length===1) dlFile(out[0][1],fn(out[0][0])); else { out.forEach(([c,b])=>z.file(fn(c),b)); ts.set('打包中…'); dlFile(await z.generateAsync({type:'blob'}),name+(bleed?'_含出血':'')+'.zip'); }
+    ts.done(); toast('已匯出 '+out.length+' 張（'+ST_W+'×'+ST_H+'mm'+(bleed?'＋出血 3mm':'')+'，300dpi）'); }
+  catch(e){ ts.done(); toast('匯出失敗：'+(e?.message||'請再試一次')); } finally{ fr.remove(); } }
 // mode='a4'：A4 一頁 4 張自己印、沿虛線裁；mode='pro'：一張一頁、四邊各多 3mm 出血，給印刷廠
 async function tagPrint(L,name,mode){ const Q=await loadQR(); if(!Q){ toast('QR 元件載入失敗，請再試一次'); return; } await stLoad(); const D=stD();
   const pro=mode==='pro', page=pro?`@page{size:${ST_W+ST_BL*2}mm ${ST_H+ST_BL*2}mm;margin:0}body{margin:0}.pg{break-after:page}.sd{width:${ST_W+ST_BL*2}mm;height:${ST_H+ST_BL*2}mm;padding:0 ${6+ST_BL}mm}.sd{--bl:${ST_BL}mm}.sd-top{margin-top:${6.5+ST_BL}mm}.sd-f{bottom:${3.6+ST_BL}mm}.sd-num{right:${5+ST_BL}mm;top:${5+ST_BL}mm}`
     :`@page{size:A4;margin:0}body{margin:0}.pg{width:210mm;height:296mm;display:grid;grid-template-columns:repeat(2,${ST_W}mm);grid-auto-rows:${ST_H}mm;gap:8mm 10mm;justify-content:center;align-content:center;break-after:page}.pg .sd{outline:.2mm dashed #999}`;
-  const SN=x=>D.autoShop&&x.target?.shop?shopName(x.target.shop):'';
-  const body=pro?L.map(x=>`<div class="pg">${standeeHTML(x.code,Q,D,SN(x))}</div>`).join(''):Array.from({length:Math.ceil(L.length/4)},(_,i)=>`<div class="pg">${L.slice(i*4,i*4+4).map(x=>standeeHTML(x.code,Q,D,SN(x))).join('')}</div>`).join('');
+  const one=x=>stOne(x,Q,D);
+  const body=pro?L.map(x=>`<div class="pg">${one(x)}</div>`).join(''):Array.from({length:Math.ceil(L.length/4)},(_,i)=>`<div class="pg">${L.slice(i*4,i*4+4).map(one).join('')}</div>`).join('');
   document.getElementById('labelFrame')?.remove(); const fr=h('iframe',{id:'labelFrame',title:'立牌列印',style:'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none'}); (adm.open?adm:document.body).append(fr);
   const w=fr.contentWindow; w.document.open(); w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${stEsc(name)}</title><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}${stCSS()}${page}</style></head><body>${body}
 <script>${ST_FIT}window.onload=function(){ (document.fonts&&document.fonts.ready||Promise.resolve()).then(function(){ stFit(); if(!parent.__noPrint) setTimeout(function(){ window.focus(); print(); },300); }); };<\/script></body></html>`);
   w.document.close(); w.addEventListener('afterprint',()=>setTimeout(()=>fr.remove(),300)); toast(pro?'一張一頁（含 3mm 出血），列印時選「另存為 PDF」交給印刷廠':'A4 一頁 4 張，沿虛線裁'); }
 // 立牌設計工具：左邊即時預覽、右邊選模板和開關
-function admStandee(m){ m.append(admTop('立牌設計',h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.admTab='tags'; renderAdmin(true); },text:'← 立牌代碼'})));
+function admStandee(m){ const TG=(S.sdTags||[]).map(c=>(S.tagsL||[]).find(x=>x.code===c)).filter(Boolean), one=TG[0];
+  m.append(admTop(TG.length?'立牌設計 · '+(TG.length>1?TG.length+' 個立牌':tagFmt(one.code)):'立牌設計 · 全站預設',h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.admTab='tags'; S.sdTags=null; S.sdEdit=null; renderAdmin(true); },text:'← 立牌列表'})));
+  if(TG.length) m.append(h('p',{class:'hint',text:(TG.length>1?'這 '+TG.length+' 個立牌':'這個立牌')+'用自己的設計；其他立牌還是用全站預設。'+(one.target?' 目前連到：'+tagLabel(one):'')}));
   if(S.sdDesign===undefined){ m.append(h('p',{class:'hint',text:'讀取中…'})); stLoad().then(()=>renderAdmin(true)); return; }
-  const D=S.sdEdit||(S.sdEdit=stD()), fr=h('iframe',{class:'sde-fr',title:'立牌預覽'}), code=(S.tagsL||[])[0]?.code||'K7M2Q9XA';
-  const paint=async()=>{ const Q=await loadQR(); if(!Q) return; const doc=fr.contentDocument; if(!doc) return; doc.open(); doc.write(`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}html,body{margin:0;background:transparent}body{display:grid;place-items:center;height:100vh;overflow:hidden}.wrap{transform-origin:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.6);border-radius:2mm;overflow:hidden}${stCSS()}</style></head><body><div class="wrap">${standeeHTML(code,Q,D)}</div><script>${ST_FIT}stFit(); document.fonts&&document.fonts.ready.then(stFit); function fit(){ var w=document.querySelector('.wrap'); var s=Math.min(innerWidth/w.offsetWidth,innerHeight/w.offsetHeight)*.94; w.style.transform='scale('+s+')'; } fit(); addEventListener('resize',fit); document.fonts&&document.fonts.ready.then(fit);<\/script></body></html>`); doc.close(); };
+  const D=S.sdEdit||(S.sdEdit=one?{...stDOf(one)}:stD()), fr=h('iframe',{class:'sde-fr',title:'立牌預覽'}), code=one?.code||(S.tagsL||[])[0]?.code||'K7M2Q9XA', pvShop=()=>one&&D.autoShop&&one.target?.shop?shopName(one.target.shop):'';
+  const paint=async()=>{ const Q=await loadQR(); if(!Q) return; const doc=fr.contentDocument; if(!doc) return; doc.open(); doc.write(`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}html,body{margin:0;background:transparent}body{display:grid;place-items:center;height:100vh;overflow:hidden}.wrap{transform-origin:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.6);border-radius:2mm;overflow:hidden}${stCSS()}</style></head><body><div class="wrap">${standeeHTML(code,Q,D,pvShop())}</div><script>${ST_FIT}stFit(); document.fonts&&document.fonts.ready.then(stFit); function fit(){ var w=document.querySelector('.wrap'); var s=Math.min(innerWidth/w.offsetWidth,innerHeight/w.offsetHeight)*.94; w.style.transform='scale('+s+')'; } fit(); addEventListener('resize',fit); document.fonts&&document.fonts.ready.then(fit);<\/script></body></html>`); doc.close(); };
   let t0=0; const upd=()=>{ clearTimeout(t0); t0=setTimeout(paint,120); };
   const set=(k,v)=>{ D[k]=v; upd(); };
   const tx=(k,lab,ph,area)=>{ const i=h(area?'textarea':'input',{rows:area?2:undefined,maxlength:60,placeholder:ph||'',value:D[k]??''}); if(area) i.value=D[k]??''; i.addEventListener('input',()=>set(k,i.value)); return h('label',{class:'sde-f'}, h('span',{text:lab}), i); };
@@ -9465,7 +9493,7 @@ function admStandee(m){ m.append(admTop('立牌設計',h('button',{type:'button'
   const tpls=h('div',{class:'sde-tp'}, ...Object.entries(ST_TPL).map(([k,T])=>{ const f=h('iframe',{tabindex:'-1','aria-hidden':'true'}); const bt=h('button',{type:'button','aria-pressed':String(D.tpl===k),onclick:()=>{ Object.assign(D,ST_TB,T,{tpl:k}); delete D.name; renderAdmin(true); }}, h('i',{}, f), h('span',{text:T.name}));
     loadQR().then(Q=>{ if(!Q||!f.isConnected) return; const TD={...D,...ST_TB,...T}; f.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}html,body{margin:0;overflow:hidden}.w{transform:scale(var(--k));transform-origin:0 0}${stCSS()}</style></head><body><div class="w">${standeeHTML(code,Q,TD,D.shopName)}</div><script>${ST_FIT}stFit(); var w=document.querySelector('.w'); w.style.setProperty('--k',innerWidth/w.firstElementChild.offsetWidth);<\/script></body></html>`; }); return bt; }));
   const img=h('input',{type:'file',accept:'image/*',hidden:true}); img.addEventListener('change',async()=>{ const f=img.files[0]; img.value=''; if(!f) return; try{ const bm=await createImageBitmap(f), s=Math.min(1,360/Math.max(bm.width,bm.height)), c=document.createElement('canvas'); c.width=Math.round(bm.width*s); c.height=Math.round(bm.height*s); c.getContext('2d').drawImage(bm,0,0,c.width,c.height); D.img=c.toDataURL('image/png'); renderAdmin(true); }catch(e){ toast('圖片讀取失敗'); } });
-  const save=h('button',{type:'button',class:'btn lime',onclick:async e=>{ const b=e.currentTarget; b.disabled=true; try{ const v={...D}; await S.db.doc('site/standee').set(v); S.sdDesign=v; toast('已儲存，之後列印都用這個設計'); }catch(err){ toast('儲存失敗：'+(err?.message||'')); } b.disabled=false; },text:'儲存設計'});
+  const save=h('button',{type:'button',class:'btn lime',onclick:async e=>{ const b=e.currentTarget; b.disabled=true; try{ const v={...D}; if(TG.length){ for(const x of TG){ await S.db.doc('tags/'+x.code).update({design:v}); x.design=v; } toast('已儲存 '+TG.length+' 個立牌的設計'); } else { await S.db.doc('site/standee').set(v); S.sdDesign=v; toast('已儲存全站預設設計'); } }catch(err){ toast('儲存失敗：'+(err?.message||'')); } b.disabled=false; },text:'儲存設計'});
   const box=h('div',{class:'sde'}, h('div',{class:'sde-pv'}, fr, h('small',{class:'hint',text:'76 × 127.5 mm · 預覽代碼 '+tagFmt(code)})),
     h('div',{class:'sde-ctl'},
       h('h4',{text:'模板'}), tpls,
@@ -9476,14 +9504,16 @@ function admStandee(m){ m.append(admTop('立牌設計',h('button',{type:'button'
       h('h4',{text:'商店名稱'}), sw('showShop','顯示商店名稱'), tx('shopName','商店名稱','例如 SlowLeaf 慢葉溫室'), sw('autoShop','已綁定賣場的立牌，列印時自動換成那家賣場的名稱'),
       h('h4',{text:'內容'}), sw('showLogo','VEIN 標誌'), sw('showSub','副標'), tx('sub','副標文字'), sw('showHead','說明文字'), tx('head','說明文字'), sw('showCode','代碼'), sw('showNfc','NFC 感應區'), tx('nfcT','NFC 標題'), tx('nfcS','NFC 說明'), sw('showFoot','底部小字'), tx('foot','底部小字（空白＝網址）'),
       h('h4',{text:'圖片'}), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, img, h('button',{type:'button',class:'btn soft sm',onclick:()=>img.click(),text:D.img?'換一張 Logo':'加上 Logo／賣場圖'}), D.img?h('button',{type:'button',class:'btn soft sm',onclick:()=>{ D.img=null; renderAdmin(true); },text:'移除圖片'}):null),
-      h('div',{class:'sde-act'}, save, h('button',{type:'button',class:'btn soft',onclick:()=>{ S.sdEdit={...ST_DEF}; renderAdmin(true); },text:'還原預設'}))));
+      h('div',{class:'sde-act'}, save,
+        h('button',{type:'button',class:'btn soft',onclick:()=>stExportPNG(TG.length?TG.map(x=>({...x,design:{...D}})):[{code,target:null,design:{...D}}],'立牌'),text:'🖼 下載圖片'}),
+        TG.length?h('button',{type:'button',class:'btn soft',onclick:async()=>{ for(const x of TG){ await S.db.doc('tags/'+x.code).update({design:null}); x.design=null; } S.sdEdit=null; toast('已改回全站預設'); renderAdmin(true); },text:'改回全站預設'}):h('button',{type:'button',class:'btn soft',onclick:()=>{ S.sdEdit={...ST_DEF}; renderAdmin(true); },text:'還原預設'}))));
   m.append(box); requestAnimationFrame(paint); }
 function vtRow(x,admin,sel){ const on=sel?.has(x.code), cb=sel?h('input',{type:'checkbox',class:'vt-cb'}):null; if(cb){ cb.checked=!!on; cb.onclick=e=>{ e.stopPropagation(); cb.checked?sel.add(x.code):sel.delete(x.code); renderAdmin(true); }; }
   const st=x.target?'on':x.assignedTo?'as':'';
   return h('div',{class:'vt-r'+(on?' sel':''),onclick:()=>openTagBind([x.code],()=>renderAdmin(true))}, cb, h('b',{class:'mono',text:tagFmt(x.code)}), h('span',{class:'vt-s '+st,text:tagLabel(x)}),
-    admin?h('small',{text:x.batch||''}):null,
-    h('span',{class:'row',style:'gap:6px;margin-left:auto'}, h('button',{type:'button',class:'btn soft sm',onclick:e=>{ e.stopPropagation(); writeNfc({code:tagFmt(x.code),species:''},tagUrl(x.code,true)); },text:'📶'}), h('button',{type:'button',class:'btn soft sm',onclick:e=>{ e.stopPropagation(); openTagBind([x.code],()=>renderAdmin(true)); },text:x.target?'改設定':'設定'}))); }
-function admTags(m){ m.append(admTop('立牌 QR／NFC',h('button',{type:'button',class:'btn lime sm',onclick:()=>{ S.admTab='standee'; renderAdmin(true); },text:'✏️ 設計立牌'})));
+    admin?h('small',{text:x.batch||''}):null, x.design?h('span',{class:'vt-dz',text:'🎨 '+(ST_TPL[x.design.tpl]?.name||'自訂')}):null,
+    h('span',{class:'row',style:'gap:6px;margin-left:auto'}, admin?h('button',{type:'button',class:'btn soft sm',title:'設計這個立牌',onclick:e=>{ e.stopPropagation(); S.sdTags=[x.code]; S.sdEdit=null; S.admTab='standee'; renderAdmin(true); },text:'🎨'}):null, h('button',{type:'button',class:'btn soft sm',onclick:e=>{ e.stopPropagation(); writeNfc({code:tagFmt(x.code),species:''},tagUrl(x.code,true)); },text:'📶'}), h('button',{type:'button',class:'btn soft sm',onclick:e=>{ e.stopPropagation(); openTagBind([x.code],()=>renderAdmin(true)); },text:x.target?'改設定':'設定'}))); }
+function admTags(m){ m.append(admTop('立牌 QR／NFC',h('button',{type:'button',class:'btn lime sm',onclick:()=>{ S.sdTags=null; S.sdEdit=null; S.admTab='standee'; renderAdmin(true); },text:'✏️ 全站預設設計'})));
   if(!S.tagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); S.db.collection('tags').get().then(sn=>{ S.tagsL=sn.docs.map(d=>({code:d.id,...d.data()})); renderAdmin(true); }).catch(()=>{ S.tagsL=[]; renderAdmin(true); }); return; }
   const A=S.tagsL, F=S.tagF||(S.tagF={q:'',st:'all',b:''}), sel=S.tagSel||(S.tagSel=new Set());
   const cnt={all:A.length,free:A.filter(x=>!x.target&&!x.assignedTo).length,as:A.filter(x=>!x.target&&x.assignedTo).length,on:A.filter(x=>x.target).length};
@@ -9505,6 +9535,9 @@ function admTags(m){ m.append(admTop('立牌 QR／NFC',h('button',{type:'button'
   m.append(h('div',{class:'vt-bar'+(picked.length?' on':'')},
     h('label',{class:'sde-sw'}, (()=>{ const c=h('input',{type:'checkbox'}); c.checked=L.length>0&&L.every(x=>sel.has(x.code)); c.onchange=()=>{ L.forEach(x=>c.checked?sel.add(x.code):sel.delete(x.code)); renderAdmin(true); }; return c; })(), h('span',{text:picked.length?'已選 '+picked.length:'全選（'+L.length+'）'})),
     picked.length?h('button',{type:'button',class:'btn lime sm',onclick:()=>openTagBind(picked.map(x=>x.code),()=>renderAdmin(true)),text:'🔗 設定連到哪裡'}):null,
+    picked.length?h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.sdTags=picked.map(x=>x.code); S.sdEdit=null; S.admTab='standee'; renderAdmin(true); },text:'🎨 一起設計'}):null,
+    h('button',{type:'button',class:'btn soft sm',onclick:()=>stExportPNG(use,nm2,false),text:'🖼 匯出圖片'}),
+    h('button',{type:'button',class:'btn soft sm',onclick:()=>stExportPNG(use,nm2,true),text:'🖼 圖片含出血'}),
     h('button',{type:'button',class:'btn soft sm',onclick:()=>use.length&&tagPrint(use,nm2,'a4'),text:'🖨 A4'}),
     h('button',{type:'button',class:'btn soft sm',onclick:()=>use.length&&tagPrint(use,nm2,'pro'),text:'🖨 印刷廠'}),
     h('button',{type:'button',class:'btn soft sm',onclick:()=>use.length&&tagZip(use,nm2),text:'⬇ QR 檔'}),
