@@ -245,6 +245,16 @@ service cloud.firestore {
               : (request.resource.data.get('r', 0) > resource.data.get('r', 0) && request.resource.data.n <= 60))
         && request.resource.data.n <= 300000;
     }
+    // 遭遇戰攻擊加總：每場 8 格，每人固定寫一格，只能往上加（每次最多 400 下、參加人數一次最多 +1）
+    match /encAgg/{rid}/s/{k} {
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && encOK() && k in ['0', '1', '2', '3', '4', '5', '6', '7']
+        && request.resource.data.keys().hasOnly(['n', 'u', 'at']) && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 400
+        && request.resource.data.get('u', 0) is int && request.resource.data.get('u', 0) >= 0 && request.resource.data.get('u', 0) <= 1;
+      allow update: if signedIn() && notBanned() && encOK() && request.resource.data.keys().hasOnly(['n', 'u', 'at']) && request.resource.data.n is int
+        && request.resource.data.n >= resource.data.n && request.resource.data.n <= resource.data.n + 400
+        && request.resource.data.get('u', 0) >= resource.data.get('u', 0) && request.resource.data.get('u', 0) <= resource.data.get('u', 0) + 1;
+    }
     // 遭遇戰：收服（伺服器擲骰後把結果寫回）
     match /encTry/{id} {
       allow read: if signedIn() && resource.data.uid == request.auth.uid;

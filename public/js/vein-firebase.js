@@ -3,7 +3,7 @@
 // window.claude.use('db' | 'user' | 'assets')。網站其他程式碼不需要知道底層是 Firebase。
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter , increment } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
 import { OWNER_EMAILS, APPCHECK_SITE_KEY } from './site-config.js';
@@ -102,6 +102,8 @@ async function start() {
       async get() { try { return wrapDoc(await getDoc(r())); } catch (e) { throw mapErr(e); } },
       async set(d) { try { await setDoc(r(), clean(d)); } catch (e) { throw mapErr(e); } },
       async update(d) { try { await updateDoc(r(), clean(d)); } catch (e) { throw mapErr(e); } },
+      // 數字欄位用伺服器端加總（多人同時寫也不會互相蓋掉），其他欄位直接覆寫；文件不存在會自動建立
+      async inc(d) { try { const o = {}; for (const [k, v] of Object.entries(d || {})) o[k] = typeof v === 'number' && k !== 'at' ? increment(v) : v; await setDoc(r(), o, { merge: true }); } catch (e) { throw mapErr(e); } },
       async delete() { try { await deleteDoc(r()); } catch (e) { throw mapErr(e); } },
       onSnapshot(next, err, o) { return o && o.meta ? onSnapshot(r(), { includeMetadataChanges: true }, s => next(wrapDoc(s)), e => err && err(mapErr(e))) : onSnapshot(r(), s => next(wrapDoc(s)), e => err && err(mapErr(e))); },
       collection: c => Q(path + '/' + c)

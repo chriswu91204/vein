@@ -450,15 +450,14 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 
 // ===================== 遭遇戰：收服判定（伺服器擲骰，避免作弊）=====================
 // 價格公式和網站一致：
-//  HP = 時間剩下的比例 ×（1 − 攻擊量/10000）² ＋ 回血；HP 越低攻擊越沒力，但一定打得完
+//  HP = 時間剩下的比例 ×（1 − 攻擊量/5000）²；回血＝時間倒回、攻擊扣回；HP 越低攻擊越沒力，但一定打得完
 //  攻擊量 = 全場總攻擊次數 × 人數倍率＝人數 ÷ 10（最高 ×5）→ 一個人打要超久，人多很快
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
 const encCrowd = u => Math.min(5, Math.max(0, u) / 10);
-const ENC_FULL = 10000, ENC_GRACE = 45000, ENC_SHOW = 4200; // 開場 45 秒集合時間；收服動畫 4.2 秒，大家一起看完才公布
-// 只算這一場的攻擊（r＝這場開始時間），重開後舊攻擊不算
-async function encHitsRaw(pid) { const L = []; try { (await db.collection('encHits').where('pid', '==', pid).get()).forEach(d => L.push(d.data())); } catch (e) {} return L; }
-function encHitsSum(L, p) { const r = encT0(p); let N = 0, u = 0; for (const x of L) { const n = +x.n || 0; if (n > 0 && (+x.r || 0) === r) { N += n; u++; } } return { N, u }; }
-async function encHitsN(p) { return encHitsSum(await encHitsRaw(p.id), p); }
+const ENC_FULL = 5000, ENC_GRACE = 45000, ENC_SHOW = 3200; // 開場 45 秒集合時間；收服動畫 3.2 秒，大家一起看完才公布；每人 6 秒可再收服一次
+// 攻擊次數只記全場加總：encAgg/{植物_這場開始時間}/s/{0~7}（每個人固定寫一格），加起來就是總攻擊數與參加人數
+const encRid = p => p.id + '_' + encT0(p);
+async function encHitsN(p) { let N = 0, u = 0; try { (await db.collection('encAgg/' + encRid(p) + '/s').get()).forEach(d => { const v = d.data(); N += +v.n || 0; u += +v.u || 0; }); } catch (e) {} return { N, u }; }
 function encCalc(p, hits, now) {
   const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
   const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p) - ENC_GRACE) - (+p.encHealMs || 0)) / dur)), A = Math.max(0, (hits.N || 0) * encCrowd(hits.u || 0) - (+p.encHealA || 0)), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2), base = (1 - tf) * ha;
@@ -472,7 +471,7 @@ function encLiveAt(p, now) {
   if (+p.startsAtMs > now) return false; let end = +p.endsAtMs || Infinity; if (p.encFloorAt) end = Math.min(end, +p.encFloorAt + encIdle(p)); return now < end;
 }
 const encChance = hp => 0.10 + 0.85 * Math.pow(Math.max(0, Math.min(1, hp)), 1.6);
-const ENC_CD = 15000;
+const ENC_CD = 6000;
 exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev => {
   const t = ev.data.data() || {}, ref = ev.data.ref, now = Date.now();
   const done = (o) => ref.update({ ...o, doneAt: Date.now() }).catch(() => {});
@@ -480,7 +479,7 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
   try { const bn = await db.doc('encBan/' + t.uid).get(); if (bn.exists && (bn.data().perm || +bn.data().until > now)) return done({ res: 'ban' }); } catch (e) {}
   const cdRef = db.doc('encCd/' + t.pid + '~' + t.uid);
   try { const cd = await cdRef.get(); if (cd.exists && now - (+cd.data().at || 0) < ENC_CD) return done({ res: 'cd', cd: ENC_CD - (now - cd.data().at) }); } catch (e) {}
-  const hitsL = await encHitsRaw(t.pid), pref = db.doc(`shops/${t.shop}/plants/${t.pid}`);
+  const pref = db.doc(`shops/${t.shop}/plants/${t.pid}`);
   let out;
   try {
     out = await db.runTransaction(async tx => {
@@ -489,12 +488,16 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
       if (!encLiveAt(p, n2) || t.uid === t.shop) return { res: 'late' };
       if (n2 < encT0(p) + ENC_GRACE) return { res: 'ready' };
       if (p.encCatch && n2 < +p.encCatch.until) return { res: 'wait' };
-      const hits = encHitsSum(hitsL, p);
+      const hits = await encHitsN(p);
       const c = encCalc(p, hits, n2), ch = encChance(c.hp), roll = require('crypto').randomInt(0, 1e6) / 1e6;
+      // 成交價不能比買家按下去時看到的貴：如果期間有人收服失敗回血、價格變高太多，就退回讓他重新確認
+      const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), want = Math.round(+t.price || 0);
+      if (want && want < c.price - Math.max(10, (S0 - F) * 0.04)) return { res: 'moved', price: c.price };
+      const pay = want ? Math.max(F, Math.min(c.price, want)) : c.price;
       const fl = c.floor && !p.encFloorAt ? { encFloorAt: n2 } : {};
       if (roll < ch) {
-        tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: c.price, encDone: { uid: t.uid, price: c.price, at: n2 }, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: true, heal: 0 }, updatedAt: n2, ...fl });
-        return { res: 'ok', price: c.price, chance: Math.round(ch * 100), until: n2 + ENC_SHOW, p };
+        tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: pay, encDone: { uid: t.uid, price: pay, at: n2 }, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: true, heal: 0 }, updatedAt: n2, ...fl });
+        return { res: 'ok', price: pay, chance: Math.round(ch * 100), until: n2 + ENC_SHOW, p };
       }
       // 回血：HP 回升 15%，但不會超過滿血
       const add = Math.max(0, Math.min(0.15, 1 - c.raw)), target = Math.min(1, c.raw + add);
