@@ -310,10 +310,10 @@ exports.pushOrderNag = onSchedule({ schedule: 'every 30 minutes', timeZone: 'Asi
   const steps = { pending: [2, 6, 12, 24], paid: [6, 24] };
   for (const sd of await db.collection('social').get().then(s => s.docs)) {
     for (const [oid, o] of Object.entries(sd.data().orders || {})) {
-      if (!o || !o.seller || !o.at || now - o.at > 3 * 864e5) continue;
+      if (!o || !o.seller || !o.at || now - o.at > 3 * 864e5 || o.cancelled || o.cancelledBy || o.status === 'cancelled') continue; // 已取消的訂單不再提醒
       let st = 'pending', base = o.at;
       try { const so = await db.doc(`shops/${o.seller}/orders/${oid}`).get(); if (so.exists) { st = so.data().status; base = so.data().paidAt || so.data().updatedAt || o.at; } } catch (e) { continue; }
-      if (o.status === 'cancelled' || !steps[st]) continue;
+      if (!steps[st]) continue;
       const hrs = (now - base) / 36e5, lv = steps[st].filter(x => hrs >= x).pop(); if (!lv) continue;
       const mk = db.doc(`sysnotes/nag-${oid}-${st}-${lv}`); if ((await mk.get()).exists) continue;
       const who = await displayName(sd.id);

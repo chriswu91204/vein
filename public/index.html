@@ -13026,7 +13026,7 @@ async function ensureDeal(o){ const id=S.me+'_'+o.id; if(S.deals.has(id)) return
 const ORD_SEEN_K='vein.ordSeen';
 function ordSeenMap(){ try{ return JSON.parse(localStorage.getItem(ORD_SEEN_K)||'{}')||{}; }catch(e){ return {}; } }
 function ordSeen(key){ const a=S.ordAct?.[key]; if(!a) return; const m=ordSeenMap(); if((+m[key]||0)>=+a.at) return; m[key]=+a.at; try{ localStorage.setItem(ORD_SEEN_K,JSON.stringify(m)); }catch(e){} }
-function ordNew(o){ const key=(o.shop||o.seller||S.me)+'~'+o.id, a=S.ordAct?.[key]; if(!a) return null; if((+ordSeenMap()[key]||0)>=+a.at) return null; return a.k==='msg'?'msg':'upd'; }
+function ordNew(o){ const key=(o.shop||o.seller||S.me)+'~'+o.id, a=S.ordAct?.[key]; if(!a) return null; if((+ordSeenMap()[key]||0)>=+a.at) return null; if(a.k!=='msg'&&o.status==='cancelled') return null; return a.k==='msg'?'msg':'upd'; }
 function ordNext(o,side){ const st=o.status, cr=cancelReqOf(o);
   if(cr&&cr.by!==side) return ['回覆取消申請',1];
   if(cr) return ['取消申請中',0];
