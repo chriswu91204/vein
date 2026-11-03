@@ -461,9 +461,10 @@ function encHitsSum(L, p) { const r = encT0(p); let N = 0, u = 0; for (const x o
 async function encHitsN(p) { return encHitsSum(await encHitsRaw(p.id), p); }
 function encCalc(p, hits, now) {
   const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), R = Math.max(0, S0 - F), dur = Math.max(6e4, +p.encDecay || 36e5);
-  const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p) - ENC_GRACE) - (+p.encHealMs || 0)) / dur)), A = (hits.N || 0) * encCrowd(hits.u || 0), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2);
-  const hp = Math.max(0, Math.min(1, (1 - tf) * ha + (+p.encHealHp || 0))), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((F + R * hp) / step) * step));
-  return { price, hp: R ? (price - F) / R : 0, floor: hp <= 0.0005, dur, raw: hp };
+  const tf = Math.max(0, Math.min(1, (Math.max(0, now - encT0(p) - ENC_GRACE) - (+p.encHealMs || 0)) / dur)), A = Math.max(0, (hits.N || 0) * encCrowd(hits.u || 0) - (+p.encHealA || 0)), ha = Math.pow(Math.max(0, 1 - A / ENC_FULL), 2), base = (1 - tf) * ha;
+  // 回血用「把時間倒回去、把攻擊量扣回去」的方式記，之後時間和攻擊照樣會把它扣掉，一路掉得到最低價（舊的 encHealHp 也跟著衰減）
+  const hp = Math.max(0, Math.min(1, base + (+p.encHealHp || 0) * Math.sqrt(base))), step = R >= 2000 ? 10 : 1, price = Math.max(F, Math.min(S0, Math.round((F + R * hp) / step) * step));
+  return { price, hp: R ? (price - F) / R : 0, floor: hp <= 0.0005, dur, raw: hp, tf, A, ha };
 }
 const encIdle = p => +p.encIdle || 10 * 6e4;
 function encLiveAt(p, now) {
@@ -496,9 +497,12 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
         return { res: 'ok', price: c.price, chance: Math.round(ch * 100), until: n2 + ENC_SHOW, p };
       }
       // 回血：HP 回升 15%，但不會超過滿血
-      const add = Math.max(0, Math.min(0.15, 1 - c.raw)), nh = (+p.encHealHp || 0) + add;
-      tx.update(pref, { encHealHp: nh, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: false, heal: add }, updatedAt: n2, ...fl });
-      const after = encCalc({ ...p, encHealHp: nh }, hits, n2);
+      const add = Math.max(0, Math.min(0.15, 1 - c.raw)), target = Math.min(1, c.raw + add);
+      // 先把時間倒回去（不超過開場）；不夠的話再把攻擊量扣回去
+      let tf2 = c.ha > 0 ? 1 - target / c.ha : 0, dA = 0; if (tf2 < 0 || c.ha <= 0) { tf2 = 0; dA = Math.max(0, c.A - ENC_FULL * (1 - Math.sqrt(target))); }
+      const nMs = (+p.encHealMs || 0) + Math.max(0, c.tf - Math.max(0, tf2)) * c.dur, nA = (+p.encHealA || 0) + dA;
+      tx.update(pref, { encHealMs: nMs, encHealA: nA, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: false, heal: add }, updatedAt: n2, ...fl });
+      const after = encCalc({ ...p, encHealMs: nMs, encHealA: nA }, hits, n2);
       return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD, until: n2 + ENC_SHOW };
     });
   } catch (e) { logger.warn('encTry', e.message); return done({ res: 'busy' }); }
