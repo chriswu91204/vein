@@ -10132,6 +10132,23 @@ async function setLevel(u,lv){
   }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限（認證與管理員只有擁有者能改）':'請稍後再試')); }
 }
 async function setBan(u,on,reason){ const cur={...(S.bans||{})}; if(on) cur[u]={at:Date.now(),reason:reason||'違反平台規範',by:S.me}; else delete cur[u]; try{ await S.db.doc('site/bans').set({uids:cur}); S.bans=cur; syncSocial(); toast(on?'已停權':'已解除停權'); renderAll(); renderAdmin(true); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }
+// 遭遇戰鎖定（取消遭遇戰訂單的懲罰）：管理員可以解除，或連次數一起清掉
+const encBanTxt=b=>!b?'沒有被鎖':b.perm?'永久鎖定（取消 '+(b.n||0)+' 次）':(+b.until||0)>Date.now()?'鎖到 '+fmtDate(tsLocal(b.until))+'（取消 '+(b.n||0)+' 次）':'目前沒鎖（累計取消 '+(b.n||0)+' 次）';
+const encBanOn=b=>!!b&&(b.perm||(+b.until||0)>Date.now());
+async function encUnban(u,clear){ try{ if(clear) await S.db.doc('encBan/'+u).delete(); else { const d=await S.db.doc('encBan/'+u).get(); const v=d.exists?d.data():{}; await S.db.doc('encBan/'+u).set({...v,perm:false,until:0,unlockedBy:S.me,unlockedAt:Date.now()}); }
+  S.encBans=null; toast(clear?'已解除鎖定並清除取消紀錄':'已解除鎖定（取消次數保留，下次再取消會照次數加重）'); renderAdmin(true); }catch(e){ toast('解除失敗：'+(e?.code==='permission-denied'?'沒有權限':'請稍後再試')); } }
+function encBanPanel(u){ const st=h('span',{class:'hint',text:'讀取中…'}), act=h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}), lg=h('div',{class:'hint',style:'font-size:12.5px'});
+  const pn=h('div',{class:'panel'}, h('h3',{text:'⚔ 遭遇戰鎖定'}), h('p',{style:'margin:4px 0 8px'}, st), lg, act, h('p',{class:'hint',text:'取消遭遇戰訂單會被鎖：第 1 次 1 週、第 2 次 1 個月、第 3 次永久。'}));
+  S.db.doc('encBan/'+u).get().then(d=>{ const b=d.exists?d.data():null; st.textContent=encBanTxt(b); st.style.color=encBanOn(b)?'#B3261E':''; st.style.fontWeight=encBanOn(b)?'800':'';
+    if(b?.log?.length) lg.textContent='取消紀錄：'+b.log.slice(-5).map(x=>fmtDate(tsLocal(x.at))+' · '+shopName(x.shop)).join('、');
+    if(b?.unlockedAt) lg.append(h('div',{text:'上次由 '+nameOf(b.unlockedBy)+' 在 '+fmtDate(tsLocal(b.unlockedAt))+' 解除'}));
+    if(encBanOn(b)) act.append(confirmBtn('解除鎖定','pri',()=>encUnban(u,false)));
+    if(b) act.append(confirmBtn('解除並清除取消次數','soft',()=>encUnban(u,true))); }).catch(()=>{ st.textContent='讀取失敗'; });
+  return pn; }
+function encBanList(m){ if(S.encBans===undefined||S.encBans===null){ S.encBans=false; S.db.collection('encBan').get().then(sn=>{ S.encBans=sn.docs.map(d=>({u:d.id,...d.data()})).filter(encBanOn); renderAdmin(true); }).catch(()=>{ S.encBans=[]; }); return; }
+  if(!S.encBans||!S.encBans.length) return; resolveNames(S.encBans.map(b=>b.u));
+  const top=m.querySelector('table')?.closest('.panel, .tbl, div')||m.querySelector('.empty'), par=top?.parentNode||m; par.insertBefore(h('div',{class:'panel',style:'border:1.5px solid #F3C7C2'}, h('h3',{text:'⚔ 遭遇戰被鎖定的會員（'+S.encBans.length+'）'}),
+    h('div',{class:'list'}, ...S.encBans.map(b=>h('div',{class:'li',style:'background:#FFF6F5;grid-template-columns:1fr auto'}, h('div',{style:'min-width:0;cursor:pointer',onclick:()=>{ S.userSel=b.u; renderAdmin(true); }}, h('b',{text:nameOf(b.u)}), h('span',{text:encBanTxt(b)})), confirmBtn('解除','soft',()=>encUnban(b.u,false)))))),top); }
 function admUsers(m){
   if (S.userSel) return admUserDetail(m,S.userSel);
   const all0=memberRows(), F=S.mF||(S.mF={tab:'all',q:'',sort:'last'});
@@ -10153,7 +10170,8 @@ function admUsers(m){
         h('td',{}, r.banned?h('span',{class:'tag live',text:'停權'}):h('span',{class:'hint',text:r.last?ago(r.last):'—'})),
         h('td',{}, h('button',{class:'btn soft sm',type:'button',text:'詳細'})));
         tr.addEventListener('click',()=>{ S.userSel=r.u; renderAdmin(true); }); return tr; })))):h('div',{class:'empty'}, h('h3',{text:'沒有符合的會員'}))));
-}
+ if(S.admin) encBanList(m); }
+
 function admUserDetail(m,u){
   const r={buyN:0,sellN:0,spend:0,revenue:0,plants:0,owns:0,bids:0,fol:0,...(memberRows().find(x=>x.u===u)||{u,name:nameOf(u),level:levelOf(u)})}, sh=shopOf(u), b=S.bans?.[u], me=u===S.me;
   const bo=buyerOrders(u), so=S.shops.has(u)?sellerOrders(u):[], ps=all().filter(p=>p.shop===u), owns=all().filter(p=>ownerOf(p)===u&&p.shop!==u);
@@ -10173,6 +10191,7 @@ function admUserDetail(m,u){
         t.textContent='今天 '+dn+' / '+SMS_DAY+' 次 · 本月 '+mn+' / '+SMS_MONTH+' 次';
         if (q) pn.append(confirmBtn('重設次數（讓他可以再傳）','soft',async()=>{ try{ await S.db.doc('smsq/'+u).delete(); toast('已重設簡訊次數'); renderAdmin(true); }catch(e){ toast('重設失敗'); } })); }).catch(()=>{ t.textContent='讀取失敗'; });
       return pn; })(),
+    S.admin?encBanPanel(u):null,
     h('div',{class:'two',style:'align-items:start'},
       h('div',{class:'panel'}, h('h3',{text:'基本資料'}), h('dl',{class:'spec',style:'padding:0 4px;box-shadow:none'}, info('會員 ID',h('code',{style:'font-size:12px;word-break:break-all',text:u})), info('名稱',r.name), info('最近活動',r.last?fmtDate(tsLocal(r.last)):''),
         ...(sh?[info('賣場',sh.name),info('地區',sh.location),info('LINE',sh.line),info('其他聯絡',sh.contact),info('賣家代碼',shopCode(u)),info('開店',fmtDay(tsLocal(sh.createdAt||0))),info('介紹',sh.bio)]:[info('賣場','未開店')]))),

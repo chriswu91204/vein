@@ -233,6 +233,7 @@ service cloud.firestore {
     }
     match /encBan/{uid} {
       allow read: if isMe(uid) || isAdmin();
+      allow write: if isAdmin(); // 管理員可以解除鎖定或清除取消次數
     }
     match /encHits/{id} {
       allow read: if true;
