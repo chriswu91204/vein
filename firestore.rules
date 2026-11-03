@@ -246,6 +246,14 @@ service cloud.firestore {
               : (request.resource.data.get('r', 0) > resource.data.get('r', 0) && request.resource.data.n <= 60))
         && request.resource.data.n <= 300000;
     }
+    // 遭遇戰即時聊天：登入就能說話（60 字內），只能新增；遊戲結束 1 分鐘後伺服器整批清掉
+    match /encChat/{rid}/m/{mid} {
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'at'])
+        && request.resource.data.uid == request.auth.uid && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 60
+        && request.resource.data.name is string && request.resource.data.name.size() <= 30 && request.resource.data.at is int;
+      allow delete: if isAdmin();
+    }
     // 遭遇戰攻擊加總：每場 8 格，每人固定寫一格，只能往上加（每次最多 400 下、參加人數一次最多 +1）
     match /encAgg/{rid}/s/{k} {
       allow read: if true;

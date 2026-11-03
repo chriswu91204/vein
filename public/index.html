@@ -3808,7 +3808,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 @keyframes enLow{50%{filter:brightness(1.5)}}
 .en-hpseg{inset:0!important;width:100%!important;background:repeating-linear-gradient(90deg,transparent 0 9%,rgba(0,0,0,.35) 9% 10%)!important}
 .en-hpt{min-width:40px;text-align:right;font-size:13px}
-.en-stage{position:relative;height:250px;margin:6px -14px 0;display:grid;place-items:center;perspective:600px}
+.en-stage{position:relative;height:290px;margin:6px -14px 0;display:grid;place-items:center;perspective:600px}
 .en-grid{position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(transparent,rgba(212,242,90,.06)),repeating-linear-gradient(90deg,rgba(212,242,90,.18) 0 1px,transparent 1px 44px),repeating-linear-gradient(0deg,rgba(212,242,90,.18) 0 1px,transparent 1px 30px);transform:rotateX(62deg);transform-origin:bottom;mask:linear-gradient(transparent,#000 60%);animation:enGrid 3s linear infinite}
 @keyframes enGrid{to{background-position:0 0,0 0,0 30px}}
 .en-mon{position:relative;width:170px;height:170px;animation:enBob 2.6s ease-in-out infinite}
@@ -4036,7 +4036,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .dpe-add{width:70px;height:86px;border-radius:12px;border:2px dashed var(--line);background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--fg2);font:inherit}
 .dpe-add b{font-size:24px}
 .encbox .aud{display:flex;flex-direction:column;gap:8px}
-@media (max-width:640px){.dp-h h3{font-size:20px}.dp-cu{min-width:40px}.dp-cu b{font-size:20px}.dp-g{grid-template-columns:1fr}.en-pr{font-size:34px}.en-stage{height:220px}.en-mon{width:150px;height:150px}.pi-t{font-size:32px}}
+@media (max-width:640px){.dp-h h3{font-size:20px}.dp-cu{min-width:40px}.dp-cu b{font-size:20px}.dp-g{grid-template-columns:1fr}.en-pr{font-size:34px}.en-stage{height:262px}.en-mon{width:150px;height:150px}.pi-t{font-size:32px}}
 @media (prefers-reduced-motion:reduce){.enc *,.dp *,.pi *{animation:none!important;transition:none!important}}
 /* ===== 競標頁：遭遇戰孵化區 ===== */
 #encZone:empty{display:none}
@@ -4285,6 +4285,14 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .en-now{margin:4px auto 0;width:max-content;max-width:100%;padding:5px 14px;border-radius:999px;background:linear-gradient(90deg,#FF8A1F,#FFD24A);color:#1A0A00;font-weight:900;font-size:14px;letter-spacing:.04em;box-shadow:0 0 18px rgba(255,160,40,.7);animation:enNow .9s ease-in-out infinite alternate}
 .en-now.flr{background:linear-gradient(90deg,#FF3D00,#FF9A1F,#FFE36B);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.3);font-size:15px}
 @keyframes enNow{to{transform:scale(1.07);box-shadow:0 0 30px rgba(255,120,30,.95)}}
+.en-chat{position:absolute;left:12px;bottom:58px;width:min(64%,300px);max-height:46%;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;z-index:6;pointer-events:none;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 28%);mask-image:linear-gradient(transparent,#000 28%)}
+.en-cm{align-self:flex-start;max-width:100%;padding:4px 10px;border-radius:12px;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;font-size:12.5px;line-height:1.35;overflow-wrap:anywhere;animation:enCm .28s ease-out both;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.en-cm b{color:#D4F25A;margin-right:6px;font-weight:800}.en-cm.me{background:rgba(212,242,90,.18)}.en-cm.me b{color:#FFC86B}
+@keyframes enCm{from{opacity:0;transform:translateY(8px) scale(.96)}}
+.en-ci{position:absolute;left:12px;right:12px;bottom:8px;z-index:7;display:flex;align-items:center;gap:6px;padding:3px 3px 3px 12px;border-radius:999px;background:rgba(10,14,12,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.enc.over>.en-chat,.enc.over>.en-ci{z-index:9}.enc.over>.en-ci{bottom:14px;left:14px;right:14px}.enc.over>.en-chat{bottom:64px;left:14px;max-height:30%}.en-ci[hidden],.en-chat[hidden]{display:none}
+.en-ci-i{font-size:15px}.en-cx{flex:1;min-width:0;border:0;background:none;color:#fff;font:inherit;font-size:14px;padding:8px 2px;outline:none}.en-cx::placeholder{color:rgba(255,255,255,.5)}
+.en-cs{border:0;border-radius:999px;padding:7px 14px;background:#D4F25A;color:#111;font:inherit;font-weight:800;font-size:13px;cursor:pointer}
 .en-hint{margin:2px 0 -4px;text-align:center;font-size:12.5px;color:rgba(255,255,255,.75)}
 #mineBar:empty{display:none}
 .mn-hs{margin-left:auto;position:relative;flex:none}
@@ -10318,6 +10326,8 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   // 頁面設計：背景資料更新時不要整頁重畫（會讓預覽 iframe 重新載入、一直閃）
   if (!force && main.querySelector('.sfe,.pdh-g')) { renderAdmNav(); return; }
   if (!force && main.querySelector('.pm-pe input, .ql')) { renderAdmNav(); return; }
+  // 推播、立牌設計這類要打字的頁面：背景資料更新時不重畫，打到一半的字不會不見
+  if (!force && main.querySelector('.bc,.sde,.vt-tb')) { renderAdmNav(); return; }
   if (!force && main.querySelector('form:not(.qform)')) { renderAdmNav(); if ((S.admTab==='plants'||S.admTab==='reg') && S.admEdit && $('#admSide')) admSideFill($('#admSide'), S.plants.get(S.admEdit)); return; }
   renderAdmNav();
   main.replaceChildren();
@@ -12783,6 +12793,16 @@ function encPanel(p,deal){
   const rulesEl=encRules(true); rulesEl.classList.add('en-rules');
   const atk=h('div',{class:'en-atk'}, ...ENC_EMO.map(e=>h('button',{type:'button',class:'en-e','aria-label':'攻擊'}, h('span',{text:e}))));
   const res=h('div',{class:'en-res',hidden:true}), stage=h('div',{class:'en-stage'}, h('div',{class:'en-grid'}), mon, fx);
+  // 即時聊天：疊在戰鬥畫面左下角，像直播留言；遊戲結束 1 分鐘後關閉，伺服器隨後清掉對話
+  const chatRid=encRid(p), chatBox=h('div',{class:'en-chat','aria-live':'polite'}), chatTx=h('input',{class:'en-cx',maxlength:60,placeholder:'說點什麼…',enterkeyhint:'send'});
+  let chatUn=null, chatLast=0, chatEnd=0;
+  const chatSend=async()=>{ const v=chatTx.value.trim(); if(!v) return; if(needLogin()) return; if(Date.now()-chatLast<1500){ toast('慢一點，1.5 秒後再說'); return; } chatLast=Date.now(); chatTx.value='';
+    try{ await S.db.collection('encChat/'+chatRid+'/m').doc().set({uid:S.me,name:String(nameOf(S.me)||'訓練家').slice(0,20),text:v.slice(0,60),at:Date.now()}); }catch(e){ toast('送不出去：'+(e?.code==='permission-denied'?'沒有權限':'請稍後再試')); } };
+  chatTx.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.isComposing){ e.preventDefault(); chatSend(); } });
+  const chatIn=h('div',{class:'en-ci'}, h('span',{class:'en-ci-i',text:'💬'}), chatTx, h('button',{type:'button',class:'en-cs',onclick:chatSend,text:'送出'}));
+  const chatPaint=L=>{ chatBox.replaceChildren(...L.slice(-6).map(x=>h('div',{class:'en-cm'+(x.uid===S.me?' me':'')}, h('b',{text:x.name||'訓練家'}), x.text))); };
+  const chatOn=()=>{ if(chatUn||!S.db) return; chatUn=S.db.collection('encChat/'+chatRid+'/m').orderBy('at','desc').limit(20).onSnapshot(sn=>{ chatPaint(sn.docs.map(d=>d.data()).reverse()); },()=>{}); };
+  const chatOff=()=>{ if(chatUn){ try{ chatUn(); }catch(e){} chatUn=null; } chatBox.replaceChildren(); };
   const el=h('div',{class:'enc','data-pid':pid},
     h('div',{class:'en-top'}, h('span',{class:'en-k'}, h('i',{text:'⚔'}), '遭遇戰'), stTag, h('span',{class:'en-sp'}), tm, h('button',{type:'button',class:'en-help','aria-label':'玩法',onclick:()=>encIntro(true),text:'?'})),
     h('div',{class:'en-hp'}, h('span',{class:'en-hpl',text:'HP'}), h('div',{class:'en-hpb'}, hpG, hpF, h('i',{class:'en-hpseg'})), hpT),
@@ -12791,9 +12811,9 @@ function encPanel(p,deal){
     rulesEl,
     own?h('p',{class:'en-own',text:'你的遭遇戰 · 等訓練家來收服'}):h('div',{class:'en-ctl'}, atk, capHint, cap),
     crowd, res);
-  deal.replaceChildren(el);
+  deal.replaceChildren(el); stage.append(chatBox,chatIn);
   let lastN=null, lastPrice=null, lastHeal=(+p.encHealMs||0)+(+p.encHealHp||0)+(+p.encHealA||0), dmgAcc=0, dmgT=0, busy=false, cdUntil=0, st0=null;
-  const V={pid,el,stop:()=>{ clearInterval(iv); },busy:()=>busy};
+  const V={pid,el,stop:()=>{ clearInterval(iv); chatOff(); },busy:()=>busy};
   ENCV=V;
   const pop=(txt,cls,x,y)=>{ const d=h('span',{class:'en-dmg '+(cls||''),text:txt,style:`left:${x??(40+Math.random()*20)}%;top:${y??(30+Math.random()*16)}%`}); fx.append(d); setTimeout(()=>d.remove(),1300); };
   const flyIn=(e,from)=>{ const r=stage.getBoundingClientRect(), m=mon.getBoundingClientRect(); if(!r.width||!m.width||document.hidden||PAGE!=='plant') return; const s=h('span',{class:'en-proj',text:e}); document.documentElement.append(s);
@@ -12874,6 +12894,8 @@ function encPanel(p,deal){
     if(lastPrice!=null&&c.price<lastPrice){ dmgAcc+=lastPrice-c.price; if(!dmgT) dmgT=setTimeout(()=>{ if(dmgAcc>0&&!REDUCE) pop('-'+money(dmgAcc),'tick',62+Math.random()*10,52); dmgAcc=0; dmgT=0; },1500); }
     lastPrice=c.price;
     lastHeal=(+pp.encHealMs||0)+(+pp.encHealHp||0)+(+pp.encHealA||0);
+    { const over=st==='won'||st==='end'; if(over) chatEnd=pp.encDone?.at?+pp.encDone.at+ENC_CATCH:(chatEnd||now); if(!over) chatEnd=0; const open=st==='live'||st==='catch'||(over&&now<chatEnd+6e4);
+      el.classList.toggle('over',over); { const host=over?el:stage; if(chatIn.parentNode!==host) host.append(chatBox,chatIn); } if(open) chatOn(); else chatOff(); chatIn.hidden=!open||(encRid(pp)!==chatRid); chatBox.hidden=!open; if(over&&open) chatTx.placeholder='遊戲結束，聊天室 '+Math.ceil((chatEnd+6e4-now)/1000)+' 秒後關閉'; }
     crowd.textContent=rdy?'⏳ 大家集合中，'+fmtLeft(encT0(pp)+ENC_GRACE-now)+' 後開打':encBanned()&&!own?'🔒 '+encBanMsg():H.u?'⚔ '+H.u+' 位訓練家 · '+tot+' 次攻擊':(st==='live'?'丟表情攻擊':''); };
   const _att=encAttack; V.attack=(e,b)=>{ V.myAdds=(V.myAdds||0)+1; _att(e,b); };
   atk.querySelectorAll('.en-e').forEach((b,i)=>{ b.onclick=ev=>V.attack(ENC_EMO[i],ev.currentTarget); });
@@ -13058,9 +13080,12 @@ function admBcast(m){ m.append(admTop('推播通知'));
   const LINKS=[['/','首頁'],['/#/store/auction','競標'],['/#/store/mall','商城'],['/#/raffle','抽獎'],['/#/guide','教學'],['custom','自訂連結']];
   const ti=h('input',{maxlength:40,placeholder:'例如 🎉 新玩法上線：遭遇戰'}), bd=h('textarea',{rows:3,maxlength:120,placeholder:'例如 野生植物出現了！丟表情攻擊、按下收服，價格越低越難收服'});
   const lk=h('select',{}, ...LINKS.map(([v,l])=>h('option',{value:v,text:l}))), cu=h('input',{placeholder:'/#/seller/... 或 /#/plant/...',hidden:true}), tg=h('select',{}, h('option',{value:'all',text:'全部會員'}), h('option',{value:'sellers',text:'只有賣家'}), h('option',{value:'buyers',text:'只有買家（非賣家）'}));
-  lk.onchange=()=>{ cu.hidden=lk.value!=='custom'; };
+  // 草稿存在記憶體：後台畫面因為資料更新重畫時，打到一半的字不會不見
+  const D=S.bcDraft||(S.bcDraft={ti:'',bd:'',lk:'/',cu:'',tg:'all'}); ti.value=D.ti; bd.value=D.bd; lk.value=D.lk; cu.value=D.cu; tg.value=D.tg; cu.hidden=lk.value!=='custom';
+  const keep=()=>{ D.ti=ti.value; D.bd=bd.value; D.lk=lk.value; D.cu=cu.value; D.tg=tg.value; };
+  lk.onchange=()=>{ cu.hidden=lk.value!=='custom'; keep(); }; cu.oninput=keep; tg.onchange=keep;
   const pvT=h('b',{}), pvB=h('span',{}), pv=h('div',{class:'bc-pv'}, h('img',{src:'/icon-192.png',alt:''}), h('div',{}, h('small',{text:'VEIN · 現在'}), pvT, pvB));
-  const sync=()=>{ pvT.textContent=ti.value||'通知標題'; pvB.textContent=bd.value||'通知內容'; }; ti.oninput=sync; bd.oninput=sync; sync();
+  const sync=()=>{ pvT.textContent=ti.value||'通知標題'; pvB.textContent=bd.value||'通知內容'; keep(); }; ti.oninput=sync; bd.oninput=sync; sync();
   const msg=h('p',{class:'hint'}), send=h('button',{type:'button',class:'btn lime',text:'送出推播'});
   send.onclick=async()=>{ const title=ti.value.trim(), body=bd.value.trim(), link=lk.value==='custom'?cu.value.trim():lk.value;
     if(!title||!body){ msg.textContent='請填標題和內容'; return; } if(link&&!/^\/(#\/.*)?$/.test(link)){ msg.textContent='連結要以 / 或 /#/ 開頭'; return; }

@@ -518,12 +518,17 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
   const { p, ...rest } = out; await done(rest);
 });
 // 遭遇戰：開始時推給追蹤的人；價格掉到最低時記下時間（之後多久沒人收服就結束）
+async function encChatClear(rid) { const col = db.collection('encChat/' + rid + '/m'); for (let i = 0; i < 40; i++) { const s = await col.limit(400).get(); if (s.empty) break; const b = db.batch(); s.docs.forEach(x => b.delete(x.ref)); await b.commit(); } }
 exports.encSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
   const now = Date.now();
   for (const sd of await db.collection('shops').listDocuments()) {
     let snap; try { snap = await sd.collection('plants').where('mode', '==', 'encounter').get(); } catch (e) { continue; }
     for (const d of snap.docs) {
-      const p = { id: d.id, shop: sd.id, ...d.data() }; if (!encLiveAt(p, now)) continue;
+      const p = { id: d.id, shop: sd.id, ...d.data() };
+      // 遊戲結束 1 分鐘後清掉這場的即時聊天
+      if (!encLiveAt(p, now)) { const t0 = encT0(p), endAt = p.encDone ? +p.encDone.at + ENC_SHOW : p.encClosed ? (+p.updatedAt || now) : Math.min(+p.endsAtMs || Infinity, p.encFloorAt ? +p.encFloorAt + encIdle(p) : Infinity);
+        const rid = encRid(p); if (t0 && t0 <= now && isFinite(endAt) && now > endAt + 6e4 && p.encChatClr !== rid) { try { await encChatClear(rid); await d.ref.update({ encChatClr: rid }); } catch (e) { logger.warn('encChatClear', e.message); } }
+        continue; }
       if (!p.encFloorAt) { const c = encCalc(p, await encHitsN(p), now); if (c.floor) await d.ref.update({ encFloorAt: now }).catch(() => {}); }
       if (!p.startNoted && encT0(p) <= now) {
         await d.ref.update({ startNoted: now }).catch(() => {});
