@@ -454,7 +454,7 @@ exports.pushShopName = onDocumentUpdated('shops/{uid}', async ev => {
 //  攻擊量 = 全場總攻擊次數 × 人數倍率＝人數 ÷ 10（最高 ×5）→ 一個人打要超久，人多很快
 const encT0 = p => +p.startsAtMs || +p.aucStartAt || tms(p.listedAt || p.createdAt) || 0;
 const encCrowd = u => Math.min(5, Math.max(0, u) / 10);
-const ENC_FULL = 5000, ENC_GRACE = 45000, ENC_SHOW = 3200; // 開場 45 秒集合時間；收服動畫 3.2 秒，大家一起看完才公布；每人 6 秒可再收服一次
+const ENC_FULL = 2500, ENC_GRACE = 45000, ENC_SHOW = 3200; // 開場 45 秒集合時間；收服動畫 3.2 秒，大家一起看完才公布；每人 6 秒可再收服一次
 // 攻擊次數只記全場加總：encAgg/{植物_這場開始時間}/s/{0~7}（每個人固定寫一格），加起來就是總攻擊數與參加人數
 const encRid = p => p.id + '_' + encT0(p);
 async function encHitsN(p) { let N = 0, u = 0; try { (await db.collection('encAgg/' + encRid(p) + '/s').get()).forEach(d => { const v = d.data(); N += +v.n || 0; u += +v.u || 0; }); } catch (e) {} return { N, u }; }
@@ -489,24 +489,12 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
       if (n2 < encT0(p) + ENC_GRACE) return { res: 'ready' };
       if (p.encCatch && n2 < +p.encCatch.until) return { res: 'wait' };
       const hits = await encHitsN(p);
-      const c = encCalc(p, hits, n2), ch = encChance(c.hp), roll = require('crypto').randomInt(0, 1e6) / 1e6;
-      // 成交價不能比買家按下去時看到的貴：如果期間有人收服失敗回血、價格變高太多，就退回讓他重新確認
-      const S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), want = Math.round(+t.price || 0);
-      if (want && want < c.price - Math.max(10, (S0 - F) * 0.04)) return { res: 'moved', price: c.price };
-      const pay = want ? Math.max(F, Math.min(c.price, want)) : c.price;
-      const fl = c.floor && !p.encFloorAt ? { encFloorAt: n2 } : {};
-      if (roll < ch) {
-        tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: pay, encDone: { uid: t.uid, price: pay, at: n2 }, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: true, heal: 0 }, updatedAt: n2, ...fl });
-        return { res: 'ok', price: pay, chance: Math.round(ch * 100), until: n2 + ENC_SHOW, p };
-      }
-      // 回血：HP 回升 15%，但不會超過滿血
-      const add = Math.max(0, Math.min(0.15, 1 - c.raw)), target = Math.min(1, c.raw + add);
-      // 先把時間倒回去（不超過開場）；不夠的話再把攻擊量扣回去
-      let tf2 = c.ha > 0 ? 1 - target / c.ha : 0, dA = 0; if (tf2 < 0 || c.ha <= 0) { tf2 = 0; dA = Math.max(0, c.A - ENC_FULL * (1 - Math.sqrt(target))); }
-      const nMs = (+p.encHealMs || 0) + Math.max(0, c.tf - Math.max(0, tf2)) * c.dur, nA = (+p.encHealA || 0) + dA;
-      tx.update(pref, { encHealMs: nMs, encHealA: nA, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: false, heal: add }, updatedAt: n2, encFloorAt: add > 0 ? null : (p.encFloorAt || (c.floor ? n2 : null)) }); // 回血離開最低價，逃跑倒數重算
-      const after = encCalc({ ...p, encHealMs: nMs, encHealA: nA }, hits, n2);
-      return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD, until: n2 + ENC_SHOW };
+      // 丟出就一定收服（先到先得）。成交價＝伺服器現在的價格，但不會比買家按下時看到的貴；
+      // 買家手機時間不準看到比較低的價格時，最多只讓 4%（避免調手機時間占便宜）
+      const c = encCalc(p, hits, n2), S0 = +p.encStart, F = Math.min(Math.max(0, +p.encFloor || 0), S0), tol = Math.max(10, (S0 - F) * 0.04), want = Math.round(+t.price || 0);
+      const pay = want ? Math.max(F, Math.min(c.price, Math.max(want, c.price - tol))) : c.price;
+      tx.update(pref, { status: 'reserved', buyer: t.uid, soldPrice: pay, encDone: { uid: t.uid, price: pay, at: n2 }, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: true, heal: 0 }, updatedAt: n2 });
+      return { res: 'ok', price: pay, chance: 100, until: n2 + ENC_SHOW, p };
     });
   } catch (e) { logger.warn('encTry', e.message); return done({ res: 'busy' }); }
   if (out.res === 'ok') {
