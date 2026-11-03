@@ -2988,6 +2988,12 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .xr-btns{display:flex;flex-direction:column;gap:8px}.xr-btns .btn{width:100%}
 .xq{max-width:440px;text-align:center}.xq-qr{width:min(78vw,320px);aspect-ratio:1;margin:4px auto 10px;background:#fff;border-radius:18px;padding:10px;transition:opacity .3s}.xq-qr svg{width:100%;height:100%;display:block}.xq-qr.dim{opacity:.15}
 .xq-cd{font-size:13px;color:var(--fg2);margin-bottom:8px}.xq-cd b{color:var(--fg)}.xq-st{text-align:left}.xq-ok{text-align:center;font-weight:800;color:var(--leaf-2);font-size:17px}
+.vt{max-width:440px;margin:24px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}.vt-ic{font-size:44px;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--leaf-soft)}
+.vt h2{margin:6px 0 0;font-size:22px}.vt-c{font-size:20px;letter-spacing:.08em;margin:0;padding:6px 14px;border-radius:12px;background:var(--paper)}.vt-b{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.vt-pk{width:100%;margin-top:10px;text-align:left}.vt-pl{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;margin-top:8px}.vt-pi{display:flex;gap:10px;align-items:center;padding:6px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font:inherit;color:var(--fg);cursor:pointer;text-align:left}
+.vt-pi img{width:44px;height:52px;border-radius:9px;object-fit:cover;flex:none}.vt-pi span{display:flex;flex-direction:column;min-width:0}.vt-pi small{color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt-bh{border:0;background:none;font:inherit;color:inherit;cursor:pointer;display:flex;gap:8px;align-items:baseline;padding:0}.vt-bh small{color:var(--fg2)}.vt-l{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.vt-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-radius:12px;background:var(--paper)}.vt-s{font-size:13px;color:var(--fg2)}.vt-s.on{color:var(--fg);font-weight:700}.vt-r small{color:var(--fg2);font-size:12px}
 .nfc{max-width:420px;text-align:center}.nfc-st{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 8px 10px}.nfc-st p{margin:0;font-size:14.5px;line-height:1.6}.nfc-st.ok p{color:var(--leaf-2);font-weight:700}.nfc-st.warn p{color:var(--fg)}
 .nfc-ol{text-align:left;margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.55}
 .nfc-url{display:block;max-width:100%;overflow-wrap:anywhere;font-size:12px;background:var(--paper);border-radius:10px;padding:8px 10px}
@@ -4982,6 +4988,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
   <div class="page" id="pgAbout" hidden><section class="sec wrap page-top" id="aboutPage"></section></div>
   <div class="page" id="pgRules" hidden><section class="sec wrap page-top" id="rulesPage"></section></div>
   <div class="page" id="pgClaim" hidden><section class="sec wrap page-top" id="claimPage"></section></div>
+  <div class="page" id="pgTag" hidden><section class="sec wrap page-top" id="tagPage"></section></div>
   <div class="page" id="pgHistory" hidden><section class="sec wrap page-top" id="historyPage"></section></div>
   <div class="page" id="pgGroup" hidden><section class="sec wrap page-top" id="groupPage"></section></div>
   <div class="page" id="pgPlant" hidden><section class="sec wrap page-top plantpage" id="plantPage"></section></div>
@@ -7934,7 +7941,10 @@ async function boot(){
 }
 
 /* ---------- router ---------- */
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','guide','chats','feed','sell','about','rules','me','staff','lp','batch'];
+// 立牌（先印、之後再綁）：掃 QR 或碰 NFC 進站是 ?t=代碼（NFC 多帶 &n=1），轉成 #/tag/代碼
+(()=>{ try{ const q=new URLSearchParams(location.search), c=(q.get('t')||'').toUpperCase().replace(/[^0-9A-Z]/g,''); if(!c) return;
+  if(q.get('n')==='1') sessionStorage.setItem('vein.tagNfc',c); history.replaceState(null,'',location.pathname+'#/tag/'+c); }catch(e){} })();
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','tag','guide','chats','feed','sell','about','rules','me','staff','lp','batch'];
 function go(hash){ if(location.hash===hash) route(); else if((history.state?.bl||0)>(window.__BL?.length||0)){ history.replaceState(null,'',hash); route(); } /* 剛關掉的視窗留下的那筆紀錄直接換掉，按上一頁才不會多按一次 */ else location.hash=hash; }
 // 返回鍵：所有不是主要分頁的頁面都顯示（App 模式沒有瀏覽器返回鍵，一定要有）；有上一頁就回上一頁，沒有就回首頁
 const ROOT_HASH=new Set(['','#','#/','#/store','#/store/auction','#/raffle','#/verify','#/me']);
@@ -7981,6 +7991,7 @@ function route(){ updBack();
     if (pg==='group') renderGroup(true);
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
+    $('#pgTag').hidden=pg!=='tag'; if (pg==='tag'){ S.tagCode=String(arg||'').toUpperCase(); S.tagDoc=null; renderTag(); }
     $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
     if (pg==='sell') renderSell(); if (pg==='about') renderAbout(); if (pg==='rules') renderRules();
     if (['plant','history','verify','group','claim'].includes(pg)||(pg==='shop'&&['search','cat'].includes(S.storeTab))){ S.wantAll=true; ensurePlants(); }
@@ -9196,11 +9207,11 @@ async function openF2F(p){ if(!p||ownerOf(p)!==S.me||S.work){ toast('只有這�
   await make(); cd.textContent=mmss(XR_MS); tickStart(); }
 // ===== NFC：把植物頁網址寫進 NFC 貼紙，手機一碰就打開履歷（Android Chrome 支援；iPhone 用 App 寫入） =====
 const nfcOK=()=>'NDEFReader' in window, NFC_SC='VEIN 寫入 NFC';
-function writeNfc(p){ const url=siteUrl()+'?nfc=1#/plant/'+encodeURIComponent(p.id);
+function writeNfc(p,url0){ const url=url0||siteUrl()+'?nfc=1#/plant/'+encodeURIComponent(p.id);
   const host=adm.open?adm:document.body, prev=document.documentElement.style.overflow; let ac=null;
   const close=()=>{ try{ ac?.abort(); }catch(e){} ov.remove(); document.documentElement.style.overflow=prev; };
   const st=h('div',{class:'nfc-st'}), ring=h('div',{class:'nfc-r'}, h('i'), h('i'), h('b',{text:'📶'}));
-  const ov=h('div',{class:'rs-ov',onclick:e=>{ if(e.target===ov) close(); }}, h('div',{class:'rs nfc'}, h('div',{class:'rs-h'}, h('div',{}, h('b',{text:'寫入 NFC 貼紙'}), h('small',{text:p.code+' · '+pName(p)})), h('button',{type:'button',class:'rs-x','aria-label':'關閉',onclick:close,text:'✕'})), ring, st));
+  const ov=h('div',{class:'rs-ov',onclick:e=>{ if(e.target===ov) close(); }}, h('div',{class:'rs nfc'}, h('div',{class:'rs-h'}, h('div',{}, h('b',{text:'寫入 NFC 貼紙'}), h('small',{text:url0?'立牌 '+p.code:p.code+' · '+pName(p)})), h('button',{type:'button',class:'rs-x','aria-label':'關閉',onclick:close,text:'✕'})), ring, st));
   host.append(ov); document.documentElement.style.overflow='hidden';
   const say=(t,cls,extra)=>{ st.className='nfc-st '+(cls||''); st.replaceChildren(h('p',{text:t}), ...(extra||[])); };
   const copyBtn=h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(url,e.currentTarget),text:'🔗 複製這株的網址'});
@@ -9226,6 +9237,70 @@ function writeNfc(p){ const url=siteUrl()+'?nfc=1#/plant/'+encodeURIComponent(p.
     }catch(e){ ring.classList.remove('on'); if(e?.name==='AbortError') return;
       say(e?.name==='NotAllowedError'?'需要允許 NFC 權限：請在跳出的提示按「允許」，並確認手機設定裡 NFC 已開啟。':e?.name==='NotSupportedError'?'這支手機沒有 NFC 或 NFC 沒開。':'寫入失敗：貼紙可能被鎖住、容量不夠，或移開太快。換一張再試。','warn',[h('button',{class:'btn pri sm',type:'button',onclick:go,text:'再試一次'}), copyBtn]); } };
   say('準備好空白 NFC 貼紙（NTAG213／215 都可以），按下開始後靠近手機。','',[h('button',{class:'btn pri',type:'button',onclick:go,text:'開始寫入'})]); }
+/* ===== 立牌：先印好 QR、寫好 NFC，之後再綁到賣場或植株 =====
+   每個立牌一組代碼（tags/代碼）。還沒綁的掃到會顯示「還沒啟用」，賣家登入後就能綁到自己的賣場或一株植物；綁好之後掃到就直接打開。 */
+const TAG_AB='23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+const tagNew=()=>Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>TAG_AB[b%32]).join('');
+const tagUrl=(c,nfc)=>siteUrl()+'?t='+c+(nfc?'&n=1':'');
+const tagFmt=c=>String(c).replace(/(.{4})(?=.)/g,'$1-');
+function tagLabel(tg){ const t=tg?.target; if(!t) return '還沒綁定'; if(t.kind==='shop') return '🏠 '+shopName(t.id); const p=S.plants.get(t.id); return '🌱 '+(p?p.code+' '+pName(p):(t.code||t.id)); }
+function tagGo(tg){ const t=tg.target, nfc=sessionStorage.getItem('vein.tagNfc')===tg.code; try{ sessionStorage.removeItem('vein.tagNfc'); }catch(e){}
+  if(t.kind==='plant'){ if(nfc) try{ sessionStorage.setItem('vein.xsrc',JSON.stringify({pid:t.id,via:'nfc',tok:null,at:Date.now()})); }catch(e){} location.replace('#/plant/'+encodeURIComponent(t.id)); }
+  else location.replace('#/seller/'+encodeURIComponent(t.id)); }
+async function tagBind(c,target){ try{ await S.db.doc('tags/'+c).update({target,boundBy:S.me,boundAt:Date.now()}); S.tagDoc={...S.tagDoc,code:c,target,boundBy:S.me}; S.tagsL=null; S.myTagsL=null; return true; }catch(e){ toast('綁定失敗：'+(e?.code==='permission-denied'?'這個立牌已經被別人綁走了，或你沒有權限':'請稍後再試')); return false; } }
+function tagPicker(c,done){ const box=h('div',{class:'vt-pk'}), q=h('input',{type:'search',class:'ofq',placeholder:'搜尋編號或品種'}), list=h('div',{class:'vt-pl'});
+  const paint=()=>{ const s=q.value.trim().toLowerCase(), L=myPlants().filter(p=>!s||(p.code+' '+pName(p)+' '+(p.species||'')).toLowerCase().includes(s)).slice(0,60);
+    list.replaceChildren(...(L.length?L.map(p=>h('button',{type:'button',class:'vt-pi',onclick:async()=>{ if(await tagBind(c,{kind:'plant',id:p.id,shop:S.me,code:p.code})) done(); }}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{}, h('b',{class:'mono',text:p.code}), h('small',{text:pName(p)})))):[h('p',{class:'hint',text:'找不到植株'})])); };
+  q.addEventListener('input',paint); paint(); box.append(q,list); return box; }
+async function renderTag(){ const box=$('#tagPage'), c=S.tagCode; if(!box) return; if(!c){ box.replaceChildren(); return; }
+  if(!S.db){ box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取立牌中…'})); return; }
+  if(S.tagDoc?.code!==c){ if(S.tagBusy===c) return; S.tagBusy=c; box.replaceChildren(h('p',{class:'hint',style:'margin-top:40px',text:'讀取立牌中…'}));
+    try{ const d=await S.db.doc('tags/'+c).get(); S.tagDoc=d.exists?{code:c,...d.data()}:{code:c,missing:true}; }catch(e){ S.tagDoc={code:c,err:true}; } S.tagBusy=null; if(S.tagCode!==c||PAGE!=='tag') return; }
+  const tg=S.tagDoc, mine=tg.boundBy===S.me||S.admin, manage=S.tagManage===c&&mine;
+  const card=(ic,title,sub,...rest)=>box.replaceChildren(h('div',{class:'vt'}, h('div',{class:'vt-ic',text:ic}), h('h2',{text:title}), h('p',{class:'vt-c mono',text:tagFmt(c)}), sub?h('p',{class:'hint',text:sub}):null, ...rest));
+  if(tg.missing||tg.err) return card('❓',tg.err?'讀取失敗':'找不到這個立牌',tg.err?'請稍後再掃一次':'代碼可能印錯了');
+  if(tg.target&&!manage){ tagGo(tg); return; }
+  if(!S.me) return card('📶','這個立牌還沒啟用','',h('button',{class:'btn pri',type:'button',onclick:()=>openLogin(),text:'賣家登入啟用'}));
+  if(!isSeller()) return card('📶','這個立牌還沒啟用','只有賣家可以啟用');
+  const back=()=>{ S.tagManage=null; S.tagDoc=null; renderTag(); };
+  let pick=null; const area=h('div',{});
+  const btns=h('div',{class:'vt-b'}, h('button',{type:'button',class:'btn lime',onclick:async()=>{ if(await tagBind(c,{kind:'shop',id:S.me,shop:S.me})){ toast('已綁到你的賣場'); back(); } }}, '🏠 綁到我的賣場'),
+    h('button',{type:'button',class:'btn ink',onclick:()=>{ if(!pick){ pick=tagPicker(c,()=>{ toast('已綁到這株植物'); back(); }); area.replaceChildren(pick); pick.querySelector('input').focus(); } }}, '🌱 綁到一株植物'));
+  card(tg.target?'🔁':'📶',tg.target?'改綁這個立牌':'啟用這個立牌',tg.target?'目前：'+tagLabel(tg):'',btns,area,
+    tg.target?h('div',{class:'vt-b'}, h('button',{type:'button',class:'btn soft sm',onclick:async()=>{ try{ await S.db.doc('tags/'+c).update({target:null,boundBy:null,boundAt:null}); toast('已解除綁定'); S.tagManage=null; S.tagDoc=null; S.tagsL=null; S.myTagsL=null; renderTag(); }catch(e){ toast('解除失敗'); } },text:'解除綁定'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.tagManage=null; tagGo(tg); },text:'取消'})):null); }
+function tagManage(c){ S.tagManage=c; S.tagDoc=null; if(adm.open) try{ adm.close(); }catch(e){} location.hash='#/tag/'+c; }
+let JSZIP_P=null; const loadZip=()=>JSZIP_P||(JSZIP_P=new Promise(res=>{ if(window.JSZip) return res(window.JSZip); const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload=()=>res(window.JSZip||null); s.onerror=()=>{ JSZIP_P=null; res(null); }; document.head.append(s); }));
+async function tagZip(L,name){ const [Q,Z]=await Promise.all([loadQR(),loadZip()]); if(!Q||!Z){ toast('載入失敗，請再試一次'); return; } const z=new Z();
+  L.forEach(x=>{ const q=Q(0,'M'); q.addData(tagUrl(x.code)); q.make(); z.file('QR_'+x.code+'.svg',q.createSvgTag({cellSize:8,margin:2,scalable:true})); });
+  z.file('立牌清單.csv','﻿代碼,印在立牌上的代碼,QR 網址,NFC 寫入網址\n'+L.map(x=>[x.code,tagFmt(x.code),tagUrl(x.code),tagUrl(x.code,true)].join(',')).join('\n'));
+  dlFile(await z.generateAsync({type:'blob'}),name+'.zip'); }
+function tagPrint(L,name){ const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  document.getElementById('labelFrame')?.remove(); const fr=h('iframe',{id:'labelFrame',title:'立牌 QR 列印',style:'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none'}); (adm.open?adm:document.body).append(fr);
+  const w=fr.contentWindow; w.document.open(); w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:A4;margin:10mm}*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}
+.grid{display:grid;grid-template-columns:repeat(3,60mm);grid-auto-rows:72mm;gap:4mm;justify-content:center}.c{border:.2mm dashed #bbb;border-radius:3mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;break-inside:avoid}
+.qr{width:44mm;height:44mm}.qr svg{width:100%;height:100%;display:block}.c b{font:700 13pt "JetBrains Mono",ui-monospace,Menlo,monospace;letter-spacing:.06em}.c small{font-size:8pt;color:#555}</style></head><body><div class="grid">${L.map(x=>`<div class="c"><div class="qr" data-u="${esc(tagUrl(x.code))}"></div><b>${esc(tagFmt(x.code))}</b><small>VEIN · 掃描或手機碰一下</small></div>`).join('')}</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"><\/script><script>window.onload=function(){ try{ document.querySelectorAll('.qr').forEach(function(el){ var q=qrcode(0,'M'); q.addData(el.dataset.u); q.make(); el.innerHTML=q.createSvgTag(2,0); }); }catch(e){} if(!parent.__noPrint) setTimeout(function(){ window.focus(); print(); },300); };<\/script></body></html>`);
+  w.document.close(); w.addEventListener('afterprint',()=>setTimeout(()=>fr.remove(),300)); toast('正在開啟列印視窗…'); }
+function tagRow(x,admin){ return h('div',{class:'vt-r'}, h('b',{class:'mono',text:tagFmt(x.code)}), h('span',{class:'vt-s'+(x.target?' on':''),text:tagLabel(x)}), admin&&x.boundBy?h('small',{text:'由 '+nameOf(x.boundBy)}):null,
+  h('span',{class:'row',style:'gap:6px;margin-left:auto'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>writeNfc({code:tagFmt(x.code),species:''},tagUrl(x.code,true)),text:'📶 寫 NFC'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagManage(x.code),text:x.target?'改綁':'綁定'}))); }
+function admTags(m){ m.append(admTop('立牌 QR／NFC'));
+  if(!S.tagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); S.db.collection('tags').get().then(sn=>{ S.tagsL=sn.docs.map(d=>({code:d.id,...d.data()})); renderAdmin(true); }).catch(()=>{ S.tagsL=[]; renderAdmin(true); }); return; }
+  const n=h('input',{type:'number',min:1,max:300,value:30,style:'width:90px'}), nm=h('input',{maxlength:30,placeholder:'批次名稱（例如 市集立牌 11 月）',style:'flex:1;min-width:160px'}), go=h('button',{type:'button',class:'btn lime',text:'產生代碼'});
+  go.onclick=async()=>{ const k=Math.max(1,Math.min(300,+n.value||0)), b=nm.value.trim()||('立牌 '+fmtDay(new Date())), at=Date.now(); go.disabled=true; go.textContent='產生中…';
+    try{ const have=new Set(S.tagsL.map(x=>x.code)), L=[]; while(L.length<k){ const c=tagNew(); if(!have.has(c)){ have.add(c); L.push(c); } }
+      for(let i=0;i<L.length;i+=20) await Promise.all(L.slice(i,i+20).map(c=>S.db.doc('tags/'+c).set({batch:b,at,target:null,boundBy:null,boundAt:null})));
+      toast('已產生 '+k+' 組代碼'); S.tagOpen=b; S.tagsL=null; renderAdmin(true); }catch(e){ toast('產生失敗：'+(e?.message||'請稍後再試')); go.disabled=false; go.textContent='產生代碼'; } };
+  m.append(h('div',{class:'panel'}, h('b',{text:'產生一批立牌代碼'}), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center'}, n, h('span',{text:'個'}), nm, go)));
+  const B=new Map(); S.tagsL.slice().sort((a,b)=>b.at-a.at||a.code.localeCompare(b.code)).forEach(x=>{ const k=x.batch||'未分批'; if(!B.has(k)) B.set(k,[]); B.get(k).push(x); });
+  if(!B.size) m.append(h('p',{class:'hint',text:'還沒有立牌代碼。'}));
+  for(const [b,L] of B){ const on=L.filter(x=>x.target).length, open=S.tagOpen===b;
+    m.append(h('div',{class:'panel vt-bt'}, h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;align-items:center'}, h('button',{type:'button',class:'vt-bh',onclick:()=>{ S.tagOpen=open?null:b; renderAdmin(true); }}, h('b',{text:(open?'▾ ':'▸ ')+b}), h('small',{text:L.length+' 個 · 已綁 '+on})),
+        h('span',{class:'row',style:'gap:6px;margin-left:auto;flex-wrap:wrap'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>tagPrint(L,b),text:'🖨 列印 QR'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagZip(L,b),text:'⬇ QR 檔＋清單'}))),
+      open?h('div',{class:'vt-l'}, ...L.map(x=>tagRow(x,true))):null)); } }
+function admMyTags(m){ m.append(admTop('我的立牌'));
+  if(!S.myTagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); S.db.collection('tags').where('boundBy','==',S.me).get().then(sn=>{ S.myTagsL=sn.docs.map(d=>({code:d.id,...d.data()})); renderAdmin(true); }).catch(()=>{ S.myTagsL=[]; renderAdmin(true); }); return; }
+  m.append(h('p',{class:'hint',text:'拿到新立牌：用手機掃上面的 QR 或碰一下，就能綁到賣場或植物。'}));
+  m.append(S.myTagsL.length?h('div',{class:'panel vt-l'}, ...S.myTagsL.map(x=>tagRow(x,false))):h('p',{class:'hint',text:'還沒有綁定的立牌。'})); }
 function histBtn(p,cls,label){ return h('a',{class:'btn '+(cls||'soft')+' hbtn',href:'#/history/'+encodeURIComponent(p.id),onclick:e=>{ e.stopPropagation(); }}, h('i',{class:'hbtn-i'}), label||'看完整履歷'); }
 function leaveHistory(){ if(S.histUnsub){ S.histUnsub(); S.histUnsub=null; } S.histFor=null; S.histDocs=null; histSig=''; }
 let histSig='', histIO=null;
@@ -10008,6 +10083,8 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if (T==='mod'&&S.admin) return admMod(main);
   if (T==='users'&&S.admin) return admUsers(main);
   if (T==='bcast'&&S.admin) return admBcast(main);
+  if (T==='tags'&&S.admin) return admTags(main);
+  if (T==='mytags'&&isSeller()) return admMyTags(main);
   if (T==='site'&&S.admin) return admSite(main);
   if (T==='sfront'&&S.admin) return admStorefront(main);
   if (T==='spot'&&S.admin) return admSpot(main);
@@ -10028,9 +10105,9 @@ function renderAdmNav(){
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
     {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live','catch'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
-    {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
+    {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],['mytags','我的立牌'],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
-  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
+  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['tags','立牌 QR／NFC'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return (S.admTab==='lot'||(S.admTab==='new'&&S.newPreset?.list)?'list':S.admTab)===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });
@@ -13652,7 +13729,7 @@ let rq=0;
 const typing=el=>!!el&&el.contains(document.activeElement)&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
 function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ applySnipe(); }catch(e){} try{ ordAlert(); }catch(e){} try{ lockScreen(); }catch(e){} renderNav(); renderShop(); renderBell(); socialProof(); if(lastV) renderVerify(lastV);
   if (PAGE==='sell'&&!typing($('#sellPage'))) platRerender(); if (PAGE==='home') renderCommunity();
-  if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='batch'&&S.batchKey) renderBatch(S.batchKey); if (PAGE==='history') renderHistory(); if (PAGE==='claim') renderClaim(); if (PAGE==='raffle') renderRafflePage(); renderWall();
+  if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='batch'&&S.batchKey) renderBatch(S.batchKey); if (PAGE==='history') renderHistory(); if (PAGE==='tag') renderTag(); if (PAGE==='claim') renderClaim(); if (PAGE==='raffle') renderRafflePage(); renderWall();
   if (PAGE==='plant'){ if(S.pendingPlant&&S.plants.has(S.pendingPlant)) buildPlantPage(S.pendingPlant); else refreshDetail(false); }
   if (S.pendingR&&S.raffles.has(S.pendingR)) openRaffle(S.pendingR);
   if (PAGE==='me'&&!typing($('#pgMe'))) renderMe();

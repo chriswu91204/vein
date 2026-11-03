@@ -219,6 +219,15 @@ service cloud.firestore {
     function encOK() { return !exists(/databases/$(database)/documents/encBan/$(request.auth.uid))
       || (get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('perm', false) == false
         && get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('until', 0) < request.time.toMillis()); }
+    // 立牌：管理員產生代碼；還沒綁的賣家可以綁到自己；綁的人或管理員可以改綁、解除
+    match /tags/{code} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['target', 'boundBy', 'boundAt'])
+        && (resource.data.get('boundBy', null) == null || resource.data.boundBy == request.auth.uid)
+        && (request.resource.data.boundBy == request.auth.uid || (request.resource.data.boundBy == null && request.resource.data.target == null))
+        && (request.resource.data.target == null || request.resource.data.target.shop == request.auth.uid));
+    }
     match /ordAct/{uid} {
       allow read: if isMe(uid);
     }
