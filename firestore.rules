@@ -224,7 +224,7 @@ service cloud.firestore {
       allow read: if true;
       allow create, delete: if isAdmin();
       allow update: if isAdmin() || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['target', 'boundBy', 'boundAt'])
-        && (resource.data.get('boundBy', null) == null || resource.data.boundBy == request.auth.uid)
+        && ((resource.data.get('boundBy', null) == null && (resource.data.get('assignedTo', null) == null || resource.data.assignedTo == request.auth.uid)) || resource.data.boundBy == request.auth.uid)
         && (request.resource.data.boundBy == request.auth.uid || (request.resource.data.boundBy == null && request.resource.data.target == null))
         && (request.resource.data.target == null || request.resource.data.target.shop == request.auth.uid));
     }

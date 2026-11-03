@@ -3003,7 +3003,13 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .vt-pk{width:100%;margin-top:10px;text-align:left}.vt-pl{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;margin-top:8px}.vt-pi{display:flex;gap:10px;align-items:center;padding:6px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font:inherit;color:var(--fg);cursor:pointer;text-align:left}
 .vt-pi img{width:44px;height:52px;border-radius:9px;object-fit:cover;flex:none}.vt-pi span{display:flex;flex-direction:column;min-width:0}.vt-pi small{color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vt-bh{border:0;background:none;font:inherit;color:inherit;cursor:pointer;display:flex;gap:8px;align-items:baseline;padding:0}.vt-bh small{color:var(--fg2)}.vt-l{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-.vt-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-radius:12px;background:var(--paper)}.vt-s{font-size:13px;color:var(--fg2)}.vt-s.on{color:var(--fg);font-weight:700}.vt-r small{color:var(--fg2);font-size:12px}
+.vt-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-radius:12px;background:var(--paper);cursor:pointer;border:1.5px solid transparent}.vt-r:hover{border-color:var(--line)}.vt-r.sel{border-color:var(--ink);background:var(--surface)}.vt-cb{width:18px;height:18px;accent-color:#1F5C3A}
+.vt-s.as{color:#B45309;font-weight:700}
+.vt-st{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.vt-sc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);font:inherit;color:var(--fg);cursor:pointer}.vt-sc b{font-size:22px}.vt-sc span{font-size:12px;color:var(--fg2)}.vt-sc.on{background:var(--ink);color:#fff;border-color:var(--ink)}.vt-sc.on span{color:var(--lime)}
+.vt-gen summary{cursor:pointer;font-weight:700}.vt-tb{display:flex;gap:8px;margin:12px 0 8px;flex-wrap:wrap}.vt-tb .ofq{flex:1;min-width:180px}.vt-tb select{font:inherit;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg)}
+.vt-bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);margin-bottom:8px}.vt-bar.on{background:#111213;color:#fff;border-color:#111213}.vt-bar.on .btn.soft{background:rgba(255,255,255,.12);color:#fff}
+.rs.tb{max-width:520px;width:calc(100vw - 24px)}.tb-t{margin:4px 0 10px}.vt-pk .ofq{width:100%;margin-bottom:6px}
+@media(max-width:560px){.vt-st{grid-template-columns:repeat(2,1fr)}}.vt-s{font-size:13px;color:var(--fg2)}.vt-s.on{color:var(--fg);font-weight:700}.vt-r small{color:var(--fg2);font-size:12px}
 .nfc{max-width:420px;text-align:center}.nfc-st{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 8px 10px}.nfc-st p{margin:0;font-size:14.5px;line-height:1.6}.nfc-st.ok p{color:var(--leaf-2);font-weight:700}.nfc-st.warn p{color:var(--fg)}
 .nfc-ol{text-align:left;margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.55}
 .nfc-url{display:block;max-width:100%;overflow-wrap:anywhere;font-size:12px;background:var(--paper);border-radius:10px;padding:8px 10px}
@@ -9253,10 +9259,35 @@ const TAG_AB='23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 const tagNew=()=>Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>TAG_AB[b%32]).join('');
 const tagUrl=(c,nfc)=>siteUrl()+'?t='+c+(nfc?'&n=1':'');
 const tagFmt=c=>String(c).replace(/(.{4})(?=.)/g,'$1-');
-function tagLabel(tg){ const t=tg?.target; if(!t) return '還沒綁定'; if(t.kind==='shop') return '🏠 '+shopName(t.id); const p=S.plants.get(t.id); return '🌱 '+(p?p.code+' '+pName(p):(t.code||t.id)); }
+const tagHost=u=>{ try{ return new URL(u).host.replace(/^www\./,''); }catch(e){ return u; } };
+function tagLabel(tg){ const t=tg?.target; if(!t) return tg?.assignedTo?'已指定給 '+shopName(tg.assignedTo)+'，還沒設定':'還沒綁定'; if(t.kind==='shop') return '🏠 '+shopName(t.id); if(t.kind==='url') return '🔗 '+(t.title||tagHost(t.url)); const p=S.plants.get(t.id); return '🌱 '+(p?p.code+' '+pName(p):(t.code||t.id)); }
 function tagGo(tg){ const t=tg.target, nfc=sessionStorage.getItem('vein.tagNfc')===tg.code; try{ sessionStorage.removeItem('vein.tagNfc'); }catch(e){}
+  if(t.kind==='url'){ if(/^https?:\/\//i.test(t.url||'')) location.replace(t.url); else location.replace('#/'); return; }
   if(t.kind==='plant'){ if(nfc) try{ sessionStorage.setItem('vein.xsrc',JSON.stringify({pid:t.id,via:'nfc',tok:null,at:Date.now()})); }catch(e){} location.replace('#/plant/'+encodeURIComponent(t.id)); }
   else location.replace('#/seller/'+encodeURIComponent(t.id)); }
+// 綁定面板：賣場／植物／網址／指定給賣家（管理員可一次處理很多個）
+const tagSellers=()=>[...S.shops.keys()].filter(u=>approved(u)||u===house()).sort((a,b)=>shopName(a).localeCompare(shopName(b),'zh-Hant'));
+function openTagBind(codes,done,tab0){ const admin=!!S.admin, host=adm.open?adm:document.body; let tab=tab0||'shop';
+  const close=()=>ov.remove(), fin=()=>{ S.tagsL=null; S.myTagsL=null; S.tagSel?.clear(); close(); done&&done(); };
+  const run=async(fn,label)=>{ try{ for(let i=0;i<codes.length;i+=15) await Promise.all(codes.slice(i,i+15).map(c=>S.db.doc('tags/'+c).update(fn(c)))); toast(label+(codes.length>1?'（'+codes.length+' 個）':'')); fin(); }catch(e){ toast('沒有成功：'+(e?.code==='permission-denied'?'沒有權限，或這個立牌已經是別人的':'請稍後再試')); } };
+  const bind=(target,owner)=>run(()=>({target,boundBy:owner||S.me,boundAt:Date.now()}),'已綁定');
+  const search=(ph,items,row)=>{ const q=h('input',{type:'search',class:'ofq',placeholder:ph}), L=h('div',{class:'vt-pl'}); const paint=()=>{ const s=q.value.trim().toLowerCase(), M=items().filter(x=>!s||row(x).key.toLowerCase().includes(s)).slice(0,80); L.replaceChildren(...(M.length?M.map(x=>{ const r=row(x); return h('button',{type:'button',class:'vt-pi',onclick:r.go}, r.img, h('span',{}, h('b',{text:r.t}), r.s?h('small',{text:r.s}):null)); }):[h('p',{class:'hint',text:'找不到'})])); }; q.addEventListener('input',paint); paint(); setTimeout(()=>q.focus(),50); return h('div',{class:'vt-pk'}, q, L); };
+  const body=h('div',{class:'tb-b'});
+  const panes={
+    shop:()=>admin?search('搜尋賣場名稱',tagSellers,u=>({key:shopName(u),t:shopName(u),s:approved(u)?'':'官方',img:avatar(u,38),go:()=>bind({kind:'shop',id:u,shop:u},u)}))
+      :h('div',{class:'vt-b'}, h('button',{type:'button',class:'btn lime',onclick:()=>bind({kind:'shop',id:S.me,shop:S.me}),text:'🏠 綁到我的賣場「'+shopName(S.me)+'」'})),
+    plant:()=>search('搜尋編號、品種或賣場',()=>admin?all():myPlants(),p=>({key:p.code+' '+pName(p)+' '+(p.species||'')+' '+shopName(p.shop),t:p.code,s:pName(p)+(admin?' · '+shopName(p.shop):''),img:h('img',{src:cover(p),alt:'',loading:'lazy'}),go:()=>bind({kind:'plant',id:p.id,shop:admin?p.shop:S.me,code:p.code},admin?p.shop:S.me)})),
+    url:()=>{ const u=h('input',{type:'url',class:'ofq',placeholder:'https://…（Instagram、LINE、活動頁…）'}), ti=h('input',{class:'ofq',maxlength:30,placeholder:'名稱（選填，例如 IG）'}), er=h('p',{class:'hint'});
+      return h('div',{class:'vt-pk'}, u, ti, er, h('button',{type:'button',class:'btn lime',onclick:()=>{ let v=u.value.trim(); if(v&&!/^https?:\/\//i.test(v)) v='https://'+v; try{ const x=new URL(v); if(!/^https?:$/.test(x.protocol)) throw 0; }catch(e){ er.textContent='網址格式不對'; return; } bind({kind:'url',url:v,title:ti.value.trim()||null,shop:admin?null:S.me}); },text:'🔗 綁到這個網址'}), h('p',{class:'hint',text:'掃到或碰到就會直接打開這個網頁。'})); },
+    assign:()=>h('div',{}, h('p',{class:'hint',text:'先保留給某個賣家：只有他能啟用，啟用時再自己選要連到賣場、植物或網址。'}), search('搜尋賣場名稱',tagSellers,u=>({key:shopName(u),t:shopName(u),img:avatar(u,38),go:()=>run(()=>({assignedTo:u,assignedAt:Date.now()}),'已指定給 '+shopName(u))}))) };
+  const tabs=[['shop','🏠 賣場'],['plant','🌱 植物'],['url','🔗 網址'],...(admin?[['assign','👤 指定給賣家']]:[])];
+  const tb=h('div',{class:'sde-seg tb-t'}, ...tabs.map(([k,l])=>h('button',{type:'button','aria-pressed':String(k===tab),onclick:()=>{ tab=k; tb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===k))); body.replaceChildren(panes[k]()); },'data-k':k,text:l})));
+  body.append(panes[tab]());
+  const any=codes.some(c=>(S.tagsL||S.myTagsL||[]).find(x=>x.code===c)?.target)||(S.tagDoc&&codes.includes(S.tagDoc.code)&&S.tagDoc.target);
+  const foot=h('div',{class:'vt-b',style:'margin-top:12px'}, any?h('button',{type:'button',class:'btn soft sm',onclick:()=>run(()=>({target:null,boundBy:null,boundAt:null}),'已解除綁定'),text:'解除綁定'}):null,
+    admin&&codes.some(c=>(S.tagsL||[]).find(x=>x.code===c)?.assignedTo)?h('button',{type:'button',class:'btn soft sm',onclick:()=>run(()=>({assignedTo:null,assignedAt:null}),'已取消指定'),text:'取消指定'}):null);
+  const ov=h('div',{class:'rs-ov',onclick:e=>{ if(e.target===ov) close(); }}, h('div',{class:'rs tb'}, h('div',{class:'rs-h'}, h('div',{}, h('b',{text:'設定立牌要連到哪裡'}), h('small',{text:codes.length>1?codes.length+' 個立牌':tagFmt(codes[0])})), h('button',{type:'button',class:'rs-x','aria-label':'關閉',onclick:close,text:'✕'})), tb, body, foot));
+  host.append(ov); }
 async function tagBind(c,target){ try{ await S.db.doc('tags/'+c).update({target,boundBy:S.me,boundAt:Date.now()}); S.tagDoc={...S.tagDoc,code:c,target,boundBy:S.me}; S.tagsL=null; S.myTagsL=null; return true; }catch(e){ toast('綁定失敗：'+(e?.code==='permission-denied'?'這個立牌已經被別人綁走了，或你沒有權限':'請稍後再試')); return false; } }
 function tagPicker(c,done){ const box=h('div',{class:'vt-pk'}), q=h('input',{type:'search',class:'ofq',placeholder:'搜尋編號或品種'}), list=h('div',{class:'vt-pl'});
   const paint=()=>{ const s=q.value.trim().toLowerCase(), L=myPlants().filter(p=>!s||(p.code+' '+pName(p)+' '+(p.species||'')).toLowerCase().includes(s)).slice(0,60);
@@ -9272,10 +9303,12 @@ async function renderTag(){ const box=$('#tagPage'), c=S.tagCode; if(!box) retur
   if(tg.target&&!manage){ tagGo(tg); return; }
   if(!S.me) return card('📶','這個立牌還沒啟用','',h('button',{class:'btn pri',type:'button',onclick:()=>openLogin(),text:'賣家登入啟用'}));
   if(!isSeller()) return card('📶','這個立牌還沒啟用','只有賣家可以啟用');
+  if(!tg.target&&tg.assignedTo&&tg.assignedTo!==S.me&&!S.admin) return card('🔒','這個立牌還沒啟用','已保留給「'+shopName(tg.assignedTo)+'」');
   const back=()=>{ S.tagManage=null; S.tagDoc=null; renderTag(); };
   let pick=null; const area=h('div',{});
   const btns=h('div',{class:'vt-b'}, h('button',{type:'button',class:'btn lime',onclick:async()=>{ if(await tagBind(c,{kind:'shop',id:S.me,shop:S.me})){ toast('已綁到你的賣場'); back(); } }}, '🏠 綁到我的賣場'),
-    h('button',{type:'button',class:'btn ink',onclick:()=>{ if(!pick){ pick=tagPicker(c,()=>{ toast('已綁到這株植物'); back(); }); area.replaceChildren(pick); pick.querySelector('input').focus(); } }}, '🌱 綁到一株植物'));
+    h('button',{type:'button',class:'btn ink',onclick:()=>{ if(!pick){ pick=tagPicker(c,()=>{ toast('已綁到這株植物'); back(); }); area.replaceChildren(pick); pick.querySelector('input').focus(); } }}, '🌱 綁到一株植物'),
+    h('button',{type:'button',class:'btn soft',onclick:()=>openTagBind([c],back,'url')}, '🔗 綁到網址'));
   card(tg.target?'🔁':'📶',tg.target?'改綁這個立牌':'啟用這個立牌',tg.target?'目前：'+tagLabel(tg):'',btns,area,
     tg.target?h('div',{class:'vt-b'}, h('button',{type:'button',class:'btn soft sm',onclick:async()=>{ try{ await S.db.doc('tags/'+c).update({target:null,boundBy:null,boundAt:null}); toast('已解除綁定'); S.tagManage=null; S.tagDoc=null; S.tagsL=null; S.myTagsL=null; renderTag(); }catch(e){ toast('解除失敗'); } },text:'解除綁定'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.tagManage=null; tagGo(tg); },text:'取消'})):null); }
 function tagManage(c){ S.tagManage=c; S.tagDoc=null; if(adm.open) try{ adm.close(); }catch(e){} location.hash='#/tag/'+c; }
@@ -9287,7 +9320,7 @@ async function tagZip(L,name){ const [Q,Z]=await Promise.all([loadQR(),loadZip()
 // ===== 立牌 76 × 127.5 mm：可選模板、每個元素可開關、文字顏色可改；設計存在 site/standee，列印時每張換上自己的 QR =====
 const ST_W=76, ST_H=127.5, ST_BL=3;
 // 模板：每個模板都把下面這些欄位寫滿，切換時不會殘留上一個模板的設定
-const ST_TB={bg:'#111213',bg2:'#D2FF00',fg:'#FFFFFF',ac:'#D2FF00',pat:'none',shape:'rect',frame:false,align:'center',bigOn:false,big:'',italic:false,font:'sans',qrBg:'#FFFFFF',qrFg:'#111213',qrStyle:'square',sign:false,num:'',side:''};
+const ST_TB={bg:'#111213',bg2:'#D2FF00',fg:'#FFFFFF',ac:'#D2FF00',pat:'none',shape:'rect',frame:false,tape:false,align:'center',bigOn:false,big:'',italic:false,font:'sans',qrBg:'#FFFFFF',qrFg:'#111213',qrStyle:'square',sign:false,num:'',side:''};
 const ST_TPL=Object.fromEntries(Object.entries({
   lando:{name:'Lando 賽車風',pat:'speed',align:'left',bigOn:true,big:'SCAN\nOR TAP',italic:true,font:'anton',qrStyle:'dot',sign:true,num:'04'},
   hang:{name:'掛勾吊牌',shape:'hang',bg:'#F7F7F5',bg2:'#D2FF00',fg:'#111213',ac:'#1F5C3A',font:'anton',bigOn:true,big:'SCAN · TAP'},
@@ -9302,7 +9335,19 @@ const ST_TPL=Object.fromEntries(Object.entries({
   specimen:{name:'植物標本',bg:'#F3EEDF',fg:'#2D3A2E',ac:'#7A5A2E',frame:true,font:'serif',bigOn:true,big:'Specimen',italic:true,qrFg:'#2D3A2E'},
   kraft:{name:'牛皮紙',bg:'#C9A77C',fg:'#2B1D10',ac:'#2B1D10',pat:'kraft',frame:true,font:'serif',qrBg:'#F3E7D3',qrFg:'#2B1D10'},
   leaf:{name:'葉脈深綠',bg:'#0E1210',fg:'#FFFFFF',ac:'#D4F25A',pat:'vein',qrFg:'#0E1210'},
-  paper:{name:'白底極簡',bg:'#FFFFFF',fg:'#111213',ac:'#1F5C3A'}
+  paper:{name:'白底極簡',bg:'#FFFFFF',fg:'#111213',ac:'#1F5C3A'},
+  f1:{name:'方程式紅',bg:'#E10600',bg2:'#111213',fg:'#FFFFFF',ac:'#FFFFFF',pat:'speed',align:'left',bigOn:true,big:'PIT\n*STOP*',italic:true,font:'anton',num:'16',qrFg:'#E10600'},
+  pop:{name:'普普點點',bg:'#FFE14D',bg2:'#FF3D7F',fg:'#111213',ac:'#FF3D7F',pat:'halftone',bigOn:true,big:'WOW!\n*SCAN*',italic:true,font:'anton',qrStyle:'dot'},
+  sun:{name:'夕陽放射',bg:'#FF7A3D',bg2:'#FFC94D',fg:'#2A1305',ac:'#FFF4D6',pat:'rays',bigOn:true,big:'HELLO\nPLANT',font:'anton',qrFg:'#2A1305'},
+  ocean:{name:'海洋藍',bg:'#0B3D91',bg2:'#00B3C6',fg:'#FFFFFF',ac:'#7FF0FF',pat:'grad',bigOn:true,big:'DIVE IN',font:'anton',qrStyle:'dot',qrFg:'#0B3D91'},
+  sakura:{name:'櫻花粉',bg:'#FFE4EC',fg:'#5A1E33',ac:'#E85A87',pat:'dots',frame:true,font:'serif',bigOn:true,big:'Bloom',italic:true,qrFg:'#5A1E33'},
+  blue:{name:'設計藍圖',bg:'#1A4FA0',fg:'#FFFFFF',ac:'#FFFFFF',pat:'blueprint',align:'left',font:'mono',bigOn:true,big:'SPEC\nNo.01',qrFg:'#1A4FA0'},
+  stamp:{name:'郵票',shape:'stamp',bg:'#FDF8EE',fg:'#1F3B2D',ac:'#C2452D',font:'serif',bigOn:true,big:'Taiwan Flora',italic:true,qrFg:'#1F3B2D'},
+  tape:{name:'復古膠帶',tape:true,bg:'#EFE7D6',fg:'#2B2620',ac:'#3F6B4E',pat:'kraft',font:'serif',bigOn:true,big:'Field Notes',italic:true,qrBg:'#FFFDF7',qrFg:'#2B2620'},
+  gold:{name:'午夜金',bg:'#0F1A2E',fg:'#F5E7C6',ac:'#D4AF63',frame:true,font:'serif',bigOn:true,big:'Rare',italic:true,qrBg:'#F5E7C6',qrFg:'#0F1A2E'},
+  jungle:{name:'叢林大葉',bg:'#0F3B26',fg:'#FFFFFF',ac:'#9BE15D',pat:'leaves',bigOn:true,big:'WILD\n*GREEN*',font:'anton',qrStyle:'dot',qrFg:'#0F3B26'},
+  stripe:{name:'復古條紋',bg:'#FFF6E5',bg2:'#E85D2A',fg:'#2A1C10',ac:'#E85D2A',pat:'stripes',font:'anton',bigOn:true,big:'SINCE 2026',qrFg:'#2A1C10'},
+  term:{name:'終端機',bg:'#0A0F0A',fg:'#7CFF6B',ac:'#7CFF6B',pat:'grid',align:'left',font:'mono',bigOn:true,big:'> SCAN_',qrBg:'#0A0F0A',qrFg:'#7CFF6B'}
 }).map(([k,v])=>[k,{...ST_TB,...v}]));
 const ST_DEF={tpl:'lando',...ST_TPL.lando,shopName:'',showShop:false,autoShop:true,showLogo:true,sub:'植物溯源市集',showSub:true,head:'用手機掃一下或碰一下',showHead:true,showCode:true,showNfc:true,nfcT:'NFC 感應區',nfcS:'手機背面靠近這裡',showFoot:true,foot:'',qrSize:40,img:null};
 const stD=()=>({...ST_DEF,...(S.sdDesign||{})});
@@ -9320,6 +9365,11 @@ function stPat(D){ const a=D.ac; if(D.pat==='vein'){ let d='M38 132 C37 100 39 6
   if(D.pat==='split') return `<path d="M30 0H76V58Z" fill="${D.bg2}"/><path d="M26 0L76 50" stroke="${D.fg}" stroke-opacity=".5" stroke-width=".3"/>`;
   if(D.pat==='grad') return `<defs><linearGradient id="gd" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="${D.bg}"/><stop offset="1" stop-color="${D.bg2}"/></linearGradient></defs><rect width="76" height="127.5" fill="url(#gd)"/><circle cx="70" cy="12" r="26" fill="${a}" fill-opacity=".12"/><circle cx="4" cy="118" r="20" fill="${a}" fill-opacity=".08"/>`;
   if(D.pat==='kraft'){ let s='', x=7; const rnd=()=>(x=(x*16807)%2147483647)/2147483647; for(let i=0;i<260;i++){ const px=rnd()*76, py=rnd()*127.5, an=rnd()*3.14, l=.6+rnd()*2.2; s+=`<path d="M${px.toFixed(1)} ${py.toFixed(1)}l${(Math.cos(an)*l).toFixed(2)} ${(Math.sin(an)*l).toFixed(2)}"/>`; } return `<g stroke="${D.fg}" stroke-opacity=".13" stroke-width=".18">${s}</g>`; }
+  if(D.pat==='halftone'){ let s=''; for(let y=2;y<128;y+=3.2) for(let x=2;x<78;x+=3.2){ const k=Math.max(0,(x+y-100)/110); if(k>.02) s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(k*1.7).toFixed(2)}"/>`; } return `<g fill="${D.bg2}" fill-opacity=".85">${s}</g>`; }
+  if(D.pat==='rays'){ let s=''; for(let i=0;i<24;i+=2){ const a1=i/24*6.283, a2=(i+1)/24*6.283; s+=`<path d="M38 40L${(38+Math.cos(a1)*160).toFixed(1)} ${(40+Math.sin(a1)*160).toFixed(1)}L${(38+Math.cos(a2)*160).toFixed(1)} ${(40+Math.sin(a2)*160).toFixed(1)}Z"/>`; } return `<g fill="${D.bg2}" fill-opacity=".55">${s}</g>`; }
+  if(D.pat==='leaves'){ const L=(x,y,r,s)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><path d="M0 0C14-18 40-20 56 0C40 20 14 18 0 0Z"/><path d="M2 0H54" stroke="${D.bg}" stroke-width="1"/></g>`; return `<g fill="${a}" fill-opacity=".16">${L(-14,22,-30,.9)}${L(50,8,35,.7)}${L(-10,112,20,1)}${L(62,124,-150,.9)}${L(70,70,-120,.5)}</g>`; }
+  if(D.pat==='stripes'){ let s=''; for(let i=0;i<5;i++) s+=`<rect x="0" y="${104+i*4.8}" width="76" height="2.4"/>`; return `<g fill="${D.bg2}">${s}</g><rect x="0" y="0" width="76" height="2.4" fill="${D.bg2}"/>`; }
+  if(D.pat==='blueprint'){ let s=''; for(let x=0;x<=76;x+=4) s+=`<path d="M${x} 0V128" stroke-opacity="${x%20===0?.35:.14}"/>`; for(let y=0;y<=128;y+=4) s+=`<path d="M0 ${y}H76" stroke-opacity="${y%20===0?.35:.14}"/>`; return `<g stroke="#FFFFFF" stroke-width=".2">${s}</g><circle cx="62" cy="16" r="9" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".3"/><path d="M53 16H71M62 7V25" stroke="#fff" stroke-opacity=".5" stroke-width=".3"/>`; }
   if(D.pat==='grid'){ let s=''; for(let x=4;x<76;x+=6) s+=`<path d="M${x} 0V128"/>`; for(let y=3.75;y<128;y+=6) s+=`<path d="M0 ${y}H76"/>`; return `<g stroke="${D.fg}" stroke-opacity=".1" stroke-width=".2">${s}</g>`; }
   if(D.pat==='dots'){ let s=''; for(let x=4;x<76;x+=4) for(let y=4;y<128;y+=4) s+=`<circle cx="${x}" cy="${y}" r=".35"/>`; return `<g fill="${D.fg}" fill-opacity=".14">${s}</g>`; }
   return ''; }
@@ -9328,11 +9378,19 @@ const stLum=c=>{ const m=/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i.exec(c||'');
 function stDeco(D){ let s=''; const a=D.ac;
   if(D.shape==='hang') s+=`<rect x="0" y="0" width="76" height="25" fill="${D.bg2}"/><path d="M0 25H76" stroke="#000" stroke-opacity=".12" stroke-width=".4"/>
 <g fill="#000" fill-opacity=".28" transform="translate(0 -.5)"><rect x="24" y="7.6" width="28" height="5.2" rx="2.6"/><circle cx="38" cy="8.4" r="3.2"/></g><g fill="#FFFFFF"><rect x="24" y="7.6" width="28" height="5.2" rx="2.6"/><circle cx="38" cy="8.4" r="3.2"/></g>`;
-  if(D.shape==='ticket') s+=`<circle cx="0" cy="102" r="4" fill="#FFFFFF"/><circle cx="76" cy="102" r="4" fill="#FFFFFF"/><path d="M6 102H70" stroke="${D.fg}" stroke-opacity=".45" stroke-width=".35" stroke-dasharray="1.4 1.2"/><rect x="0" y="0" width="76" height="4" fill="${D.bg2}"/>`;
+  if(D.shape==='ticket') s+=`<circle cx="0" cy="113" r="4" fill="#FFFFFF"/><circle cx="76" cy="113" r="4" fill="#FFFFFF"/><path d="M6 113H70" stroke="${D.fg}" stroke-opacity=".45" stroke-width=".35" stroke-dasharray="1.4 1.2"/><rect x="0" y="0" width="76" height="4" fill="${D.bg2}"/>`;
+  if(D.shape==='stamp'){ for(let x=0;x<=76;x+=3.8){ s+=`<circle cx="${x}" cy="0" r="1.3" fill="#FFFFFF"/><circle cx="${x}" cy="127.5" r="1.3" fill="#FFFFFF"/>`; } for(let y=0;y<=127.5;y+=3.75){ s+=`<circle cx="0" cy="${y}" r="1.3" fill="#FFFFFF"/><circle cx="76" cy="${y}" r="1.3" fill="#FFFFFF"/>`; } s+=`<rect x="4.5" y="4.5" width="67" height="118.5" fill="none" stroke="${a}" stroke-width=".5"/><circle cx="60" cy="18" r="9" fill="none" stroke="${a}" stroke-opacity=".6" stroke-width=".4" stroke-dasharray="1 .8"/><path d="M48 22c4-3 8 3 12 0s8 3 12 0" fill="none" stroke="${a}" stroke-opacity=".6" stroke-width=".4"/>`; }
+  if(D.tape) s+=`<rect x="-4" y="4" width="24" height="7" fill="#F4E7B8" fill-opacity=".85" transform="rotate(-28 8 7)"/><rect x="56" y="4" width="24" height="7" fill="#F4E7B8" fill-opacity=".85" transform="rotate(28 68 7)"/>`;
   if(D.frame) s+=`<rect x="3.2" y="3.2" width="69.6" height="121.1" rx="1.2" fill="none" stroke="${a}" stroke-width=".35"/><rect x="4.4" y="4.4" width="67.2" height="118.7" rx=".8" fill="none" stroke="${a}" stroke-opacity=".5" stroke-width=".18"/>`;
   return s; }
 // 內容太多放不下時（例如加了商店名稱），QR 自動縮小到放得下為止
-const ST_FIT=`function stFit(){ document.querySelectorAll('.sd').forEach(function(sd){ var q=parseFloat(sd.style.getPropertyValue('--qs'))||40, k=0; while(sd.scrollHeight>sd.clientHeight+1&&q>22&&k++<60){ q-=.5; sd.style.setProperty('--qs',q+'mm'); } var f=sd.querySelector('.sd-f'), n=sd.querySelector('.sd-n')||sd.querySelector('.sd-c'); if(f&&n&&n.getBoundingClientRect().bottom>f.getBoundingClientRect().top-2){ while(n.getBoundingClientRect().bottom>f.getBoundingClientRect().top-2&&q>22&&k++<90){ q-=.5; sd.style.setProperty('--qs',q+'mm'); } } }); }`;
+const ST_FIT=`function stFit(){ document.querySelectorAll('.sd').forEach(function(sd){ var nz=sd.querySelector('.sd-nz'), sp=sd.querySelector('.sd-nzsp');
+  if(nz&&sp){ sp.style.height='0px'; var mm=nz.offsetWidth/27; sp.style.height=Math.max(0,nz.offsetTop+nz.offsetHeight-sp.offsetTop+2.5*mm)+'px'; }
+  var bg=sd.querySelector('.sd-big'), fs=bg?parseFloat(getComputedStyle(bg).fontSize):0, f0=fs, k=0;
+  var q=parseFloat(sd.style.getPropertyValue('--qs'))||40; k=0; while(sd.scrollHeight>sd.clientHeight+1&&q>32&&k++<60){ q-=.5; sd.style.setProperty('--qs',q+'mm'); }
+  k=0; while(bg&&sd.scrollHeight>sd.clientHeight+1&&fs>f0*.5&&k++<40){ fs*=.94; bg.style.fontSize=fs+'px'; }
+  var hd=sd.querySelector('.sd-h'); if(hd&&sd.scrollHeight>sd.clientHeight+1) hd.style.display='none';
+  k=0; while(sd.scrollHeight>sd.clientHeight+1&&q>24&&k++<60){ q-=.5; sd.style.setProperty('--qs',q+'mm'); } }); }`;
 const ST_SIGN='M2 22 C6 8 12 4 13 10 C14 18 6 26 9 27 C12 28 16 12 20 11 C23 10 19 24 22 24 C25 24 27 14 30 14 C33 14 30 23 33 23 C37 23 39 9 44 8 C48 7 42 22 47 21 C51 20 54 12 60 13';
 const ST_NFC=c=>`<svg viewBox="0 0 36 36"><rect x="9" y="4" width="14" height="26" rx="3" fill="none" stroke="${c}" stroke-width="2"/><path d="M14 26h4" stroke="${c}" stroke-width="2" stroke-linecap="round"/><path d="M26 12a7 7 0 0 1 0 10M29.5 9a12 12 0 0 1 0 16" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
 function stCSS(){ return `.sd{position:relative;width:${ST_W}mm;height:${ST_H}mm;overflow:hidden;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif;display:flex;flex-direction:column;align-items:var(--al);text-align:var(--ta);padding:0 6mm;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:var(--bg);color:var(--fg)}
@@ -9343,40 +9401,49 @@ function stCSS(){ return `.sd{position:relative;width:${ST_W}mm;height:${ST_H}mm
 .sd-sub{margin-top:1mm;font-size:6.3pt;letter-spacing:.3em;color:var(--ac);font-weight:700}
 .sd-big{margin-top:3.5mm;font:400 30pt/.86 Anton,Impact,"Noto Sans TC",sans-serif;text-transform:uppercase;white-space:pre-line;color:var(--fg);letter-spacing:.005em}.sd-big.it{font-style:italic;transform:skewX(-6deg);transform-origin:left}
 .sd-big em{font-style:inherit;color:var(--ac)}
-.sd-sg{position:absolute!important;width:30mm;height:13mm;right:5mm;top:24mm;transform:rotate(-8deg)}.sd[data-al=center] .sd-sg{right:2mm;top:30mm}
+
 .sd-h{margin-top:3mm;font-size:11pt;font-weight:900;letter-spacing:.02em;line-height:1.25}
 .sd-q{margin-top:3mm;width:calc(var(--qs) + 8mm);height:calc(var(--qs) + 8mm);border-radius:4.5mm;background:var(--qb);display:grid;place-items:center;box-shadow:0 0 0 .8mm var(--ac);flex:none}.sd-q svg{width:var(--qs);height:var(--qs);display:block}
 .sd-c{margin-top:2.6mm;font:700 10pt "JetBrains Mono",ui-monospace,Menlo,monospace;letter-spacing:.14em;color:var(--ac)}
-.sd-n{margin-top:auto;margin-bottom:9mm;display:flex;align-items:center;gap:2.6mm;padding:2.4mm 4.2mm 2.4mm 2.8mm;border-radius:999px;border:.35mm solid var(--ac);text-align:left}
+.sd-n-old{display:none;border:.35mm solid var(--ac);text-align:left}
 .sd-n svg{width:8.5mm;height:8.5mm;flex:none}.sd-n span{display:flex;flex-direction:column;line-height:1.25}.sd-n b{font-size:8.5pt;font-weight:900}.sd-n small{font-size:5.8pt;opacity:.7}
 .sd-f{position:absolute!important;bottom:3.6mm;left:0;right:0;text-align:center;font-size:5.3pt;letter-spacing:.12em;opacity:.5}
-.sd.nonfc .sd-c{margin-bottom:auto}
+.sd{--bb:8mm}.sd-fill{flex:1 1 0;min-height:0}.sd-bot{flex:none;height:calc(var(--bb) + var(--bl,0mm))}.sd-nzsp{flex:none}
+.sd-nz{position:absolute!important;top:calc(var(--bl,0mm) + 20mm);left:50%;width:27mm;height:27mm;margin-left:-13.5mm;border-radius:50%;border:.5mm solid var(--ac);display:grid;place-items:center;background:color-mix(in srgb,var(--ac) 12%,transparent);text-align:center}
+.sd-nz::before{content:'';position:absolute;inset:2.2mm;border-radius:50%;border:.25mm dashed var(--ac);opacity:.7}.sd-nz::after{content:'';position:absolute;inset:-2.6mm;border-radius:50%;border:.2mm solid var(--ac);opacity:.35}
+.sd-nz div{display:flex;flex-direction:column;align-items:center;gap:.5mm;line-height:1.2}.sd-nz svg{width:10mm;height:10mm}.sd-nz b{font-size:7pt;font-weight:900}.sd-nz small{font-size:4.8pt;opacity:.75;max-width:22mm}
+.sd[data-shape=hang] .sd-nz{top:calc(var(--bl,0mm) + 30mm)}.sd[data-pat=checker]{--bb:14mm}.sd[data-pat=stripes]{--bb:28mm}.sd[data-shape=ticket]{--bb:17mm}.sd[data-shape=stamp]{--bb:10mm}
+.sd-big{position:relative}.sd-big .sd-sg{position:absolute;width:24mm;height:11mm;left:calc(100% - 4mm);top:10%;transform:rotate(-8deg)}.sd[data-al=center] .sd-big .sd-sg{left:auto;right:-14mm;top:auto;bottom:-6mm}
 .sd[data-font=serif] .sd-big{font-family:"Playfair Display","Noto Serif TC",serif;font-weight:800;text-transform:none;font-size:27pt}.sd[data-font=serif] .sd-h,.sd[data-font=serif] .sd-shop{font-family:"Noto Serif TC",serif}
+.sd[data-font=mono] .sd-big{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:20pt;line-height:1.05;text-transform:none}.sd[data-font=mono] .sd-h,.sd[data-font=mono] .sd-shop,.sd[data-font=mono] .sd-sub{font-family:"JetBrains Mono",monospace}
+.sd[data-shape=stamp]{padding:0 8mm}.sd[data-shape=stamp] .sd-top{margin-top:9mm}.sd[data-shape=stamp] .sd-f{bottom:6mm}
+.sd[data-pat=stripes] .sd-f{display:none}
 .sd[data-font=sans] .sd-big{font-family:"Noto Sans TC",sans-serif;font-weight:900;font-size:22pt;line-height:1.05}
-.sd-shop{margin-top:2.2mm;font-size:12pt;font-weight:900;line-height:1.2;max-width:100%;overflow-wrap:anywhere}.sd-shop small{display:block;font-size:5.6pt;font-weight:700;letter-spacing:.3em;color:var(--ac);margin-bottom:.6mm}
+.sd-shop{margin-top:0;font-size:11pt;font-weight:900;line-height:1.2;max-width:100%;overflow-wrap:anywhere}.sd-shop small{display:block;font-size:5.6pt;font-weight:700;letter-spacing:.3em;color:var(--ac);margin-bottom:.6mm}
 .sd[data-shape=hang] .sd-top{margin-top:15mm;color:var(--hf)}.sd[data-shape=hang] .sd-dot{background:var(--hf)}.sd[data-shape=hang] .sd-dot i{background:var(--bg2)}.sd[data-shape=hang] .sd-sub{margin-top:5mm}
-.sd[data-shape=ticket] .sd-top{margin-top:8mm}.sd[data-shape=ticket] .sd-n{margin-bottom:6mm}
+.sd[data-shape=ticket] .sd-top{margin-top:8mm}
 .sd[data-frame="1"] .sd-top{margin-top:9mm}.sd[data-frame="1"] .sd-f{bottom:6mm}.sd[data-frame="1"]{padding:0 8mm}
 .sd-side{position:absolute!important;right:-1mm;top:0;bottom:0;writing-mode:vertical-rl;font:400 62pt/1 Anton,Impact,sans-serif;color:transparent;-webkit-text-stroke:.35mm var(--ac);opacity:.55;letter-spacing:.02em;text-align:center}
-.sd[data-pat=checker] .sd-n{margin-bottom:13mm}.sd[data-pat=checker] .sd-f{display:none}`; }
+.sd[data-pat=checker] .sd-f{display:none}`; }
 function standeeHTML(code,Q,D,shopNm){ const e=stEsc, al=D.align==='left', big=e(D.big).replace(/\*([^*]+)\*/g,'<em>$1</em>'), sn=shopNm||D.shopName;
   const sty=`--bg2:${D.bg2};--hf:${stLum(D.bg2)>.55?'#111213':'#FFFFFF'};--bg:${D.bg};--fg:${D.fg};--ac:${D.ac};--qb:${D.qrBg};--qs:${D.qrSize}mm;--al:${al?'flex-start':'center'};--ta:${al?'left':'center'};--jc:${al?'flex-start':'center'}`;
-  return `<div class="sd${D.showNfc?'':' nonfc'}" data-al="${al?'left':'center'}" data-font="${D.font}" data-shape="${D.shape}" data-frame="${D.frame?1:0}" data-pat="${D.pat}" style="${sty}"><svg class="bgp" viewBox="0 0 76 127.5" preserveAspectRatio="none">${stPat(D)}${stDeco(D)}</svg>
+  return `<div class="sd" data-al="${al?'left':'center'}" data-font="${D.font}" data-shape="${D.shape}" data-frame="${D.frame?1:0}" data-pat="${D.pat}" style="${sty}"><svg class="bgp" viewBox="0 0 76 127.5" preserveAspectRatio="none">${stPat(D)}${stDeco(D)}</svg>
 ${D.side?`<div class="sd-side">${e(D.side)}</div>`:''}
 ${D.num?`<div class="sd-num">${e(D.num)}</div>`:''}
 ${D.showLogo||D.img?`<div class="sd-top">${D.showLogo?`<span class="sd-dot"><i></i></span><b>VEIN</b>`:''}${D.img?`<img src="${e(D.img)}" alt="">`:''}</div>`:'<div style="height:5mm"></div>'}
 ${D.showSub&&D.sub?`<div class="sd-sub">${e(D.sub)}</div>`:''}
+${D.showNfc?`<div class="sd-nz"><div>${ST_NFC(D.ac)}<b>${e(D.nfcT)}</b><small>${e(D.nfcS)}</small></div></div><div class="sd-nzsp"></div>`:''}
+<i class="sd-fill"></i>
 ${D.showShop&&sn?`<div class="sd-shop"><small>SHOP</small>${e(sn)}</div>`:''}
-${D.bigOn&&D.big?`<div class="sd-big${D.italic?' it':''}">${big}</div>`:''}
-${D.sign?`<svg class="sd-sg" viewBox="0 0 62 30"><path d="${ST_SIGN}" fill="none" stroke="${D.ac}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
+${D.bigOn&&D.big?`<div class="sd-big${D.italic?' it':''}">${big}${D.sign?`<svg class="sd-sg" viewBox="0 0 62 30"><path d="${ST_SIGN}" fill="none" stroke="${D.ac}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}</div>`:''}
 ${D.showHead&&D.head?`<div class="sd-h">${e(D.head)}</div>`:''}
 <div class="sd-q">${stQR(Q,tagUrl(code),D)}</div>
 ${D.showCode?`<div class="sd-c">${e(tagFmt(code))}</div>`:''}
-${D.showNfc?`<div class="sd-n">${ST_NFC(D.ac)}<span><b>${e(D.nfcT)}</b><small>${e(D.nfcS)}</small></span></div>`:''}
+<i class="sd-fill"></i><div class="sd-bot"></div>
 ${D.showFoot?`<div class="sd-f">${e(D.foot||location.host)}</div>`:''}</div>`; }
 // mode='a4'：A4 一頁 4 張自己印、沿虛線裁；mode='pro'：一張一頁、四邊各多 3mm 出血，給印刷廠
 async function tagPrint(L,name,mode){ const Q=await loadQR(); if(!Q){ toast('QR 元件載入失敗，請再試一次'); return; } await stLoad(); const D=stD();
-  const pro=mode==='pro', page=pro?`@page{size:${ST_W+ST_BL*2}mm ${ST_H+ST_BL*2}mm;margin:0}body{margin:0}.pg{break-after:page}.sd{width:${ST_W+ST_BL*2}mm;height:${ST_H+ST_BL*2}mm;padding:0 ${6+ST_BL}mm}.sd-top{margin-top:${6.5+ST_BL}mm}.sd-n{margin-bottom:${9+ST_BL}mm}.sd-f{bottom:${3.6+ST_BL}mm}.sd-num{right:${5+ST_BL}mm;top:${5+ST_BL}mm}`
+  const pro=mode==='pro', page=pro?`@page{size:${ST_W+ST_BL*2}mm ${ST_H+ST_BL*2}mm;margin:0}body{margin:0}.pg{break-after:page}.sd{width:${ST_W+ST_BL*2}mm;height:${ST_H+ST_BL*2}mm;padding:0 ${6+ST_BL}mm}.sd{--bl:${ST_BL}mm}.sd-top{margin-top:${6.5+ST_BL}mm}.sd-f{bottom:${3.6+ST_BL}mm}.sd-num{right:${5+ST_BL}mm;top:${5+ST_BL}mm}`
     :`@page{size:A4;margin:0}body{margin:0}.pg{width:210mm;height:296mm;display:grid;grid-template-columns:repeat(2,${ST_W}mm);grid-auto-rows:${ST_H}mm;gap:8mm 10mm;justify-content:center;align-content:center;break-after:page}.pg .sd{outline:.2mm dashed #999}`;
   const SN=x=>D.autoShop&&x.target?.shop?shopName(x.target.shop):'';
   const body=pro?L.map(x=>`<div class="pg">${standeeHTML(x.code,Q,D,SN(x))}</div>`).join(''):Array.from({length:Math.ceil(L.length/4)},(_,i)=>`<div class="pg">${L.slice(i*4,i*4+4).map(x=>standeeHTML(x.code,Q,D,SN(x))).join('')}</div>`).join('');
@@ -9402,7 +9469,7 @@ function admStandee(m){ m.append(admTop('立牌設計',h('button',{type:'button'
   const box=h('div',{class:'sde'}, h('div',{class:'sde-pv'}, fr, h('small',{class:'hint',text:'76 × 127.5 mm · 預覽代碼 '+tagFmt(code)})),
     h('div',{class:'sde-ctl'},
       h('h4',{text:'模板'}), tpls,
-      h('h4',{text:'版面'}), seg('align',[['left','靠左'],['center','置中']]), seg('pat',[['speed','速度線'],['vein','葉脈'],['grid','格線'],['dots','點點'],['checker','格旗'],['split','斜切'],['grad','漸層'],['kraft','紙纖維'],['none','無']]), seg('shape',[['rect','一般'],['hang','掛勾吊牌'],['ticket','票券']]), seg('font',[['anton','粗體英文'],['sans','黑體'],['serif','襯線']]), sw('frame','細框'),
+      h('h4',{text:'版面'}), seg('align',[['left','靠左'],['center','置中']]), seg('pat',[['speed','速度線'],['vein','葉脈'],['grid','格線'],['dots','點點'],['checker','格旗'],['split','斜切'],['grad','漸層'],['kraft','紙纖維'],['halftone','網點'],['rays','放射'],['leaves','大葉'],['stripes','條紋'],['blueprint','藍圖'],['none','無']]), seg('shape',[['rect','一般'],['hang','掛勾吊牌'],['ticket','票券'],['stamp','郵票']]), seg('font',[['anton','粗體英文'],['sans','黑體'],['serif','襯線'],['mono','打字機']]), sw('frame','細框'), sw('tape','膠帶'),
       h('h4',{text:'顏色'}), h('div',{class:'sde-cs'}, col('bg','底色'), col('bg2','第二底色'), col('fg','文字'), col('ac','重點色'), col('qrFg','QR 顏色'), col('qrBg','QR 底')),
       h('h4',{text:'QR'}), seg('qrStyle',[['dot','圓點'],['square','方塊']]), (()=>{ const r=h('input',{type:'range',min:30,max:50,step:1,value:D.qrSize}); r.addEventListener('input',()=>set('qrSize',+r.value)); return h('label',{class:'sde-f'}, h('span',{text:'QR 大小'}), r); })(),
       h('h4',{text:'大字'}), sw('bigOn','顯示大字'), tx('big','大字內容（換行分行、*字* 變重點色）','SCAN\nOR TAP',true), sw('italic','斜體'), sw('sign','簽名筆跡'), tx('num','角落號碼','04'), tx('side','直排大字（側邊）','VEIN'),
@@ -9411,26 +9478,42 @@ function admStandee(m){ m.append(admTop('立牌設計',h('button',{type:'button'
       h('h4',{text:'圖片'}), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, img, h('button',{type:'button',class:'btn soft sm',onclick:()=>img.click(),text:D.img?'換一張 Logo':'加上 Logo／賣場圖'}), D.img?h('button',{type:'button',class:'btn soft sm',onclick:()=>{ D.img=null; renderAdmin(true); },text:'移除圖片'}):null),
       h('div',{class:'sde-act'}, save, h('button',{type:'button',class:'btn soft',onclick:()=>{ S.sdEdit={...ST_DEF}; renderAdmin(true); },text:'還原預設'}))));
   m.append(box); requestAnimationFrame(paint); }
-function vtRow(x,admin){ return h('div',{class:'vt-r'}, h('b',{class:'mono',text:tagFmt(x.code)}), h('span',{class:'vt-s'+(x.target?' on':''),text:tagLabel(x)}), admin&&x.boundBy?h('small',{text:'由 '+nameOf(x.boundBy)}):null,
-  h('span',{class:'row',style:'gap:6px;margin-left:auto'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>writeNfc({code:tagFmt(x.code),species:''},tagUrl(x.code,true)),text:'📶 寫 NFC'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagManage(x.code),text:x.target?'改綁':'綁定'}))); }
+function vtRow(x,admin,sel){ const on=sel?.has(x.code), cb=sel?h('input',{type:'checkbox',class:'vt-cb'}):null; if(cb){ cb.checked=!!on; cb.onclick=e=>{ e.stopPropagation(); cb.checked?sel.add(x.code):sel.delete(x.code); renderAdmin(true); }; }
+  const st=x.target?'on':x.assignedTo?'as':'';
+  return h('div',{class:'vt-r'+(on?' sel':''),onclick:()=>openTagBind([x.code],()=>renderAdmin(true))}, cb, h('b',{class:'mono',text:tagFmt(x.code)}), h('span',{class:'vt-s '+st,text:tagLabel(x)}),
+    admin?h('small',{text:x.batch||''}):null,
+    h('span',{class:'row',style:'gap:6px;margin-left:auto'}, h('button',{type:'button',class:'btn soft sm',onclick:e=>{ e.stopPropagation(); writeNfc({code:tagFmt(x.code),species:''},tagUrl(x.code,true)); },text:'📶'}), h('button',{type:'button',class:'btn soft sm',onclick:e=>{ e.stopPropagation(); openTagBind([x.code],()=>renderAdmin(true)); },text:x.target?'改設定':'設定'}))); }
 function admTags(m){ m.append(admTop('立牌 QR／NFC',h('button',{type:'button',class:'btn lime sm',onclick:()=>{ S.admTab='standee'; renderAdmin(true); },text:'✏️ 設計立牌'})));
   if(!S.tagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); S.db.collection('tags').get().then(sn=>{ S.tagsL=sn.docs.map(d=>({code:d.id,...d.data()})); renderAdmin(true); }).catch(()=>{ S.tagsL=[]; renderAdmin(true); }); return; }
+  const A=S.tagsL, F=S.tagF||(S.tagF={q:'',st:'all',b:''}), sel=S.tagSel||(S.tagSel=new Set());
+  const cnt={all:A.length,free:A.filter(x=>!x.target&&!x.assignedTo).length,as:A.filter(x=>!x.target&&x.assignedTo).length,on:A.filter(x=>x.target).length};
+  m.append(h('div',{class:'vt-st'}, ...[['all','全部'],['free','未使用'],['as','已指定賣家'],['on','已綁定']].map(([k,l])=>h('button',{type:'button',class:'vt-sc'+(F.st===k?' on':''),onclick:()=>{ F.st=k; renderAdmin(true); }}, h('b',{class:'mono',text:String(cnt[k])}), h('span',{text:l})))));
+  // 產生新代碼（收合）
+  const gen=h('details',{class:'panel vt-gen',open:!A.length}, h('summary',{text:'＋ 產生一批新代碼'}));
   const n=h('input',{type:'number',min:1,max:300,value:30,style:'width:90px'}), nm=h('input',{maxlength:30,placeholder:'批次名稱（例如 市集立牌 11 月）',style:'flex:1;min-width:160px'}), go=h('button',{type:'button',class:'btn lime',text:'產生代碼'});
   go.onclick=async()=>{ const k=Math.max(1,Math.min(300,+n.value||0)), b=nm.value.trim()||('立牌 '+fmtDay(new Date())), at=Date.now(); go.disabled=true; go.textContent='產生中…';
-    try{ const have=new Set(S.tagsL.map(x=>x.code)), L=[]; while(L.length<k){ const c=tagNew(); if(!have.has(c)){ have.add(c); L.push(c); } }
+    try{ const have=new Set(A.map(x=>x.code)), L=[]; while(L.length<k){ const c=tagNew(); if(!have.has(c)){ have.add(c); L.push(c); } }
       for(let i=0;i<L.length;i+=20) await Promise.all(L.slice(i,i+20).map(c=>S.db.doc('tags/'+c).set({batch:b,at,target:null,boundBy:null,boundAt:null})));
-      toast('已產生 '+k+' 組代碼'); S.tagOpen=b; S.tagsL=null; renderAdmin(true); }catch(e){ toast('產生失敗：'+(e?.message||'請稍後再試')); go.disabled=false; go.textContent='產生代碼'; } };
-  m.append(h('div',{class:'panel'}, h('b',{text:'產生一批立牌代碼'}), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center'}, n, h('span',{text:'個'}), nm, go)));
-  const B=new Map(); S.tagsL.slice().sort((a,b)=>b.at-a.at||a.code.localeCompare(b.code)).forEach(x=>{ const k=x.batch||'未分批'; if(!B.has(k)) B.set(k,[]); B.get(k).push(x); });
-  if(!B.size) m.append(h('p',{class:'hint',text:'還沒有立牌代碼。'}));
-  for(const [b,L] of B){ const on=L.filter(x=>x.target).length, open=S.tagOpen===b;
-    m.append(h('div',{class:'panel vt-bt'}, h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;align-items:center'}, h('button',{type:'button',class:'vt-bh',onclick:()=>{ S.tagOpen=open?null:b; renderAdmin(true); }}, h('b',{text:(open?'▾ ':'▸ ')+b}), h('small',{text:L.length+' 個 · 已綁 '+on})),
-        h('span',{class:'row',style:'gap:6px;margin-left:auto;flex-wrap:wrap'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>tagPrint(L,b,'a4'),text:'🖨 立牌 A4（一頁 4 張）'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagPrint(L,b,'pro'),text:'🖨 立牌給印刷廠（含出血）'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagZip(L,b),text:'⬇ QR 檔＋清單'}))),
-      open?h('div',{class:'vt-l'}, ...L.map(x=>vtRow(x,true))):null)); } }
+      toast('已產生 '+k+' 組代碼'); F.b=b; F.st='all'; S.tagsL=null; renderAdmin(true); }catch(e){ toast('產生失敗：'+(e?.message||'請稍後再試')); go.disabled=false; go.textContent='產生代碼'; } };
+  gen.append(h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center'}, n, h('span',{text:'個'}), nm, go)); m.append(gen);
+  const batches=[...new Set(A.slice().sort((a,b)=>b.at-a.at).map(x=>x.batch||'未分批'))];
+  const qi=h('input',{type:'search',class:'ofq',placeholder:'搜尋代碼、賣場、植物、網址',value:F.q}); qi.addEventListener('input',()=>{ F.q=qi.value; clearTimeout(qi._t); qi._t=setTimeout(()=>{ renderAdmin(true); const z=document.querySelector('.vt-tb .ofq'); if(z){ z.focus(); z.setSelectionRange(z.value.length,z.value.length); } },300); });
+  const bs=h('select',{}, h('option',{value:'',text:'全部批次'}), ...batches.map(b=>h('option',{value:b,text:b,selected:F.b===b}))); bs.onchange=()=>{ F.b=bs.value; renderAdmin(true); };
+  const q=F.q.trim().toLowerCase().replace(/-/g,''), L=A.filter(x=>(F.st==='all'||(F.st==='on'?x.target:F.st==='as'?!x.target&&x.assignedTo:!x.target&&!x.assignedTo))&&(!F.b||(x.batch||'未分批')===F.b)&&(!q||(x.code+' '+tagLabel(x)+' '+(x.target?.url||'')).toLowerCase().replace(/-/g,'').includes(q))).sort((a,b)=>b.at-a.at||a.code.localeCompare(b.code));
+  m.append(h('div',{class:'vt-tb'}, qi, bs));
+  const picked=[...sel].map(c=>A.find(x=>x.code===c)).filter(Boolean), use=picked.length?picked:L, nm2=picked.length?'已選 '+picked.length+' 個':(F.b||'立牌');
+  m.append(h('div',{class:'vt-bar'+(picked.length?' on':'')},
+    h('label',{class:'sde-sw'}, (()=>{ const c=h('input',{type:'checkbox'}); c.checked=L.length>0&&L.every(x=>sel.has(x.code)); c.onchange=()=>{ L.forEach(x=>c.checked?sel.add(x.code):sel.delete(x.code)); renderAdmin(true); }; return c; })(), h('span',{text:picked.length?'已選 '+picked.length:'全選（'+L.length+'）'})),
+    picked.length?h('button',{type:'button',class:'btn lime sm',onclick:()=>openTagBind(picked.map(x=>x.code),()=>renderAdmin(true)),text:'🔗 設定連到哪裡'}):null,
+    h('button',{type:'button',class:'btn soft sm',onclick:()=>use.length&&tagPrint(use,nm2,'a4'),text:'🖨 A4'}),
+    h('button',{type:'button',class:'btn soft sm',onclick:()=>use.length&&tagPrint(use,nm2,'pro'),text:'🖨 印刷廠'}),
+    h('button',{type:'button',class:'btn soft sm',onclick:()=>use.length&&tagZip(use,nm2),text:'⬇ QR 檔'}),
+    picked.length?h('button',{type:'button',class:'btn soft sm',onclick:()=>{ sel.clear(); renderAdmin(true); },text:'取消選取'}):null));
+  m.append(L.length?h('div',{class:'vt-l'}, ...L.slice(0,400).map(x=>vtRow(x,true,sel))):h('p',{class:'hint',text:A.length?'沒有符合的立牌。':'還沒有立牌代碼，先產生一批。'})); }
 function admMyTags(m){ m.append(admTop('我的立牌'));
-  if(!S.myTagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); S.db.collection('tags').where('boundBy','==',S.me).get().then(sn=>{ S.myTagsL=sn.docs.map(d=>({code:d.id,...d.data()})); renderAdmin(true); }).catch(()=>{ S.myTagsL=[]; renderAdmin(true); }); return; }
-  m.append(h('p',{class:'hint',text:'拿到新立牌：用手機掃上面的 QR 或碰一下，就能綁到賣場或植物。'}));
-  m.append(S.myTagsL.length?h('div',{class:'panel vt-l'}, ...S.myTagsL.map(x=>vtRow(x,false))):h('p',{class:'hint',text:'還沒有綁定的立牌。'})); }
+  if(!S.myTagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); Promise.all([S.db.collection('tags').where('boundBy','==',S.me).get(),S.db.collection('tags').where('assignedTo','==',S.me).get()]).then(([a,b])=>{ const M=new Map(); [...a.docs,...b.docs].forEach(d=>M.set(d.id,{code:d.id,...d.data()})); S.myTagsL=[...M.values()].sort((x,y)=>!!x.target-!!y.target||(y.at||0)-(x.at||0)); renderAdmin(true); }).catch(()=>{ S.myTagsL=[]; renderAdmin(true); }); return; }
+  m.append(h('p',{class:'hint',text:'拿到新立牌：用手機掃 QR 或碰一下就能設定；也可以在這裡點一下立牌，選要連到賣場、植物或網址。'}));
+  m.append(S.myTagsL.length?h('div',{class:'vt-l'}, ...S.myTagsL.map(x=>vtRow(x,false))):h('p',{class:'hint',text:'還沒有立牌。'})); }
 function histBtn(p,cls,label){ return h('a',{class:'btn '+(cls||'soft')+' hbtn',href:'#/history/'+encodeURIComponent(p.id),onclick:e=>{ e.stopPropagation(); }}, h('i',{class:'hbtn-i'}), label||'看完整履歷'); }
 function leaveHistory(){ if(S.histUnsub){ S.histUnsub(); S.histUnsub=null; } S.histFor=null; S.histDocs=null; histSig=''; }
 let histSig='', histIO=null;
