@@ -9274,13 +9274,36 @@ async function tagZip(L,name){ const [Q,Z]=await Promise.all([loadQR(),loadZip()
   L.forEach(x=>{ const q=Q(0,'M'); q.addData(tagUrl(x.code)); q.make(); z.file('QR_'+x.code+'.svg',q.createSvgTag({cellSize:8,margin:2,scalable:true})); });
   z.file('立牌清單.csv','﻿代碼,印在立牌上的代碼,QR 網址,NFC 寫入網址\n'+L.map(x=>[x.code,tagFmt(x.code),tagUrl(x.code),tagUrl(x.code,true)].join(',')).join('\n'));
   dlFile(await z.generateAsync({type:'blob'}),name+'.zip'); }
-function tagPrint(L,name){ const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  document.getElementById('labelFrame')?.remove(); const fr=h('iframe',{id:'labelFrame',title:'立牌 QR 列印',style:'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none'}); (adm.open?adm:document.body).append(fr);
-  const w=fr.contentWindow; w.document.open(); w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:A4;margin:10mm}*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}
-.grid{display:grid;grid-template-columns:repeat(3,60mm);grid-auto-rows:72mm;gap:4mm;justify-content:center}.c{border:.2mm dashed #bbb;border-radius:3mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;break-inside:avoid}
-.qr{width:44mm;height:44mm}.qr svg{width:100%;height:100%;display:block}.c b{font:700 13pt "JetBrains Mono",ui-monospace,Menlo,monospace;letter-spacing:.06em}.c small{font-size:8pt;color:#555}</style></head><body><div class="grid">${L.map(x=>`<div class="c"><div class="qr" data-u="${esc(tagUrl(x.code))}"></div><b>${esc(tagFmt(x.code))}</b><small>VEIN · 掃描或手機碰一下</small></div>`).join('')}</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"><\/script><script>window.onload=function(){ try{ document.querySelectorAll('.qr').forEach(function(el){ var q=qrcode(0,'M'); q.addData(el.dataset.u); q.make(); el.innerHTML=q.createSvgTag(2,0); }); }catch(e){} if(!parent.__noPrint) setTimeout(function(){ window.focus(); print(); },300); };<\/script></body></html>`);
-  w.document.close(); w.addEventListener('afterprint',()=>setTimeout(()=>fr.remove(),300)); toast('正在開啟列印視窗…'); }
+// 立牌 76 × 127.5 mm：深色底＋萊姆綠，中間大 QR（內容是網址，手機相機直接掃），下方 NFC 感應區、代碼
+// mode='a4'：A4 一頁 4 張自己印、沿虛線裁；mode='pro'：一張一頁、四邊各多 3mm 出血，給印刷廠
+const SD_W=76, SD_H=127.5, SD_BL=3;
+const SD_CSS=`.sd{position:relative;width:${SD_W}mm;height:${SD_H}mm;overflow:hidden;background:#0E1210;color:#fff;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sd .bg{position:absolute;inset:0;width:100%;height:100%}
+.sd-top{position:relative;margin-top:7mm;display:flex;align-items:center;gap:2.2mm}.sd-dot{width:4.6mm;height:4.6mm;border-radius:50%;background:#1F5C3A;display:grid;place-items:center}.sd-dot i{width:2.3mm;height:2.3mm;border-radius:50%;background:#D4F25A}
+.sd-top b{font-size:15pt;font-weight:800;letter-spacing:.32em;margin-right:-.32em}
+.sd-sub{position:relative;margin-top:1.2mm;font-size:6.5pt;letter-spacing:.3em;color:rgba(212,242,90,.8)}
+.sd-h{position:relative;margin-top:5mm;font-size:12.5pt;font-weight:800;letter-spacing:.04em}.sd-h em{font-style:normal;color:#D4F25A}
+.sd-q{position:relative;margin-top:3.2mm;width:50mm;height:50mm;border-radius:4.5mm;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 .8mm #D4F25A}
+.sd-q .qr{width:41mm;height:41mm}.sd-q .qr svg{width:100%;height:100%;display:block}
+.sd-c{position:relative;margin-top:3mm;font:700 10.5pt "JetBrains Mono",ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#D4F25A}
+.sd-n{position:relative;margin-top:auto;margin-bottom:9mm;display:flex;align-items:center;gap:3mm;padding:2.6mm 4.5mm 2.6mm 3mm;border-radius:999px;border:.35mm solid rgba(212,242,90,.55);background:rgba(212,242,90,.08)}
+.sd-n svg{width:9mm;height:9mm;flex:none}.sd-n span{display:flex;flex-direction:column;line-height:1.25}.sd-n b{font-size:9pt}.sd-n small{font-size:6pt;color:rgba(255,255,255,.65)}
+.sd-f{position:absolute;bottom:3.6mm;left:0;right:0;text-align:center;font-size:5.5pt;letter-spacing:.12em;color:rgba(255,255,255,.45)}`;
+// 背景的葉脈：主脈從下往上，左右分出側脈
+const SD_BG=(()=>{ let d='M38 132 C37 100 39 60 38 -4'; for(let i=0;i<9;i++){ const y=118-i*14, s=i%2?1:-1; d+=` M38 ${y} C${38+s*10} ${y-6} ${38+s*22} ${y-14} ${38+s*40} ${y-26}`; d+=` M38 ${y-7} C${38-s*10} ${y-13} ${38-s*22} ${y-21} ${38-s*40} ${y-33}`; }
+  return `<svg class="bg" viewBox="0 0 76 127.5" preserveAspectRatio="none"><defs><radialGradient id="g" cx=".5" cy=".42" r=".7"><stop offset="0" stop-color="#1B3A26"/><stop offset="1" stop-color="#0E1210"/></radialGradient></defs><rect width="76" height="127.5" fill="url(#g)"/><path d="${d}" fill="none" stroke="#D4F25A" stroke-opacity=".09" stroke-width=".5"/></svg>`; })();
+const SD_NFC='<svg viewBox="0 0 36 36"><rect x="9" y="4" width="14" height="26" rx="3" fill="none" stroke="#D4F25A" stroke-width="2"/><path d="M14 26h4" stroke="#D4F25A" stroke-width="2" stroke-linecap="round"/><path d="M26 12a7 7 0 0 1 0 10M29.5 9a12 12 0 0 1 0 16" fill="none" stroke="#D4F25A" stroke-width="2" stroke-linecap="round"/></svg>';
+function standeeHTML(code,esc){ return `<div class="sd">${SD_BG}<div class="sd-top"><span class="sd-dot"><i></i></span><b>VEIN</b></div><div class="sd-sub">植物溯源市集</div>
+<div class="sd-h">用手機<em>掃一下</em>或<em>碰一下</em></div><div class="sd-q"><div class="qr" data-u="${esc(tagUrl(code))}"></div></div><div class="sd-c">${esc(tagFmt(code))}</div>
+<div class="sd-n">${SD_NFC}<span><b>NFC 感應區</b><small>手機背面靠近這裡</small></span></div><div class="sd-f">${esc(location.host)}</div></div>`; }
+function tagPrint(L,name,mode){ const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const pro=mode==='pro', page=pro?`@page{size:${SD_W+SD_BL*2}mm ${SD_H+SD_BL*2}mm;margin:0}body{margin:0}.pg{break-after:page}.sd{width:${SD_W+SD_BL*2}mm;height:${SD_H+SD_BL*2}mm;padding:${SD_BL}mm}.sd-f{bottom:${3.6+SD_BL}mm}`
+    :`@page{size:A4;margin:0}body{margin:0}.pg{width:210mm;height:296mm;display:grid;grid-template-columns:repeat(2,${SD_W}mm);grid-auto-rows:${SD_H}mm;gap:8mm 10mm;justify-content:center;align-content:center;break-after:page}.pg .sd{outline:.2mm dashed #999;outline-offset:0}`;
+  const body=pro?L.map(x=>`<div class="pg">${standeeHTML(x.code,esc)}</div>`).join(''):Array.from({length:Math.ceil(L.length/4)},(_,i)=>`<div class="pg">${L.slice(i*4,i*4+4).map(x=>standeeHTML(x.code,esc)).join('')}</div>`).join('');
+  document.getElementById('labelFrame')?.remove(); const fr=h('iframe',{id:'labelFrame',title:'立牌列印',style:'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none'}); (adm.open?adm:document.body).append(fr);
+  const w=fr.contentWindow; w.document.open(); w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(name)}</title><style>*{box-sizing:border-box}${SD_CSS}${page}</style></head><body>${body}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"><\/script><script>window.onload=function(){ try{ document.querySelectorAll('.qr').forEach(function(el){ var q=qrcode(0,'M'); q.addData(el.dataset.u); q.make(); el.innerHTML=q.createSvgTag({cellSize:4,margin:0,scalable:true}); }); }catch(e){} if(!parent.__noPrint) setTimeout(function(){ window.focus(); print(); },400); };<\/script></body></html>`);
+  w.document.close(); w.addEventListener('afterprint',()=>setTimeout(()=>fr.remove(),300)); toast(pro?'立牌一張一頁（含 3mm 出血），列印時選「另存為 PDF」交給印刷廠':'A4 一頁 4 張，沿虛線裁'); }
 function tagRow(x,admin){ return h('div',{class:'vt-r'}, h('b',{class:'mono',text:tagFmt(x.code)}), h('span',{class:'vt-s'+(x.target?' on':''),text:tagLabel(x)}), admin&&x.boundBy?h('small',{text:'由 '+nameOf(x.boundBy)}):null,
   h('span',{class:'row',style:'gap:6px;margin-left:auto'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>writeNfc({code:tagFmt(x.code),species:''},tagUrl(x.code,true)),text:'📶 寫 NFC'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagManage(x.code),text:x.target?'改綁':'綁定'}))); }
 function admTags(m){ m.append(admTop('立牌 QR／NFC'));
@@ -9295,7 +9318,7 @@ function admTags(m){ m.append(admTop('立牌 QR／NFC'));
   if(!B.size) m.append(h('p',{class:'hint',text:'還沒有立牌代碼。'}));
   for(const [b,L] of B){ const on=L.filter(x=>x.target).length, open=S.tagOpen===b;
     m.append(h('div',{class:'panel vt-bt'}, h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;align-items:center'}, h('button',{type:'button',class:'vt-bh',onclick:()=>{ S.tagOpen=open?null:b; renderAdmin(true); }}, h('b',{text:(open?'▾ ':'▸ ')+b}), h('small',{text:L.length+' 個 · 已綁 '+on})),
-        h('span',{class:'row',style:'gap:6px;margin-left:auto;flex-wrap:wrap'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>tagPrint(L,b),text:'🖨 列印 QR'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagZip(L,b),text:'⬇ QR 檔＋清單'}))),
+        h('span',{class:'row',style:'gap:6px;margin-left:auto;flex-wrap:wrap'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>tagPrint(L,b,'a4'),text:'🖨 立牌 A4（一頁 4 張）'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagPrint(L,b,'pro'),text:'🖨 立牌給印刷廠（含出血）'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>tagZip(L,b),text:'⬇ QR 檔＋清單'}))),
       open?h('div',{class:'vt-l'}, ...L.map(x=>tagRow(x,true))):null)); } }
 function admMyTags(m){ m.append(admTop('我的立牌'));
   if(!S.myTagsL){ m.append(h('p',{class:'hint',text:'讀取中…'})); S.db.collection('tags').where('boundBy','==',S.me).get().then(sn=>{ S.myTagsL=sn.docs.map(d=>({code:d.id,...d.data()})); renderAdmin(true); }).catch(()=>{ S.myTagsL=[]; renderAdmin(true); }); return; }
