@@ -2991,8 +2991,8 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .sde{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}@media(max-width:760px){.sde{grid-template-columns:1fr}}
 .sde-pv{position:sticky;top:10px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border-radius:22px;background:repeating-conic-gradient(#E9EBE4 0 25%,#F4F5F0 0 50%) 0 0/18px 18px}.sde-fr{width:100%;height:min(62vh,560px);border:0}
 .sde-ctl{display:flex;flex-direction:column;gap:8px}.sde-ctl h4{margin:10px 0 0;font-size:13px;color:var(--fg2);letter-spacing:.08em}
-.sde-tp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.sde-tp button{border:2px solid transparent;border-radius:16px;padding:6px;background:var(--surface);font:inherit;font-size:12px;cursor:pointer;display:flex;flex-direction:column;gap:5px;align-items:center;color:var(--fg)}.sde-tp button[aria-pressed=true]{border-color:var(--ink)}
-.sde-tp i{width:100%;aspect-ratio:76/127.5;max-height:90px;border-radius:8px;background:var(--b);position:relative;overflow:hidden}.sde-tp i b{position:absolute;left:18%;right:18%;top:38%;aspect-ratio:1;border-radius:4px;background:#fff;box-shadow:0 0 0 2px var(--a)}.sde-tp i em{position:absolute;left:14%;top:12%;width:50%;height:12%;background:var(--f);transform:skewX(-10deg)}
+.sde-tp{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}.sde-tp button{border:2px solid transparent;border-radius:16px;padding:6px;background:var(--surface);font:inherit;font-size:12px;cursor:pointer;display:flex;flex-direction:column;gap:5px;align-items:center;color:var(--fg)}.sde-tp button[aria-pressed=true]{border-color:var(--ink)}
+.sde-tp i{width:100%;aspect-ratio:76/127.5;border-radius:6px;position:relative;overflow:hidden;background:#ddd}.sde-tp iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
 .sde-seg{display:flex;flex-wrap:wrap;gap:6px}.sde-seg button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--fg)}.sde-seg button[aria-pressed=true]{background:var(--ink);color:var(--lime);border-color:var(--ink)}
 .sde-cs{display:flex;flex-wrap:wrap;gap:10px}.sde-c{display:flex;align-items:center;gap:6px;font-size:13px}.sde-c input{width:34px;height:34px;border:0;padding:0;border-radius:10px;background:none;cursor:pointer}
 .sde-sw{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}.sde-sw input{width:18px;height:18px;accent-color:#1F5C3A}
@@ -9286,15 +9286,28 @@ async function tagZip(L,name){ const [Q,Z]=await Promise.all([loadQR(),loadZip()
   dlFile(await z.generateAsync({type:'blob'}),name+'.zip'); }
 // ===== 立牌 76 × 127.5 mm：可選模板、每個元素可開關、文字顏色可改；設計存在 site/standee，列印時每張換上自己的 QR =====
 const ST_W=76, ST_H=127.5, ST_BL=3;
-const ST_TPL={
-  lando:{name:'Lando 賽車風',bg:'#111213',fg:'#FFFFFF',ac:'#D2FF00',pat:'speed',align:'left',bigOn:true,big:'SCAN\nOR TAP',italic:true,font:'anton',qrBg:'#FFFFFF',qrFg:'#111213',qrStyle:'dot',sign:true,num:'04'},
-  neon:{name:'螢光綠',bg:'#D2FF00',fg:'#111213',ac:'#111213',pat:'grid',align:'center',bigOn:true,big:'SCAN ME',italic:true,font:'anton',qrBg:'#FFFFFF',qrFg:'#111213',qrStyle:'dot',sign:false,num:''},
-  leaf:{name:'葉脈深綠',bg:'#0E1210',fg:'#FFFFFF',ac:'#D4F25A',pat:'vein',align:'center',bigOn:false,big:'VEIN',italic:false,font:'sans',qrBg:'#FFFFFF',qrFg:'#0E1210',qrStyle:'square',sign:false,num:''},
-  paper:{name:'白底極簡',bg:'#FFFFFF',fg:'#111213',ac:'#1F5C3A',pat:'none',align:'center',bigOn:false,big:'',italic:false,font:'sans',qrBg:'#FFFFFF',qrFg:'#111213',qrStyle:'square',sign:false,num:''}};
-const ST_DEF={tpl:'lando',...ST_TPL.lando,showLogo:true,sub:'植物溯源市集',showSub:true,head:'用手機掃一下或碰一下',showHead:true,showCode:true,showNfc:true,nfcT:'NFC 感應區',nfcS:'手機背面靠近這裡',showFoot:true,foot:'',qrSize:40,img:null};
+// 模板：每個模板都把下面這些欄位寫滿，切換時不會殘留上一個模板的設定
+const ST_TB={bg:'#111213',bg2:'#D2FF00',fg:'#FFFFFF',ac:'#D2FF00',pat:'none',shape:'rect',frame:false,align:'center',bigOn:false,big:'',italic:false,font:'sans',qrBg:'#FFFFFF',qrFg:'#111213',qrStyle:'square',sign:false,num:'',side:''};
+const ST_TPL=Object.fromEntries(Object.entries({
+  lando:{name:'Lando 賽車風',pat:'speed',align:'left',bigOn:true,big:'SCAN\nOR TAP',italic:true,font:'anton',qrStyle:'dot',sign:true,num:'04'},
+  hang:{name:'掛勾吊牌',shape:'hang',bg:'#F7F7F5',bg2:'#D2FF00',fg:'#111213',ac:'#1F5C3A',font:'anton',bigOn:true,big:'SCAN · TAP'},
+  hangd:{name:'掛勾吊牌・深色',shape:'hang',bg:'#111213',bg2:'#D2FF00',fg:'#FFFFFF',ac:'#D2FF00',qrStyle:'dot',font:'anton',bigOn:true,big:'SCAN · TAP',italic:true},
+  neon:{name:'螢光綠',bg:'#D2FF00',fg:'#111213',ac:'#111213',pat:'grid',bigOn:true,big:'SCAN ME',italic:true,font:'anton',qrStyle:'dot'},
+  race:{name:'賽車號碼布',bg:'#FFFFFF',fg:'#111213',ac:'#E10600',pat:'checker',align:'left',bigOn:true,big:'SCAN\n*TO PLAY*',italic:true,font:'anton',num:'07'},
+  split:{name:'雙色斜切',bg:'#111213',bg2:'#D2FF00',fg:'#FFFFFF',ac:'#D2FF00',pat:'split',align:'left',bigOn:true,big:'TAP\n*HERE*',italic:true,font:'anton',qrStyle:'dot',num:'01'},
+  grad:{name:'霓虹漸層',bg:'#2B0B5E',bg2:'#0B6E5A',fg:'#FFFFFF',ac:'#D2FF00',pat:'grad',bigOn:true,big:'SCAN ME',font:'anton',qrStyle:'dot'},
+  side:{name:'直排大字',bg:'#1F5C3A',fg:'#FFFFFF',ac:'#D2FF00',pat:'none',align:'left',side:'VEIN',bigOn:true,big:'PLANT\n*PASS*',font:'anton'},
+  ticket:{name:'票券',shape:'ticket',bg:'#FFF4E0',bg2:'#FF5A2A',fg:'#2A1708',ac:'#FF5A2A',bigOn:true,big:'PLANT PASS',font:'anton'},
+  mono:{name:'黑白對比',bg:'#000000',fg:'#FFFFFF',ac:'#FFFFFF',pat:'dots',align:'left',bigOn:true,big:'TAP.',font:'anton',qrStyle:'dot'},
+  specimen:{name:'植物標本',bg:'#F3EEDF',fg:'#2D3A2E',ac:'#7A5A2E',frame:true,font:'serif',bigOn:true,big:'Specimen',italic:true,qrFg:'#2D3A2E'},
+  kraft:{name:'牛皮紙',bg:'#C9A77C',fg:'#2B1D10',ac:'#2B1D10',pat:'kraft',frame:true,font:'serif',qrBg:'#F3E7D3',qrFg:'#2B1D10'},
+  leaf:{name:'葉脈深綠',bg:'#0E1210',fg:'#FFFFFF',ac:'#D4F25A',pat:'vein',qrFg:'#0E1210'},
+  paper:{name:'白底極簡',bg:'#FFFFFF',fg:'#111213',ac:'#1F5C3A'}
+}).map(([k,v])=>[k,{...ST_TB,...v}]));
+const ST_DEF={tpl:'lando',...ST_TPL.lando,shopName:'',showShop:false,autoShop:true,showLogo:true,sub:'植物溯源市集',showSub:true,head:'用手機掃一下或碰一下',showHead:true,showCode:true,showNfc:true,nfcT:'NFC 感應區',nfcS:'手機背面靠近這裡',showFoot:true,foot:'',qrSize:40,img:null};
 const stD=()=>({...ST_DEF,...(S.sdDesign||{})});
 async function stLoad(){ if(S.sdDesign!==undefined) return; try{ const d=await S.db.doc('site/standee').get(); S.sdDesign=d.exists?d.data():null; }catch(e){ S.sdDesign=null; } }
-const ST_FONT='https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@700&family=Noto+Sans+TC:wght@500;700;900&display=swap';
+const ST_FONT='https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@700&family=Noto+Sans+TC:wght@500;700;900&family=Noto+Serif+TC:wght@700;900&family=Playfair+Display:ital,wght@1,800&display=swap';
 const stEsc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // QR：自己畫，可選方塊或圓點；三個定位角畫成圓角框，手機一樣掃得到
 function stQR(Q,url,D){ const q=Q(0,'M'); q.addData(url); q.make(); const n=q.getModuleCount(), dot=D.qrStyle==='dot', fin=(r,c)=>(r<7&&c<7)||(r<7&&c>=n-7)||(r>=n-7&&c<7); let s='';
@@ -9303,9 +9316,23 @@ function stQR(Q,url,D){ const q=Q(0,'M'); q.addData(url); q.make(); const n=q.ge
   return `<svg viewBox="-.5 -.5 ${n+1} ${n+1}" xmlns="http://www.w3.org/2000/svg"><g fill="${D.qrFg}">${s}${F(0,0)}${F(n-7,0)}${F(0,n-7)}</g></svg>`; }
 function stPat(D){ const a=D.ac; if(D.pat==='vein'){ let d='M38 132 C37 100 39 60 38 -4'; for(let i=0;i<9;i++){ const y=118-i*14, s=i%2?1:-1; d+=` M38 ${y} C${38+s*10} ${y-6} ${38+s*22} ${y-14} ${38+s*40} ${y-26} M38 ${y-7} C${38-s*10} ${y-13} ${38-s*22} ${y-21} ${38-s*40} ${y-33}`; } return `<path d="${d}" fill="none" stroke="${a}" stroke-opacity=".12" stroke-width=".5"/>`; }
   if(D.pat==='speed') return Array.from({length:7},(_,i)=>`<path d="M${44+i*7} 140 L${96+i*7} 40" stroke="${a}" stroke-opacity="${(.22-i*.025).toFixed(3)}" stroke-width="${(3.2-i*.35).toFixed(2)}"/>`).join('')+`<path d="M-10 30 L30 -10" stroke="${a}" stroke-opacity=".14" stroke-width="1.4"/><path d="M-10 37 L37 -10" stroke="${a}" stroke-opacity=".08" stroke-width=".8"/>`;
+  if(D.pat==='checker'){ let s=''; for(let r=0;r<2;r++) for(let c=0;c<20;c++) if((r+c)%2===0) s+=`<rect x="${c*4}" y="${119.5+r*4}" width="4" height="4"/>`; return `<g fill="${D.fg}">${s}</g><rect x="0" y="117.6" width="76" height=".8" fill="${a}"/>`; }
+  if(D.pat==='split') return `<path d="M30 0H76V58Z" fill="${D.bg2}"/><path d="M26 0L76 50" stroke="${D.fg}" stroke-opacity=".5" stroke-width=".3"/>`;
+  if(D.pat==='grad') return `<defs><linearGradient id="gd" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="${D.bg}"/><stop offset="1" stop-color="${D.bg2}"/></linearGradient></defs><rect width="76" height="127.5" fill="url(#gd)"/><circle cx="70" cy="12" r="26" fill="${a}" fill-opacity=".12"/><circle cx="4" cy="118" r="20" fill="${a}" fill-opacity=".08"/>`;
+  if(D.pat==='kraft'){ let s='', x=7; const rnd=()=>(x=(x*16807)%2147483647)/2147483647; for(let i=0;i<260;i++){ const px=rnd()*76, py=rnd()*127.5, an=rnd()*3.14, l=.6+rnd()*2.2; s+=`<path d="M${px.toFixed(1)} ${py.toFixed(1)}l${(Math.cos(an)*l).toFixed(2)} ${(Math.sin(an)*l).toFixed(2)}"/>`; } return `<g stroke="${D.fg}" stroke-opacity=".13" stroke-width=".18">${s}</g>`; }
   if(D.pat==='grid'){ let s=''; for(let x=4;x<76;x+=6) s+=`<path d="M${x} 0V128"/>`; for(let y=3.75;y<128;y+=6) s+=`<path d="M0 ${y}H76"/>`; return `<g stroke="${D.fg}" stroke-opacity=".1" stroke-width=".2">${s}</g>`; }
   if(D.pat==='dots'){ let s=''; for(let x=4;x<76;x+=4) for(let y=4;y<128;y+=4) s+=`<circle cx="${x}" cy="${y}" r=".35"/>`; return `<g fill="${D.fg}" fill-opacity=".14">${s}</g>`; }
   return ''; }
+// 外框、吊牌掛勾孔（歐式飛機孔）、票券缺口：最後疊在背景上
+const stLum=c=>{ const m=/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})/i.exec(c||''); if(!m) return 0; const [r,g,b]=m.slice(1).map(x=>parseInt(x,16)/255); return .2126*r+.7152*g+.0722*b; };
+function stDeco(D){ let s=''; const a=D.ac;
+  if(D.shape==='hang') s+=`<rect x="0" y="0" width="76" height="25" fill="${D.bg2}"/><path d="M0 25H76" stroke="#000" stroke-opacity=".12" stroke-width=".4"/>
+<g fill="#000" fill-opacity=".28" transform="translate(0 -.5)"><rect x="24" y="7.6" width="28" height="5.2" rx="2.6"/><circle cx="38" cy="8.4" r="3.2"/></g><g fill="#FFFFFF"><rect x="24" y="7.6" width="28" height="5.2" rx="2.6"/><circle cx="38" cy="8.4" r="3.2"/></g>`;
+  if(D.shape==='ticket') s+=`<circle cx="0" cy="102" r="4" fill="#FFFFFF"/><circle cx="76" cy="102" r="4" fill="#FFFFFF"/><path d="M6 102H70" stroke="${D.fg}" stroke-opacity=".45" stroke-width=".35" stroke-dasharray="1.4 1.2"/><rect x="0" y="0" width="76" height="4" fill="${D.bg2}"/>`;
+  if(D.frame) s+=`<rect x="3.2" y="3.2" width="69.6" height="121.1" rx="1.2" fill="none" stroke="${a}" stroke-width=".35"/><rect x="4.4" y="4.4" width="67.2" height="118.7" rx=".8" fill="none" stroke="${a}" stroke-opacity=".5" stroke-width=".18"/>`;
+  return s; }
+// 內容太多放不下時（例如加了商店名稱），QR 自動縮小到放得下為止
+const ST_FIT=`function stFit(){ document.querySelectorAll('.sd').forEach(function(sd){ var q=parseFloat(sd.style.getPropertyValue('--qs'))||40, k=0; while(sd.scrollHeight>sd.clientHeight+1&&q>22&&k++<60){ q-=.5; sd.style.setProperty('--qs',q+'mm'); } var f=sd.querySelector('.sd-f'), n=sd.querySelector('.sd-n')||sd.querySelector('.sd-c'); if(f&&n&&n.getBoundingClientRect().bottom>f.getBoundingClientRect().top-2){ while(n.getBoundingClientRect().bottom>f.getBoundingClientRect().top-2&&q>22&&k++<90){ q-=.5; sd.style.setProperty('--qs',q+'mm'); } } }); }`;
 const ST_SIGN='M2 22 C6 8 12 4 13 10 C14 18 6 26 9 27 C12 28 16 12 20 11 C23 10 19 24 22 24 C25 24 27 14 30 14 C33 14 30 23 33 23 C37 23 39 9 44 8 C48 7 42 22 47 21 C51 20 54 12 60 13';
 const ST_NFC=c=>`<svg viewBox="0 0 36 36"><rect x="9" y="4" width="14" height="26" rx="3" fill="none" stroke="${c}" stroke-width="2"/><path d="M14 26h4" stroke="${c}" stroke-width="2" stroke-linecap="round"/><path d="M26 12a7 7 0 0 1 0 10M29.5 9a12 12 0 0 1 0 16" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
 function stCSS(){ return `.sd{position:relative;width:${ST_W}mm;height:${ST_H}mm;overflow:hidden;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif;display:flex;flex-direction:column;align-items:var(--al);text-align:var(--ta);padding:0 6mm;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:var(--bg);color:var(--fg)}
@@ -9323,13 +9350,23 @@ function stCSS(){ return `.sd{position:relative;width:${ST_W}mm;height:${ST_H}mm
 .sd-n{margin-top:auto;margin-bottom:9mm;display:flex;align-items:center;gap:2.6mm;padding:2.4mm 4.2mm 2.4mm 2.8mm;border-radius:999px;border:.35mm solid var(--ac);text-align:left}
 .sd-n svg{width:8.5mm;height:8.5mm;flex:none}.sd-n span{display:flex;flex-direction:column;line-height:1.25}.sd-n b{font-size:8.5pt;font-weight:900}.sd-n small{font-size:5.8pt;opacity:.7}
 .sd-f{position:absolute!important;bottom:3.6mm;left:0;right:0;text-align:center;font-size:5.3pt;letter-spacing:.12em;opacity:.5}
-.sd.nonfc .sd-c{margin-bottom:auto}`; }
-function standeeHTML(code,Q,D){ const e=stEsc, al=D.align==='left', big=e(D.big).replace(/\*([^*]+)\*/g,'<em>$1</em>');
-  const sty=`--bg:${D.bg};--fg:${D.fg};--ac:${D.ac};--qb:${D.qrBg};--qs:${D.qrSize}mm;--al:${al?'flex-start':'center'};--ta:${al?'left':'center'};--jc:${al?'flex-start':'center'}`;
-  return `<div class="sd${D.showNfc?'':' nonfc'}" data-al="${al?'left':'center'}" style="${sty}"><svg class="bgp" viewBox="0 0 76 127.5" preserveAspectRatio="none">${stPat(D)}</svg>
+.sd.nonfc .sd-c{margin-bottom:auto}
+.sd[data-font=serif] .sd-big{font-family:"Playfair Display","Noto Serif TC",serif;font-weight:800;text-transform:none;font-size:27pt}.sd[data-font=serif] .sd-h,.sd[data-font=serif] .sd-shop{font-family:"Noto Serif TC",serif}
+.sd[data-font=sans] .sd-big{font-family:"Noto Sans TC",sans-serif;font-weight:900;font-size:22pt;line-height:1.05}
+.sd-shop{margin-top:2.2mm;font-size:12pt;font-weight:900;line-height:1.2;max-width:100%;overflow-wrap:anywhere}.sd-shop small{display:block;font-size:5.6pt;font-weight:700;letter-spacing:.3em;color:var(--ac);margin-bottom:.6mm}
+.sd[data-shape=hang] .sd-top{margin-top:15mm;color:var(--hf)}.sd[data-shape=hang] .sd-dot{background:var(--hf)}.sd[data-shape=hang] .sd-dot i{background:var(--bg2)}.sd[data-shape=hang] .sd-sub{margin-top:5mm}
+.sd[data-shape=ticket] .sd-top{margin-top:8mm}.sd[data-shape=ticket] .sd-n{margin-bottom:6mm}
+.sd[data-frame="1"] .sd-top{margin-top:9mm}.sd[data-frame="1"] .sd-f{bottom:6mm}.sd[data-frame="1"]{padding:0 8mm}
+.sd-side{position:absolute!important;right:-1mm;top:0;bottom:0;writing-mode:vertical-rl;font:400 62pt/1 Anton,Impact,sans-serif;color:transparent;-webkit-text-stroke:.35mm var(--ac);opacity:.55;letter-spacing:.02em;text-align:center}
+.sd[data-pat=checker] .sd-n{margin-bottom:13mm}.sd[data-pat=checker] .sd-f{display:none}`; }
+function standeeHTML(code,Q,D,shopNm){ const e=stEsc, al=D.align==='left', big=e(D.big).replace(/\*([^*]+)\*/g,'<em>$1</em>'), sn=shopNm||D.shopName;
+  const sty=`--bg2:${D.bg2};--hf:${stLum(D.bg2)>.55?'#111213':'#FFFFFF'};--bg:${D.bg};--fg:${D.fg};--ac:${D.ac};--qb:${D.qrBg};--qs:${D.qrSize}mm;--al:${al?'flex-start':'center'};--ta:${al?'left':'center'};--jc:${al?'flex-start':'center'}`;
+  return `<div class="sd${D.showNfc?'':' nonfc'}" data-al="${al?'left':'center'}" data-font="${D.font}" data-shape="${D.shape}" data-frame="${D.frame?1:0}" data-pat="${D.pat}" style="${sty}"><svg class="bgp" viewBox="0 0 76 127.5" preserveAspectRatio="none">${stPat(D)}${stDeco(D)}</svg>
+${D.side?`<div class="sd-side">${e(D.side)}</div>`:''}
 ${D.num?`<div class="sd-num">${e(D.num)}</div>`:''}
 ${D.showLogo||D.img?`<div class="sd-top">${D.showLogo?`<span class="sd-dot"><i></i></span><b>VEIN</b>`:''}${D.img?`<img src="${e(D.img)}" alt="">`:''}</div>`:'<div style="height:5mm"></div>'}
 ${D.showSub&&D.sub?`<div class="sd-sub">${e(D.sub)}</div>`:''}
+${D.showShop&&sn?`<div class="sd-shop"><small>SHOP</small>${e(sn)}</div>`:''}
 ${D.bigOn&&D.big?`<div class="sd-big${D.italic?' it':''}">${big}</div>`:''}
 ${D.sign?`<svg class="sd-sg" viewBox="0 0 62 30"><path d="${ST_SIGN}" fill="none" stroke="${D.ac}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
 ${D.showHead&&D.head?`<div class="sd-h">${e(D.head)}</div>`:''}
@@ -9341,32 +9378,35 @@ ${D.showFoot?`<div class="sd-f">${e(D.foot||location.host)}</div>`:''}</div>`; }
 async function tagPrint(L,name,mode){ const Q=await loadQR(); if(!Q){ toast('QR 元件載入失敗，請再試一次'); return; } await stLoad(); const D=stD();
   const pro=mode==='pro', page=pro?`@page{size:${ST_W+ST_BL*2}mm ${ST_H+ST_BL*2}mm;margin:0}body{margin:0}.pg{break-after:page}.sd{width:${ST_W+ST_BL*2}mm;height:${ST_H+ST_BL*2}mm;padding:0 ${6+ST_BL}mm}.sd-top{margin-top:${6.5+ST_BL}mm}.sd-n{margin-bottom:${9+ST_BL}mm}.sd-f{bottom:${3.6+ST_BL}mm}.sd-num{right:${5+ST_BL}mm;top:${5+ST_BL}mm}`
     :`@page{size:A4;margin:0}body{margin:0}.pg{width:210mm;height:296mm;display:grid;grid-template-columns:repeat(2,${ST_W}mm);grid-auto-rows:${ST_H}mm;gap:8mm 10mm;justify-content:center;align-content:center;break-after:page}.pg .sd{outline:.2mm dashed #999}`;
-  const body=pro?L.map(x=>`<div class="pg">${standeeHTML(x.code,Q,D)}</div>`).join(''):Array.from({length:Math.ceil(L.length/4)},(_,i)=>`<div class="pg">${L.slice(i*4,i*4+4).map(x=>standeeHTML(x.code,Q,D)).join('')}</div>`).join('');
+  const SN=x=>D.autoShop&&x.target?.shop?shopName(x.target.shop):'';
+  const body=pro?L.map(x=>`<div class="pg">${standeeHTML(x.code,Q,D,SN(x))}</div>`).join(''):Array.from({length:Math.ceil(L.length/4)},(_,i)=>`<div class="pg">${L.slice(i*4,i*4+4).map(x=>standeeHTML(x.code,Q,D,SN(x))).join('')}</div>`).join('');
   document.getElementById('labelFrame')?.remove(); const fr=h('iframe',{id:'labelFrame',title:'立牌列印',style:'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none'}); (adm.open?adm:document.body).append(fr);
   const w=fr.contentWindow; w.document.open(); w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${stEsc(name)}</title><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}${stCSS()}${page}</style></head><body>${body}
-<script>window.onload=function(){ (document.fonts&&document.fonts.ready||Promise.resolve()).then(function(){ if(!parent.__noPrint) setTimeout(function(){ window.focus(); print(); },300); }); };<\/script></body></html>`);
+<script>${ST_FIT}window.onload=function(){ (document.fonts&&document.fonts.ready||Promise.resolve()).then(function(){ stFit(); if(!parent.__noPrint) setTimeout(function(){ window.focus(); print(); },300); }); };<\/script></body></html>`);
   w.document.close(); w.addEventListener('afterprint',()=>setTimeout(()=>fr.remove(),300)); toast(pro?'一張一頁（含 3mm 出血），列印時選「另存為 PDF」交給印刷廠':'A4 一頁 4 張，沿虛線裁'); }
 // 立牌設計工具：左邊即時預覽、右邊選模板和開關
 function admStandee(m){ m.append(admTop('立牌設計',h('button',{type:'button',class:'btn soft sm',onclick:()=>{ S.admTab='tags'; renderAdmin(true); },text:'← 立牌代碼'})));
   if(S.sdDesign===undefined){ m.append(h('p',{class:'hint',text:'讀取中…'})); stLoad().then(()=>renderAdmin(true)); return; }
   const D=S.sdEdit||(S.sdEdit=stD()), fr=h('iframe',{class:'sde-fr',title:'立牌預覽'}), code=(S.tagsL||[])[0]?.code||'K7M2Q9XA';
-  const paint=async()=>{ const Q=await loadQR(); if(!Q) return; const doc=fr.contentDocument; if(!doc) return; doc.open(); doc.write(`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}html,body{margin:0;background:transparent}body{display:grid;place-items:center;height:100vh;overflow:hidden}.wrap{transform-origin:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.6);border-radius:2mm;overflow:hidden}${stCSS()}</style></head><body><div class="wrap">${standeeHTML(code,Q,D)}</div><script>function fit(){ var w=document.querySelector('.wrap'); var s=Math.min(innerWidth/w.offsetWidth,innerHeight/w.offsetHeight)*.94; w.style.transform='scale('+s+')'; } fit(); addEventListener('resize',fit); document.fonts&&document.fonts.ready.then(fit);<\/script></body></html>`); doc.close(); };
+  const paint=async()=>{ const Q=await loadQR(); if(!Q) return; const doc=fr.contentDocument; if(!doc) return; doc.open(); doc.write(`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}html,body{margin:0;background:transparent}body{display:grid;place-items:center;height:100vh;overflow:hidden}.wrap{transform-origin:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.6);border-radius:2mm;overflow:hidden}${stCSS()}</style></head><body><div class="wrap">${standeeHTML(code,Q,D)}</div><script>${ST_FIT}stFit(); document.fonts&&document.fonts.ready.then(stFit); function fit(){ var w=document.querySelector('.wrap'); var s=Math.min(innerWidth/w.offsetWidth,innerHeight/w.offsetHeight)*.94; w.style.transform='scale('+s+')'; } fit(); addEventListener('resize',fit); document.fonts&&document.fonts.ready.then(fit);<\/script></body></html>`); doc.close(); };
   let t0=0; const upd=()=>{ clearTimeout(t0); t0=setTimeout(paint,120); };
   const set=(k,v)=>{ D[k]=v; upd(); };
   const tx=(k,lab,ph,area)=>{ const i=h(area?'textarea':'input',{rows:area?2:undefined,maxlength:60,placeholder:ph||'',value:D[k]??''}); if(area) i.value=D[k]??''; i.addEventListener('input',()=>set(k,i.value)); return h('label',{class:'sde-f'}, h('span',{text:lab}), i); };
   const sw=(k,lab)=>{ const c=h('input',{type:'checkbox'}); c.checked=!!D[k]; c.addEventListener('change',()=>set(k,c.checked)); return h('label',{class:'sde-sw'}, c, h('span',{text:lab})); };
   const col=(k,lab)=>{ const c=h('input',{type:'color',value:D[k]}); c.addEventListener('input',()=>set(k,c.value)); return h('label',{class:'sde-c'}, c, h('span',{text:lab})); };
   const seg=(k,opts)=>h('div',{class:'sde-seg'}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(D[k]===v),onclick:e=>{ set(k,v); e.currentTarget.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); },text:l})));
-  const tpls=h('div',{class:'sde-tp'}, ...Object.entries(ST_TPL).map(([k,T])=>h('button',{type:'button','aria-pressed':String(D.tpl===k),style:`--b:${T.bg};--a:${T.ac};--f:${T.fg}`,onclick:()=>{ Object.assign(D,T,{tpl:k}); delete D.name; renderAdmin(true); }}, h('i',{}, h('b'), h('em')), h('span',{text:T.name}))));
+  const tpls=h('div',{class:'sde-tp'}, ...Object.entries(ST_TPL).map(([k,T])=>{ const f=h('iframe',{tabindex:'-1','aria-hidden':'true'}); const bt=h('button',{type:'button','aria-pressed':String(D.tpl===k),onclick:()=>{ Object.assign(D,ST_TB,T,{tpl:k}); delete D.name; renderAdmin(true); }}, h('i',{}, f), h('span',{text:T.name}));
+    loadQR().then(Q=>{ if(!Q||!f.isConnected) return; const TD={...D,...ST_TB,...T}; f.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${ST_FONT}"><style>*{box-sizing:border-box}html,body{margin:0;overflow:hidden}.w{transform:scale(var(--k));transform-origin:0 0}${stCSS()}</style></head><body><div class="w">${standeeHTML(code,Q,TD,D.shopName)}</div><script>${ST_FIT}stFit(); var w=document.querySelector('.w'); w.style.setProperty('--k',innerWidth/w.firstElementChild.offsetWidth);<\/script></body></html>`; }); return bt; }));
   const img=h('input',{type:'file',accept:'image/*',hidden:true}); img.addEventListener('change',async()=>{ const f=img.files[0]; img.value=''; if(!f) return; try{ const bm=await createImageBitmap(f), s=Math.min(1,360/Math.max(bm.width,bm.height)), c=document.createElement('canvas'); c.width=Math.round(bm.width*s); c.height=Math.round(bm.height*s); c.getContext('2d').drawImage(bm,0,0,c.width,c.height); D.img=c.toDataURL('image/png'); renderAdmin(true); }catch(e){ toast('圖片讀取失敗'); } });
   const save=h('button',{type:'button',class:'btn lime',onclick:async e=>{ const b=e.currentTarget; b.disabled=true; try{ const v={...D}; await S.db.doc('site/standee').set(v); S.sdDesign=v; toast('已儲存，之後列印都用這個設計'); }catch(err){ toast('儲存失敗：'+(err?.message||'')); } b.disabled=false; },text:'儲存設計'});
   const box=h('div',{class:'sde'}, h('div',{class:'sde-pv'}, fr, h('small',{class:'hint',text:'76 × 127.5 mm · 預覽代碼 '+tagFmt(code)})),
     h('div',{class:'sde-ctl'},
       h('h4',{text:'模板'}), tpls,
-      h('h4',{text:'版面'}), seg('align',[['left','靠左'],['center','置中']]), seg('pat',[['speed','速度線'],['vein','葉脈'],['grid','格線'],['dots','點點'],['none','無']]),
-      h('h4',{text:'顏色'}), h('div',{class:'sde-cs'}, col('bg','底色'), col('fg','文字'), col('ac','重點色'), col('qrFg','QR 顏色'), col('qrBg','QR 底')),
+      h('h4',{text:'版面'}), seg('align',[['left','靠左'],['center','置中']]), seg('pat',[['speed','速度線'],['vein','葉脈'],['grid','格線'],['dots','點點'],['checker','格旗'],['split','斜切'],['grad','漸層'],['kraft','紙纖維'],['none','無']]), seg('shape',[['rect','一般'],['hang','掛勾吊牌'],['ticket','票券']]), seg('font',[['anton','粗體英文'],['sans','黑體'],['serif','襯線']]), sw('frame','細框'),
+      h('h4',{text:'顏色'}), h('div',{class:'sde-cs'}, col('bg','底色'), col('bg2','第二底色'), col('fg','文字'), col('ac','重點色'), col('qrFg','QR 顏色'), col('qrBg','QR 底')),
       h('h4',{text:'QR'}), seg('qrStyle',[['dot','圓點'],['square','方塊']]), (()=>{ const r=h('input',{type:'range',min:30,max:50,step:1,value:D.qrSize}); r.addEventListener('input',()=>set('qrSize',+r.value)); return h('label',{class:'sde-f'}, h('span',{text:'QR 大小'}), r); })(),
-      h('h4',{text:'大字'}), sw('bigOn','顯示大字'), tx('big','大字內容（換行分行、*字* 變重點色）','SCAN\nOR TAP',true), sw('italic','斜體'), sw('sign','簽名筆跡'), tx('num','角落號碼','04'),
+      h('h4',{text:'大字'}), sw('bigOn','顯示大字'), tx('big','大字內容（換行分行、*字* 變重點色）','SCAN\nOR TAP',true), sw('italic','斜體'), sw('sign','簽名筆跡'), tx('num','角落號碼','04'), tx('side','直排大字（側邊）','VEIN'),
+      h('h4',{text:'商店名稱'}), sw('showShop','顯示商店名稱'), tx('shopName','商店名稱','例如 SlowLeaf 慢葉溫室'), sw('autoShop','已綁定賣場的立牌，列印時自動換成那家賣場的名稱'),
       h('h4',{text:'內容'}), sw('showLogo','VEIN 標誌'), sw('showSub','副標'), tx('sub','副標文字'), sw('showHead','說明文字'), tx('head','說明文字'), sw('showCode','代碼'), sw('showNfc','NFC 感應區'), tx('nfcT','NFC 標題'), tx('nfcS','NFC 說明'), sw('showFoot','底部小字'), tx('foot','底部小字（空白＝網址）'),
       h('h4',{text:'圖片'}), h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, img, h('button',{type:'button',class:'btn soft sm',onclick:()=>img.click(),text:D.img?'換一張 Logo':'加上 Logo／賣場圖'}), D.img?h('button',{type:'button',class:'btn soft sm',onclick:()=>{ D.img=null; renderAdmin(true); },text:'移除圖片'}):null),
       h('div',{class:'sde-act'}, save, h('button',{type:'button',class:'btn soft',onclick:()=>{ S.sdEdit={...ST_DEF}; renderAdmin(true); },text:'還原預設'}))));
