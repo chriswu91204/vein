@@ -501,7 +501,7 @@ exports.encTry = onDocumentCreated({ document: 'encTry/{id}', ...HOT }, async ev
       // 先把時間倒回去（不超過開場）；不夠的話再把攻擊量扣回去
       let tf2 = c.ha > 0 ? 1 - target / c.ha : 0, dA = 0; if (tf2 < 0 || c.ha <= 0) { tf2 = 0; dA = Math.max(0, c.A - ENC_FULL * (1 - Math.sqrt(target))); }
       const nMs = (+p.encHealMs || 0) + Math.max(0, c.tf - Math.max(0, tf2)) * c.dur, nA = (+p.encHealA || 0) + dA;
-      tx.update(pref, { encHealMs: nMs, encHealA: nA, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: false, heal: add }, updatedAt: n2, ...fl });
+      tx.update(pref, { encHealMs: nMs, encHealA: nA, encCatch: { id: ev.params.id, uid: t.uid, at: n2, until: n2 + ENC_SHOW, ok: false, heal: add }, updatedAt: n2, encFloorAt: add > 0 ? null : (p.encFloorAt || (c.floor ? n2 : null)) }); // 回血離開最低價，逃跑倒數重算
       const after = encCalc({ ...p, encHealMs: nMs, encHealA: nA }, hits, n2);
       return { res: 'fail', price: c.price, chance: Math.round(ch * 100), heal: Math.max(0, after.price - c.price), cd: ENC_CD, until: n2 + ENC_SHOW };
     });
