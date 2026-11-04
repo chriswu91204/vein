@@ -5651,6 +5651,40 @@ body:has(#pgCommunity:not([hidden])) .nav.solid{background:rgba(12,14,13,.94)}
 .wq-pb{width:100%;height:4px;border-radius:4px;background:#2A2D2F;overflow:hidden}.wq-pb i{display:block;height:100%;width:0;background:#D2FF00;transition:width .2s}
 .cx-ul.num{padding-left:24px}
 .cx-mk{background:linear-gradient(transparent 55%,rgba(210,255,0,.55) 55%);color:inherit;padding:0 2px;border-radius:2px}
+.wq-tb.wq-hrv:not(.ed)>textarea,.wq-qt.wq-hrv:not(.ed)>textarea{position:absolute;left:0;top:0;width:100%;height:100%!important;opacity:0;pointer-events:none}
+.wq-x.ed>.wq-rv{display:none}
+.wq-rv{color:#E6E8E3;font:400 16px/1.8 var(--f);padding:3px 34px 3px 0;cursor:text;word-break:break-word}
+.wq-rv.st-h2{font-size:21px;font-weight:800;line-height:1.45;color:#fff;padding-top:12px}.wq-rv.st-h3{font-size:18px;font-weight:700;line-height:1.5;padding-top:8px}.wq-rv.st-q{font-style:italic;color:#D9DCD5}
+.wq-rv .cx-rt p{margin:0 0 .6em}.wq-rv .cx-rt p:last-child{margin:0}.wq-rv .cx-tag{color:#D2FF00}
+.cx-big{font-size:1.3em;font-weight:800}.cx-sml{font-size:.82em}
+.wq-pa+.wq-pa{padding-top:4px}.wq-pl{flex:none;align-self:center;font-size:11px;color:#7F837E;min-width:52px}
+.wq-pa .wq-big{font-weight:900;font-size:17px}.wq-pa .wq-sml{font-size:12px}
+.wq-pa .wq-cc{flex:none;width:34px;height:34px;padding:0;border-radius:50%;border:2px solid #2A2D2F}
+.wq-kr>button[aria-label]{min-width:0}
+.wq.wq-msm .wq-x{cursor:pointer;border-radius:12px;transition:background .15s,box-shadow .15s}.wq.wq-msm .wq-x *{pointer-events:none}
+.wq.wq-msm .wq-x::before{content:'';position:absolute;left:-4px;top:8px;width:18px;height:18px;border-radius:50%;border:2px solid #4A4E4B;background:#0C0E0D;z-index:2}
+.wq.wq-msm .wq-body{padding-left:22px}
+.wq.wq-msm .wq-x.msel{background:rgba(210,255,0,.07);box-shadow:inset 0 0 0 1px rgba(210,255,0,.45)}.wq.wq-msm .wq-x.msel::before{background:#D2FF00;border-color:#D2FF00;box-shadow:inset 0 0 0 3px #0C0E0D}
+.wq.wq-msm .wq-x::before{left:-24px}
+.wq-msb{gap:6px}.wq-msb>b{flex:1;font-size:14px;color:#D2FF00}.wq-msb>button{flex:none!important;display:block!important;font:700 13px var(--f)!important;padding:9px 12px!important;background:#1B1E20!important;color:#E7E9E4!important;border-radius:999px!important}.wq-msb>.wq-done{background:#D2FF00!important;color:#0C0E0D!important}
+.wq-cv .cx-care{background:#141C17;border:1px solid #26352B}.wq-cv .cx-cg div{background:#1A1D1F}.wq-cv .cx-care b,.wq-cv .cx-cg b,.wq-cv .cx-care p{color:#F3F3F0}.wq-cv .cx-cg small{color:#8C908B}
+.wx-lbl{font-size:12px!important;padding:6px 10px!important;margin-bottom:4px;color:#D2FF00!important}
+.cx-plt{display:block;font-size:15px;margin:0 0 2px}
+/* 文章頁：只留黑底、不要外框 */
+body.px-on #chDock,body.px-on footer{display:none!important}
+.px.pt-black{padding:4px 16px 96px;min-height:0;background:#0C0E0D}
+.px.pt-black .px-card{background:transparent;border:0;border-radius:0;box-shadow:none;max-width:760px;overflow:visible}
+.px.pt-black .px-h{background:transparent;border-bottom:0;padding:6px 0 10px}
+.px.pt-black .px-in{padding:14px 0 10px}
+.px.pt-black .px-gw{margin:0 -16px}
+.px.pt-black .px-cms{padding-top:4px}
+.px .cx-cin{background:transparent!important;border:0!important;box-shadow:none!important;padding:0;margin-bottom:12px}
+.px .cx-cir{align-items:center;gap:8px}
+.px .cx-cir textarea{border-radius:999px!important;padding:10px 16px!important;min-height:0;height:42px;background:#17191B!important;color:#F3F3F0!important;line-height:1.4}
+.px .cx-ci2{flex:none;width:38px;height:38px;border:0;border-radius:50%;background:#17191B;font-size:17px;cursor:pointer;padding:0}
+.px .cx-cir .gh-b.pri{flex:none;border:0;background:#D2FF00;color:#0C0E0D;font-weight:800;padding:10px 16px;border-radius:999px}
+.px-act{background:rgba(12,14,13,.96)!important;border-top:1px solid #1E2123!important}
+.px-act .px-say{background:#17191B!important;color:#8C908B!important}
 </style>
 
 </head>
@@ -8914,7 +8948,7 @@ async function cmMore(){ if(!S.db||CM.busy||CM.done) return; CM.busy=true; try{ 
 async function cmSpecial(){ if(!S.db||CM.feat) return; CM.feat=[]; CM.pin=[]; try{ const [a,b]=await Promise.all([S.db.collection('posts').where('feat','==',true).limit(30).get(),S.db.collection('posts').where('pin','==',true).limit(10).get()]);
   CM.feat=a.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.at-x.at); CM.pin=b.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>(y.pinAt||y.at)-(x.pinAt||x.at)); [...CM.feat,...CM.pin].forEach(p=>CM.posts.set(p.id,p)); resolveNames([...CM.feat,...CM.pin].map(p=>p.uid)); }catch(e){} if(PAGE==='community') renderCommunityPg(true); }
 const cmCover=p=>p.cover||null;
-function cmCard(p,i){ const cv=cmCover(p), nb=CM.liked.get(p.id), th=PT[p.th]?p.th:'lando', T=PT[th], bd=p.pin||p.feat?h('em',{class:'cq-bd',text:p.pin?'置頂':'精選'}):null;
+function cmCard(p,i){ const cv=cmCover(p), nb=CM.liked.get(p.id), th='black', T=PT[th], bd=p.pin||p.feat?h('em',{class:'cq-bd',text:p.pin?'置頂':'精選'}):null;
   return h('a',{class:'cq-c'+(p.hidden?' hid':''),href:'#/post/'+p.id,style:'--i:'+Math.min(i||0,12)},
     cv?h('div',{class:'cq-im'}, h('img',{src:cv.thumb||cv.poster||cv.url,alt:'',loading:'lazy'}), cv.type==='video'?h('i',{class:'cq-pl',text:'▶'}):null, p.nImg>1?h('i',{class:'cq-ni',text:'1/'+p.nImg}):null, bd)
       :h('div',{class:'cq-tx px-tc pt-'+th+' pat-'+T[7],style:pxVars(th)}, h('b',{class:'ptf-'+T[8]+(T[9]?' pfx-'+T[9]:''),text:p.title||''}), p.ex?h('p',{text:p.ex}):null, bd),
@@ -9014,17 +9048,17 @@ const CMB={
   link:{n:'按鈕連結',ic:'🔗',def:()=>({label:'',url:''})},
   div:{n:'分隔線',ic:'➖',def:()=>({st:'line'})}};
 const cmEsc=s=>String(s||'');
-function cmRich(text){ const out=h('div',{class:'cx-rt'}); String(text||'').split(/\n{2,}/).forEach(par=>{ const p=h('p',{}); par.split(/(\*\*[^*]+\*\*|==[^=\n]+==|#[\p{L}\p{N}_]+|https?:\/\/\S+)/u).forEach(seg=>{ if(!seg) return; if(/^\*\*[^*]+\*\*$/.test(seg)) p.append(h('b',{text:seg.slice(2,-2)})); else if(/^==[^=\n]+==$/.test(seg)) p.append(h('mark',{class:'cx-mk',text:seg.slice(2,-2)})); else if(/^#/.test(seg)) p.append(h('a',{class:'cx-tag',href:'#/community',onclick:()=>{ CM.q=seg; CM.tab='new'; },text:seg})); else if(/^https?:/.test(seg)) p.append(h('a',{href:seg,target:'_blank',rel:'noopener nofollow',text:seg.replace(/^https?:\/\//,'').slice(0,40)})); else seg.split('\n').forEach((l,i)=>{ if(i) p.append(h('br')); p.append(l); }); }); out.append(p); }); return out; }
+function cmRich(text){ const out=h('div',{class:'cx-rt'}); String(text||'').split(/\n{2,}/).forEach(par=>{ const p=h('p',{}); par.split(/(\{(?:#[0-9a-fA-F]{6}|大|小)\|[^{}\n]+\}|\*\*[^*]+\*\*|==[^=\n]+==|#[\p{L}\p{N}_]+|https?:\/\/\S+)/u).forEach(seg=>{ if(!seg) return; if(/^\*\*[^*]+\*\*$/.test(seg)) p.append(h('b',{text:seg.slice(2,-2)})); else if(/^\{(?:#[0-9a-fA-F]{6}|大|小)\|[^{}\n]+\}$/.test(seg)){ const i=seg.indexOf('|'), k=seg.slice(1,i), t=seg.slice(i+1,-1); p.append(h('span',k[0]==='#'?{style:'color:'+k,text:t}:{class:k==='大'?'cx-big':'cx-sml',text:t})); } else if(/^==[^=\n]+==$/.test(seg)) p.append(h('mark',{class:'cx-mk',text:seg.slice(2,-2)})); else if(/^#/.test(seg)) p.append(h('a',{class:'cx-tag',href:'#/community',onclick:()=>{ CM.q=seg; CM.tab='new'; },text:seg})); else if(/^https?:/.test(seg)) p.append(h('a',{href:seg,target:'_blank',rel:'noopener nofollow',text:seg.replace(/^https?:\/\//,'').slice(0,40)})); else seg.split('\n').forEach((l,i)=>{ if(i) p.append(h('br')); p.append(l); }); }); out.append(p); }); return out; }
 function cmSwipe(items){ if(!items.length) return null; const tr=h('div',{class:'cx-sw'}, ...items.map((m,i)=>h('div',{class:'cx-swi',onclick:()=>lightbox(items.map(x=>({url:x.url,type:x.type,poster:x.poster})),i)}, m.type==='video'?h('video',{src:m.url,poster:m.poster||null,muted:true,playsinline:true,loop:true,autoplay:true}):h('img',{src:m.url,alt:'',loading:'lazy'})))),
   dots=items.length>1?h('div',{class:'cx-dots'}, ...items.map((_,i)=>h('i',{class:i?'':'on'}))):null; tr.addEventListener('scroll',()=>{ const k=Math.round(tr.scrollLeft/tr.clientWidth); dots?.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===k)); },{passive:true}); return h('div',{class:'cx-swb'}, tr, dots, items.length>1?h('span',{class:'cx-swn',text:items.length+' 張'}):null); }
 function cmBlockView(b,post){ const c=b; switch(b.t){
   case 'txt': if(!String(c.text||'').trim()) return null; return c.st==='h2'?h('h2',{class:'cx-h2',text:c.text}):c.st==='h3'?h('h3',{class:'cx-h3',text:c.text}):cmRich(c.text);
   case 'img': { const L=(c.items||[]).filter(m=>m?.url); if(!L.length) return null; const el=c.view==='grid'?h('div',{class:'cx-ig n'+Math.min(L.length,4)}, ...L.map((m,i)=>h('button',{type:'button',onclick:()=>lightbox(L.map(x=>({url:x.url,type:x.type})),i)}, h('img',{src:m.thumb||m.url,alt:'',loading:'lazy'})))):c.view==='big'?h('div',{class:'cx-ib'}, ...L.map((m,i)=>h('img',{src:m.url,alt:'',loading:'lazy',onclick:()=>lightbox(L.map(x=>({url:x.url})),i)}))):cmSwipe(L); return h('figure',{class:'cx-fig'}, el, c.cap?h('figcaption',{text:c.cap}):null); }
   case 'vid': return c.m?.url?h('figure',{class:'cx-fig'}, h('video',{class:'cx-v',src:c.m.url,poster:c.m.poster||null,controls:true,playsinline:true,preload:'metadata'}), c.cap?h('figcaption',{text:c.cap}):null):null;
-  case 'plant': { const L=(c.ids||[]).map(i=>S.plants.get(i)).filter(Boolean); if(!L.length) return null; return h('div',{class:'cx-pls'}, ...L.map(p=>h('button',{type:'button',class:'cx-plc',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('div',{}, h('b',{text:pName(p)}), h('small',{class:'mono',text:p.code||''}), onSale(p)&&p.status!=='sold'?h('em',{text:priceLabel(p).main}):h('em',{class:'g',text:'看履歷 →'}))))); }
+  case 'plant': { const L=(c.ids||[]).map(i=>S.plants.get(i)).filter(Boolean); if(!L.length) return null; return h('div',{class:'cx-pls'}, c.title?h('b',{class:'cx-plt',text:c.title}):null, ...L.map(p=>h('button',{type:'button',class:'cx-plc',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('div',{}, h('b',{text:pName(p)}), h('small',{class:'mono',text:p.code||''}), onSale(p)&&p.status!=='sold'?h('em',{text:priceLabel(p).main}):h('em',{class:'g',text:'看履歷 →'}))))); }
   case 'poll': return cmPoll(b,post);
   case 'cmp': return c.a?.url&&c.b?.url?cmCompare(c):null;
-  case 'care': { const R=[['☀️','光照',c.light],['💧','澆水',c.water],['🌡','溫度',c.temp],['💨','濕度',c.hum],['🪨','介質',c.soil]].filter(x=>x[2]); if(!R.length&&!c.note) return null; return h('div',{class:'cx-care'}, h('b',{class:'cx-ct2',text:'🪴 養護卡'}), h('div',{class:'cx-cg'}, ...R.map(([i,l,v])=>h('div',{}, h('i',{text:i}), h('small',{text:l}), h('b',{text:v})))), c.note?h('p',{text:c.note}):null); }
+  case 'care': { const LL=c.ll||{}, R=[['☀️',LL.light||'光照',c.light],['💧',LL.water||'澆水',c.water],['🌡',LL.temp||'溫度',c.temp],['💨',LL.hum||'濕度',c.hum],['🪨',LL.soil||'介質',c.soil]].filter(x=>x[2]); if(!R.length&&!c.note) return null; return h('div',{class:'cx-care'}, h('b',{class:'cx-ct2',text:c.title||'🪴 養護卡'}), h('div',{class:'cx-cg'}, ...R.map(([i,l,v])=>h('div',{}, h('i',{text:i}), h('small',{text:l}), h('b',{text:v})))), c.note?h('p',{text:c.note}):null); }
   case 'quiz': return cmQuiz(c);
   case 'quote': return c.text?h('blockquote',{class:'cx-q'}, h('p',{text:c.text}), c.by?h('cite',{text:'— '+c.by}):null):null;
   case 'callout': return c.text?h('div',{class:'cx-co t-'+(c.tone||'tip')}, h('i',{text:{tip:'💡',warn:'⚠️',info:'ℹ️',ok:'✅'}[c.tone]||'💡'}), h('p',{text:c.text})):null;
@@ -9068,13 +9102,14 @@ const PT={
   sakura:['櫻花粉','#FFE4EC','#FFF7F9','#5A1E33','#9A6B79','#E85A87','#9B7BD6','dots','serif','marker'],
   gold:['午夜金','#0F1A2E','#16233B','#F5E7C6','#B9AE92','#D4AF63','#F5E7C6','none','serif','grad'],
   blue:['設計藍圖','#1A4FA0','#1E5AB4','#FFFFFF','#C6D6F2','#FFFFFF','#FFD54A','blueprint','mono','outline'],
+  black:['黑底','#0C0E0D','#0C0E0D','#F3F3F0','#9A9E99','#D2FF00','#FF8000','none','sans',''],
   specimen:['植物標本','#F3EEDF','#FBF8EF','#2D3A2E','#6E7A6A','#7A5A2E','#2D5A3A','vein','serif','']};
 const PT_FX=[['','無'],['lando','賽車斜體'],['grad','漸層'],['glow','發光'],['marker','螢光筆'],['outline','描邊'],['stack','立體'],['neon','霓虹閃']];
 const PT_COL=['','#FFFFFF','#111213','#D2FF00','#FF8000','#E10600','#FF2442','#FF3D7F','#9B7BD6','#00B3C6','#1F5C42','#9BE15D','#FFD54A','#D4AF63'];
 const PX_BG=[['','無'],['card','卡片'],['acc','強調色'],['acc2','強調色 2'],['dark','深色'],['glass','毛玻璃'],['grad','漸層'],['pat','花紋']], PX_BD=[['','無'],['thin','細線'],['thick','粗框'],['dash','虛線'],['neon','霓虹'],['left','左邊條']], PX_AN=[['','不動'],['up','浮上'],['fade','淡入'],['zoom','放大'],['left','由左'],['right','由右'],['pop','彈跳'],['blur','對焦'],['flip','翻轉']];
 function pxFont(k){ if(k==='anton'||k==='mono'){ if(!document.querySelector('link[data-stf]')) document.head.append(h('link',{rel:'stylesheet',href:ST_FONT,'data-stf':'1'})); } else ghFont(k==='serif'?'serif':''); }
 const pxVars=k=>{ const t=PT[k]||PT.clean; return `--pb:${t[1]};--pc:${t[2]};--pf:${t[3]};--ps:${t[4]};--pa:${t[5]};--pa2:${t[6]}`; };
-const pxTh=p=>PT[p?.th]?p.th:'clean';
+const pxTh=p=>'black';
 let PX_IO=null;
 function pxWrap(b,el){ const s=b.sx||{}; if(!el) return null; const w=h('div',{class:'px-b px-t-'+b.t+(s.bg?' pbg-'+s.bg:'')+(s.bd?' pbd-'+s.bd:'')+(s.rd?' prd-'+s.rd:'')+(s.al?' pal-'+s.al:'')+(s.fx?' pfx-'+s.fx:'')+(s.sz?' psz-'+s.sz:'')+(s.an?' pan pan-'+s.an:''),style:(s.c?'--bc:'+s.c+';':'')+(s.bgc?'--bgc:'+s.bgc+';':'')}, el);
   if (s.an&&!REDUCE){ if(!PX_IO) PX_IO=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('on'); PX_IO.unobserve(e.target); } }),{rootMargin:'0px 0px -6% 0px'}); requestAnimationFrame(()=>PX_IO.observe(w)); } return w; }
@@ -9085,7 +9120,7 @@ function pxGallery(G){ const L=(G||[]).filter(m=>m?.url); if(!L.length) return n
   const nav=d=>()=>tr.scrollBy({left:d*tr.clientWidth,behavior:'smooth'});
   return h('div',{class:'px-g'}, tr, L.length>1?n:null, L.length>1?h('button',{type:'button',class:'px-gp l',onclick:nav(-1),text:'‹'}):null, L.length>1?h('button',{type:'button',class:'px-gp r',onclick:nav(1),text:'›'}):null, dots); }
 // 整篇文章（文章頁與預覽共用）
-function pxRender(p,o){ o=o||{}; const th=pxTh(p), T=PT[th]; pxFont(T[8]); const fx=p.te!=null?p.te:T[9], pv=!!o.preview;
+function pxRender(p,o){ o=o||{}; const th=pxTh(p), T=PT[th]; pxFont(T[8]); const fx='', pv=!!o.preview;
   const head=h('header',{class:'px-h'}, h('a',{class:'px-au',href:pv?null:'#/gh/'+p.uid}, chatAv(p.uid,38), h('div',{}, h('b',{text:nameOf(p.uid)}), h('small',{text:pv?'預覽':ago(p.at)+(p.upd&&p.upd-p.at>6e4?' · 已編輯':'')}))),
     !pv&&p.uid!==S.me&&S.me?(shopOf(p.uid)?followBtn(p.uid,'px-fo'):h('button',{type:'button',class:'px-fo',onclick:()=>openChat(p.uid),text:'聊聊'})):null, o.menu||null);
   const body=h('div',{class:'px-body'}, ...(p.blocks||[]).map(b=>{ try{ return pxWrap(b,cmBlockView(b,p)); }catch(e){ return null; } }).filter(Boolean));
@@ -9111,7 +9146,7 @@ function cmPostPaint(){ const box=$('#postPage'); if(!box||!CMP) return; const p
     h('button',{type:'button',class:'px-ab',onclick:()=>document.querySelector('.px-cms')?.scrollIntoView({behavior:'smooth'})}, h('i',{text:'💬'}), h('b',{text:String(CMP.cm?.length??p.cmts??0)}))));
   box.replaceChildren(el); }
 // 編輯器：元件樣式面板
-function cwStyle(b){ const s=b.sx||(b.sx={}), set=(k,v)=>{ if(v===''||v==null) delete s[k]; else s[k]=v; CMW.dirty=true; cmDraft(); renderWrite(); }, open=CMW.sty===b.id, txt=['txt','quote','callout','list','spoil','link'].includes(b.t);
+function cwStyle(b){ const s=b.sx||(b.sx={}), set=(k,v)=>{ if(v===''||v==null) delete s[k]; else s[k]=v; CMW.dirty=true; cmDraft(); renderWrite(); }, open=CMW.sty===b.id, txt=!['img','vid','cmp','div'].includes(b.t);
   const chips=(k,opts)=>h('div',{class:'wx-chips sm'}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String((s[k]||'')===v),onclick:()=>set(k,v),text:l})));
   const cols=(k)=>h('div',{class:'wx-cols'}, ...PT_COL.map(c=>h('button',{type:'button',class:'wx-col'+((s[k]||'')===c?' on':''),style:c?'background:'+c:'',title:c||'預設',onclick:()=>set(k,c),text:c?'':'預設'})), (()=>{ const i=h('input',{type:'color',value:s[k]||'#D2FF00',title:'自訂顏色'}); i.addEventListener('change',()=>set(k,i.value)); return h('label',{class:'wx-col cus',title:'自訂顏色'}, i, h('span',{text:'🎨'})); })());
   const row=(l,el)=>h('div',{class:'wx-sr'}, h('small',{text:l}), el);
@@ -9151,7 +9186,7 @@ function cmWrite(p,nav){ if(needLogin()) return; if(!limOK('post')) return;
   if (p){ CMW={id:p.id,edit:true,old:JSON.parse(JSON.stringify(p.blocks||[])),d:{title:p.title||'',cat:p.cat||'share',tags:(p.tags||[]).join(' '),blocks:JSON.parse(JSON.stringify(p.blocks||[])),th:p.th||'clean',te:p.te??null,gal:JSON.parse(JSON.stringify(p.gal||[]))},up:[],at:p.at,oldGal:JSON.parse(JSON.stringify(p.gal||[]))}; }
   else { const dr=lsGet('vein.draft:'+S.me,null); CMW={id:null,edit:false,d:dr?.d||{title:'',cat:'share',tags:'',th:'lando',te:null,gal:[],blocks:[{id:scId(),t:'txt',text:'',st:'p'}]},up:dr?.up||[]}; if(dr) setTimeout(()=>toast('已接續上次的草稿'),300); }
   CMW.open=null; CMW.pv=false; if(nav!==false) go('#/write'); }
-function cmDraft(){ if(!CMW||CMW.edit||!S.me) return; clearTimeout(cmDraft.t); cmDraft.t=setTimeout(()=>lsSet('vein.draft:'+S.me,{d:CMW.d,up:CMW.up,at:Date.now()}),500); }
+function cmDraft(){ if(!CMW||CMW.edit||!S.me) return; clearTimeout(cmDraft.t); const W=CMW; cmDraft.t=setTimeout(()=>{ if(CMW===W) lsSet('vein.draft:'+S.me,{d:W.d,up:W.up,at:Date.now()}); },500); }
 function cwUpload(files,onOne,st,multi){ const L=[...files].slice(0,multi?20:1); (async()=>{ for(let i=0;i<L.length;i++){ const f=L[i]; try{ st&&(st.textContent='上傳中 '+(i+1)+'/'+L.length+'…'); const md=await uploadMediaFile(f,x=>{ st&&(st.textContent='上傳中 '+(i+1)+'/'+L.length+' · '+Math.round(x/f.size*100)+'%'); }); CMW.up.push(md); onOne(md); }catch(x){ toast('上傳失敗：'+(x?.message||'')); } } st&&(st.textContent=''); cmDraft(); renderWrite(); })(); }
 function cwMedia(label,get,set,accept){ const st=h('small',{class:'hint'}), inp=h('input',{type:'file',hidden:true,accept:accept||'image/*'}); inp.addEventListener('change',()=>{ const f=inp.files; if(!f.length) return; cwUpload(f,md=>set(md),st,false); inp.value=''; }); const m=get();
   return h('div',{class:'wx-mp'}, h('small',{text:label}), m?.url?h('div',{class:'wx-th'}, m.type==='video'?h('video',{src:m.url,muted:true,playsinline:true}):h('img',{src:m.thumb||m.url,alt:''}), h('button',{type:'button',onclick:()=>{ set(null); cmDraft(); renderWrite(); },text:'✕'})):h('button',{type:'button',class:'wx-add',onclick:()=>inp.click()}, h('i',{text:'＋'}), h('span',{text:'選擇'})), inp, st); }
@@ -9168,11 +9203,11 @@ function cwBlockEd(b,P){ const ch=()=>{ CMW.dirty=true; cmDraft(); }, hard=()=>{
     case 'vid': return h('div',{}, cwMedia('影片',()=>b.m,m=>{ b.m=m; },'video/mp4,video/quicktime,video/webm'), inp('cap','影片說明（選填）'), h('small',{class:'hint',text:'影片最長 6 秒（認證會員可上傳）'}));
     case 'plant': { b.ids=b.ids||[]; const mineP=all().filter(p=>(ownerOf(p)===S.me||p.shop===S.me)&&!p.hidden).sort((a,b2)=>toMs(b2.createdAt)-toMs(a.createdAt)); const q=h('input',{placeholder:'搜尋編號或品種（也能找別人的公開植物）'}), res=h('div',{class:'wx-pr'});
       const draw=()=>{ const v=q.value.trim().toLowerCase(); const L=(v?all().filter(p=>!p.hidden&&!privFor(p)&&[p.code,p.species,p.cultivar].join(' ').toLowerCase().includes(v)):mineP).slice(0,30); res.replaceChildren(...L.map(p=>h('button',{type:'button',class:b.ids.includes(p.id)?'on':'',onclick:()=>{ const i=b.ids.indexOf(p.id); if(i>=0) b.ids.splice(i,1); else if(b.ids.length<8) b.ids.push(p.id); else return toast('最多 8 株'); hard(); }}, h('img',{src:cover(p),alt:''}), h('small',{class:'mono',text:p.code||''})))); };
-      q.addEventListener('input',()=>{ clearTimeout(q._t); q._t=setTimeout(draw,200); }); draw(); return h('div',{}, h('small',{class:'hint',text:'已選 '+b.ids.length+' 株（點一下選取／取消）'}), q, res); }
+      q.addEventListener('input',()=>{ clearTimeout(q._t); q._t=setTimeout(draw,200); }); draw(); return h('div',{}, inp('title','標題（選填），例如：這次入手的'), h('small',{class:'hint',text:'已選 '+b.ids.length+' 株（點一下選取／取消）'}), q, res); }
     case 'poll': return h('div',{}, inp('q','投票問題，例如：你最喜歡哪一株？',80), optList('opts',6));
     case 'quiz': return h('div',{}, inp('q','題目，例如：這株是哪個屬？',80), h('small',{class:'hint',text:'圈選正確答案'}), optList('opts',4), inp('why','答案說明（選填）',120));
     case 'cmp': return h('div',{class:'wx-2'}, cwMedia('之前的照片',()=>b.a,m=>{ b.a=m; }), cwMedia('之後的照片',()=>b.b,m=>{ b.b=m; }), inp('la','左邊標籤',12), inp('lb','右邊標籤',12));
-    case 'care': return h('div',{class:'wx-2'}, ...[['light','☀️ 光照','例如 散射光 8000 lux'],['water','💧 澆水','例如 介質半乾就澆'],['temp','🌡 溫度','例如 20–28°C'],['hum','💨 濕度','例如 70% 以上'],['soil','🪨 介質','例如 水苔＋樹皮']].map(([k,l,ph])=>h('label',{class:'wx-fl'}, h('small',{text:l}), inp(k,ph,40))), h('label',{class:'wx-fl full'}, h('small',{text:'備註'}), area('note','其他想分享的',2)));
+    case 'care': { b.ll=b.ll||{}; return h('div',{}, h('label',{class:'wx-fl full'}, h('small',{text:'卡片標題'}), inp('title','🪴 養護卡',30)), h('div',{class:'wx-2'}, ...[['light','☀️','光照','例如 散射光 8000 lux'],['water','💧','澆水','例如 介質半乾就澆'],['temp','🌡','溫度','例如 20–28°C'],['hum','💨','濕度','例如 70% 以上'],['soil','🪨','介質','例如 水苔＋樹皮']].map(([k,ic,l,ph])=>{ const li=h('input',{class:'wx-lbl',value:b.ll[k]||'',placeholder:ic+' '+l,maxlength:12}); li.addEventListener('input',()=>{ b.ll[k]=li.value; ch(); }); return h('label',{class:'wx-fl'}, li, inp(k,ph,40)); }), h('label',{class:'wx-fl full'}, h('small',{text:'備註'}), area('note','其他想分享的',2)))); }
     case 'quote': return h('div',{}, area('text','引用的話',2), inp('by','出處（選填）',40));
     case 'callout': return h('div',{}, chips('tone',[['tip','💡 小技巧'],['warn','⚠️ 注意'],['info','ℹ️ 資訊'],['ok','✅ 完成']]), area('text','提示內容',2));
     case 'list': { b.items=b.items||['']; return h('div',{}, chips('check',[[false,'• 項目'],[true,'☑ 勾選清單']]), h('div',{class:'wx-ol'}, ...b.items.map((o,i)=>h('div',{class:'wx-or'}, h('i',{text:b.check?'☐':'•'}), (()=>{ const x=h('input',{value:o,placeholder:'項目 '+(i+1),maxlength:120}); x.addEventListener('input',()=>{ b.items[i]=x.value; ch(); }); x.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); b.items.splice(i+1,0,''); hard(); requestAnimationFrame(()=>document.querySelectorAll('#writePage [data-bid="'+b.id+'"] .wx-or input')[i+1]?.focus()); } }); return x; })(), b.items.length>1?h('button',{type:'button',onclick:()=>{ b.items.splice(i,1); hard(); },text:'✕'}):null)), h('button',{type:'button',class:'wx-more',onclick:()=>{ b.items.push(''); hard(); },text:'＋ 加一項'}))); }
@@ -9186,7 +9221,7 @@ const wqInline=b=>b&&['txt','quote','list'].includes(b.t);
 function wqVV(){ if(window.__wqVV||!window.visualViewport) return; window.__wqVV=1; const f=()=>{ const v=visualViewport, kb=Math.max(0,Math.round(innerHeight-v.height-v.offsetTop)); document.documentElement.style.setProperty('--kb',(kb>60?kb:0)+'px'); }; visualViewport.addEventListener('resize',f); visualViewport.addEventListener('scroll',f); }
 function wqFocus(id,pos,last){ CMW.focus={id,pos,last}; }
 function wqInsAt(){ const B=CMW.d.blocks, i=B.findIndex(x=>x.id===CMW.cur); if(i<0) return {i:B.length}; const c=B[i];
-  if (c.t==='txt'){ const t=c.text||'', p=Math.min(CMW.sel?.[0]??t.length,t.length); if(!t.trim()) return {i,rep:true}; if(p<=0) return {i};
+  if (c.t==='txt'){ const t=c.text||''; let p=Math.min(CMW.sel?.[0]??t.length,t.length); if(!t.trim()) return {i,rep:true}; for(const m of t.matchAll(/\{(?:#[0-9a-fA-F]{6}|大|小)\|[^{}\n]+\}|\*\*[^*]+\*\*|==[^=\n]+==/g)){ if(p>m.index&&p<m.index+m[0].length) p=m.index+m[0].length; } if(p<=0) return {i};
     if (p<t.length){ c.text=t.slice(0,p).replace(/\n+$/,''); B.splice(i+1,0,{id:scId(),t:'txt',text:t.slice(p).replace(/^\n+/,''),st:c.st||'p',...(c.sx?{sx:JSON.parse(JSON.stringify(c.sx))}:{})}); return {i:i+1}; } }
   return {i:i+1}; }
 function wqInsert(b){ const B=CMW.d.blocks, at=wqInsAt(); if(at.rep) B.splice(at.i,1,b); else B.splice(at.i,0,b); const k=B.indexOf(b);
@@ -9200,6 +9235,10 @@ function cmInsSheet(){ const id='wqins'; let shut=false; const close=()=>{ if(sh
   topHost().append(ov); blPush(id,()=>{ shut=true; ov.remove(); }); }
 // 區塊設定面板（照片、投票、養護卡…以及每個元件的樣式）
 function wqSheet(id){ CMW.open=id; CMW.shIn=true; CMW.sty=(CMW.d.blocks.find(x=>x.id===id)?.t==='txt')?id:null; blPush('wqsh',()=>{ CMW.open=null; renderWrite(); }); renderWrite(); }
+function wqMs(on){ if(on){ document.activeElement?.blur?.(); wqPop(null); CMW.ms=[]; blPush('wqms',()=>{ CMW.ms=null; if(CMW.open==='__ms') CMW.open=null; renderWrite(); }); } else { CMW.ms=null; blDone('wqms'); } renderWrite(); }
+function wqMsStyle(){ if(!CMW.ms?.length){ toast('先點選要一起設定的段落或元件'); return; } const B=CMW.d.blocks, f=B.find(x=>x.id===CMW.ms[0]); CMW.mpx={id:'__ms',t:'txt',sx:JSON.parse(JSON.stringify(f?.sx||{}))}; CMW.mprev=JSON.stringify(CMW.mpx.sx); CMW.open='__ms'; CMW.shIn=true; CMW.sty='__ms'; blPush('wqsh',()=>{ CMW.open=null; renderWrite(); }); renderWrite(); }
+function wqMsSync(){ const P=CMW.mpx; if(!P||!CMW.ms) return; const cur=JSON.stringify(P.sx||{}); if(cur===CMW.mprev) return; const a=JSON.parse(CMW.mprev||'{}'), z=P.sx||{}, K=new Set([...Object.keys(a),...Object.keys(z)]);
+  CMW.d.blocks.filter(b=>CMW.ms.includes(b.id)).forEach(b=>{ b.sx=b.sx||{}; K.forEach(k=>{ if(a[k]===z[k]) return; if(z[k]==null) delete b.sx[k]; else b.sx[k]=z[k]; }); }); CMW.mprev=cur; CMW.dirty=true; cmDraft(); }
 function wqShClose(){ CMW.open=null; blDone('wqsh'); renderWrite(); }
 function wqFmt(){ if(document.activeElement?.blur) document.activeElement.blur(); CMW.fmt=true; CMW.fmIn=true; blPush('wqfmt',()=>{ CMW.fmt=false; renderWrite(); }); renderWrite(); }
 function wqFmtClose(){ CMW.fmt=false; blDone('wqfmt'); renderWrite(); }
@@ -9250,14 +9289,20 @@ function wqSetList(m){ let b=wqIso(wqCurB());
   b.check=m==='ck'; b.num=m==='num'; wqFocus(b.id,-1,true); CMW.dirty=true; cmDraft(); wqPop(null); renderWrite(); }
 function wqWrap(a,z){ const b=wqCurB(); if(!b||b.t==='list'){ toast('先點一下要加重點的文字'); return; } const el=document.querySelector('#writePage [data-f="'+b.id+':text"]'); if(!el) return; const s=el.selectionStart, e=el.selectionEnd, v=el.value;
   el.value=v.slice(0,s)+a+v.slice(s,e)+z+v.slice(e); el.focus(); el.setSelectionRange(s+a.length,e+a.length); el.dispatchEvent(new Event('input')); }
+function wqAl(v){ const b=wqCurB(); if(!b){ toast('先點一下要對齊的段落'); return; } b.sx=b.sx||{}; if(b.sx.al===v) delete b.sx.al; else b.sx.al=v; wqFocus(b.id,CMW.sel?.[0]??-1); CMW.dirty=true; cmDraft(); renderWrite(); }
+function wqSpan(k){ const b=wqCurB(), el=b&&document.querySelector('#writePage [data-f="'+b.id+':text"]'); if(!el||el.selectionStart===el.selectionEnd){ toast('先用手指選取（反白）要改的字'); return; } wqWrap('{'+k+'|','}'); }
 function wqEmoji(x){ const el=document.activeElement; if(el&&el.closest?.('#writePage')&&/TEXTAREA|INPUT/.test(el.tagName)&&el.type!=='file'){ el.setRangeText(x,el.selectionStart,el.selectionEnd,'end'); el.dispatchEvent(new Event('input')); return; }
   const b=wqCurB(); if(b?.t==='txt'||b?.t==='quote'){ b.text=(b.text||'')+x; wqFocus(b.id,-1); cmDraft(); renderWrite(); } else { const nb={id:scId(),t:'txt',text:x,st:'p'}; CMW.cur=null; wqInsert(nb); wqFocus(nb.id,-1); renderWrite(); } }
 function wqPop(k){ if(!CMW) return; CMW.pop=k==='__keep'?CMW.pop:k==null?null:(CMW.pop===k?null:k); const el=document.querySelector('#writePage .wq-pop'); if(!el) return; const b=wqCurB(), cur=b?.t==='quote'?'q':b?.t==='txt'?(b.st||'p'):b?.t==='list'?(b.check?'ck':b.num?'num':'ul'):'';
   const keep=e=>e.preventDefault(), btn=(cls,l,on,fn)=>h('button',{type:'button',class:(cls||'')+(on?' on':''),onpointerdown:keep,onclick:fn},l);
-  el.replaceChildren(...(CMW.pop==='aa'?[h('div',{class:'wq-pa'}, btn('wq-h2','標題',cur==='h2',()=>wqSetSt('h2')), btn('wq-h3','二級標題',cur==='h3',()=>wqSetSt('h3')), btn('','內文',cur==='p',()=>wqSetSt('p')), btn('wq-q','「引用」',cur==='q',()=>wqSetSt('q')), btn('wq-b','B 粗體',false,()=>wqWrap('**','**')), b?btn('','🎨 樣式',false,()=>{ wqPop(null); wqSheet(b.id); }):null)]
+  el.replaceChildren(...(CMW.pop==='aa'?[h('div',{class:'wq-pa'}, btn('wq-h2','標題',cur==='h2',()=>wqSetSt('h2')), btn('wq-h3','二級標題',cur==='h3',()=>wqSetSt('h3')), btn('','內文',cur==='p',()=>wqSetSt('p')), btn('wq-q','「引用」',cur==='q',()=>wqSetSt('q')), btn('wq-b','B 粗體',false,()=>wqWrap('**','**')), b?btn('','🎨 更多樣式',false,()=>{ wqPop(null); wqSheet(b.id); }):null),
+      h('div',{class:'wq-pa'}, h('small',{class:'wq-pl',text:'對齊'}), ...[['l','靠左'],['c','置中'],['r','靠右']].map(([v,l])=>btn('',l,(b?.sx?.al||'')===v,()=>wqAl(v)))),
+      h('div',{class:'wq-pa'}, h('small',{class:'wq-pl',text:'選取的字'}), btn('wq-big','大',false,()=>wqSpan('大')), btn('wq-sml','小',false,()=>wqSpan('小')), ...PT_COL.filter(Boolean).map(c=>h('button',{type:'button',class:'wq-cc',style:'background:'+c,onpointerdown:keep,onclick:()=>wqSpan(c),'aria-label':'顏色 '+c})))]
     :CMW.pop==='ls'?[h('div',{class:'wq-pa'}, btn('','•  項目清單',cur==='ul',()=>wqSetList('ul')), btn('','1.  編號清單',cur==='num',()=>wqSetList('num')), btn('','☑  勾選清單',cur==='ck',()=>wqSetList('ck')))]
     :CMW.pop==='emo'?[h('div',{class:'wq-emo'}, ...WQ_EMO.map(x=>h('button',{type:'button',onpointerdown:keep,onclick:()=>wqEmoji(x),text:x})))]:[]));
   document.querySelectorAll('#writePage .wq-kr>[data-pop]').forEach(x=>x.classList.toggle('on',x.dataset.pop===CMW.pop)); }
+const WQ_SZ={s:'14px',l:'19px',xl:'24px',xxl:'31px'};
+const wqSxCss=b=>{ const s=b.sx||{}; return (s.al?'text-align:'+({l:'left',c:'center',r:'right'}[s.al]||'left')+';':'')+(s.c?'color:'+s.c+';':'')+(s.sz&&b.t!=='list'?'font-size:'+WQ_SZ[s.sz]+';':''); };
 // 內文的每個區塊
 function wqBlk(b,i){ const B=CMW.d.blocks, ch=()=>{ CMW.dirty=true; cmDraft(); };
   const track=el=>{ const up=()=>{ CMW.cur=b.id; CMW.sel=[el.selectionStart,el.selectionEnd]; }; ['focus','keyup','click','select','input'].forEach(e=>el.addEventListener(e,up)); el.addEventListener('focus',()=>{ if(CMW.pop==='aa'||CMW.pop==='ls') wqPop('__keep'); }); return el; };
@@ -9269,8 +9314,10 @@ function wqBlk(b,i){ const B=CMW.d.blocks, ch=()=>{ CMW.dirty=true; cmDraft(); }
     return track(el); };
   const mo=h('button',{type:'button',class:'wq-mo',onpointerdown:e=>e.preventDefault(),onclick:()=>wqSheet(b.id),'aria-label':'樣式與設定',text:b.sx&&Object.keys(b.sx).length?'🎨':'⋯'});
   const nTxt=B.filter(x=>x.t==='txt').length;
-  if (b.t==='txt'){ const st=b.st||'p', ph=st==='h2'?'標題':st==='h3'?'二級標題':(nTxt===1&&B.length<=2?'點到這裡或輸入文字，內容將自動儲存':(i===B.length-1?'繼續寫…':'')); return h('div',{class:'wq-x wq-tb','data-bid':b.id}, ta('text','st-'+st,ph), mo); }
-  if (b.t==='quote'){ const by=h('input',{class:'wq-by',value:b.by||'',placeholder:'— 出處（選填）',maxlength:40,'data-f':b.id+':by'}); by.addEventListener('input',()=>{ b.by=by.value; ch(); }); return h('div',{class:'wq-x wq-qt','data-bid':b.id}, ta('text','st-q','引用的話'), track(by), mo); }
+  const rich=(t,st)=>{ const w0=String(b.text||''); if(!w0.trim()) return null; const v=h('div',{class:'wq-rv st-'+st,style:wqSxCss(b),onclick:e=>{ if(e.target.closest('a')) e.preventDefault(); const el=e.currentTarget.parentNode.querySelector('textarea'); el.focus(); const n=el.value.length; el.setSelectionRange(n,n); }}, st==='p'||st==='q'?cmRich(w0):w0); return v; };
+  const edw=(w,el)=>{ el.style.cssText+=';'+wqSxCss(b); el.addEventListener('focus',()=>w.classList.add('ed')); el.addEventListener('blur',()=>w.classList.remove('ed')); return w; };
+  if (b.t==='txt'){ const st=b.st||'p', ph=st==='h2'?'標題':st==='h3'?'二級標題':(nTxt===1&&B.length<=2?'點到這裡或輸入文字，內容將自動儲存':(i===B.length-1?'繼續寫…':'')), el=ta('text','st-'+st,ph), rv=rich(b.text,st); const w=h('div',{class:'wq-x wq-tb'+(rv?' wq-hrv':''),'data-bid':b.id}, rv, el, mo); return edw(w,el); }
+  if (b.t==='quote'){ const by=h('input',{class:'wq-by',value:b.by||'',placeholder:'— 出處（選填）',maxlength:40,'data-f':b.id+':by'}); by.addEventListener('input',()=>{ b.by=by.value; ch(); }); const el=ta('text','st-q','引用的話'), rv=rich(b.text,'q'); return edw(h('div',{class:'wq-x wq-qt'+(rv?' wq-hrv':''),'data-bid':b.id}, rv, el, track(by), mo),el); }
   if (b.t==='list'){ b.items=b.items&&b.items.length?b.items:['']; const mk=j=>b.check?'☐':b.num?(j+1)+'.':'•';
     return h('div',{class:'wq-x wq-ls','data-bid':b.id}, ...b.items.map((v,j)=>{ const x=h('input',{value:v,placeholder:'清單項目',maxlength:120,'data-f':b.id+':'+j}); x.addEventListener('input',()=>{ b.items[j]=x.value; ch(); });
       x.addEventListener('keydown',e=>{ if(e.isComposing) return; const k=B.indexOf(b);
@@ -9288,7 +9335,7 @@ function wqTags(D){ const L=()=>[...new Set(String(D.tags||'').split(/[\s,，#]+
   const inp=h('input',{class:'wq-tin',placeholder:T.length?'再加標籤':'加標籤，按空白或 Enter',maxlength:20});
   const add=(v,re)=>{ v=String(v||'').replace(/[#\s,，]/g,''); inp.value=''; if(!v) return; const X=L(); if(X.length>=10) return toast('最多 10 個標籤'); if(!X.includes(v)) X.push(v); D.tags=X.join(' '); cmDraft(); if(re) CMW.focus={sel:'.wq-tin'}; renderWrite(); };
   inp.addEventListener('keydown',e=>{ if(e.isComposing) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); add(inp.value,true); } else if(e.key==='Backspace'&&!inp.value&&T.length){ const X=L(); X.pop(); D.tags=X.join(' '); cmDraft(); CMW.focus={sel:'.wq-tin'}; renderWrite(); } });
-  inp.addEventListener('blur',()=>{ if(inp.value.trim()) setTimeout(()=>add(inp.value,false),0); });
+  inp.addEventListener('blur',()=>{ if(inp.value.trim()) setTimeout(()=>{ if(CMW&&PAGE==='write') add(inp.value,false); },0); });
   const tagN=new Map(); CM.feed.forEach(p=>(p.tags||[]).forEach(t=>tagN.set(t,(tagN.get(t)||0)+1)));
   const sug=[...[...tagN.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]),'新手','開箱','實生','養護','求救','火鶴','觀音蓮','蔓綠絨'].filter((t,i,a)=>a.indexOf(t)===i&&!T.includes(t)).slice(0,8);
   return h('div',{}, h('div',{class:'wq-tl'}, ...T.map(t=>h('span',{class:'wq-tg'}, '#'+t, h('button',{type:'button',onclick:()=>{ D.tags=L().filter(x=>x!==t).join(' '); cmDraft(); renderWrite(); },'aria-label':'移除',text:'✕'}))), inp),
@@ -9301,28 +9348,30 @@ function renderWrite(){ const box=$('#writePage'); if(!box) return; if(!S.me){ b
   const body=ghDrag(h('div',{class:'wq-body',onclick:e=>{ if(e.target!==e.currentTarget) return; const L=[...e.currentTarget.querySelectorAll('textarea[data-f],input[data-f]')], el=L[L.length-1]; if(el){ el.focus(); const n=el.value.length; el.setSelectionRange(n,n); } }}, ...B.map((b,i)=>wqBlk(b,i))),(f,t)=>{ const [x]=B.splice(f,1); B.splice(t,0,x); cmDraft(); renderWrite(); },'.wq-x','.wq-gp');
   const agreed=lsGet('vein.cmAgree',false), ag=h('input',{type:'checkbox',checked:!!agreed||!!CMW.ag,onchange:e=>{ CMW.ag=e.target.checked; }});
   const keep=e=>e.preventDefault(), kb=(ic,l,fn,pop)=>h('button',{type:'button',onpointerdown:keep,onclick:fn,'aria-label':l,'data-pop':pop||null}, h('i',{text:ic}), h('small',{text:l}));
-  const ob=B.find(x=>x.id===CMW.open); if(CMW.open&&!ob) CMW.open=null;
+  wqMsSync(); const ob=CMW.open==='__ms'?CMW.mpx:B.find(x=>x.id===CMW.open); if(CMW.open&&!ob) CMW.open=null;
   const sheet=ob?h('div',{class:'wq-shov'+(CMW.shIn?' in':''),onclick:e=>{ if(e.target===e.currentTarget) wqShClose(); }}, h('div',{class:'wq-sh'},
-    h('div',{class:'wq-shh'}, h('i',{text:ob.t==='txt'?'🔠':(CMB[ob.t]?.ic||'▫️')}), h('b',{text:ob.t==='txt'?'文字樣式':(CMB[ob.t]?.n||'')}), (()=>{ const j=B.indexOf(ob); return h('div',{class:'wq-sha'},
+    h('div',{class:'wq-shh'}, h('i',{text:ob.id==='__ms'?'☑':ob.t==='txt'?'🔠':(CMB[ob.t]?.ic||'▫️')}), h('b',{text:ob.id==='__ms'?'已選 '+CMW.ms.length+' 個・一起設定':ob.t==='txt'?'文字樣式':(CMB[ob.t]?.n||'')}), ob.id==='__ms'?null:(()=>{ const j=B.indexOf(ob); return h('div',{class:'wq-sha'},
         h('button',{type:'button',disabled:!j,'aria-label':'上移',onclick:()=>{ [B[j-1],B[j]]=[B[j],B[j-1]]; cmDraft(); renderWrite(); },text:'↑'}), h('button',{type:'button',disabled:j===B.length-1,'aria-label':'下移',onclick:()=>{ [B[j+1],B[j]]=[B[j],B[j+1]]; cmDraft(); renderWrite(); },text:'↓'}),
         h('button',{type:'button','aria-label':'複製',onclick:()=>{ B.splice(j+1,0,{...JSON.parse(JSON.stringify(ob)),id:scId()}); cmDraft(); renderWrite(); },text:'⧉'}), h('button',{type:'button','aria-label':'刪除',onclick:()=>{ B.splice(j,1); wqShClose(); },text:'🗑'})); })(),
       h('button',{type:'button',class:'wq-ok',onclick:wqShClose,text:'完成'})),
-    h('div',{class:'wq-shb'}, ob.t==='txt'?null:cwBlockEd(ob), cwStyle(ob)))):null;
+    h('div',{class:'wq-shb'}, ob.t==='txt'||ob.id==='__ms'?null:cwBlockEd(ob), cwStyle(ob)))):null;
   CMW.shIn=false;
   const pv=()=>pxRender({uid:S.me,title:D.title,cat:D.cat,blocks:B,tags:String(D.tags||'').split(/[\s,，#]+/).filter(Boolean),th:D.th,te:D.te,gal:D.gal,at:Date.now(),poll:{}},{preview:true});
-  const fmt=CMW.fmt?h('div',{class:'wq-fmt'+(CMW.fmIn?' in':'')}, h('div',{class:'wq-fh'}, h('button',{type:'button',class:'wq-bk',onclick:wqFmtClose,'aria-label':'返回編輯',text:'‹'}), h('b',{text:'一鍵排版'}), h('button',{type:'button',class:'wq-pub',onclick:e=>cmPublish(e.currentTarget),text:CMW.edit?'更新':'發佈'})),
-    h('div',{class:'wq-fp'}, pv()), h('div',{class:'wq-fb'}, cwTheme(D))):null; CMW.fmIn=false;
-  box.replaceChildren(h('div',{class:'wq'},
+  const fmt=CMW.fmt?h('div',{class:'wq-fmt'+(CMW.fmIn?' in':'')}, h('div',{class:'wq-fh'}, h('button',{type:'button',class:'wq-bk',onclick:wqFmtClose,'aria-label':'返回編輯',text:'‹'}), h('b',{text:'預覽'}), h('button',{type:'button',class:'wq-pub',onclick:e=>cmPublish(e.currentTarget),text:CMW.edit?'更新':'發佈'})),
+    h('div',{class:'wq-fp'}, pv())):null; CMW.fmIn=false;
+  if (CMW.ms){ body.addEventListener('click',e=>{ const x=e.target.closest('.wq-x'); if(!x) return; e.preventDefault(); e.stopPropagation(); const id=x.dataset.bid, k=CMW.ms.indexOf(id); if(k>=0) CMW.ms.splice(k,1); else CMW.ms.push(id); renderWrite(); },true); [...body.children].forEach(x=>x.classList.toggle('msel',CMW.ms.includes(x.dataset.bid))); }
+  box.replaceChildren(h('div',{class:'wq'+(CMW.ms?' wq-msm':'')},
     h('div',{class:'wq-top'}, h('button',{type:'button',class:'wq-bk',onclick:()=>history.length>1?history.back():go('#/community'),'aria-label':'返回',text:'‹'}), h('div',{}, h('b',{text:CMW.edit?'編輯文章':'寫長文'}), h('small',{text:CMW.edit?'':'自動儲存草稿'})),
-      h('button',{type:'button',class:'wq-fmtb',onclick:wqFmt,text:'一鍵排版'}), h('button',{type:'button',class:'wq-pub',onclick:e=>cmPublish(e.currentTarget),text:CMW.edit?'更新':'發佈'})),
+      h('button',{type:'button',class:'wq-fmtb',onclick:wqFmt,text:'預覽'}), h('button',{type:'button',class:'wq-pub',onclick:e=>cmPublish(e.currentTarget),text:CMW.edit?'更新':'發佈'})),
     wqGal(D), title, h('div',{class:'wq-hr'}), body,
     h('section',{class:'wq-meta'},
       h('div',{}, h('small',{class:'wq-ml',text:'分類'}), h('div',{class:'wq-cats'}, ...CM_CAT.map(([k,i,n])=>h('button',{type:'button','aria-pressed':String(D.cat===k),onclick:()=>{ D.cat=k; cmDraft(); renderWrite(); },text:i+' '+n})))),
       h('div',{}, h('small',{class:'wq-ml',text:'# 標籤'}), wqTags(D)),
       !agreed?h('label',{class:'wx-agree'}, ag, h('span',{}, '我已閱讀並同意', h('a',{href:'#/rules/community',target:'_blank',text:'社群公約'}), '（只要勾一次）')):null,
       !CMW.edit?h('button',{type:'button',class:'wq-dis',onclick:()=>{ if(!confirm('確定捨棄這篇草稿？上傳的照片也會刪除。')) return; mediaCleanup({up:CMW.up},null); lsSet('vein.draft:'+S.me,null); CMW=null; go('#/community'); },text:'捨棄草稿'}):null),
-    h('div',{class:'wq-kb'}, h('div',{class:'wq-pop'}), h('div',{class:'wq-kr'}, kb('Aa','樣式',()=>wqPop('aa'),'aa'), kb('☰','清單',()=>wqPop('ls'),'ls'), kb('🖍','螢光筆',()=>wqWrap('==','==')), kb('☺','表情',()=>wqPop('emo'),'emo'), kb('🖼','圖片',()=>wqPickImg()), kb('⊕','元件',()=>{ wqPop(null); cmInsSheet(); }),
-      h('button',{type:'button',class:'wq-done',onpointerdown:keep,onclick:()=>{ document.activeElement?.blur?.(); wqPop(null); },text:'完成'}))),
+    CMW.ms?h('div',{class:'wq-kb'}, h('div',{class:'wq-kr wq-msb'}, h('b',{text:'已選 '+CMW.ms.length}), h('button',{type:'button',onclick:()=>{ CMW.ms=CMW.ms.length===B.length?[]:B.map(x=>x.id); renderWrite(); },text:CMW.ms.length===B.length?'全不選':'全選'}), h('button',{type:'button',onclick:wqMsStyle,text:'🎨 樣式'}), h('button',{type:'button',onclick:()=>{ if(!CMW.ms.length) return; if(!confirm('刪除選取的 '+CMW.ms.length+' 個？')) return; CMW.d.blocks=B.filter(x=>!CMW.ms.includes(x.id)); CMW.ms=[]; cmDraft(); renderWrite(); },text:'🗑 刪除'}), h('button',{type:'button',class:'wq-done',onclick:()=>wqMs(false),text:'完成'})))
+    :h('div',{class:'wq-kb'}, h('div',{class:'wq-pop'}), h('div',{class:'wq-kr'}, kb('Aa','樣式',()=>wqPop('aa'),'aa'), kb('☰','清單',()=>wqPop('ls'),'ls'), kb('🖍','螢光筆',()=>wqWrap('==','==')), kb('☺','表情',()=>wqPop('emo'),'emo'), kb('🖼','圖片',()=>wqPickImg()), kb('⊕','元件',()=>{ wqPop(null); cmInsSheet(); }), kb('☑','多選',()=>wqMs(true)),
+      h('button',{type:'button',class:'wq-done',onpointerdown:keep,onclick:()=>{ document.activeElement?.blur?.(); CMW.sel=null; wqPop(null); },text:'完成'}))),
     sheet, fmt));
   wqPop('__keep');
   const fc=CMW.focus; CMW.focus=null; let el=null, pos=null;
@@ -9335,10 +9384,10 @@ async function cmPublish(btn){ const D=CMW.d; if(!lsGet('vein.cmAgree',false)){ 
   const B=D.blocks.filter(b=>{ const v=cmBlockView(b,{id:null,poll:{}}); return !!v; }); if(!D.title.trim()&&!B.length&&!(D.gal||[]).length){ toast('寫點東西再發佈吧'); return; } if(!D.title.trim()){ toast('請幫文章取個標題'); document.querySelector('.wq-title')?.focus(); return; }
   if(!rateOK('chat')) return; btn.disabled=true; btn.textContent='發佈中…';
   const media=[...(D.gal||[]),...B.flatMap(b=>b.t==='img'?(b.items||[]):b.t==='vid'&&b.m?[b.m]:b.t==='cmp'?[b.a,b.b].filter(Boolean):[])], cv=media[0]?{url:media[0].url,thumb:media[0].thumb||null,poster:media[0].poster||null,type:media[0].type||'image'}:null;
-  const ex=B.filter(b=>b.t==='txt'&&b.st==='p').map(b=>b.text).join(' ').replace(/\*\*/g,'').replace(/\s+/g,' ').slice(0,140);
+  const ex=B.filter(b=>b.t==='txt'&&b.st==='p').map(b=>b.text).join(' ').replace(/\{(?:#[0-9a-fA-F]{6}|大|小)\|([^{}\n]+)\}/g,'$1').replace(/\*\*|==/g,'').replace(/\s+/g,' ').slice(0,140);
   const pl={}; B.filter(b=>b.t==='plant').forEach(b=>(b.ids||[]).forEach(i=>{ const p=S.plants.get(i); if(p) pl[i]=p.shop; }));
   const tags=[...new Set(String(D.tags||'').split(/[\s,，#]+/).map(x=>x.trim()).filter(Boolean))].slice(0,10);
-  const doc={uid:S.me,title:D.title.trim().slice(0,60),cat:D.cat||'share',tags,blocks:B,ex,cover:cv,nImg:media.length,pl,th:PT[D.th]?D.th:'clean',te:D.te??null,gal:D.gal||[],upd:Date.now()};
+  const doc={uid:S.me,title:D.title.trim().slice(0,60),cat:D.cat||'share',tags,blocks:B,ex,cover:cv,nImg:media.length,pl,th:'black',te:null,gal:D.gal||[],upd:Date.now()};
   const leave=async()=>{ if(CMW?.fmt){ CMW.fmt=false; blDone('wqfmt'); await new Promise(r=>setTimeout(r,260)); } if(CMW?.open){ CMW.open=null; blDone('wqsh'); await new Promise(r=>setTimeout(r,260)); } };
   try{ if(CMW.edit){ await S.db.doc('posts/'+CMW.id).update(doc); mediaCleanup({old:CMW.old,og:CMW.oldGal,up:CMW.up},{B,g:doc.gal}); const p=CM.posts.get(CMW.id); if(p) Object.assign(p,doc); const id=CMW.id; await leave(); CMW=null; toast('已更新'); location.replace('#/post/'+id); }
     else { const ref=S.db.collection('posts').doc(), full={...doc,at:Date.now(),likes:0,cmts:0}; await ref.set(full); mediaCleanup({up:CMW.up},{B,g:doc.gal}); lsSet('vein.draft:'+S.me,null); const x={id:ref.id,...full}; CM.posts.set(ref.id,x); CM.feed.unshift(x); await leave(); CMW=null; toast('發佈成功 🌿'); location.replace('#/post/'+ref.id); } }
@@ -9775,7 +9824,7 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
     $('#pgTag').hidden=pg!=='tag'; if (pg==='tag'){ S.tagCode=String(arg||'').toUpperCase(); S.tagDoc=null; renderTag(); }
-    $('#pgCommunity').hidden=pg!=='community'; $('#pgPost').hidden=pg!=='post'; $('#pgWrite').hidden=pg!=='write'; document.body.classList.toggle('wx-on',pg==='write'); if(pg==='community'){ const np=arg==='gh'?'gh':'post'; if(np!==CM.page){ CM.page=np; CM.sig=''; } renderCommunityPg(true); } if(pg==='post'){ if(CMP&&CMP.id!==arg) CMP=null; renderPost(arg); } else CMP=null; if(pg==='write') renderWrite(); $('#pgGh').hidden=pg!=='gh'; if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); document.body.classList.remove('gh-dockb','gh-edm'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
+    $('#pgCommunity').hidden=pg!=='community'; $('#pgPost').hidden=pg!=='post'; $('#pgWrite').hidden=pg!=='write'; document.body.classList.toggle('wx-on',pg==='write'); document.body.classList.toggle('px-on',pg==='post'); if(pg==='community'){ const np=arg==='gh'?'gh':'post'; if(np!==CM.page){ CM.page=np; CM.sig=''; } renderCommunityPg(true); } if(pg==='post'){ if(CMP&&CMP.id!==arg) CMP=null; renderPost(arg); } else CMP=null; if(pg==='write') renderWrite(); $('#pgGh').hidden=pg!=='gh'; if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); document.body.classList.remove('gh-dockb','gh-edm'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
     if (pg==='sell') renderSell(); if (pg==='about') renderAbout(); if (pg==='rules') renderRules();
     if (['plant','history','verify','group','claim'].includes(pg)||(pg==='shop'&&['search','cat'].includes(S.storeTab))){ S.wantAll=true; ensurePlants(); }
     if (pg==='seller'&&S.sellerId){ S.wantShop=S.sellerId; ensurePlants(S.sellerId); }
