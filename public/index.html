@@ -4885,7 +4885,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .gh-pg.b-leaf::before{background:color-mix(in srgb,var(--gf) 8%,transparent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' fill='none' stroke='%23000' stroke-width='1.6'%3E%3Cpath d='M20 60c10-28 34-38 50-36-2 22-18 42-50 36zM20 60l40-28'/%3E%3Cpath d='M92 122c-4-22 8-40 26-46 6 18-4 38-26 46zM92 122l20-38'/%3E%3Cpath d='M98 20c14 0 24 10 24 22-14 2-24-8-24-22z'/%3E%3C/svg%3E") 0 0/140px 140px;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' fill='none' stroke='%23000' stroke-width='1.6'%3E%3Cpath d='M20 60c10-28 34-38 50-36-2 22-18 42-50 36zM20 60l40-28'/%3E%3Cpath d='M92 122c-4-22 8-40 26-46 6 18-4 38-26 46zM92 122l20-38'/%3E%3Cpath d='M98 20c14 0 24 10 24 22-14 2-24-8-24-22z'/%3E%3C/svg%3E") 0 0/140px 140px}
 .gh-pg.ft-serif .gh{font-family:var(--gh-serif)}.gh-pg.ft-kai .gh{font-family:"LXGW WenKai TC","Kaiti TC",serif}.gh-pg.ft-sans .gh{font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}
 .gh-pg.ft-serif .gh-t{letter-spacing:.02em}
-.gh{padding-bottom:40px}.gh-editing .gh{padding-bottom:min(52vh,380px)}
+.gh{padding-bottom:40px;container:gh/inline-size}.gh-editing .gh{padding-bottom:min(52vh,380px)}
 .gh-hd{position:relative;border-radius:24px;padding:22px 18px 16px;background:var(--gc);overflow:hidden;margin-bottom:14px;box-shadow:0 1px 0 color-mix(in srgb,var(--gf) 6%,transparent)}
 .gh-hd.cv{color:#fff;min-height:220px;display:flex;flex-direction:column;justify-content:flex-end}
 .gh-cvi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:saturate(.9)}
@@ -4951,7 +4951,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .l-museum{grid-template-columns:1fr;gap:26px}.l-museum .gh-ph{aspect-ratio:16/11}
 .l-museum .gh-cap{margin:10px auto 0;max-width:360px;width:86%;background:var(--gc);padding:10px 14px;border-radius:4px;box-shadow:0 1px 0 color-mix(in srgb,var(--gf) 10%,transparent);text-align:left}.l-museum .gh-cap b{font-size:15px;white-space:normal}
 .l-list{grid-template-columns:1fr;gap:8px}.l-list .gh-c{display:flex;gap:12px;align-items:center;background:var(--gc);padding:8px;border-radius:14px}.l-list .gh-ph{width:68px;flex:none;aspect-ratio:1/1;margin:0!important;border-width:3px!important}.l-list .gh-cap{padding:0;flex:1}
-@media (min-width:760px){.gh-g{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.l-grid3{grid-template-columns:repeat(6,minmax(0,1fr))}.l-shelf{grid-template-columns:repeat(5,minmax(0,1fr))}.l-shelf .gh-c:nth-child(3n)::after,.l-shelf .gh-c:nth-child(3n+1)::after{border-radius:0}.l-shelf .gh-c:nth-child(5n+1)::after{border-radius:6px 0 0 6px}.l-shelf .gh-c:nth-child(5n)::after{border-radius:0 6px 6px 0}.l-masonry{columns:4}.l-museum{grid-template-columns:1fr 1fr}.l-list{grid-template-columns:1fr 1fr}.gh-fts{grid-template-columns:2fr 1fr 1fr}.gh-fts.n3 .gh-fc:first-child{grid-row:auto;min-height:300px}.gh-fts.n3{grid-template-rows:auto}.gh-fts.n1 .gh-fc{aspect-ratio:21/9}.gh-t{font-size:34px}.gh-hd{padding:30px 28px 22px}}
+@container gh (min-width:760px){.gh-g{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.l-grid3{grid-template-columns:repeat(6,minmax(0,1fr))}.l-shelf{grid-template-columns:repeat(5,minmax(0,1fr))}.l-shelf .gh-c:nth-child(3n)::after,.l-shelf .gh-c:nth-child(3n+1)::after{border-radius:0}.l-shelf .gh-c:nth-child(5n+1)::after{border-radius:6px 0 0 6px}.l-shelf .gh-c:nth-child(5n)::after{border-radius:0 6px 6px 0}.l-masonry{columns:4}.l-museum{grid-template-columns:1fr 1fr}.l-list{grid-template-columns:1fr 1fr}.gh-fts{grid-template-columns:2fr 1fr 1fr}.gh-fts.n3 .gh-fc:first-child{grid-row:auto;min-height:300px}.gh-fts.n3{grid-template-rows:auto}.gh-fts.n1 .gh-fc{aspect-ratio:21/9}.gh-t{font-size:34px}.gh-hd{padding:30px 28px 22px}}
 /* 進場動畫 */
 .an-up .gh-c{animation:ghIn .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.045s)}
 .an-fade .gh-c{animation:ghFade .8s ease both;animation-delay:calc(var(--i)*.05s)}
@@ -4993,7 +4993,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ghl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px}.ghl-h h1{font-size:24px;margin:0}
 .gh-lp .gh-b.pri{background:#111;color:#D2FF00}
 .ghl-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (min-width:760px){.ghl-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@container gh (min-width:760px){.ghl-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .ghl-c{background:var(--gb);color:var(--gf);border-radius:18px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:transform .25s;box-shadow:0 10px 22px -16px rgba(0,0,0,.45)}
 .ghl-c:hover{transform:translateY(-3px)}
 .ghl-pv{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px 6px 0}.ghl-pv img,.ghl-pv i{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:9px;background:var(--gc);display:block}
@@ -5014,15 +5014,15 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ghx-spot{display:grid;grid-template-columns:1fr;border-radius:24px;overflow:hidden;background:var(--gc);cursor:pointer;box-shadow:0 0 0 2px var(--ga),0 20px 40px -22px rgba(0,0,0,.5)}
 .ghx-spi{position:relative;aspect-ratio:4/3;overflow:hidden}.ghx-spi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.2s}.ghx-spot:hover .ghx-spi img{transform:scale(1.05)}
 .ghx-spc{padding:16px 18px 18px;display:flex;flex-direction:column;gap:3px}.ghx-spc h2{margin:0;font-size:24px}.ghx-spn{font-size:17px}.ghx-spc small{color:var(--gs)}.ghx-spc p{margin:6px 0 0;font-size:14px;line-height:1.6;color:var(--gs)}
-@media (min-width:760px){.ghx-spot{grid-template-columns:1.3fr 1fr}.ghx-spi{aspect-ratio:auto;min-height:340px}.ghx-spc{justify-content:center;padding:28px}.ghx-spc h2{font-size:32px}}
+@container gh (min-width:760px){.ghx-spot{grid-template-columns:1.3fr 1fr}.ghx-spi{aspect-ratio:auto;min-height:340px}.ghx-spc{justify-content:center;padding:28px}.ghx-spc h2{font-size:32px}}
 .ghx-pks{display:grid;gap:10px}.ghx-pks.v-rail{grid-auto-flow:column;grid-auto-columns:42%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.ghx-pks.v-rail::-webkit-scrollbar{display:none}
 .ghx-pks.v-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ghx-pks.v-big{grid-auto-flow:column;grid-auto-columns:86%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
-@media (min-width:760px){.ghx-pks.v-rail{grid-auto-columns:22%}.ghx-pks.v-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.ghx-pks.v-big{grid-auto-columns:48%}}
+@container gh (min-width:760px){.ghx-pks.v-rail{grid-auto-columns:22%}.ghx-pks.v-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.ghx-pks.v-big{grid-auto-columns:48%}}
 .ghx-pk{border:0;padding:0;background:none;color:var(--gf);font:inherit;text-align:left;cursor:pointer;scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;min-width:0}
 .ghx-pk img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;display:block;box-shadow:0 12px 24px -16px rgba(0,0,0,.6)}.v-big .ghx-pk img{aspect-ratio:4/3}.ghx-pk b{font-size:13px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ghx-pk small{font-size:10.5px;color:var(--gs)}
 .ghx-st{background:var(--gc);border-radius:22px;padding:16px}.ghx-stg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;text-align:center}
 .ghx-stg b{display:block;font-size:26px;font-variant-numeric:tabular-nums;color:var(--ga);line-height:1.1}.ghx-stg span{font-size:11px;color:var(--gs)}
-@media (min-width:760px){.ghx-stg b{font-size:40px}.ghx-stg span{font-size:13px}}
+@container gh (min-width:760px){.ghx-stg b{font-size:40px}.ghx-stg span{font-size:13px}}
 .ghx-gn{display:flex;flex-direction:column;gap:8px}.ghx-gn>div{display:grid;grid-template-columns:110px 1fr 34px;align-items:center;gap:10px;font-size:13px}
 .ghx-gn span{font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ghx-gn i{height:12px;border-radius:999px;background:color-mix(in srgb,var(--gf) 10%,transparent);position:relative;overflow:hidden}
 .ghx-gn i::after{content:'';position:absolute;inset:0 auto 0 0;width:var(--w);background:linear-gradient(90deg,var(--ga),color-mix(in srgb,var(--ga) 60%,var(--gf)));border-radius:999px;animation:ghGrow 1s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.08s)}
@@ -5030,7 +5030,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ghx-tl{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid color-mix(in srgb,var(--ga) 60%,transparent);display:flex;flex-direction:column;gap:12px}
 .ghx-tl li{display:flex;gap:12px;align-items:center;position:relative;cursor:pointer}.ghx-tl li>i{position:absolute;left:-21px;width:12px;height:12px;border-radius:50%;background:var(--ga);box-shadow:0 0 0 4px var(--gb)}
 .ghx-tl img{width:56px;height:56px;border-radius:12px;object-fit:cover}.ghx-tl b{display:block;font-size:14px}.ghx-tl small{font-size:11.5px;color:var(--gs)}
-.ghx-wl{display:grid;gap:8px}@media (min-width:760px){.ghx-wl{grid-template-columns:1fr 1fr}}
+.ghx-wl{display:grid;gap:8px}@container gh (min-width:760px){.ghx-wl{grid-template-columns:1fr 1fr}}
 .ghx-wi{display:flex;align-items:center;gap:12px;background:var(--gc);border-radius:16px;padding:12px 14px}.ghx-wi>i{font-style:normal;font-size:22px}.ghx-wi>div{flex:1;min-width:0}.ghx-wi b{display:block;font-size:14px;font-style:italic}.ghx-wi small{font-size:12px;color:var(--gs)}
 .ghx-gb{background:var(--gc);border-radius:22px;padding:16px}.ghx-gf{display:flex;gap:8px;margin-bottom:12px}.ghx-gf input{flex:1;min-width:0;font:inherit;font-size:14px;padding:10px 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gf) 18%,transparent);background:var(--gb);color:var(--gf)}
 .ghx-gl{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto}.ghx-gm{display:flex;gap:10px;align-items:flex-start}.ghx-gm>div{flex:1;min-width:0}.ghx-gm b{font-size:13px}.ghx-gm p{margin:2px 0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}.ghx-gm small{font-size:11px;color:var(--gs)}
@@ -5109,6 +5109,67 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 }
 @keyframes ghSide{from{transform:translateX(100%)}}
 body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!important}.gh-ed{bottom:0}
+/* 溫室 v3：比例修正、字體大小、招牌樣式、背景媒體、更多動畫 */
+.gh-fts.n1{grid-template-columns:1fr!important}.gh-fts.n1 .gh-fc{aspect-ratio:16/9!important;min-height:0}
+.gh-fts.n2{grid-template-columns:1fr 1fr!important}.gh-fts.n2 .gh-fc{aspect-ratio:4/5!important}
+@container gh (min-width:760px){.gh-fts.n1 .gh-fc{aspect-ratio:21/8!important}.gh-fts.n2 .gh-fc{aspect-ratio:16/10!important}}
+.gh-pvm .gh-fts.n3{grid-template-columns:1.4fr 1fr!important;grid-template-rows:1fr 1fr}.gh-pvm .gh-fts.n3 .gh-fc:first-child{grid-row:span 2;min-height:250px}.gh-pvm .gh-fts.n1 .gh-fc{aspect-ratio:16/9!important}.gh-pvm .gh-fts.n2 .gh-fc{aspect-ratio:4/5!important}
+.gh-pvm .gh{box-shadow:0 0 0 2px rgba(0,0,0,.18),0 24px 50px -20px rgba(0,0,0,.4);border-radius:24px}
+.gh-cap{width:100%;box-sizing:border-box}.gh-cap b,.gh-cap q,.gh-cap small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.l-polaroid .gh-c{min-width:0;overflow:hidden}.l-museum .gh-cap b{white-space:normal}
+.gh-cap b{font-size:calc(13.5px*var(--cz,1))}.gh-cap q{font-size:calc(12px*var(--cz,1))}.gh-cap small{font-size:calc(10.5px*var(--cz,1))}.l-grid3 .gh-cap b{font-size:calc(11.5px*var(--cz,1))}.l-shelf .gh-cap b{font-size:calc(12px*var(--cz,1))}
+/* 全頁與單一元件的文字大小（只放大文字，不放大照片） */
+.gh .gh-hd :is(.gh-bio,.gh-sts,.gh-k,.gh-b),.gh .gh-blk :is(h1,h2,h3,h4,p,b,strong,small,span,q,li,a,label,em,blockquote,figcaption,dt,dd):not(:has(img,video,svg,canvas)):not(:is(h1,h2,h3,h4,p,b,strong,small,span,q,li,a,label,em,blockquote,figcaption,dt,dd) *){zoom:calc(var(--gz,1)*var(--bz,1))}
+.gh-al-l{text-align:left}.gh-al-c{text-align:center}.gh-al-r{text-align:right}.gh-al-c .gh-sh2{justify-content:center}.gh-al-r .gh-sh2{justify-content:flex-end}
+/* 招牌 */
+.gh-hd.ts-s .gh-t{font-size:20px}.gh-hd.ts-l .gh-t{font-size:34px}.gh-hd.ts-xl .gh-t{font-size:44px;line-height:1.05}
+@container gh (min-width:760px){.gh-hd.ts-s .gh-t{font-size:26px}.gh-hd.ts-l .gh-t{font-size:46px}.gh-hd.ts-xl .gh-t{font-size:62px}}
+.gh-pvm .gh-hd.ts-l .gh-t{font-size:34px}.gh-pvm .gh-hd.ts-xl .gh-t{font-size:44px}.gh-pvm .gh-hd.ts-s .gh-t{font-size:20px}
+.gh-hd.tf-sans .gh-t{font-family:"Noto Sans TC","PingFang TC",sans-serif}.gh-hd.tf-serif .gh-t{font-family:"Noto Serif TC",serif}.gh-hd.tf-kai .gh-t{font-family:"LXGW WenKai TC",serif}
+.gh-hd.av-round .gh-av,.gh-hd.av-round .gh-av img,.gh-hd.av-round .gh-av .ch-av{border-radius:18px!important}.gh-hd.av-square .gh-av,.gh-hd.av-square .gh-av img,.gh-hd.av-square .gh-av .ch-av{border-radius:4px!important}
+.gh-hd.hs-plain{background:none;box-shadow:none;padding-left:4px;padding-right:4px}
+.gh-hd.hs-banner{min-height:300px;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 20px 18px}.gh-hd.hs-banner:not(.cv){background:linear-gradient(160deg,var(--gc),color-mix(in srgb,var(--ga) 30%,var(--gc)))}
+@container gh (min-width:760px){.gh-hd.hs-banner{min-height:420px;padding:40px}}
+.gh-hd.hs-center{text-align:center}.gh-hd.hs-center .gh-hi{flex-direction:column}.gh-hd.hs-center .gh-sts,.gh-hd.hs-center .gh-acts{justify-content:center}
+.gh-hd.hs-split .gh-hi{gap:20px}.gh-hd.hs-split .gh-av{width:104px;height:104px}.gh-hd.hs-split .gh-av img,.gh-hd.hs-split .gh-av .ch-av{width:104px!important;height:104px!important}
+@container gh (min-width:760px){.gh-hd.hs-split{display:grid;grid-template-columns:1fr auto;align-items:end;gap:20px}.gh-hd.hs-split .gh-av{width:140px;height:140px}.gh-hd.hs-split .gh-av img,.gh-hd.hs-split .gh-av .ch-av{width:140px!important;height:140px!important}}
+.gh-hd.hs-minimal{background:none;box-shadow:none;padding:6px 4px}.gh-hd.hs-minimal .gh-av,.gh-hd.hs-minimal .gh-k,.gh-hd.hs-minimal .gh-sts{display:none}
+.gh-hsi{width:40px;height:28px;border-radius:6px;background:#3A4340;position:relative;display:block;overflow:hidden}.gh-hsi u{position:absolute;left:5px;top:7px;width:10px;height:10px;border-radius:50%;background:#C9D98A}.gh-hsi em{position:absolute;left:18px;top:8px;width:16px;height:3px;background:#EEF0EA;border-radius:2px}.gh-hsi s{position:absolute;left:18px;top:14px;width:12px;height:3px;background:#8C938E;border-radius:2px}
+.gh-hsi.hs-plain{background:none;outline:1px dashed #555}.gh-hsi.hs-banner{background:linear-gradient(160deg,#4C8A63,#2A3A30)}.gh-hsi.hs-banner u{top:14px}.gh-hsi.hs-banner em{top:15px}.gh-hsi.hs-banner s{top:21px}
+.gh-hsi.hs-center u{left:15px;top:3px}.gh-hsi.hs-center em{left:12px;top:16px}.gh-hsi.hs-center s{left:14px;top:21px}.gh-hsi.hs-split u{left:auto;right:4px;top:6px;width:14px;height:14px;border-radius:4px}.gh-hsi.hs-split em{left:5px}.gh-hsi.hs-split s{left:5px}
+.gh-hsi.hs-minimal u,.gh-hsi.hs-minimal s{display:none}.gh-hsi.hs-minimal em{left:8px;top:12px;width:24px}
+/* 整頁背景照片／影片 */
+.gh-bgm{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}.gh-bgm img,.gh-bgm video{width:100%;height:100%;object-fit:cover;filter:blur(var(--bgbl,0));transform:scale(1.05)}.gh-bgm i{position:absolute;inset:0;background:rgba(0,0,0,var(--bgd,.3))}
+.gh-dock .gh-bgm{right:420px}
+.gh-hasbgm .gh-main>.gh-blk:not([class*="sx-bg-"]):not(.gh-fts):not(.ghx-spot):not(.ghx-mom.v-shelf){background:color-mix(in srgb,var(--gb) 86%,transparent);border-radius:22px;padding:14px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* 更多植物動畫 */
+.an-left .gh-c{animation:ghL .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.045s)}.an-right .gh-c{animation:ghR .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.045s)}
+.an-blur .gh-c{animation:ghBl .8s ease both;animation-delay:calc(var(--i)*.05s)}.an-drop .gh-c{animation:ghDr .7s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i)*.05s)}
+.an-pop .gh-c{animation:ghPop .6s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i)*.05s)}.an-spin .gh-c{animation:ghSp .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.05s)}
+.an-rise .gh-c{animation:ghRi .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.06s)}.an-flipx .gh-c{animation:ghFx .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.05s)}
+.an-wave .gh-c{animation:ghWv 1s ease both;animation-delay:calc(var(--i)*.08s)}
+.l-polaroid:is(.an-left,.an-right,.an-drop,.an-pop,.an-spin,.an-rise,.an-flipx,.an-wave) .gh-c{animation-name:ghBl}
+@keyframes ghL{from{opacity:0;transform:translateX(-40px)}}@keyframes ghR{from{opacity:0;transform:translateX(40px)}}@keyframes ghBl{from{opacity:0;filter:blur(14px)}}@keyframes ghDr{from{opacity:0;transform:translateY(-50px)}}
+@keyframes ghPop{0%{opacity:0;transform:scale(.4)}}@keyframes ghSp{from{opacity:0;transform:rotate(-12deg) scale(.7)}}@keyframes ghRi{from{opacity:0;transform:translateY(60px) scale(.92)}}@keyframes ghFx{from{opacity:0;transform:perspective(600px) rotateX(70deg)}}
+@keyframes ghWv{0%{opacity:0;transform:translateY(30px)}60%{opacity:1;transform:translateY(-8px)}100%{transform:none}}
+/* 元件外觀設定 */
+.gh-cfx{border-top:1px solid rgba(255,255,255,.08);margin-top:6px;padding-top:8px}.gh-cfh{font-size:12px;color:#C9D98A}.gh-cf2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.gh-cf2 select{width:100%}
+/* 母本櫃、家族、群組、在賣 */
+.ghx-mg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@container gh (min-width:760px){.ghx-mg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ghx-mom.v-rail .ghx-mg{grid-auto-flow:column;grid-auto-columns:46%;grid-template-columns:none;overflow-x:auto;scrollbar-width:none}@container gh (min-width:760px){.ghx-mom.v-rail .ghx-mg{grid-auto-columns:23%}}
+.ghx-mom.v-shelf{background:linear-gradient(180deg,#1B1F1D,#111312);color:#EEF0EA;border-radius:22px;padding:16px}.ghx-mom.v-shelf .gh-sh2 small{color:#9AA19C}
+.ghx-mc{border:0;padding:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:6px;min-width:0}
+.ghx-mc img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;display:block}.ghx-mom.v-shelf .ghx-mc img{box-shadow:0 14px 22px -10px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08)}.ghx-mom.v-shelf .ghx-mc::after{content:'';display:block;height:8px;margin:0 -5px;background:linear-gradient(#5A4632,#3A2D20);border-radius:2px;order:1}
+.ghx-mom.v-wall .ghx-mc img{aspect-ratio:1/1;border-radius:4px}.ghx-mt{position:absolute;top:8px;left:8px;font-size:9.5px;letter-spacing:.14em;background:var(--ga);color:#111;padding:3px 7px;border-radius:999px;font-weight:800}
+.ghx-mc b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ghx-mc small{font-size:10.5px;opacity:.7}
+.ghx-fl{display:flex;flex-direction:column;gap:12px}.ghx-fm{display:grid;grid-template-columns:120px 1fr;gap:12px;background:var(--gc);border-radius:18px;padding:10px}
+@container gh (min-width:760px){.ghx-fl{display:grid;grid-template-columns:1fr 1fr}.ghx-fm{grid-template-columns:150px 1fr}}
+.ghx-fmm{border:0;padding:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-width:0}.ghx-fmm img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px}.ghx-fmm span{font-size:10px;color:var(--ga)}.ghx-fmm b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ghx-fk>small{font-size:11.5px;color:var(--gs)}.ghx-fk>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}.ghx-fk button{border:0;padding:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}.ghx-fk img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:9px}.ghx-fk small{font-size:9.5px;opacity:.7;text-align:center}
+.ghx-gg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@container gh (min-width:760px){.ghx-gg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ghx-gc{background:var(--gc);border-radius:16px;padding:6px 6px 10px;text-decoration:none;color:var(--gf);display:flex;flex-direction:column;gap:3px}.ghx-gi{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px}.ghx-gi img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px}.ghx-gc b{font-size:13px;padding:0 4px}.ghx-gc small{font-size:11px;color:var(--gs);padding:0 4px}
+.ghx-pr{color:var(--ga)!important;font-weight:800;font-size:12.5px!important}
 </style>
 
 </head>
@@ -8044,10 +8105,12 @@ const GH_LAY=[['gallery','畫廊'],['masonry','瀑布'],['grid3','小格'],['she
 const GH_FR=[['round','圓角'],['none','方角'],['line','細框'],['white','白邊'],['gold','金框'],['wood','木框'],['circle','圓形']];
 const GH_BG=[['leaf','葉片'],['plain','素面'],['dots','點點'],['grid','方格'],['stripe','條紋'],['glow','光暈']];
 const GH_FT=[['sans','黑體'],['serif','明體'],['kai','楷書']];
-const GH_AN=[['up','浮上'],['fade','淡入'],['zoom','放大'],['tilt','翻轉'],['none','不動']];
+const GH_AN=[['up','浮上'],['fade','淡入'],['zoom','放大'],['tilt','3D 翻轉'],['left','由左滑入'],['right','由右滑入'],['blur','模糊對焦'],['drop','從上掉下'],['pop','彈跳'],['spin','旋轉進場'],['rise','浮起放大'],['flipx','上下翻牌'],['wave','波浪'],['none','不動']];
+const GH_SZ=[['s','小'],['m','標準'],['l','大'],['xl','特大']], GH_SZV={s:.88,m:1,l:1.15,xl:1.32};
+const GH_HS=[['card','卡片'],['plain','透明'],['banner','大橫幅'],['center','置中'],['split','左右分開'],['minimal','只有名字']], GH_AV=[['circle','圓形'],['round','圓角'],['square','方形'],['none','不顯示']], GH_TF=[['','跟全頁一樣'],['sans','黑體'],['serif','明體'],['kai','楷書']];
 const GH_GP=[['none','不分'],['genus','依屬分區']];
 const GH_ST=['🌿','🪴','🌵','🍃','🌱','🍄','🦋','🐌','🐸','🌙','✨','💧','☀️','🪨','🌸','🐝','🫧','🌈','🏺','🕯'];
-const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'sans',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null,tpl:''});
+const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'sans',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null,tpl:'',hk:'GREENHOUSE',hs:'card',hts:'m',hav:'circle',hstat:true,htf:'',fs:'m',cs:'m',bgm:null,bgd:30,bgbl:0,cvm:null});
 const GH={doc:new Map(),edit:null,lim:30,list:null,got:new Set(),tab:'tpl',sig:'',bOpen:null,msgs:new Map()};
 async function ghLoad(u){ if(GH.doc.has(u)||!S.db) return; GH.doc.set(u,undefined); try{ const d=await S.db.doc('gh/'+u).get(); GH.doc.set(u,d.exists?d.data():null); }catch(e){ GH.doc.set(u,null); } if(PAGE==='gh'&&S.ghId===u) renderGh(true); }
 // 這個人「現在擁有」的植物：自己登錄還沒轉走的＋別人轉給他的
@@ -8065,10 +8128,10 @@ function ghVars(c){ const t=GH_TH[c.th]||GH_TH.moss; return `--gb:${t[1]};--gc:$
 function ghSet(k,v){ if(!GH.edit) return; GH.edit.d={...GH.edit.d,[k]:v}; GH.edit.dirty=true; renderGh(true); }
 function ghToggle(k,id,max){ ghUndoPush(); const L=[...(GH.edit.d[k]||[])], i=L.indexOf(id); if(i>=0) L.splice(i,1); else { if(max&&L.length>=max){ toast('最多 '+max+' 株主打'); return; } L.push(id); } ghSet(k,L); }
 function ghEdit(){ if(!S.me||S.ghId!==S.me) return; GH.undo=[]; GH.sz='m'; GH.edit={u:S.me,d:{...GH_DEF(),...(GH.doc.get(S.me)||{})},dirty:false}; blPush('ghed',()=>ghEdClose(true)); renderGh(true); }
-function ghEdClose(fromBack){ if(!GH.edit) return; GH.edit=null; document.body.classList.remove('gh-dockb','gh-edm'); if(!fromBack) blDone('ghed'); renderGh(true); }
+function ghEdClose(fromBack){ if(!GH.edit) return; if(GH.edit.up?.length) mediaCleanup({up:GH.edit.up},GH.doc.get(S.me)); GH.edit=null; document.body.classList.remove('gh-dockb','gh-edm'); if(!fromBack) blDone('ghed'); renderGh(true); }
 async function ghSave(btn){ const e=GH.edit; if(!e) return; if(btn){ btn.disabled=true; btn.textContent='儲存中…'; }
   const P=ghOrder(S.me,e.d,ghPlants(S.me)).filter(p=>!(e.d.hide||[]).includes(p.id)), d={...e.d,name:(e.d.name||'').trim().slice(0,30),bio:(e.d.bio||'').trim().slice(0,160),n:P.length,pv:P.slice(0,4).map(cover),uname:S.meInfo?.name||'',updatedAt:Date.now()};
-  try{ await S.db.doc('gh/'+S.me).set(d); GH.doc.set(S.me,d); if(GH.list) GH.list.items=GH.list.items.filter(x=>x.uid!==S.me); toast('溫室已更新 🌿'); ghEdClose(); }
+  try{ const prev=GH.doc.get(S.me); await S.db.doc('gh/'+S.me).set(d); mediaCleanup({prev,up:e.up||[]},d); GH.doc.set(S.me,d); e.up=[]; if(GH.list) GH.list.items=GH.list.items.filter(x=>x.uid!==S.me); toast('溫室已更新 🌿'); ghEdClose(); }
   catch(x){ toast('儲存失敗，請再試一次'); if(btn){ btn.disabled=false; btn.textContent='儲存'; } } }
 function ghCard(p,i,c,ed){ const hid=(c.hide||[]).includes(p.id), ft=(c.feat||[]).includes(p.id), note=(c.notes||{})[p.id]||'';
   const cap=h('div',{class:'gh-cap'}, h('b',{text:pName(p)}), note?h('q',{text:note}):null, h('small',{class:'mono',text:p.code||''}));
@@ -8080,6 +8143,11 @@ function ghCard(p,i,c,ed){ const hid=(c.hide||[]).includes(p.id), ft=(c.feat||[]
       h('button',{type:'button',title:'移到最前面',onclick:e=>{ e.stopPropagation(); const o=ghOrder(S.me,GH.edit.d,ghPlants(S.me)).map(x=>x.id).filter(x=>x!==p.id); ghSet('order',[p.id,...o]); },text:'⤒'})),
       hid?h('span',{class:'gh-hb',text:'已隱藏'}):null); }
   return el; }
+// 換掉或刪掉的照片／影片：存檔時從伺服器刪掉（只刪自己上傳的）
+function mediaUrls(o,out){ out=out||new Set(); if(!o) return out; if(Array.isArray(o)){ o.forEach(x=>mediaUrls(x,out)); return out; } if(typeof o==='object'){ for(const [k,v] of Object.entries(o)){ if(k==='pv') continue; if(typeof v==='string'&&['url','thumb','poster','avatar','banner'].includes(k)&&/firebasestorage/.test(v)) out.add(v); else if(v&&typeof v==='object') mediaUrls(v,out); } } return out; }
+const ownUp=u=>{ try{ return decodeURIComponent(u).includes('/uploads/'+S.me+'/'); }catch(e){ return false; } };
+function mediaCleanup(oldO,newO){ if(!S.assets?.removeUrl||!S.me) return 0; const keep=mediaUrls(newO), gone=[...mediaUrls(oldO)].filter(u=>!keep.has(u)&&ownUp(u)); gone.forEach(u=>S.assets.removeUrl(u).catch(()=>{})); return gone.length; }
+function ghUp(md){ if(GH.edit&&md) (GH.edit.up||(GH.edit.up=[])).push(md); }
 // ---- 溫室模板：一鍵套用整套風格與元件（名稱、主打、備註、隱藏都會保留） ----
 const GH_TPL=[
   ['moss','🌿','苔蘚書房','深綠、明體、畫廊，有大標語和數據',{th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'serif',an:'up',st:['🌿','✨']},['hero','_feat','ghstats','_coll','ghguest']],
@@ -8106,6 +8174,9 @@ function ghDrag(list,onDrop){ list.addEventListener('pointerdown',e=>{ const hd=
   const mv=ev=>{ row.style.transform='translateY('+(ev.clientY-y0)+'px)'; const mid=ev.clientY; to=rows.length-1; for(let i=0;i<rows.length;i++){ if(i===from) continue; const r=rows[i].getBoundingClientRect(); if(mid<r.top+r.height/2){ to=i>from?i-1:i; break; } } rows.forEach((r,i)=>r.classList.toggle('gh-drop',i===to&&i!==from)); };
   const up=()=>{ hd.removeEventListener('pointermove',mv); hd.removeEventListener('pointerup',up); hd.removeEventListener('pointercancel',up); row.style.transform=''; row.classList.remove('drag'); rows.forEach(r=>r.classList.remove('gh-drop')); if(to!==from) onDrop(from,to); };
   hd.addEventListener('pointermove',mv); hd.addEventListener('pointerup',up); hd.addEventListener('pointercancel',up); }); return list; }
+function ghMediaPick(key,c){ const st=h('small',{class:'gh-eh'}), inp=h('input',{type:'file',hidden:true,accept:'image/*,video/mp4,video/webm,video/quicktime'}), m=c[key];
+  inp.addEventListener('change',async()=>{ const f=inp.files[0]; inp.value=''; if(!f) return; try{ st.textContent='上傳中…'; const md=await uploadMediaFile(f,x=>{ st.textContent='上傳中 '+Math.round(x/f.size*100)+'%'; }); ghUp(md); ghUndoPush(); GH.edit.d={...GH.edit.d,[key]:md}; GH.edit.dirty=true; renderGh(true); }catch(x){ st.textContent=''; toast('上傳失敗：'+(x?.message||'')); } });
+  return h('div',{class:'gh-ml'}, m?.url?h('span',{class:'gh-mi'}, h('img',{src:mediaThumb(m),alt:''}), h('button',{type:'button',onclick:()=>{ ghUndoPush(); GH.edit.d={...GH.edit.d,[key]:null}; GH.edit.dirty=true; renderGh(true); },text:'✕'})):null, h('button',{type:'button',class:'gh-o',onclick:()=>inp.click(),text:m?.url?'更換':'＋ 上傳照片或影片'}), inp, st); }
 function ghEditor(c,P){ const T=['tpl','bk','look','lay','tx'].includes(GH.tab)?GH.tab:'tpl', set=(k,v)=>{ ghUndoPush(); ghSet(k,v); };
   const opt=(k,v,kids,cls,extra)=>h('button',{type:'button',class:'gh-o'+(cls?' '+cls:'')+(c[k]===v?' on':''),onclick:()=>set(k,v),...(extra||{})}, ...kids);
   const sec=(t,sub,...kids)=>h('section',{class:'gh-es'}, h('h4',{}, t, sub?h('small',{text:sub}):null), ...kids);
@@ -8117,23 +8188,33 @@ function ghEditor(c,P){ const T=['tpl','bk','look','lay','tx'].includes(GH.tab)?
   else if (T==='look') body=[
     sec('主題配色','',h('div',{class:'gh-og c4'}, ...Object.entries(GH_TH).map(([k,t])=>opt('th',k,[h('i',{class:'gh-sw lg',style:`background:${t[1]}`}, h('em',{style:`background:${t[2]}`}), h('em',{style:`background:${t[5]}`})), h('span',{text:t[0]})],'v')))),
     sec('背景花紋','',h('div',{class:'gh-og c3'}, ...GH_BG.map(([k,l])=>opt('bg',k,[h('i',{class:'gh-bi b-'+k}),h('span',{text:l})])))),
+    sec('背景照片／影片','整頁的背景，放在花紋後面',ghMediaPick('bgm',c), c.bgm?.url?h('div',{class:'gh-og c4',style:'margin-top:8px'}, ...[[0,'不變暗'],[30,'微暗'],[55,'中暗'],[75,'很暗']].map(([v,l])=>opt('bgd',v,[h('span',{text:l})]))):null, c.bgm?.url?h('div',{class:'gh-og c3',style:'margin-top:6px'}, ...[[0,'清楚'],[4,'微模糊'],[12,'很模糊']].map(([v,l])=>opt('bgbl',v,[h('span',{text:l})]))):null),
+    sec('全頁文字大小','',h('div',{class:'gh-og c4'}, ...GH_SZ.map(([k,l])=>opt('fs',k,[h('span',{text:l})])))),
     sec('字體','',h('div',{class:'gh-og c3'}, ...GH_FT.map(([k,l])=>{ ghFont(k); return opt('ft',k,[h('b',{class:'gh-fp',style:'font-family:'+(k==='serif'?'"Noto Serif TC",serif':k==='kai'?'"LXGW WenKai TC",serif':'inherit'),text:'溫室'}),h('span',{text:l})],'v'); }))),
-    sec('進場動畫','植物出現的方式',h('div',{class:'gh-og c3'}, ...GH_AN.map(([k,l])=>opt('an',k,[h('span',{text:l})])))),
     sec('貼紙','最多 6 個，會飄在招牌上',h('div',{class:'gh-og st'}, ...GH_ST.map(s=>h('button',{type:'button',class:'gh-o st'+((c.st||[]).includes(s)?' on':''),onclick:()=>{ const L=[...(GH.edit.d.st||[])], i=L.indexOf(s); if(i>=0) L.splice(i,1); else if(L.length<6) L.push(s); else { toast('最多 6 個貼紙'); return; } set('st',L); },text:s})))),
     sec('招牌封面','用一株植物的照片當招牌背景',h('div',{class:'gh-og cvs'}, opt('cover','',[h('i',{class:'gh-sw lg',style:'background:var(--gb)'}),h('span',{text:'主題色'})],'v'), ...P.slice(0,60).map(p=>h('button',{type:'button',class:'gh-o cv'+(c.cover===p.id?' on':''),onclick:()=>set('cover',p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'})))))];
   else if (T==='lay') body=[
     sec('植物怎麼排','',h('div',{class:'gh-og c4'}, ...GH_LAY.map(([k,l])=>opt('lay',k,[h('i',{class:'gh-li l-'+k},h('u'),h('u'),h('u'),h('u')),h('span',{text:l})],'v')))),
     sec('相框','',h('div',{class:'gh-og c4'}, ...GH_FR.map(([k,l])=>opt('fr',k,[h('i',{class:'gh-fi f-'+k}),h('span',{text:l})],'v')))),
+    sec('植物名稱大小','',h('div',{class:'gh-og c4'}, ...GH_SZ.map(([k,l])=>opt('cs',k,[h('span',{text:l})])))),
+    sec('進場動畫','植物出現的方式',h('div',{class:'gh-og c4'}, ...GH_AN.map(([k,l])=>opt('an',k,[h('span',{text:l})])))),
     sec('分區','',h('div',{class:'gh-og c3'}, ...GH_GP.map(([k,l])=>opt('grp',k,[h('span',{text:l})])))),
     h('p',{class:'gh-eh',text:'在植物上按 ★ 主打、👁 隱藏、✎ 寫一句話、⤒ 排到最前面。'})];
-  else { const nm=h('input',{maxlength:30,placeholder:ghName(S.me,{}),value:c.name||''}), bio=h('textarea',{maxlength:160,rows:4,placeholder:'介紹一下你的溫室、收藏方向…',value:c.bio||''});
+  else { const nm=h('input',{maxlength:30,placeholder:ghName(S.me,{}),value:c.name||''}), bio=h('textarea',{maxlength:160,rows:4,placeholder:'介紹一下你的溫室、收藏方向…',value:c.bio||''}), hk=h('input',{maxlength:24,placeholder:'例如 GREENHOUSE、MY JUNGLE（空白就不顯示）',value:c.hk==null?'GREENHOUSE':c.hk});
+    hk.addEventListener('input',()=>{ GH.edit.d={...GH.edit.d,hk:hk.value}; GH.edit.dirty=true; const k=$('#ghPage .gh-k'); if(k) k.textContent=hk.value; });
     nm.addEventListener('input',()=>{ GH.edit.d={...GH.edit.d,name:nm.value}; GH.edit.dirty=true; const t=$('#ghPage .gh-t'); if(t) t.textContent=ghName(S.me,GH.edit.d); });
     bio.addEventListener('input',()=>{ GH.edit.d={...GH.edit.d,bio:bio.value}; GH.edit.dirty=true; const t=$('#ghPage .gh-bio'); if(t) t.textContent=bio.value; });
-    body=[sec('溫室名稱','',nm), sec('介紹','',bio)]; }
+    body=[sec('溫室名稱','',nm), sec('小標','名稱上面那行小字',hk), sec('介紹','',bio),
+      sec('招牌樣式','',h('div',{class:'gh-og c3'}, ...GH_HS.map(([k,l])=>opt('hs',k,[h('i',{class:'gh-hsi hs-'+k}, h('u'),h('em'),h('s')),h('span',{text:l})],'v')))),
+      sec('名稱大小','',h('div',{class:'gh-og c4'}, ...GH_SZ.map(([k,l])=>opt('hts',k,[h('span',{text:l})])))),
+      sec('名稱字體','',h('div',{class:'gh-og c4'}, ...GH_TF.map(([k,l])=>{ if(k) ghFont(k); return opt('htf',k,[h('b',{class:'gh-fp',style:'font-family:'+(k==='serif'?'"Noto Serif TC",serif':k==='kai'?'"LXGW WenKai TC",serif':'inherit'),text:'溫室'}),h('span',{text:l})],'v'); }))),
+      sec('頭像','',h('div',{class:'gh-og c4'}, ...GH_AV.map(([k,l])=>opt('hav',k,[h('span',{text:l})])))),
+      sec('數字（株數、屬）','',h('div',{class:'gh-og c3'}, opt('hstat',true,[h('span',{text:'顯示'})]), opt('hstat',false,[h('span',{text:'不顯示'})]))),
+      sec('招牌背景','上傳照片或影片，或用植物照片',ghMediaPick('cvm',c), h('div',{class:'gh-og cvs',style:'margin-top:8px'}, opt('cover','',[h('i',{class:'gh-sw lg',style:'background:var(--gb)'}),h('span',{text:'主題色'})],'v'), ...P.slice(0,40).map(p=>h('button',{type:'button',class:'gh-o cv'+(c.cover===p.id&&!c.cvm?' on':''),onclick:()=>{ ghUndoPush(); GH.edit.d={...GH.edit.d,cover:p.id,cvm:null}; GH.edit.dirty=true; renderGh(true); }}, h('img',{src:cover(p),alt:'',loading:'lazy'})))))]; }
   const dk=innerWidth>=980, pvB=dk?h('div',{class:'gh-pvs'}, ...[['d','🖥'],['m','📱']].map(([k,l])=>h('button',{type:'button','aria-pressed':String((GH.pv||'d')===k),title:k==='d'?'電腦版預覽':'手機版預覽',onclick:()=>{ GH.pv=k; renderGh(true); },text:l}))):null;
   const ed=h('aside',{class:'gh-ed s-'+(GH.sz||'m')},
     h('div',{class:'gh-edh'}, dk?null:h('button',{type:'button',class:'gh-grab','aria-label':'展開或收合',onclick:()=>{ GH.sz=GH.sz==='l'?'s':GH.sz==='s'?'m':'l'; renderGh(true); }}), h('b',{text:'🎨 裝修溫室'}), pvB, h('button',{type:'button',class:'gh-ib',title:'復原',disabled:!GH.undo?.length,onclick:ghUndo,text:'↶'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>ghEdClose(),text:'取消'}), h('button',{type:'button',class:'btn lime sm',onclick:e=>ghSave(e.currentTarget),text:'儲存'})),
-    h('nav',{class:'gh-et'}, ...[['tpl','✨ 模板'],['bk','🧩 元件'],['look','🎨 外觀'],['lay','🪴 排列'],['tx','✏️ 文字']].map(([k,l])=>h('button',{type:'button',class:T===k?'on':'',onclick:()=>{ GH.tab=k; if(!dk&&GH.sz==='s') GH.sz='m'; renderGh(true); }},l))),
+    h('nav',{class:'gh-et'}, ...[['tpl','✨ 模板'],['bk','🧩 元件'],['tx','🏷 招牌'],['look','🎨 外觀'],['lay','🪴 排列']].map(([k,l])=>h('button',{type:'button',class:T===k?'on':'',onclick:()=>{ GH.tab=k; if(!dk&&GH.sz==='s') GH.sz='m'; renderGh(true); }},l))),
     h('div',{class:'gh-eo'}, ...body));
   return ed; }
 function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#pgGh'), u=S.ghId||'';
@@ -8144,19 +8225,21 @@ function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#
   if (!force&&sig===GH.sig&&box.firstChild) return; GH.sig=sig;
   const ft=c.ft==='mono'?'sans':c.ft; ghFont(ft); pg.setAttribute('style',ghVars(c)); pg.className='page gh-pg b-'+c.bg+' ft-'+ft+(ed?' gh-editing'+(innerWidth>=980?' gh-dock':'')+(GH.pv==='m'&&innerWidth>=980?' gh-pvm':''):''); document.body.classList.toggle('gh-dockb',ed&&innerWidth>=980); document.body.classList.toggle('gh-edm',ed&&innerWidth<980);
   const by=new Map(P.map(p=>[p.id,p])), feat=(c.feat||[]).map(i=>by.get(i)).filter(p=>p&&!hide.has(p.id)).slice(0,3);
-  const genera=new Set(vis.map(p=>genusOf(p.species)).filter(Boolean)), cv=c.cover&&by.get(c.cover);
-  const av=own&&S.meInfo?.avatarUrl?h('img',{class:'gh-av',src:S.meInfo.avatarUrl,alt:''}):h('span',{class:'gh-av'}, chatAv(u,64));
+  const genera=new Set(vis.map(p=>genusOf(p.species)).filter(Boolean)), cv=c.cover&&by.get(c.cover), cvm=c.cvm?.url?c.cvm:null;
+  const av=c.hav==='none'?null:own&&S.meInfo?.avatarUrl?h('img',{class:'gh-av',src:S.meInfo.avatarUrl,alt:''}):h('span',{class:'gh-av'}, chatAv(u,64));
+  if (c.htf) ghFont(c.htf);
   const stk=(c.st||[]).slice(0,6).map((s,i)=>h('i',{class:'gh-sk k'+i,text:s}));
   const acts=own?[ed?null:h('button',{type:'button',class:'gh-b pri',onclick:ghEdit,text:'🎨 裝修溫室'}), h('button',{type:'button',class:'gh-b',onclick:()=>openPlants('reg'),text:'＋ 登錄植物'}), h('button',{type:'button',class:'gh-b',onclick:()=>openGhShare(u),text:'↗ 分享'})]
     :[S.me?h('button',{type:'button',class:'gh-b pri',onclick:()=>openChat(u),text:'💬 聊聊'}):h('button',{type:'button',class:'gh-b pri',onclick:openLogin,text:'💬 登入後聊聊'}), shopOf(u)?h('a',{class:'gh-b',href:'#/seller/'+u,text:'🏪 逛賣場'}):null, h('button',{type:'button',class:'gh-b',onclick:()=>openGhShare(u),text:'↗ 分享'})];
-  const head=h('header',{class:'gh-hd'+(cv?' cv':'')}, cv?h('img',{class:'gh-cvi',src:cover(cv),alt:''}):null, ...stk,
-    h('div',{class:'gh-hi'}, av, h('div',{class:'gh-hm'}, h('span',{class:'gh-k mono',text:'GREENHOUSE'}), h('h1',{class:'gh-t',text:ghName(u,c)}), c.bio?h('p',{class:'gh-bio',text:c.bio}):h('p',{class:'gh-bio'}),
-      h('div',{class:'gh-sts'}, h('span',{},h('b',{text:String(vis.filter(p=>!hide.has(p.id)).length)}),'株'), h('span',{},h('b',{text:String(genera.size)}),'屬'), feat.length?h('span',{},h('b',{text:String(feat.length)}),'主打'):null))),
+  const cvEl=cvm?(cvm.type==='video'?h('video',{class:'gh-cvi',src:cvm.url,poster:cvm.poster||null,autoplay:true,muted:true,loop:true,playsinline:true}):h('img',{class:'gh-cvi',src:cvm.url,alt:''})):cv?h('img',{class:'gh-cvi',src:cover(cv),alt:''}):null;
+  const head=h('header',{class:'gh-hd hs-'+(c.hs||'card')+' ts-'+(c.hts||'m')+' av-'+(c.hav||'circle')+(c.htf?' tf-'+c.htf:'')+(cvEl?' cv':'')}, cvEl, ...stk,
+    h('div',{class:'gh-hi'}, av, h('div',{class:'gh-hm'}, c.hk===''?null:h('span',{class:'gh-k mono',text:c.hk==null?'GREENHOUSE':c.hk}), h('h1',{class:'gh-t',text:ghName(u,c)}), c.bio?h('p',{class:'gh-bio',text:c.bio}):h('p',{class:'gh-bio'}),
+      c.hstat===false?null:h('div',{class:'gh-sts'}, h('span',{},h('b',{text:String(vis.filter(p=>!hide.has(p.id)).length)}),'株'), h('span',{},h('b',{text:String(genera.size)}),'屬'), feat.length?h('span',{},h('b',{text:String(feat.length)}),'主打'):null))),
     h('div',{class:'gh-acts'}, ...acts));
+  const bgm=c.bgm?.url?h('div',{class:'gh-bgm',style:'--bgd:'+((+c.bgd||0)/100)+';--bgbl:'+(+c.bgbl||0)+'px'}, c.bgm.type==='video'?h('video',{src:c.bgm.url,poster:c.bgm.poster||null,autoplay:true,muted:true,loop:true,playsinline:true}):h('img',{src:c.bgm.url,alt:''}), h('i')):null;
   const kids=[head], main=h('div',{class:'gh-main'}); kids.push(main);
   const env={u,own,ed,c,P,vis,hide,feat,by,genera}; GH.env=env; ghPaintMain(main,env);
-  if (ed) kids.push(ghEditor(c,P));
-  const sy=box.firstChild?scrollY:null, es=box.querySelector('.gh-eo')?.scrollTop||0, et=box.querySelector('.gh-et')?.scrollLeft||0; box.replaceChildren(h('div',{class:'gh'}, ...kids)); if(sy!=null&&force) scrollTo(0,sy); const eo=box.querySelector('.gh-eo'); if(eo&&GH.tabWas===GH.tab) eo.scrollTop=es; const tb=box.querySelector('.gh-et'); if(tb) tb.scrollLeft=et; GH.tabWas=GH.tab; }
+  const sy=box.firstChild?scrollY:null, es=box.querySelector('.gh-eo')?.scrollTop||0, et=box.querySelector('.gh-et')?.scrollLeft||0; box.replaceChildren(...[bgm,h('div',{class:'gh fs-'+(c.fs||'m')+' cs-'+(c.cs||'m')+(bgm?' gh-hasbgm':''),style:'--gz:'+(GH_SZV[c.fs]||1)+';--cz:'+(GH_SZV[c.cs]||1)}, ...kids),ed?ghEditor(c,P):null].filter(Boolean)); if(sy!=null&&force) scrollTo(0,sy); const eo=box.querySelector('.gh-eo'); if(eo&&GH.tabWas===GH.tab) eo.scrollTop=es; const tb=box.querySelector('.gh-et'); if(tb) tb.scrollLeft=et; GH.tabWas=GH.tab; }
 async function ghListMore(){ if(!S.db) return; const L=GH.list||(GH.list={items:[],cur:null,done:false,busy:false}); if(L.done||L.busy) return; L.busy=true;
   try{ let q=S.db.collection('gh').orderBy('updatedAt','desc'); if(L.cur) q=q.startAfter(L.cur); const sn=await q.limit(24).get();
     sn.docs.forEach(d=>{ const x=d.data(); GH.doc.set(d.id,x); if(!L.items.some(y=>y.uid===d.id)) L.items.push({uid:d.id,...x}); }); if(sn.size<24) L.done=true; L.cur=sn.docs[sn.docs.length-1]?.data()?.updatedAt||L.cur; }
@@ -8197,6 +8280,22 @@ const GH_COMP={
     r:(c,e)=>{ const L=(c.items||[]).filter(x=>x.q); if(!L.length) return e.ed?scPh('願望清單：加幾株你想找的植物'):null;
       return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'我在找'}), h('small',{text:L.length+' 株'})), h('div',{class:'ghx-wl'}, ...L.map(x=>h('div',{class:'ghx-wi'}, h('i',{text:'🌠'}), h('div',{}, h('b',{text:x.q}), x.a?h('small',{text:x.a}):null),
         !e.own&&!e.ed?h('button',{type:'button',class:'gh-b',onclick:()=>{ if(!S.me){ openLogin(); return; } openChat(e.u); setTimeout(()=>{ const t=document.querySelector('#chatsPage textarea, .cw textarea'); if(t&&!t.value){ t.value='你好，我有你在找的 '+x.q+'，有興趣嗎？'; t.dispatchEvent(new Event('input')); } },700); },text:'我有'}):null)))); }},
+  ghmom:{n:'母本櫃',ic:'🪴',d:'你的母株排成一排展示櫃，顯示有幾個後代',def:()=>({title:'母本櫃',view:'shelf'}),f:[['text','title','標題'],['select','view','排法',[['shelf','深色展示櫃'],['wall','照片牆'],['rail','橫向滑動']]]],
+    r:(c,e)=>{ const L=e.vis.filter(p=>!e.hide.has(p.id)&&(p.kind||'mother')==='mother'); if(!L.length) return e.ed?scPh('母本櫃：還沒有母株（品種的「類型」選母株）'):null; const kids=m=>all().filter(k=>momId(k)===m.id||dadId(k)===m.id).length;
+      return h('section',{class:'ghx-sec ghx-mom v-'+(c.view||'shelf')}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'母本櫃'}), h('small',{text:L.length+' 株母株'})), h('div',{class:'ghx-mg'}, ...L.slice(0,24).map((p,i)=>{ const n=kids(p); return h('button',{type:'button',class:'ghx-mc',style:'--i:'+i,onclick:e.ed?null:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{class:'ghx-mt mono',text:'MOTHER'}), h('div',{}, h('b',{text:pName(p)}), h('small',{class:'mono',text:(p.code||'')+(n?' · '+n+' 個後代':'')}))); }))); }},
+  ghfam:{n:'家族展示',ic:'🧬',d:'母本和牠的側芽、實生苗排在一起',def:()=>({title:'家族',n:'4'}),f:[['text','title','標題'],['select','n','最多幾個家族',[['2','2'],['4','4'],['8','8']]]],
+    r:(c,e)=>{ const F=e.vis.filter(p=>!e.hide.has(p.id)).map(m=>({m,k:all().filter(k=>(momId(k)===m.id||dadId(k)===m.id)&&!k.hidden&&!k.blocked)})).filter(x=>x.k.length).sort((a,b)=>b.k.length-a.k.length).slice(0,+c.n||4);
+      if(!F.length) return e.ed?scPh('家族展示：有植物登錄了母本或父本後就會出現'):null;
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'家族'}), h('small',{text:F.length+' 個家族'})), h('div',{class:'ghx-fl'}, ...F.map(({m,k})=>h('div',{class:'ghx-fm'}, h('button',{type:'button',class:'ghx-fmm',onclick:e.ed?null:()=>openPlant(m.id)}, h('img',{src:cover(m),alt:'',loading:'lazy'}), h('span',{class:'mono',text:'♀ '+(m.code||'')}), h('b',{text:pName(m)})),
+        h('div',{class:'ghx-fk'}, h('small',{text:k.length+' 個後代'}), h('div',{}, ...k.slice(0,8).map(x=>h('button',{type:'button',onclick:e.ed?null:()=>openPlant(x.id)}, h('img',{src:cover(x),alt:'',loading:'lazy'}), h('small',{class:'mono',text:(x.code||'').split('-').pop()}))))))))); }},
+  ghgrp:{n:'群組展示',ic:'📦',d:'同一批的實生苗、側芽一組一組展示',def:()=>({title:'群組'}),f:[['text','title','標題']],
+    r:(c,e)=>{ const G=new Map(); e.vis.filter(p=>!e.hide.has(p.id)&&p.grp).forEach(p=>{ const k=p.shop+'~'+p.grp; if(!G.has(k)) G.set(k,[]); G.get(k).push(p); }); const L=[...G.entries()].filter(([,a])=>a.length>1);
+      if(!L.length) return e.ed?scPh('群組展示：在植物管理把同一批的植物設成群組後會出現'):null;
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'群組'}), h('small',{text:L.length+' 組'})), h('div',{class:'ghx-gg'}, ...L.map(([k,a])=>{ const [sh,gid]=k.split('~'), M=groupMeta(sh,gid)||{};
+        return h('a',{class:'ghx-gc',href:e.ed?null:'#/group/'+encodeURIComponent(k)}, h('div',{class:'ghx-gi'}, ...a.slice(0,4).map(p=>h('img',{src:cover(p),alt:'',loading:'lazy'}))), h('b',{text:M.name||short(a[0].species)}), h('small',{text:a.length+' 株 · '+(a[0].code||'')+' →'})); }))); }},
+  ghsale:{n:'在賣的植物',ic:'🏷',d:'溫室裡有標價在賣的植物，可以直接買',def:()=>({title:'可以帶回家的'}),f:[['text','title','標題']],
+    r:(c,e)=>{ const L=e.vis.filter(p=>!e.hide.has(p.id)&&onSale(p)&&p.status!=='sold'); if(!L.length) return e.ed?scPh('在賣的植物：上架後就會出現在這裡'):null;
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'可以帶回家的'}), h('small',{text:L.length+' 株'})), h('div',{class:'ghx-pks v-rail'}, ...L.slice(0,16).map(p=>h('button',{type:'button',class:'ghx-pk',onclick:e.ed?null:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('b',{text:pName(p)}), h('small',{class:'ghx-pr',text:priceLabel(p).main+(live(p)?' · 競標中':'')}))))); }},
   ghguest:{n:'訪客留言板',ic:'📝',d:'來逛的人可以留言打招呼',def:()=>({title:'訪客留言'}),f:[['text','title','標題']],r:(c,e)=>ghGuest(c,e)},
 };
 const ghComp=k=>GH_COMP[k]||(GH_SF.includes(k)?SF_COMP[k]:null);
@@ -8215,8 +8314,8 @@ function ghPaintMain(main,env){ main=main||$('#ghPage .gh-main'); env=env||GH.en
   for (const b of ghBlocks(C)){ if(b.on===false&&!ed) continue; let el=null;
     try{ if(b.k==='_feat') el=feat.length?h('section',{class:'gh-fts n'+feat.length}, ...feat.map((p,i)=>h('article',{class:'gh-fc',style:'--i:'+i,onclick:ed?null:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('i',{class:'gh-sh'}), h('div',{class:'gh-fm'}, h('span',{class:'mono',text:'★ 主打'}), h('b',{text:pName(p)}), (C.notes||{})[p.id]?h('q',{text:C.notes[p.id]}):h('small',{class:'mono',text:p.code||''}))))):(ed?scPh('主打植物：在下面的植物上按 ★'):null);
       else if(b.k==='_coll') el=ghColl(env);
-      else { const d=ghComp(b.k); if(d){ const cf={...(d.def?d.def():{}),...(b.cfg||{})}; el=GH_COMP[b.k]?d.r(cf,env):d.r(cf,{uid:u,s:{name:ghName(u,C),line:''},forSale:vis,avail:vis,rv:[],rt:{n:0,avg:0},sold:[],mineAll:vis,preview:ed,goAll:()=>{}}); if(el&&!GH_COMP[b.k]) applySx(el,cf); } } }catch(x){ console.warn('[VEIN] 溫室元件',b.k,x); el=null; }
-    if (!el) continue; el.classList.add('gh-blk'); if(b.on===false) el.classList.add('off'); if(ed){ el.dataset.bid=b.id; if(GH.bOpen===b.id) el.classList.add('sel'); el.addEventListener('click',ev=>{ if(ev.target.closest('.gh-eb,.gh-ni,input,textarea,select,form')) return; GH.bOpen=b.id; GH.tab='bk'; renderGh(true); },true); } kids.push(el); }
+      else { const d=ghComp(b.k); if(d){ const cf={...(d.def?d.def():{}),...(b.cfg||{})}; el=GH_COMP[b.k]?d.r(cf,env):d.r(cf,{uid:u,s:{name:ghName(u,C),line:''},forSale:vis,avail:vis,rv:[],rt:{n:0,avg:0},sold:[],mineAll:vis,preview:ed,goAll:()=>{}}); } } }catch(x){ console.warn('[VEIN] 溫室元件',b.k,x); el=null; }
+    if (!el) continue; const bc=b.cfg||{}; applySx(el,bc); if(bc._fs){ el.dataset.fs=bc._fs; el.style.setProperty('--bz',GH_SZV[bc._fs]||1); } if(bc._al) el.classList.add('gh-al-'+bc._al); el.classList.add('gh-blk'); if(b.on===false) el.classList.add('off'); if(ed){ el.dataset.bid=b.id; if(GH.bOpen===b.id) el.classList.add('sel'); el.addEventListener('click',ev=>{ if(ev.target.closest('.gh-eb,.gh-ni,input,textarea,select,form')) return; GH.bOpen=b.id; GH.tab='bk'; renderGh(true); },true); } kids.push(el); }
   main.replaceChildren(...kids); }
 function ghColl(env){ const {u,own,ed,c,vis}=env; const C=ghCfg(u);
   if (!vis.length){ const loading=!GH.got.has(u)||GH.doc.get(u)===undefined;
@@ -8228,9 +8327,11 @@ function ghColl(env){ const {u,own,ed,c,vis}=env; const C=ghCfg(u);
   if (vis.length>GH.lim) out.append(h('button',{type:'button',class:'btn soft auto-more gh-more',onclick:()=>{ GH.lim+=30; renderGh(true); },text:'載入更多'}));
   return out; }
 // 元件設定表單（溫室版）
-function ghCfgForm(b,P){ const d=ghComp(b.k); if(!d||!d.f) return h('p',{class:'gh-eh',text:d?.d||''}); const c=b.cfg||(b.cfg={...(d.def?d.def():{})}), ch=()=>{ GH.edit.dirty=true; clearTimeout(ghCfgForm.t); ghCfgForm.t=setTimeout(()=>ghPaintMain(),350); }, hard=()=>{ GH.edit.dirty=true; renderGh(true); };
+function ghCfgForm(b,P){ const d=ghComp(b.k); if(!d) return null; const c=b.cfg||(b.cfg={...(d.def?d.def():{})}), ch=()=>{ GH.edit.dirty=true; clearTimeout(ghCfgForm.t); ghCfgForm.t=setTimeout(()=>ghPaintMain(),350); }, hard=()=>{ GH.edit.dirty=true; renderGh(true); };
   const fl=(label,el)=>h('label',{class:'gh-fl'}, h('small',{text:label}), el);
-  return h('div',{class:'gh-cf'}, ...d.f.map(([t,key,label,opt])=>{
+  const sxSel=(k,l,opts)=>{ const i=h('select',{}, ...opts.map(([v,tx])=>h('option',{value:v,text:tx,selected:(c[k]||'')===v}))); i.addEventListener('change',()=>{ c[k]=i.value; hard(); }); return fl(l,i); };
+  const look=h('div',{class:'gh-cfx'}, h('b',{class:'gh-cfh',text:'🎛 這個元件的外觀'}), h('div',{class:'gh-cf2'}, sxSel('_fs','字體大小',[['','標準'],['s','小'],['l','大'],['xl','特大']]), sxSel('_anim','動畫',SX_A.map(([v,l])=>[v,l])), sxSel('_bg','背景',SX_BG), sxSel('_w','寬度',SX_W), sxSel('_al','文字對齊',[['','預設'],['l','靠左'],['c','置中'],['r','靠右']]), sxSel('_dev','顯示在',[['','手機和電腦'],['mob','只有手機'],['desk','只有電腦']])));
+  return h('div',{class:'gh-cf'}, d.d?h('p',{class:'gh-eh',text:d.d}):null, ...(d.f||[]).map(([t,key,label,opt])=>{
     if(t==='text'){ const i=h('input',{value:c[key]||'',maxlength:120}); i.addEventListener('input',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
     if(t==='area'){ const i=h('textarea',{rows:3,maxlength:600}); i.value=c[key]||''; i.addEventListener('input',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
     if(t==='select'){ const i=h('select',{}, ...opt.map(([v,l])=>h('option',{value:v,text:l,selected:(c[key]||opt[0][0])===v}))); i.addEventListener('change',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
@@ -8239,17 +8340,17 @@ function ghCfgForm(b,P){ const d=ghComp(b.k); if(!d||!d.f) return h('p',{class:'
     if(t==='plant') return fl(label,ghPlantSel(P,c[key],v=>{ c[key]=v; ch(); }));
     if(t==='gpicks'){ c[key]=c[key]||[]; const A=c[key]; return h('div',{class:'gh-fl'}, h('small',{text:label+'（'+A.length+'）'}), h('div',{class:'gh-pkg'}, ...P.slice(0,80).map(p=>{ const on=A.includes(p.id); return h('button',{type:'button',class:'gh-o cv'+(on?' on':''),onclick:()=>{ const i=A.indexOf(p.id); if(i>=0) A.splice(i,1); else { if(A.length>=12){ toast('最多 12 株'); return; } A.push(p.id); } hard(); }}, h('img',{src:cover(p),alt:'',loading:'lazy'})); }))); }
     if(t==='media'||t==='mlist'){ const st=h('small',{class:'gh-eh'}), multi=t==='mlist'; if(multi) c[key]=c[key]||[]; const inp=h('input',{type:'file',hidden:true,accept:'image/*,video/mp4,video/webm,video/quicktime',multiple:multi});
-      inp.addEventListener('change',async()=>{ const fs=[...inp.files].slice(0,multi?12-(c[key]||[]).length:1); inp.value=''; for(const f0 of fs){ try{ st.textContent='上傳中…'; const md=await uploadMediaFile(f0,x=>{ st.textContent='上傳中 '+Math.round(x/f0.size*100)+'%'; }); if(multi) c[key].push(md); else c[key]=md; }catch(x){ toast('上傳失敗：'+(x?.message||'')); } } st.textContent=''; hard(); });
+      inp.addEventListener('change',async()=>{ const fs=[...inp.files].slice(0,multi?12-(c[key]||[]).length:1); inp.value=''; for(const f0 of fs){ try{ st.textContent='上傳中…'; const md=await uploadMediaFile(f0,x=>{ st.textContent='上傳中 '+Math.round(x/f0.size*100)+'%'; }); ghUp(md); if(multi) c[key].push(md); else c[key]=md; }catch(x){ toast('上傳失敗：'+(x?.message||'')); } } st.textContent=''; hard(); });
       const cur=multi?c[key]:(c[key]?.url?[c[key]]:[]);
       return h('div',{class:'gh-fl'}, h('small',{text:label}), h('div',{class:'gh-ml'}, ...cur.map((m,i)=>h('span',{class:'gh-mi'}, h('img',{src:mediaThumb(m),alt:''}), h('button',{type:'button',onclick:()=>{ if(multi) c[key].splice(i,1); else c[key]=null; hard(); },text:'✕'}))), (multi?cur.length<12:!cur.length)?h('button',{type:'button',class:'gh-o',onclick:()=>inp.click(),text:'＋ 上傳'}):null, inp, st)); }
     if(t==='list'){ c[key]=c[key]||[]; const L=c[key]; return h('div',{class:'gh-fl'}, h('small',{text:label}), ...L.map((it,i)=>h('div',{class:'gh-lr'}, ...opt.map(([k2,ph])=>{ const big=k2==='a'&&b.k!=='ghwish'; const i2=h(big?'textarea':'input',{placeholder:ph,maxlength:big?400:120,rows:big?2:null}); i2.value=it[k2]||''; i2.addEventListener('input',()=>{ it[k2]=i2.value; ch(); }); return i2; }), h('button',{type:'button',class:'gh-o',onclick:()=>{ L.splice(i,1); hard(); },text:'✕'}))), L.length<12?h('button',{type:'button',class:'gh-o',onclick:()=>{ L.push({}); hard(); },text:'＋ 新增一項'}):null); }
-    return null; })); }
+    return null; }), look); }
 function ghBlkEditor(c,P){ const B=GH.edit.d.blocks=(Array.isArray(GH.edit.d.blocks)&&GH.edit.d.blocks.length?GH.edit.d.blocks:ghBlocks({})).map(x=>({...x})), set=()=>{ GH.edit.d={...GH.edit.d,blocks:B}; GH.edit.dirty=true; renderGh(true); };
   const go=id=>requestAnimationFrame(()=>document.querySelector('#ghPage [data-bid="'+id+'"]')?.scrollIntoView({behavior:'smooth',block:'center'}));
   const row=(b,i)=>{ const d=ghComp(b.k)||{n:b.k,ic:'▫️'}, open=GH.bOpen===b.id;
     return h('div',{class:'gh-br'+(open?' open':'')+(b.on===false?' off':'')}, h('div',{class:'gh-brh'}, h('span',{class:'gh-grip',title:'按住拖曳排序',text:'⋮⋮'}), h('button',{type:'button',class:'gh-brn',onclick:()=>{ GH.bOpen=open?null:b.id; renderGh(true); go(b.id); }}, h('i',{text:d.ic}), h('b',{text:d.n}), d.fixed?h('small',{text:'內建'}):h('small',{text:open?'收起':'設定'})),
       h('button',{type:'button',title:b.on===false?'顯示':'隱藏',onclick:()=>{ ghUndoPush(); b.on=b.on===false; set(); },text:b.on===false?'🙈':'👁'}), d.fixed?null:h('button',{type:'button',title:'複製',onclick:()=>{ ghUndoPush(); const x={...JSON.parse(JSON.stringify(b)),id:scId()}; B.splice(i+1,0,x); GH.bOpen=x.id; set(); go(x.id); },text:'⧉'}), d.fixed?null:h('button',{type:'button',title:'刪除',onclick:()=>{ ghUndoPush(); B.splice(i,1); if(GH.bOpen===b.id) GH.bOpen=null; set(); },text:'✕'})),
-      open&&!d.fixed?ghCfgForm(b,P):open?h('p',{class:'gh-eh',style:'padding:0 10px 8px',text:d.d}):null); };
+      open?ghCfgForm(b,P):null); };
   const pal=[...Object.entries(GH_COMP).filter(([,d])=>!d.fixed),...GH_SF.filter(k=>SF_COMP[k]).map(k=>[k,SF_COMP[k]])];
   const add=k=>{ ghUndoPush(); const d=ghComp(k), b={id:scId(),k,on:true,cfg:d.def?d.def():{}}; const at=GH.bOpen?B.findIndex(x=>x.id===GH.bOpen)+1:B.length; B.splice(at<=0?B.length:at,0,b); GH.bOpen=b.id; set(); go(b.id); };
   return [h('section',{class:'gh-es'}, h('h4',{}, '頁面上的元件', h('small',{text:'按住 ⋮⋮ 拖曳排序'})), ghDrag(h('div',{class:'gh-bl'}, ...B.map(row)),(f,t)=>{ ghUndoPush(); const [x]=B.splice(f,1); B.splice(t,0,x); set(); })),
@@ -13392,7 +13493,7 @@ function admDesign(m){
   const wrap=h('div',{class:'bd'+(S.dzPv?' show-pv':'')}, ed, pv);
   const f=h('form',{class:'form bd-form'}, wrap,
     h('div',{class:'txbar'}, flag, err, h('button',{class:'btn soft bd-pvb',type:'button',onclick:()=>{ wrap.classList.add('show-pv'); fit(); push(); },text:'👁 預覽'}), h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看正式賣場'}), save));
-  f.addEventListener('submit',async e=>{ e.preventDefault(); save.disabled=true; try{ const store=JSON.parse(JSON.stringify(D)); await S.db.doc('shops/'+S.me).update({store}); sh.store=store; flag.textContent='已發佈'; flag.classList.remove('warn'); toast('賣場裝修已發佈'); sfSig=''; }catch(ex){ err.textContent='儲存失敗：'+(ex?.code||'請稍後再試'); } save.disabled=false; });
+  f.addEventListener('submit',async e=>{ e.preventDefault(); save.disabled=true; try{ const store=JSON.parse(JSON.stringify(D)); const prevSt=sh.store; await S.db.doc('shops/'+S.me).update({store}); mediaCleanup(prevSt,store); sh.store=store; flag.textContent='已發佈'; flag.classList.remove('warn'); toast('賣場裝修已發佈'); sfSig=''; }catch(ex){ err.textContent='儲存失敗：'+(ex?.code||'請稍後再試'); } save.disabled=false; });
   m.append(f);
 }
 
@@ -14495,7 +14596,7 @@ function admShopBasic(m){
     h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'儲存'}), h('a',{class:'btn soft',href:'#/seller/'+S.me,onclick:()=>adm.close(),text:'看賣場頁'})));
   f.addEventListener('submit',async e=>{ e.preventDefault(); if(av.busy()||bn.busy()){ f.querySelector('.err').textContent='圖片還在上傳，請稍候再按儲存。'; return; } const v=k=>f.querySelector(`[data-s="${k}"]`).value.trim(); const cd=v('code').toUpperCase(); if(!/^[A-Z0-9]{2,4}$/.test(cd)){ f.querySelector('.err').textContent='賣家代碼要 2–4 個英文字母或數字。'; return; } if([...S.shops].some(([u,x])=>u!==S.me&&shopCode(u)===cd)){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 已經有人用了，換一個吧。'; return; } const nn=v('name'), needRv=approved(S.me)&&!S.admin&&nn&&nn!==s.name&&nn!==s.nameReq?.name; const d={...s,code:cd,name:needRv?s.name:(approved(S.me)&&!S.admin?s.name:nn),...(needRv?{nameReq:{name:nn,at:Date.now()},nameRej:null}:{}),location:v('location'),line:v('line'),contact:v('contact'),bio:v('bio'),ship:v('ship'),avatar:av.get()||null,banner:bn.get()||null,createdAt:s.createdAt||Date.now()};
     const old=shopCode(); if(cd!==old){ const ok=await claimCode(cd); if(!ok){ f.querySelector('.err').textContent='賣家代碼 '+cd+' 剛剛被別人用走了，換一個吧。'; return; } }
-    try{ await S.db.doc('shops/'+S.me).set(d); S.shops.set(S.me,d); if(cd!==old) S.db.doc('codes/'+old).get().then(x=>{ if(x.exists&&x.data().uid===S.me) S.db.doc('codes/'+old).delete().catch(()=>{}); }).catch(()=>{}); const bk={}; f.querySelectorAll('[data-b]').forEach(x=>bk[x.dataset.b]=x.value.trim()); await S.db.doc(`data/users/${S.me}/bank`).set(bk); S.bank=bk; toast(needRv?'已儲存，新名稱送出審核':'賣場設定已儲存'); renderAll(); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'圖片太大或沒有權限':'請稍後再試'); } });
+    try{ await S.db.doc('shops/'+S.me).set(d); mediaCleanup({avatar:s.avatar,banner:s.banner},{avatar:d.avatar,banner:d.banner,store:d.store}); S.shops.set(S.me,d); if(cd!==old) S.db.doc('codes/'+old).get().then(x=>{ if(x.exists&&x.data().uid===S.me) S.db.doc('codes/'+old).delete().catch(()=>{}); }).catch(()=>{}); const bk={}; f.querySelectorAll('[data-b]').forEach(x=>bk[x.dataset.b]=x.value.trim()); await S.db.doc(`data/users/${S.me}/bank`).set(bk); S.bank=bk; toast(needRv?'已儲存，新名稱送出審核':'賣場設定已儲存'); renderAll(); }catch(ex){ f.querySelector('.err').textContent='儲存失敗：'+(ex?.code==='invalid_argument'?'圖片太大或沒有權限':'請稍後再試'); } });
   m.append(h('div',{class:'row',style:'gap:8px;margin-bottom:12px'}, approved(S.me)?h('span',{class:'tag lime',text:'已上架'}):h('span',{class:'tag grey',text:'審核中'}), isVerified(S.me)?h('span',{class:'vbadge',text:'認證賣家'}):h('span',{class:'hint',text:'一般賣家'})), f);
 }
 async function setVerified(u,on){ const cur={...(S.verified||{})}; if(on) cur[u]={at:Date.now(),by:S.me}; else delete cur[u]; try{ await S.db.doc('site/verified').set({uids:cur}); S.verified=cur; toast(on?shopName(u)+' 已成為認證賣家':'已取消 '+shopName(u)+' 的認證'); renderAdmin(true); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'只有擁有者帳號可以授予認證':'請稍後再試')); } }
