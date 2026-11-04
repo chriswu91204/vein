@@ -627,3 +627,10 @@ exports.cmCmtNew = onDocumentCreated({ document: 'posts/{id}/cmts/{cid}', ...HOT
 exports.cmCmtDel = onDocumentDeleted({ document: 'posts/{id}/cmts/{cid}', ...HOT }, async ev => { await db.doc('posts/' + ev.params.id).update({ cmts: INC(-1) }).catch(() => {}); });
 exports.cmVote = onDocumentCreated({ document: 'posts/{id}/votes/{vid}', ...HOT }, async ev => { const v = ev.data.data() || {}; if (!v.b || typeof v.o !== 'number' || v.o < 0 || v.o > 9) return;
   await db.doc('posts/' + ev.params.id).update(new admin.firestore.FieldPath('poll', String(v.b), String(v.o)), INC(1)).catch(e => logger.warn('vote', e.message)); });
+
+// 瀏覽紀錄只保留 7 天
+exports.viewsCleanup = onSchedule({ schedule: 'every day 04:17', timeZone: 'Asia/Taipei' }, async () => {
+  const cut = Date.now() - 7 * 864e5; let n = 0;
+  for (let i = 0; i < 50; i++) { const sn = await db.collection('views').where('at', '<', cut).limit(400).get(); if (sn.empty) break; const b = db.batch(); sn.docs.forEach(d => b.delete(d.ref)); await b.commit(); n += sn.size; }
+  logger.info('viewsCleanup', n);
+});

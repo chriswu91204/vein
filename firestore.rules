@@ -278,6 +278,11 @@ service cloud.firestore {
       allow update: if isMe(uid) && onlyKeys(['ack']);
     }
     // 會員上線紀錄（最近幾次的時間與裝置），只有本人與管理員看得到
+    // 瀏覽紀錄：本人只能新增（文件 id 一定是自己的 uid_時間），只有管理員能讀、刪；伺服器每天刪掉 7 天前的
+    match /views/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && id.matches(request.auth.uid + '_[0-9]+') && request.resource.data.L is list && request.resource.data.L.size() <= 200;
+      allow read, delete: if isAdmin();
+    }
     match /seen/{uid} {
       allow read: if isMe(uid) || isAdmin();
       allow write: if isMe(uid) && request.resource.data.get('log', []).size() <= 30;
