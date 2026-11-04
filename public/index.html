@@ -2578,6 +2578,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .tbr-tg{display:flex;gap:6px;flex-wrap:wrap}.tbr-tg span{font-size:11.5px;color:#C2410C}
 .tbr-p{display:flex;align-items:baseline;gap:8px;margin-top:auto}.tbr-p strong{font-size:20px;color:#E85D2A;font-family:var(--fm,inherit)}.tbr-p small{font-size:12px;color:var(--fg2)}
 .tbr-s{display:flex;align-items:center;gap:6px;align-self:flex-start;max-width:100%;padding:3px 10px;border-radius:999px;background:var(--paper);color:var(--fg2);font-size:12.5px;text-decoration:none}.tbr-s span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbr-s b{color:var(--fg);white-space:nowrap}
+.pnx{margin:0 0 12px}.pnx-h{padding:2px 2px 8px;font-size:16px}.pnx-l{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:4px 2px 14px}.pnx-l::-webkit-scrollbar{display:none}.pnx-c{flex:0 0 min(200px,46%)}.pnx-c .tile,.pnx-c>*{width:100%}
 .tbt{margin:0 0 10px;display:flex;flex-direction:column;gap:8px}
 .tbt-s{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 12px;border-radius:999px;border:2px solid #1F5C3A;background:#fff;color:var(--fg);text-decoration:none;font-size:14px}
 .tbt-s span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbt-s em{font-style:normal;font-size:11px;padding:2px 6px;border-radius:6px;background:#FDECEC;color:#DC2626}.tbt-s b{padding:7px 16px;border-radius:999px;background:linear-gradient(90deg,#1F5C3A,#2E7D5B);color:#D4F25A;font-size:14px}
@@ -6578,7 +6579,7 @@ const SELLER_BLK=new Set(['shopstrip','sellers','feed','shopcta']);
 const isSellerBlk=b=>SELLER_BLK.has(b.k)||(b.k==='duo'&&(b.cfg?.ls==='shops'||b.cfg?.rs==='shops'));
 const blkAllowed=(key,b,idx)=>!(key==='hub'||key==='store')||!isSellerBlk(b)||idx===0||SFH_COMP[b.k]?.g==='ad';
 // 競標頁、抽獎頁、一頁式：依區塊排出來；「_page」就是原本的頁面內容
-function pdRender(key,body,orig){ const L=pdBlocks(key), now=Date.now(); let idx=0;
+function pdRender(key,body,orig){ const L=pdBlocks(key), now=Date.now(); let idx=0; if(key==='hub') boostTop(body);
   if (orig&&L.length===1&&L[0].k==='_page'&&L[0].on!==false&&!Object.keys(L[0].cfg||{}).length){ orig(body); return; }
   for (const b of L){ if(!sfhLive(b,now)) continue; if(!blkAllowed(key,b,idx)) continue; const c=b.cfg||{}; let el=null;
     try{ if(b.k==='_page'){ if(!orig) continue; el=h('div',{class:'pd-orig'}); orig(el); } else if(SFH_COMP[b.k]) el=SFH_COMP[b.k].r(c,b); if(b.k!=='_page'&&b.k!=='code') el=sfhCustom(c,b,el); }catch(e){ console.warn('區塊錯誤',b.k,e); el=null; }
@@ -6732,9 +6733,11 @@ const SFH_COMP={
       const dImg=d1?(d1.bundles||[]).flatMap(b=>b.items||[]).map(id=>S.plants.get(id)).filter(Boolean)[0]:null;
       const c3=d1?card('🎁 福利組合','#E85A87','#/raffle/drop',dImg?cover(dImg):'',dropState(d1)==='live'?'開搶中':'即將開搶',dropState(d1)==='live'?(d1.bundles||[]).length+' 組':fmtLeft(+d1.at-now),'🎁'):card('🌳 母株專區','#1F5C3A','#/store/mall',(avail.find(p=>p.kind==='mother')||avail[1])?cover(avail.find(p=>p.kind==='mother')||avail[1]):'',(avail.find(p=>p.kind==='mother')||avail[1])?priceLabel(avail.find(p=>p.kind==='mother')||avail[1]).main:'','');
       // 好入手橫條：便宜的一排，價格標籤
-      const cheap=avail.filter(p=>!isAuc(p)&&p.price&&p.price<=3000).sort((a,b)=>a.price-b.price).slice(0,12);
-      const band=cheap.length?h('div',{class:'tbt-b'}, h('a',{class:'tbt-bh',...linkAttrs(c.bandLink||'#/store/buy')}, h('b',{text:c.band||'NT$3,000 以下 · 好入手'}), h('span',{text:'立即逛 ›'})),
-        h('div',{class:'tbt-bl'}, ...cheap.map(p=>h('a',{class:'tbt-bi',href:'#/plant/'+encodeURIComponent(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('em',{text:money(p.price)}))))):null;
+      // 你感興趣的：依使用習慣（看過、收藏、購物車、搜尋）挑出最對味的植物
+      const H=hbGet(), seenIds=new Set(recentIds().slice(0,3)), sc=p=>(H.g?.[spKey(p)]||0)*2+(H.e?.[short(p.species)]||0)*3+(H.k?.[p.kind||'mother']||0)*.5+tagsOf(p).reduce((s,x)=>s+(H.t?.[x]||0),0)+(H.pr?.[prBucket(p)]||0)*.6+(isFeat(p)?2:isPin(p)?1:0);
+      const hasHb=Object.keys(H.g||{}).length>0, cheap=hasHb?avail.filter(p=>!seenIds.has(p.id)).map(p=>[p,sc(p)+Math.random()*.5]).sort((a,b)=>b[1]-a[1]).slice(0,12).map(x=>x[0]):avail.filter(p=>!isAuc(p)&&p.price).sort((a,b)=>a.price-b.price).slice(0,12);
+      const band=cheap.length?h('div',{class:'tbt-b'}, h('a',{class:'tbt-bh',href:'#/store/mall'}, h('b',{text:hasHb?'💚 你感興趣的':'好入手 · 先看看'}), h('span',{text:'看更多 ›'})),
+        h('div',{class:'tbt-bl'}, ...cheap.map(p=>h('a',{class:'tbt-bi',href:'#/plant/'+encodeURIComponent(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('em',{text:priceLabel(p).main}))))):null;
       return h('section',{class:'tbt'}, h('div',{class:'tbt-3'}, c1, c2, c3), band); }},
   mixfeed:{n:'為你推薦',ic:'🧺',g:'hub',d:'像蝦皮首頁下面那樣：兩欄瀑布流，滑到底自動載入更多；商店精選、置頂精選排最前面；點進去是滑滑看',styles:SFH_ST([['masonry','瀑布流'],['grid','整齊格子']]),
     def:()=>({title:'為你推薦',every:8,ads:[]}),
@@ -6743,9 +6746,9 @@ const SFH_COMP={
       if (!base.length) return PREVIEW?scPh('為你推薦：還沒有商品'):null; const st=sfhStyle(c,'mixfeed'), ev=+c.every||0, ads=(c.ads||[]).filter(x=>x.media?.url||x.title);
       // 商店精選、置頂精選排在最前面；之後滑完一輪就換個順序再來，像蝦皮一樣一直滑得下去
       const MK='mf'+(c.title||''), keep=S.navPop&&S.mfKeep?.[MK], first=boostOrder(base), order=keep?keep.ids.map(id=>S.plants.get(id)).filter(Boolean):[...first], flat=[]; S.mfKeep=S.mfKeep||{};
-      const pcard=p=>{ const pl=priceLabel(p), L2=live(p), tag=isFeat(p)?['ft','👑 精選']:isPin(p)?['pn','📌 置頂']:L2?['live','競標中']:p.kind==='seedling'?['','實生苗']:null;
-        return spot(activate(h('div',{class:'hzm-i'}, h('span',{class:'hzm-im'+(st==='masonry'?' r'+(p.code||'').length%3:'')}, h('img',{src:cover(p),alt:'',loading:'lazy'}), tag?h('em',{class:tag[0],text:tag[1]}):null),
-          h('span',{class:'hzm-t'}, h('b',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('span',{class:'hzm-pr'}, h('strong',{text:pl.main}), h('small',{text:shopName(p.shop)})))),()=>openSwipe(flat.length?flat:order,p.id)),p); };
+      const pcard=p=>{ const pl=priceLabel(p), L2=live(p), FT=isFeat(p), PN=!FT&&isPin(p), tag=FT||PN?null:L2?['live','競標中']:p.kind==='seedling'?['','實生苗']:null;
+        const el=spot(activate(h('div',{class:'hzm-i'+(FT?' bst-ft':PN?' bst-pn':'')}, h('span',{class:'hzm-im'+(st==='masonry'?' r'+(p.code||'').length%3:'')}, h('img',{src:cover(p),alt:'',loading:'lazy'}), tag?h('em',{class:tag[0],text:tag[1]}):null, ...(FT||PN?bstDeco(FT):[])),
+          h('span',{class:'hzm-t'}, h('b',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('span',{class:'hzm-pr'}, h('strong',{text:pl.main}), h('small',{text:shopName(p.shop)})))),()=>openSwipe(flat.length?flat:order,p.id)),p); if(FT) el.append(h('span',{class:'bst-crown',text:'👑'})); return el; };
       const acard=x=>h('a',{class:'hzm-i hzm-ad',...linkAttrs(x.link)}, x.media?.url?sfMedia(x.media,'hzm-adm'):h('span',{class:'hzb-ph'}), h('span',{class:'hzm-t'}, h('em',{class:'hzm-adl',text:'廣告'}), x.title?h('b',{text:x.title}):null, x.sub?h('small',{text:x.sub}):null));
       const grid=h('div',{class:'hzm-g'}), sen=h('div',{class:'hzm-sen'}, h('i',{class:'lb-spin',style:'position:static'})); let shown=0, ai=0, loops=0;
       const more=()=>{ if(shown>=order.length){ if(loops>=8){ sen.replaceChildren(h('small',{class:'hint',text:'已經看完了'})); return; } loops++; const nx=[...base].sort(()=>Math.random()-.5); if(nx[0]&&order.length&&nx[0].id===order[order.length-1].id) nx.push(nx.shift()); order.push(...nx); if(!plantsAllLoaded()) plantMoreAll(); }
@@ -7002,6 +7005,10 @@ function mallSections(){ const P=pub().filter(p=>p.status==='available'&&!p.bloc
 function mallCard(s,i){ const [bg,fg]=MC_PAL[i%MC_PAL.length];
   return h('section',{class:'mc',style:'--mb:'+bg+';--mf:'+fg}, h('button',{type:'button',class:'mc-h',onclick:s.more||s.tiles[0].act}, h('b',{text:s.title}), h('i',{text:'›'})),
     h('div',{class:'mc-g'}, ...s.tiles.map(x=>h('button',{type:'button',class:'mc-t',onclick:x.act}, h('span',{class:'mc-im'}, h('img',{src:cover(x.ps[0]),alt:'',loading:'lazy'})), h('b',{text:x.label}), x.sub?h('small',{text:x.sub}):null)))); }
+// 置頂精選一排（放在商店精選後面、其他東西前面）
+function pinStrip(){ const L=pub().filter(p=>isPin(p)&&!isFeat(p)&&!mystery(p)).sort((a,b)=>(+b.pinUntil||0)-(+a.pinUntil||0)); if(!L.length) return null;
+  return h('section',{class:'pnx'}, h('div',{class:'pnx-h'}, h('b',{text:'📌 置頂精選'})), h('div',{class:'pnx-l'}, ...L.slice(0,12).map(p=>h('div',{class:'pnx-c'}, tile(p))))); }
+function boostTop(body){ const fs=featStrip(); if(fs) body.append(fs); const ps=pinStrip(); if(ps) body.append(ps); }
 function mallFeed(body){ const SEC=mallSections(); if(!SEC.length){ body.append(h('div',{class:'empty'}, h('h3',{text:'還沒有商品'}))); return; }
   const grid=h('div',{class:'mcs'}), sen=h('div',{class:'hzm-sen'}, h('i',{class:'lb-spin',style:'position:static'})); let n=0, tail=false;
   const keep=S.navPop&&S.mallN; const more=()=>{ if(n<SEC.length){ SEC.slice(n,n+6).forEach((s,k)=>grid.append(mallCard(s,n+k))); n=Math.min(SEC.length,n+6); S.mallN=n; return; }
@@ -7010,7 +7017,7 @@ function mallFeed(body){ const SEC=mallSections(); if(!SEC.length){ body.append(
   more(); if(keep) while(n<Math.min(keep,SEC.length)) more(); setTimeout(()=>io.observe(sen),200); }
 function storeHome(body){
   $('#storeSrch')?.append(h('div',{class:'mall-q'}, h('a',{class:'mall-qb buy',href:'#/store/buy'}, h('i',{text:'🛒'}), h('b',{text:'直購'}), h('small',{text:'看到喜歡直接買'})), h('a',{class:'mall-qb auc',href:'#/store/auction'}, h('i',{text:'⚡'}), h('b',{text:'競標'}), h('small',{text:pub().filter(live).length+' 場進行中'}))));
-  mallFeed(body);
+  boostTop(body); mallFeed(body);
 }
 // 預覽（後台的 iframe）：點區塊就在左邊選取
 if (PREVIEW&&new URLSearchParams(location.search).has('sfh')){ document.documentElement.classList.add('pv-sfh'); window.__veinSfRefresh=()=>{ try{ const y=scrollY; if(PAGE==='raffle') renderRafflePage(); else if(PAGE==='lp') renderLp(S.lpId); else { shopRSig=''; renderShop(true); } requestAnimationFrame(()=>scrollTo(0,y)); }catch(e){} };
@@ -7421,7 +7428,7 @@ function renderShop(force){
   $('#sellerStrip').hidden=T!=='sellers'; renderSellerStrip();
   $('#catRow').hidden=!(T==='auction'||T==='buy'); renderCats(); try{ renderMineBar(T); }catch(e){ console.warn('mineBar',e); } try{ const dr=$('#dropRail'); if(dr){ const r=T==='buy'?dropRail():null; dr.replaceChildren(...(r?[r]:[])); } const ez=$('#encZone'); if(ez){ const z=T==='auction'?encZone():null; ez.replaceChildren(...(z?[z]:[])); } }catch(e){ console.warn('dropRail',e); }
   const stt=document.querySelector('.cslot[data-pos="store-top"]'); if(stt) stt.hidden=T!=='home';
-  if (T==='home') renderHero(); else { $('#shopHero').hidden=true; clearInterval(heroTimer); }
+  { $('#shopHero').hidden=true; clearInterval(heroTimer); } // 商城最上面直接放商店精選、置頂精選，不再放輪播大圖
   $('#ticker').hidden=true;
   fxClear();
   const body=$('#shopBody'), nt=$('#shopNotice'); nt.replaceChildren(); body.replaceChildren();
