@@ -1,0 +1,17 @@
+name: Diag
+on: workflow_dispatch
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Chats health check
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          export GCLOUD_PROJECT=vein-48ec8
+          cd tools/diag && npm init -y >/dev/null && npm i firebase-admin@12 --no-audit --no-fund >/dev/null && node chats.js
