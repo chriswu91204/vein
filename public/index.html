@@ -2569,7 +2569,7 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .mc{background:var(--mb,var(--surface));border-radius:18px;padding:12px}.mc-h{display:flex;align-items:center;width:100%;border:0;background:none;font:inherit;color:var(--fg);padding:0 2px 8px;cursor:pointer}.mc-h b{flex:1;text-align:left;font-size:16px;color:var(--mf,var(--fg))}.mc-h i{font-style:normal;font-size:20px;color:var(--mf,var(--fg2));opacity:.7}
 .mc-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mc-t{display:flex;flex-direction:column;gap:2px;border:0;background:none;padding:0;font:inherit;color:var(--fg);text-align:left;cursor:pointer;min-width:0}
 .mc-im{aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF1EA}.mc-im img{width:100%;height:100%;object-fit:cover}.mc-t b{color:var(--mf,var(--fg));font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mc-t small{font-size:11px;color:var(--fg2)}
-.tbrows{display:flex;flex-direction:column;gap:10px}.tbr.bst-ft,.tbr.bst-pn{border-radius:16px}.tbr .bst-tag{left:6px;bottom:6px;font-size:10.5px;padding:4px 8px}.tbr .bst-rb{display:none}.tbr>.bst-crown{left:2px!important;top:-8px!important;right:auto!important;font-size:22px}.tbr .tbr-n em.ft,.tbr .tbr-n em.pn{display:none}.tbr-p{flex-wrap:wrap;row-gap:0}
+.tbrows{display:flex;flex-direction:column;gap:10px}.tbr.bst-ft,.tbr.bst-pn{border-radius:16px}.tbr .bst-tag{left:6px;bottom:6px;font-size:10.5px;padding:4px 8px}.tbr .bst-rb{display:none}.tbr .tbr-n em.ft,.tbr .tbr-n em.pn{display:none}.tbr-p{flex-wrap:wrap;row-gap:0}
 .tbr{display:grid;grid-template-columns:38% minmax(0,1fr);gap:12px;background:var(--surface);border-radius:16px;padding:8px;cursor:pointer}.tbr.sold{opacity:.55}
 .tbr-i{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF1EA}.tbr-i img{width:100%;height:100%;object-fit:cover}.tbr-cd{position:absolute;left:6px;bottom:6px;font-size:11px;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff}
 .tbr-m{display:flex;flex-direction:column;gap:5px;min-width:0;padding:2px 2px 2px 0}
@@ -7329,7 +7329,7 @@ function tbRow(p,boost){ if(mystery(p)) return mysteryTile(p,true); const L=live
       h('div',{class:'tbr-a'}, ...attrs.map(([v,k])=>h('span',{}, h('b',{text:v}), h('small',{text:k})))),
       tagsOf(p).length?h('div',{class:'tbr-tg'}, ...tagsOf(p).slice(0,3).map(x=>h('span',{text:'#'+x}))):null,
       h('div',{class:'tbr-p'}, h('strong',{text:pl.main}), h('small',{text:L?bidsFor(p.id).length+' 人出價':pl.sub})),
-      h('a',{class:'tbr-s',href:'#/seller/'+p.shop,onclick:e=>e.stopPropagation()}, h('span',{text:shopName(p.shop)}), h('b',{text:'進店 ›'})))),()=>openPlant(p.id)); if(FT) el.append(h('span',{class:'bst-crown',text:'👑'})); return el; }
+      h('a',{class:'tbr-s',href:'#/seller/'+p.shop,onclick:e=>e.stopPropagation()}, h('span',{text:shopName(p.shop)}), h('b',{text:'進店 ›'})))),()=>openPlant(p.id)); return el; }
 function listRow(p){ if(mystery(p)) return mysteryTile(p,true); const L=live(p), pl=priceLabel(p), inCart=cartIds().includes(p.id), own=p.shop===S.me;
   return activate(h('article',{class:'lrow'+(p.status==='sold'?' sold':'')},
     h('div',{class:'lr-i'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), L?h('span',{class:'tag live',text:'LIVE'}):null, favBtn(p.id)),
@@ -8167,8 +8167,8 @@ function go(hash){ if(location.hash===hash) route(); else if((history.state?.bl|
 const ROOT_HASH=new Set(['','#','#/','#/store','#/store/auction','#/raffle','#/verify','#/me']);
 function updBack(){ const b=document.getElementById('navBack'); if(!b) return; const on=!ROOT_HASH.has(location.hash.split('?')[0]); b.hidden=!on; document.getElementById('nav')?.classList.toggle('has-back',on); }
 // 上一頁：有開著的視窗先關視窗；否則回上一頁（沒有上一頁就回首頁）
-function backOne(){ if(window.__BL?.length){ history.back(); return; } if(NAV.idx()>0) history.back(); else location.hash='#/'; }
-document.getElementById('navBack')?.addEventListener('click',backOne);
+function backOne(){ if(window.__BL?.length){ history.back(); return; } if(NAV.idx()>0){ BACKING={from:location.hash,n:0,at:Date.now()}; history.back(); } else location.hash='#/'; }
+document.getElementById('navBack')?.addEventListener('click',backOne); window.__veinBack=backOne;
 addEventListener('hashchange',updBack);
 /* ===== 上一頁回到原本的位置（不是回到頁首）＋手機由左往右滑回上一頁 ===== */
 try{ history.scrollRestoration='manual'; }catch(e){}
@@ -8251,7 +8251,18 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
   if (pg!==PAGE&&document.startViewTransition&&!REDUCE) document.startViewTransition(apply); else apply();
 }
 addEventListener('hashchange', route);
-addEventListener('popstate', e=>{ if(blPop(e)) return; if(/^#(admin|plants|orders)/.test(location.hash)||adm.open) route(); });
+// 上一頁一定是「上一動」：
+//  1. 落在已經關掉的視窗留下的紀錄（看起來跟前一頁一樣）→ 自動再往同一個方向走一步
+//  2. 自己按上一頁（左上角、手機左滑）時，網址沒變就繼續往回，直到真的換頁
+let NAVVI=history.state?.vi??0, BACKING=null;
+addEventListener('hashchange',()=>{ NAVVI=history.state?.vi??NAVVI; });
+{ const ps=history.pushState, rs=history.replaceState; history.pushState=function(){ const r=ps.apply(history,arguments); NAVVI=history.state?.vi??NAVVI; return r; }; history.replaceState=function(){ const r=rs.apply(history,arguments); NAVVI=history.state?.vi??NAVVI; return r; }; }
+addEventListener('popstate', e=>{ const vi=e.state?.vi??0, dir=vi<NAVVI?-1:1; NAVVI=vi;
+  if(blPop(e)){ BACKING=null; return; }
+  if((e.state?.bl||0)>BL.length){ dir<0?history.back():history.forward(); return; }
+  if(BACKING&&location.hash===BACKING.from&&BACKING.n<6&&Date.now()-BACKING.at<4000){ BACKING.n++; if(NAV.idx()>0){ history.back(); return; } location.hash='#/'; BACKING=null; return; }
+  BACKING=null;
+  if(/^#(admin|plants|orders)/.test(location.hash)||adm.open) route(); });
 
 /* ---------- dialogs ---------- */
 const dlg=$('#dlg');
@@ -10436,7 +10447,7 @@ async function ensureHouse(){
 // 後台每一頁都有自己的網址（#admin/訂單、#plants/reg/植株id…），瀏覽器上一頁／下一頁才會回到正確的頁面
 const isAdmHash=hs=>/^#(admin|plants|orders)(\/|$)/.test(hs||'');
 // 後台的「←」＝真正的上一頁；「回到前台」＝回到進後台前的那一頁（之後按下一頁還能回來）
-function admBack(fallback){ if(NAV.idx()>0) history.back(); else if(fallback) fallback(); else admExit(); }
+function admBack(fallback){ if(NAV.idx()>0){ BACKING={from:location.hash,n:0,at:Date.now()}; history.back(); } else if(fallback) fallback(); else admExit(); }
 function admExit(){ const b=S.admBaseVi, n=NAV.idx(); if(b!=null&&b>=0&&n>b) history.go(b-n); else adm.close(); }
 function admHash(){ const t=S.admTab||'home', ed=S.admEdit&&typeof S.admEdit==='string'?'/'+encodeURIComponent(S.admEdit):(t==='users'&&S.userSel?'/'+encodeURIComponent(S.userSel):t==='reg'&&S.rg?.path?.length&&S.rg.view==='tier'?'/~'+S.rg.path.map(encodeURIComponent).join(','):''); return (S.admMode==='plant'?'#plants':S.admMode==='order'?'#orders':'#admin')+'/'+t+(t==='shop'?':'+(S.shopTab||'basic'):'')+ed; }
 function syncAdmHash(){ if(!adm.open||S.admFromRoute) return; const want=admHash(); if(location.hash===want) return; if(!isAdmHash(location.hash)){ S.admReturn=location.hash||'#/'; S.admDepth=0; S.admBaseVi=NAV.idx(); } S.admDepth=(S.admDepth||0)+1; history.pushState({adm:S.admDepth},'',want); }
