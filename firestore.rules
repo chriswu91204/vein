@@ -220,6 +220,12 @@ service cloud.firestore {
       || (get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('perm', false) == false
         && get(/databases/$(database)/documents/encBan/$(request.auth.uid)).data.get('until', 0) < request.time.toMillis()); }
     // 立牌：管理員產生代碼；還沒綁的賣家可以綁到自己；綁的人或管理員可以改綁、解除
+    // 我的溫室：每個會員自己的展示頁裝修設定
+    match /gh/{uid} {
+      allow read: if true;
+      allow create, update: if isMe(uid) && notBanned() && request.resource.data.size() < 30;
+      allow delete: if isMe(uid) || isAdmin();
+    }
     match /tags/{code} {
       allow read: if true;
       allow create, delete: if isAdmin();
