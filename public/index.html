@@ -5281,6 +5281,17 @@ body.wx-on .tabbar,body.wx-on #chDock{display:none!important}
 .play-badge.k-auc{background:#1F5C42}.play-badge.k-soon{background:#7A5BD6}.play-badge.k-raf{background:#E8452C}
 @keyframes pbIn{0%{opacity:0;transform:translateY(6px) scale(.7)}100%{opacity:1}}
 .ru-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px}.ru-tabs a{flex:none;font-size:14px;font-weight:700;text-decoration:none;color:var(--fg2);background:#fff;padding:8px 14px;border-radius:999px}.ru-tabs a[aria-current="true"]{background:#111312;color:#D2FF00}
+/* 社群：上方留白縮小、卡片邊框明顯 */
+#pgCommunity .page-top,#pgPost .page-top,#pgWrite .page-top{padding-top:calc(60px + env(safe-area-inset-top,0px))!important;padding-bottom:40px}
+@media (min-width:900px){#pgCommunity .page-top,#pgPost .page-top,#pgWrite .page-top{padding-top:76px!important}}
+.cx-top{top:56px;padding-top:6px}.cx-th h1{font-size:22px}
+.cx-c{border:1px solid #DFE3DA;box-shadow:0 6px 16px -12px rgba(17,19,18,.35)}.cx-c:hover{border-color:#B9C4B3;box-shadow:0 10px 22px -12px rgba(17,19,18,.4)}
+.cx-s{border:1px solid #DFE3DA}.cx-cats button{border:1px solid #DFE3DA}.cx-cats button[aria-pressed="true"]{border-color:#1F5C42}
+.cx-pin{border:1px solid #F0D9A6}.cx-ghc{border:1px solid rgba(0,0,0,.08)}.cx-ftc{border:1px solid rgba(0,0,0,.08)}
+.cx-plc,.cx-poll,.cx-qz,.cx-sp,.cx-cin{border:1px solid #DFE3DA;box-shadow:0 4px 14px -12px rgba(17,19,18,.35)}.cx-care{border:1px solid #CFE2C6}.cx-co{border:1px solid rgba(0,0,0,.06)}
+.cx-ct{border-bottom:1px solid #D2E2CA}.cx-cm{border-top:0}
+.wx-b{border:1px solid #DFE3DA;box-shadow:0 4px 14px -12px rgba(17,19,18,.35)}.wx-b.open{border-color:#1F5C42}.wx-cats button{border:1px solid #DFE3DA}.wx-cats button[aria-pressed="true"]{border-color:#1F5C42}
+.wx-top{top:56px}
 </style>
 
 </head>
