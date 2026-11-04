@@ -38,6 +38,8 @@ async function start() {
   // 只能用 Google 登入：如果不是 Google 帳號（例如有人繞過網站直接用手機號碼登入），直接登出
   if (u && Array.isArray(u.providerData) && u.providerData.length && !u.providerData.some(p => p.providerId === 'google.com')) { try { await signOut(auth); } catch (e) {} u = null; }
 
+  // 管理員可能在後台幫這個帳號綁了手機：重新讀一次登入資料，必要時換新的登入憑證（規則才認得到手機）
+  if (u) { try { await Promise.race([(async () => { await u.reload(); const t = await u.getIdTokenResult(); if (!!u.phoneNumber !== !!t.claims.phone_number) await u.getIdToken(true); })(), new Promise(r => setTimeout(r, 3000))]); } catch (e) {} }
   window.__veinAuth = {
     async signIn() {
       const p = new GoogleAuthProvider();

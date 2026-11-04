@@ -5985,7 +5985,7 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 window.__veinReady=new Promise(function(r){ window.__veinResolve=r; });
 window.claude={ use:function(n){ return window.__veinReady.then(function(a){ return a.use(n); }); } };
 </script>
-<script type="module" src="/js/vein-firebase.js?v=20261104b"></script>
+<script type="module" src="/js/vein-firebase.js?v=20261104c"></script>
 <script>
 var PAGE='home';
 // 每一筆瀏覽紀錄都編號（vi），才知道「上一頁」還在不在 VEIN 裡面、要退幾步才回到進後台前的那一頁
@@ -12002,6 +12002,19 @@ const limOf=u=>{ const r=S.restrict?.[u]||{}, now=Date.now(); return LIM_K.filte
 const limited=(u,k)=>+(S.restrict?.[u]?.[k]||0)>Date.now();
 function limOK(k){ if(S.me&&!S.admin&&limited(S.me,k)){ toast('你的「'+LIM_N[k]+'」功能暫停中（'+untilTxt(S.restrict[S.me][k])+'）'); return false; } return true; }
 const warnsOf=u=>(S.warns?.get?.(u)?.list)||[];
+// 管理員代綁手機：寫申請 → 伺服器真的綁進登入資料 → 結果寫回來（綁好等同完成簡訊驗證）
+function admPhonePanel(u,pr){ const st=h('p',{class:'hint'}), cur=h('b',{text:pr.phoneVerified?'✅ 已綁定手機':'尚未綁定手機'}), inp=h('input',{type:'tel',inputmode:'numeric',placeholder:'0912345678',maxlength:16,style:'flex:1;min-width:0'});
+  let off=null; const watch=()=>{ try{ off?.(); }catch(e){} off=S.db.doc('phoneBind/'+u).onSnapshot(d=>{ if(!d.exists) return; const x=d.data();
+      if(x.st==='req'){ st.textContent='⏳ 處理中…（通常幾秒鐘）'; return; }
+      if(x.st==='ok'){ const on=x.act==='bind'; cur.textContent=on?'✅ 已綁定 '+x.phone.replace(/^\+886/,'0'):'尚未綁定手機'; st.textContent=(on?'已綁定':'已解除')+' · '+ago(x.at); const p0=S.profiles.get(u)||{}; S.profiles.set(u,{...p0,phoneVerified:on}); try{ S.profC?.set?.(u,on); }catch(e){} }
+      if(x.st==='err'){ st.textContent='❌ '+x.err+(x.other?'（'+nameOf(x.other)+'）':''); if(x.other) resolveNames([x.other]); } },()=>{}); };
+  watch(); setTimeout(()=>{ if(!document.body.contains(cur)) try{ off?.(); }catch(e){} },600000);
+  const send=async act=>{ const v=inp.value.replace(/[\s-]/g,''); if(act==='bind'&&!/^(09\d{8}|\+\d{8,15})$/.test(v)){ st.textContent='❌ 手機號碼格式不對（例如 0912345678）'; return; }
+    try{ st.textContent='⏳ 送出中…'; await S.db.doc('phoneBind/'+u).set({by:S.me,st:'req',act,phone:act==='bind'?v:'',at:Date.now()}); watch(); }catch(e){ st.textContent='❌ 送出失敗（規則還沒部署或沒有權限）'; } };
+  return h('div',{class:'panel'}, h('h3',{text:'📱 手機綁定'}), h('p',{}, cur),
+    h('div',{class:'row',style:'gap:8px'}, inp, h('button',{class:'btn pri sm',type:'button',onclick:()=>send('bind'),text:'直接綁定'})),
+    h('div',{class:'row',style:'gap:8px;margin-top:8px'}, confirmBtn('解除綁定','soft',()=>send('unbind'))), st,
+    h('p',{class:'hint',text:'不用簡訊驗證碼，綁好就等於手機驗證完成；一支手機只能綁一個帳號。會員重新整理網頁後生效，操作會記在管理員紀錄。'})); }
 async function admLog(u,act,detail){ try{ await S.db.collection('admlog').doc().set({by:S.me,u:u||'',act,detail:String(detail||'').slice(0,300),at:Date.now()}); }catch(e){} }
 function csvDl(name,rows){ const esc=v=>{ const s=v==null?'':String(v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }; const blob=new Blob(['﻿'+rows.map(r=>r.map(esc).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
   const a=h('a',{href:URL.createObjectURL(blob),download:name+'.csv'}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); toast('已匯出 '+name+'.csv'); }
@@ -12120,6 +12133,7 @@ function admUserDetail(m,u){
     const pr=S.profiles.get(u)||{}, nm=h('input',{maxlength:30,value:pr.name||''});
     const sf=sh?['name','location','bio','line','contact'].map(k=>[k,h(k==='bio'?'textarea':'input',{maxlength:k==='bio'?600:60,rows:k==='bio'?3:null})]):[]; sf.forEach(([k,i])=>{ i.value=sh[k]||''; });
     const G=GH.doc.get(u); if(!GH.doc.has(u)) ghLoad(u).then(()=>{ if(adm.open&&S.udTab==='edit') rr(); });
+    add(admPhonePanel(u,pr));
     add(h('div',{class:'panel'}, h('h3',{text:'會員名稱'}), h('div',{class:'row',style:'gap:8px'}, nm, h('button',{class:'btn pri sm',type:'button',onclick:()=>run(async()=>{ await S.db.doc('profiles/'+u).set({...pr,name:nm.value.trim()}); S.profiles.set(u,{...pr,name:nm.value.trim()}); S.names.set(u,nm.value.trim()); await admLog(u,'edit','名稱 → '+nm.value.trim()); },'已更新名稱'),text:'儲存'})), h('p',{class:'hint',text:'用在聊天、訂單、留言上顯示的名字。'})),
       sh?h('div',{class:'panel'}, h('h3',{text:'賣場資料'}), h('div',{class:'form',style:'gap:8px'}, ...sf.map(([k,i])=>field({name:'賣場名稱',location:'地區',bio:'介紹',line:'LINE ID',contact:'其他聯絡'}[k],i)),
         h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('button',{class:'btn pri sm',type:'button',onclick:()=>run(async()=>{ const d={}; sf.forEach(([k,i])=>d[k]=i.value.trim()); await S.db.doc('shops/'+u).update({...d,updatedAt:Date.now()}); S.shops.set(u,{...sh,...d}); await admLog(u,'edit','賣場資料：'+Object.entries(d).map(([k,v])=>k+'='+v).join('、').slice(0,200)); },'已更新賣場資料'),text:'儲存賣場資料'}),
@@ -14034,7 +14048,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);

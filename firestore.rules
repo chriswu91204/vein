@@ -82,6 +82,13 @@ service cloud.firestore {
       allow write: if isAdmin() && (!(docId in ['admins', 'media', 'text', 'blocks', 'badges']) || isOwner());
     }
 
+    // 管理員代綁手機：管理員寫申請，伺服器（Cloud Function）真的把手機號碼綁進登入資料，結果寫回這份文件
+    match /phoneBind/{uid} {
+      allow read, delete: if isAdmin();
+      allow create, update: if isAdmin() && request.resource.data.by == request.auth.uid && request.resource.data.st == 'req'
+        && request.resource.data.keys().hasOnly(['by', 'st', 'act', 'phone', 'at'])
+        && request.resource.data.act in ['bind', 'unbind'] && request.resource.data.phone is string && request.resource.data.phone.size() <= 20;
+    }
     // 公開的名字、頭像與「手機已驗證」標記
     match /profiles/{uid} {
       allow read: if true;

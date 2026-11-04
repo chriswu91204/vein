@@ -634,3 +634,29 @@ exports.viewsCleanup = onSchedule({ schedule: 'every day 04:17', timeZone: 'Asia
   for (let i = 0; i < 50; i++) { const sn = await db.collection('views').where('at', '<', cut).limit(400).get(); if (sn.empty) break; const b = db.batch(); sn.docs.forEach(d => b.delete(d.ref)); await b.commit(); n += sn.size; }
   logger.info('viewsCleanup', n);
 });
+
+// 管理員代綁手機：把手機號碼直接寫進會員的登入資料（等同簡訊驗證完成），一支手機只能綁一個帳號
+const OWNER_EMAILS = ['chriswu91204@gmail.com'];
+exports.adminPhoneBind = onDocumentWritten({ document: 'phoneBind/{uid}' }, async ev => {
+  const after = ev.data.after; if (!after.exists) return; const d = after.data(); if (d.st !== 'req') return;
+  const uid = ev.params.uid, ref = after.ref, fail = (msg, extra) => ref.set({ st: 'err', err: msg, at: Date.now(), by: d.by, act: d.act, ...(extra || {}) });
+  try {
+    const adm = (await db.doc('site/admins').get()).data() || {}; let ok = !!(adm.uids || {})[d.by];
+    if (!ok) { try { const bu = await admin.auth().getUser(d.by); ok = !!bu.email && OWNER_EMAILS.includes(bu.email.toLowerCase()); } catch (e) {} }
+    if (!ok) return fail('沒有權限');
+    let target; try { target = await admin.auth().getUser(uid); } catch (e) { return fail('找不到這個會員的登入帳號'); }
+    if (d.act === 'unbind') {
+      await admin.auth().updateUser(uid, { phoneNumber: null });
+      await db.doc('profiles/' + uid).set({ phoneVerified: false, updatedAt: Date.now() }, { merge: true });
+      await db.collection('admlog').add({ by: d.by, u: uid, act: 'phone', detail: '解除手機綁定（原本 ' + (target.phoneNumber || '無') + '）', at: Date.now() });
+      return ref.set({ st: 'ok', act: 'unbind', phone: '', at: Date.now(), by: d.by });
+    }
+    let n = String(d.phone || '').replace(/[\s-]/g, ''); if (/^09\d{8}$/.test(n)) n = '+886' + n.slice(1); if (/^8869\d{8}$/.test(n)) n = '+' + n;
+    if (!/^\+\d{8,15}$/.test(n)) return fail('手機號碼格式不對（例如 0912345678）');
+    try { const other = await admin.auth().getUserByPhoneNumber(n); if (other.uid !== uid) return fail('這支手機已經綁在別的帳號', { other: other.uid }); } catch (e) { if (e.code !== 'auth/user-not-found') throw e; }
+    await admin.auth().updateUser(uid, { phoneNumber: n });
+    await db.doc('profiles/' + uid).set({ phoneVerified: true, updatedAt: Date.now() }, { merge: true });
+    await db.collection('admlog').add({ by: d.by, u: uid, act: 'phone', detail: '代綁手機 ' + n + (target.phoneNumber ? '（原本 ' + target.phoneNumber + '）' : ''), at: Date.now() });
+    return ref.set({ st: 'ok', act: 'bind', phone: n, at: Date.now(), by: d.by });
+  } catch (e) { logger.error('adminPhoneBind', e); return fail('綁定失敗：' + (e.message || e.code || '')); }
+});
