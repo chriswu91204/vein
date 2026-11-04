@@ -5685,6 +5685,15 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 .px .cx-cir .gh-b.pri{flex:none;border:0;background:#D2FF00;color:#0C0E0D;font-weight:800;padding:10px 16px;border-radius:999px}
 .px-act{background:rgba(12,14,13,.96)!important;border-top:1px solid #1E2123!important}
 .px-act .px-say{background:#17191B!important;color:#8C908B!important}
+.cq-im{aspect-ratio:3/4}
+.cq-st{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}.cq-st::-webkit-scrollbar{display:none}
+.cq-si{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always}
+.cq-si img{display:block;width:100%;height:100%!important;min-height:0!important;max-height:none!important;object-fit:cover}
+.cq-im.multi::after{content:'';position:absolute;inset:auto 0 0;height:30%;background:linear-gradient(transparent,rgba(0,0,0,.25));pointer-events:none}
+.cq-ar{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:18px;line-height:1;cursor:pointer;opacity:0;transition:opacity .2s;z-index:2;padding:0}
+.cq-ar.l{left:6px}.cq-ar.r{right:6px}
+@media (hover:hover){.cq-c:hover .cq-ar{opacity:1}}
+.cq-im .cq-ni,.cq-im .cq-bd{z-index:2}
 </style>
 
 </head>
@@ -8950,10 +8959,19 @@ async function cmSpecial(){ if(!S.db||CM.feat) return; CM.feat=[]; CM.pin=[]; tr
 const cmCover=p=>p.cover||null;
 function cmCard(p,i){ const cv=cmCover(p), nb=CM.liked.get(p.id), th='black', T=PT[th], bd=p.pin||p.feat?h('em',{class:'cq-bd',text:p.pin?'置頂':'精選'}):null;
   return h('a',{class:'cq-c'+(p.hidden?' hid':''),href:'#/post/'+p.id,style:'--i:'+Math.min(i||0,12)},
-    cv?h('div',{class:'cq-im'}, h('img',{src:cv.thumb||cv.poster||cv.url,alt:'',loading:'lazy'}), cv.type==='video'?h('i',{class:'cq-pl',text:'▶'}):null, p.nImg>1?h('i',{class:'cq-ni',text:'1/'+p.nImg}):null, bd)
+    cv?cqMedia(p,cv,bd)
       :h('div',{class:'cq-tx px-tc pt-'+th+' pat-'+T[7],style:pxVars(th)}, h('b',{class:'ptf-'+T[8]+(T[9]?' pfx-'+T[9]:''),text:p.title||''}), p.ex?h('p',{text:p.ex}):null, bd),
     cv?h('b',{class:'cq-t',text:p.title||'（無標題）'}):null,
     h('div',{class:'cq-f'}, h('span',{class:'cq-au'}, chatAv(p.uid,18), h('small',{text:nameOf(p.uid)})), h('small',{class:'cq-lk'+(nb?' on':'')}, h('i',{text:nb?'♥':'♡'}), String(p.likes||0)))); }
+function cqMediaList(p){ const B=p.blocks||[], L=[...(p.gal||[]),...B.flatMap(b=>b.t==='img'?(b.items||[]):b.t==='vid'&&b.m?[b.m]:b.t==='cmp'?[b.a,b.b].filter(Boolean):[])].filter(m=>m?.url); const seen=new Set(); return L.filter(m=>!seen.has(m.url)&&seen.add(m.url)).slice(0,18); }
+function cqMedia(p,cv,bd){ let L=cqMediaList(p); if(!L.length) L=[cv]; const n=L.length, cnt=n>1?h('i',{class:'cq-ni',text:'1/'+n}):null;
+  const one=(m,i)=>h('div',{class:'cq-si'}, h('img',{src:m.thumb||m.poster||m.url,alt:'',loading:i<2?'eager':'lazy',draggable:'false'}), m.type==='video'?h('i',{class:'cq-pl',text:'▶'}):null);
+  const tr=h('div',{class:'cq-st'}, ...L.map(one)), box=h('div',{class:'cq-im'+(n>1?' multi':'')}, tr, cnt, bd);
+  const f=tr.querySelector('img'); f.addEventListener('load',()=>{ if(f.naturalWidth) box.style.aspectRatio=String(Math.max(.75,Math.min(1.34,f.naturalWidth/f.naturalHeight))); },{once:true});
+  if (n>1){ tr.addEventListener('scroll',()=>{ const k=Math.round(tr.scrollLeft/tr.clientWidth); cnt.textContent=(k+1)+'/'+n; },{passive:true});
+    const nav=d=>e=>{ e.preventDefault(); e.stopPropagation(); tr.scrollBy({left:d*tr.clientWidth,behavior:'smooth'}); };
+    box.append(h('button',{type:'button',class:'cq-ar l',onclick:nav(-1),'aria-label':'上一張',text:'‹'}), h('button',{type:'button',class:'cq-ar r',onclick:nav(1),'aria-label':'下一張',text:'›'})); }
+  return box; }
 function cmMasonry(L){ const cols=innerWidth>=1100?5:innerWidth>=720?3:2, C=Array.from({length:cols},()=>h('div',{class:'cq-col'})); L.forEach((p,i)=>C[i%cols].append(cmCard(p,i))); return h('div',{class:'cq-ms',style:'--n:'+cols}, ...C); }
 // 社群頂部（小紅書式）：☰ ｜ 追蹤中・發現・逛溫室 ｜ ＋
 function cqTop(cur){ const home=()=>{ CM.page='post'; if(location.hash.split('?')[0]!=='#/community') go('#/community'); else renderCommunityPg(true); scrollTo(0,0); };
