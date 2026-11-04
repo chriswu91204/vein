@@ -3,7 +3,7 @@
 // window.claude.use('db' | 'user' | 'assets')。網站其他程式碼不需要知道底層是 Firebase。
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter , increment } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter , increment, writeBatch } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
 import { OWNER_EMAILS, APPCHECK_SITE_KEY } from './site-config.js';
@@ -109,7 +109,9 @@ async function start() {
       collection: c => Q(path + '/' + c)
     };
   }
-  const db = { doc: D, collection: p => Q(p), async resync() { try { await disableNetwork(fs); } finally { await enableNetwork(fs); } } };
+  // 一次寫入多筆（全部成功或全部失敗），例如聊天：訊息本身＋列表上的最後一則一起寫，不會出現列表有、對話裡沒有
+  const batch = () => { const b = writeBatch(fs); return { set(p, d) { b.set(doc(fs, p), clean(d)); return this; }, update(p, d) { b.update(doc(fs, p), clean(d)); return this; }, async commit() { try { await b.commit(); } catch (e) { throw mapErr(e); } } }; };
+  const db = { doc: D, batch, newId: p => doc(collection(fs, p)).path.split('/').pop(), collection: p => Q(p), async resync() { try { await disableNetwork(fs); } finally { await enableNetwork(fs); } } };
 
   /* ---------- user ---------- */
   let isAdmin = false, isOwner = false;

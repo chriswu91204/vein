@@ -5985,7 +5985,7 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 window.__veinReady=new Promise(function(r){ window.__veinResolve=r; });
 window.claude={ use:function(n){ return window.__veinReady.then(function(a){ return a.use(n); }); } };
 </script>
-<script type="module" src="/js/vein-firebase.js?v=20261103"></script>
+<script type="module" src="/js/vein-firebase.js?v=20261104b"></script>
 <script>
 var PAGE='home';
 // 每一筆瀏覽紀錄都編號（vi），才知道「上一頁」還在不在 VEIN 裡面、要退幾步才回到進後台前的那一頁
@@ -13595,7 +13595,7 @@ function careRender(box){ const Z=S.care.zones, total=myPlants().length, assigne
 /* ================= 即時聊天（買家 ↔ 賣家）================= */
 const POPUP=new URLSearchParams(location.search).has('popup');
 S.chats=new Map(); S.chatMsgs=new Map();
-const CH={subs:new Map(), views:new Set(), wins:[], listOpen:false, ctx:{}, q:'', lastSeen:new Map(), booted:false};
+const CH={pullAt:new Map(),subs:new Map(), views:new Set(), wins:[], listOpen:false, ctx:{}, q:'', lastSeen:new Map(), booted:false};
 const chatId=(a,b)=>[a,b].sort().join('~');
 const chatOther=c=>String(c.id||c).split('~').find(u=>u!==S.me)||S.me;
 const chatName=u=>shopOf(u)?.name||nameOf(u)||'會員';
@@ -13612,14 +13612,20 @@ const isDesk=()=>innerWidth>=900&&!POPUP;
 function chatBoot(db){ if(CH.booted||!S.me) return; CH.booted=true;
   db.collection('chats').where('members','array-contains',S.me).onSnapshot(sn=>{ const prev=new Map([...S.chats].map(([k,v])=>[k,v.last?.at||0])); S.chats.clear();
     sn.docs.forEach(d=>{ const v=d.data(); if((v.members||[]).includes(S.me)) S.chats.set(d.id,{id:d.id,...v}); });
-    resolveNames([...S.chats.keys()].map(chatOther)); if(CH.ready) chatNotify(prev); CH.ready=true; chatRefresh(); },()=>{});
+    resolveNames([...S.chats.keys()].map(chatOther)); if(CH.ready) chatNotify(prev); CH.ready=true; chatRefresh(); chatBehind(); },()=>{});
   chatDock(); }
 function chatAttach(cid){ const q=S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200), put=sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); };
   const un=q.onSnapshot(put,()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); });
   // 剛打開或從背景回來時，即時連線可能還沒接上、先給的是舊的快取：再主動跟伺服器要一次最新的
   chatPull(cid); setTimeout(()=>chatPull(cid),2500); return un; }
-async function chatPull(cid){ try{ if(!S.db||!CH.subs.has(cid)) return; const sn=await S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).get(); const L=sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at), cur=S.chatMsgs.get(cid)||[];
-  if(L.length!==cur.length||(L[L.length-1]?.id!==cur[cur.length-1]?.id)||JSON.stringify(L.map(m=>m.resp||''))!==JSON.stringify(cur.map(m=>m.resp||''))){ S.chatMsgs.set(cid,L); chatRefresh(cid); } }catch(e){} }
+async function chatPull(cid,force){ try{ if(!S.db||!CH.subs.has(cid)) return; const sn=await S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200).get(); const L=sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at), cur=S.chatMsgs.get(cid)||[];
+  const c=S.chats.get(cid); if(c?.last?.at) CH.pullAt.set(cid,Math.max(CH.pullAt.get(cid)||0,c.last.at));
+  if(L.length!==cur.length||(L[L.length-1]?.id!==cur[cur.length-1]?.id)||JSON.stringify(L.map(m=>m.resp||''))!==JSON.stringify(cur.map(m=>m.resp||''))){ S.chatMsgs.set(cid,L); } chatRefresh(cid); }catch(e){} }
+// 列表上的最後一則比對話裡最新的還新 → 對話的即時連線漏掉了，馬上跟伺服器要
+function chatBehind(){ for(const [cid,x] of CH.subs){ if(x.pend) continue; const c=S.chats.get(cid), L=S.chatMsgs.get(cid); if(!c?.last?.at||!L) continue; const top=L[L.length-1]?.at||0; if(c.last.at>top+1500&&(CH.pullAt.get(cid)||0)<c.last.at) { CH.pullAt.set(cid,c.last.at); chatPull(cid,true); } } }
+// 正在看的對話每 10 秒輕量檢查一次最新一則（只讀 1 筆），有差才整個重抓；iPhone 從背景回來時即時連線常常默默斷掉
+async function chatPeek(){ if(!S.db||document.hidden) return; for(const [cid,x] of CH.subs){ if(x.pend||!chatVisible(cid)) continue; try{ const sn=await S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(1).get(), d=sn.docs[0], L=S.chatMsgs.get(cid)||[]; if(d&&d.id!==L[L.length-1]?.id){ chatPull(cid,true); if(Date.now()-(x.reAt||0)>30000){ x.reAt=Date.now(); try{ x.un(); }catch(e){} x.un=chatAttach(cid); } } }catch(e){} } }
+setInterval(chatPeek,10000);
 // 從通知點進來時資料庫可能還沒連好：先排隊，連好再開始即時同步（以前會直接失敗，要跳出去再進來才會更新）
 function chatSub(cid){ const x=CH.subs.get(cid); if(x){ x.n++; return; }
   if (!S.db){ const y={un:()=>{},n:1,pend:true}; CH.subs.set(cid,y); const t=setInterval(()=>{ if(CH.subs.get(cid)!==y){ clearInterval(t); return; } if(S.db){ clearInterval(t); y.pend=false; y.un=chatAttach(cid); } },300); return; }
@@ -13634,10 +13640,13 @@ navigator.serviceWorker?.addEventListener('message',e=>{ const g=e.data&&e.data.
 function chatUnsub(cid){ const x=CH.subs.get(cid); if(!x) return; if(--x.n<=0){ try{ x.un(); }catch(e){} CH.subs.delete(cid); } }
 async function chatSend(cid,msg){ if(needLogin()) return false; if(msg.t!=='sys'&&!rateOK('chat')) return false; const at=Date.now(), m={...msg,from:S.me,at}, last={t:msg.t,text:chatPreview(m),from:S.me,at};
   const c=S.chats.get(cid);
+  // 訊息本身和列表上的「最後一則」一定要一起寫（全部成功或全部失敗）：以前分兩次寫，中間斷線或 App 被關掉，就會變成列表有、點進去沒有
   try{
-    if(!c){ const doc={members:cid.split('~'),createdAt:at,updatedAt:at,last,read:{[S.me]:at}}; await S.db.doc('chats/'+cid).set(doc); S.chats.set(cid,{id:cid,...doc}); }
-    else { const read={...(c.read||{}),[S.me]:at}; await S.db.doc('chats/'+cid).update({updatedAt:at,last,read}); Object.assign(c,{updatedAt:at,last,read}); }
-    await S.db.collection('chats/'+cid+'/messages').doc().set(m); return true;
+    const doc0=c?null:{members:cid.split('~'),createdAt:at,updatedAt:at,last,read:{[S.me]:at}}, read=c?{...(c.read||{}),[S.me]:at}:null;
+    if (S.db.batch&&S.db.newId){ const mid=S.db.newId('chats/'+cid+'/messages'), b=S.db.batch(); b.set('chats/'+cid+'/messages/'+mid,m); if(c) b.update('chats/'+cid,{updatedAt:at,last,read}); else b.set('chats/'+cid,doc0); await b.commit(); }
+    else { if(!c) await S.db.doc('chats/'+cid).set(doc0); await S.db.collection('chats/'+cid+'/messages').doc().set(m); if(c) await S.db.doc('chats/'+cid).update({updatedAt:at,last,read}); }
+    if (c) Object.assign(c,{updatedAt:at,last,read}); else S.chats.set(cid,{id:cid,...doc0});
+    return true;
   }catch(e){ toast('訊息沒送出：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); return false; } }
 async function chatRespond(cid,m,resp,note){ try{ await S.db.doc('chats/'+cid+'/messages/'+m.id).update({resp,respAt:Date.now(),respBy:S.me}); m.resp=resp; if(note) await chatSend(cid,{t:'sys',text:note}); chatRefresh(cid); }catch(e){ toast('操作失敗'); } }
 function chatMarkRead(cid){ const c=S.chats.get(cid); if(!c||!chatUnread(c)||document.hidden) return; const read={...(c.read||{}),[S.me]:Date.now()}; c.read=read; S.db.doc('chats/'+cid).update({read}).catch(()=>{}); chatRefresh(); }
@@ -13770,6 +13779,7 @@ function chatConv(cid,opt={}){
       const meS=m.from===S.me, cont=lastFrom===m.from&&m.at-lastAt<5*60e3; lastFrom=m.from; lastAt=m.at;
       out.push(h('div',{class:'cm'+(meS?' me':'')+(cont?' cont':'')+(['prod','offer','ask','pay','ship'].includes(m.t)?' wide':'')}, !meS?(cont?h('span',{class:'cm-sp'}):chatAv(other,28)):null, h('div',{class:'cm-b'}, msgBody(m), h('span',{class:'cm-t',text:hhmm(m.at)+(m===myLast&&oRead>=m.at?' · 已讀':'')})))); });
     ms.replaceChildren(...out); drawQuick();
+    { const top=L[L.length-1]; if(c?.last?.at&&c.last.from&&c.last.at>(top?.at||0)+3000&&Date.now()-c.last.at>20000&&(CH.pullAt.get(cid)||0)>=c.last.at) ms.append(h('div',{class:'cm-sys cm-lost',text:'⚠️ '+(c.last.from===S.me?'你':chatName(other))+'的最後一則「'+String(c.last.text||'').slice(0,40)+'」沒有傳送成功'+(c.last.from===S.me?'，請重新傳送':'，可以請對方再傳一次')})); }
     if (keepB) ms.scrollTop=ms.scrollHeight; else ms.scrollTop=oldT+(L.length!==lastN?0:0);
     lastN=L.length; if(atBottom) setTimeout(()=>chatMarkRead(cid),0); };
   const view={cid,el:box,render,born:Date.now()}; CH.views.add(view); render(); setTimeout(()=>{ ms.scrollTop=ms.scrollHeight; if(!opt.noFocus&&isDesk()) ta.focus(); },30);
