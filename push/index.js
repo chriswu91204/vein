@@ -605,3 +605,25 @@ async function encStrike(uid, shop, oid) {
   if (!r) return;
   await push(uid, '⚠️ 遭遇戰功能已鎖定', r.n >= 3 ? '你已第 3 次取消遭遇戰訂單，遭遇戰功能永久鎖定' : '你取消了遭遇戰訂單（第 ' + r.n + ' 次），遭遇戰功能鎖定 ' + (r.n === 1 ? '1 週' : '1 個月'), '/#/raffle', 'encban');
 }
+
+/* ===== 植友社群：按讚、留言、投票的計數與通知（用戶端不能自己改數字） ===== */
+const { onDocumentDeleted } = require('firebase-functions/v2/firestore');
+const INC = n => admin.firestore.FieldValue.increment(n);
+const pstat = (uid, k, n) => uid ? db.doc('pstat/' + uid).set({ [k]: INC(n), at: Date.now() }, { merge: true }).catch(() => {}) : null;
+async function postOf(id) { try { const d = await db.doc('posts/' + id).get(); return d.exists ? d.data() : null; } catch (e) { return null; } }
+exports.cmPostNew = onDocumentCreated({ document: 'posts/{id}', ...HOT }, async ev => { const p = ev.data.data() || {}; await pstat(p.uid, 'posts', 1); });
+exports.cmPostDel = onDocumentDeleted({ document: 'posts/{id}', ...HOT }, async ev => { const p = ev.data.data() || {}; await pstat(p.uid, 'posts', -1); if (p.feat) await pstat(p.uid, 'feat', -1); });
+exports.cmPostUpd = onDocumentUpdated({ document: 'posts/{id}', ...HOT }, async ev => { const a = ev.data.before.data() || {}, b = ev.data.after.data() || {};
+  if (!a.feat && b.feat) { await pstat(b.uid, 'feat', 1); await push(b.uid, '⭐ 你的文章被選為精選', '「' + String(b.title || '').slice(0, 30) + '」出現在社群精選了', '/#/post/' + ev.params.id, 'feat-' + ev.params.id); }
+  else if (a.feat && !b.feat) await pstat(b.uid, 'feat', -1); });
+exports.cmLikeNew = onDocumentCreated({ document: 'posts/{id}/likes/{uid}', ...HOT }, async ev => { const id = ev.params.id, u = ev.params.uid;
+  await db.doc('posts/' + id).update({ likes: INC(1) }).catch(() => {}); const p = await postOf(id); if (!p) return; await pstat(p.uid, 'likes', 1);
+  if (p.uid !== u) { const lk = +p.likes || 0; if (lk <= 3 || [10, 50, 100, 500, 1000].includes(lk)) await push(p.uid, '♥ ' + (await displayName(u)) + (lk > 3 ? ' 等 ' + lk + ' 人' : '') + ' 喜歡你的文章', '「' + String(p.title || '').slice(0, 30) + '」', '/#/post/' + id, 'like-' + id); } });
+exports.cmLikeDel = onDocumentDeleted({ document: 'posts/{id}/likes/{uid}', ...HOT }, async ev => { const id = ev.params.id; await db.doc('posts/' + id).update({ likes: INC(-1) }).catch(() => {}); const p = await postOf(id); if (p) await pstat(p.uid, 'likes', -1); });
+exports.cmCmtNew = onDocumentCreated({ document: 'posts/{id}/cmts/{cid}', ...HOT }, async ev => { const id = ev.params.id, c = ev.data.data() || {};
+  await db.doc('posts/' + id).update({ cmts: INC(1) }).catch(() => {}); await pstat(c.uid, 'cmts', 1); const p = await postOf(id); if (!p) return; const me = await displayName(c.uid), txt = String(c.text || '📷 照片').slice(0, 60);
+  if (p.uid !== c.uid) await push(p.uid, '💬 ' + me + ' 留言了你的文章', txt, '/#/post/' + id, 'cmt-' + id);
+  if (c.re) { try { const r = await db.doc('posts/' + id + '/cmts/' + c.re).get(); const ru = r.exists ? r.data().uid : null; if (ru && ru !== c.uid && ru !== p.uid) await push(ru, '↩️ ' + me + ' 回覆了你的留言', txt, '/#/post/' + id, 'cmt-' + id); } catch (e) {} } });
+exports.cmCmtDel = onDocumentDeleted({ document: 'posts/{id}/cmts/{cid}', ...HOT }, async ev => { await db.doc('posts/' + ev.params.id).update({ cmts: INC(-1) }).catch(() => {}); });
+exports.cmVote = onDocumentCreated({ document: 'posts/{id}/votes/{vid}', ...HOT }, async ev => { const v = ev.data.data() || {}; if (!v.b || typeof v.o !== 'number' || v.o < 0 || v.o > 9) return;
+  await db.doc('posts/' + ev.params.id).update(new admin.firestore.FieldPath('poll', String(v.b), String(v.o)), INC(1)).catch(e => logger.warn('vote', e.message)); });

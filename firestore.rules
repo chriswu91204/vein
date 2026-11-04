@@ -237,6 +237,40 @@ service cloud.firestore {
       allow create, update: if (isMe(uid) && notBanned() && request.resource.data.size() < 30) || isAdmin();
       allow delete: if isMe(uid) || isAdmin();
     }
+    // 植友社群：文章、按讚、留言、投票（按讚數、留言數、投票結果由伺服器計算）
+    match /posts/{id} {
+      function pdoc() { return get(/databases/$(database)/documents/posts/$(id)).data; }
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && !lim('post') && request.resource.data.uid == request.auth.uid
+        && request.resource.data.get('feat', false) == false && request.resource.data.get('pin', false) == false && request.resource.data.get('hidden', false) == false
+        && request.resource.data.get('likes', 0) == 0 && request.resource.data.get('cmts', 0) == 0 && !('poll' in request.resource.data);
+      allow update: if (isMe(resource.data.uid) && notBanned() && !lim('post') && request.resource.data.uid == resource.data.uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['feat', 'pin', 'pinAt', 'likes', 'cmts', 'poll', 'hidden', 'at']))
+        || isAdmin();
+      allow delete: if isMe(resource.data.uid) || isAdmin();
+      match /likes/{uid} {
+        allow read: if true;
+        allow create: if isMe(uid) && notBanned();
+        allow delete: if isMe(uid);
+      }
+      match /cmts/{cid} {
+        allow read: if true;
+        allow create: if signedIn() && notBanned() && !lim('chat') && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string && request.resource.data.text.size() <= 1000;
+        allow delete: if (signedIn() && (resource.data.uid == request.auth.uid || pdoc().uid == request.auth.uid)) || isAdmin();
+      }
+      // 投票：每人每題一票（文件代號＝會員~題目）
+      match /votes/{vid} {
+        allow read: if signedIn() && vid.split('~')[0] == request.auth.uid;
+        allow create: if signedIn() && notBanned() && vid.split('~')[0] == request.auth.uid
+          && request.resource.data.keys().hasOnly(['b', 'o', 'at']) && request.resource.data.o is int && vid == request.auth.uid + '~' + request.resource.data.b;
+      }
+    }
+    match /pstat/{uid} { allow read: if true; }
+    match /reports/{id} {
+      allow create: if signedIn() && request.resource.data.by == request.auth.uid;
+      allow read, delete: if isAdmin();
+    }
     // 管理員給會員的警告：本人看得到、可以按「我知道了」
     match /warns/{uid} {
       allow read: if isMe(uid) || isAdmin();

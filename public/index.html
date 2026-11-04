@@ -5170,6 +5170,117 @@ body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!impor
 .ghx-gg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@container gh (min-width:760px){.ghx-gg{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .ghx-gc{background:var(--gc);border-radius:16px;padding:6px 6px 10px;text-decoration:none;color:var(--gf);display:flex;flex-direction:column;gap:3px}.ghx-gi{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px}.ghx-gi img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px}.ghx-gc b{font-size:13px;padding:0 4px}.ghx-gc small{font-size:11px;color:var(--gs);padding:0 4px}
 .ghx-pr{color:var(--ga)!important;font-weight:800;font-size:12.5px!important}
+/* ===== 植友社群 ===== */
+.cx{padding-bottom:90px;min-width:0;max-width:100%}#communityPage,#postPage,#writePage{min-width:0;overflow-x:clip}
+.cx-top{position:sticky;top:56px;z-index:5;background:color-mix(in srgb,var(--paper,#F3F2EE) 92%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);margin:0 -16px 12px;padding:8px 16px 8px}
+.cx-th{display:flex;align-items:center;gap:10px}.cx-th h1{font-size:24px;margin:0;flex:1}.cx-rules{font-size:12px;color:var(--fg2);text-decoration:none}
+.cx-write{border:0;background:#111312;color:#D2FF00;font:inherit;font-weight:800;font-size:14px;padding:9px 16px;border-radius:999px;cursor:pointer}
+.cx-s{display:flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:0 14px;margin:10px 0 8px;box-shadow:0 1px 0 rgba(0,0,0,.05)}.cx-s svg{width:18px;height:18px;opacity:.5}.cx-s input{border:0;background:none;font:inherit;font-size:15px;padding:11px 0;flex:1;min-width:0;outline:none}
+.cx-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.cx-tabs::-webkit-scrollbar,.cx-cats::-webkit-scrollbar{display:none}
+.cx-tabs button{flex:none;border:0;background:none;font:inherit;font-size:15px;font-weight:700;color:var(--fg2);padding:8px 12px;cursor:pointer;position:relative}.cx-tabs button[aria-pressed="true"]{color:var(--fg)}.cx-tabs button[aria-pressed="true"]::after{content:'';position:absolute;left:30%;right:30%;bottom:2px;height:3px;border-radius:3px;background:#1F5C42}
+.cx-cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px 0 2px}.cx-cats button{flex:none;border:0;background:#fff;font:inherit;font-size:13px;font-weight:600;color:var(--fg2);padding:6px 12px;border-radius:999px;cursor:pointer}.cx-cats button[aria-pressed="true"]{background:#1F5C42;color:#fff}
+.cx-pins{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}.cx-pin{display:flex;gap:12px;align-items:center;background:#FFF7E0;border-radius:16px;padding:8px;text-decoration:none;color:var(--fg)}.cx-pin img{width:60px;height:60px;object-fit:cover;border-radius:12px}.cx-pin div{min-width:0;display:flex;flex-direction:column;gap:1px}.cx-pin em{font-style:normal;font-size:11px;font-weight:800;color:#B25E00}.cx-pin b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cx-pin small{font-size:11.5px;color:var(--fg2)}
+.cx-sec{margin-bottom:16px}.cx-sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cx-sh b{font-size:16px}
+.cx-ghr,.cx-ftr{display:grid;grid-auto-flow:column;gap:10px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding-bottom:4px}.cx-ghr::-webkit-scrollbar,.cx-ftr::-webkit-scrollbar{display:none}
+.cx-ghr{grid-auto-columns:128px}.cx-ghc{background:var(--gb);color:var(--gf);border-radius:16px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;scroll-snap-align:start}.cx-ghc img,.cx-ghc i{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--gc)}.cx-ghc b{font-size:12.5px;padding:6px 8px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cx-ghc small{font-size:11px;padding:0 8px 8px;color:var(--gs)}
+.cx-ftr{grid-auto-columns:78%}@media (min-width:760px){.cx-ftr{grid-auto-columns:32%}}
+.cx-ftc{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;background:#1F2A24;text-decoration:none;color:#fff;scroll-snap-align:start;display:block}.cx-ftc img{width:100%;height:100%;object-fit:cover}.cx-ftc>i{position:absolute;inset:0;display:grid;place-items:center;font-size:40px;font-style:normal}.cx-ftc div{position:absolute;left:0;right:0;bottom:0;padding:30px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.75));display:flex;flex-direction:column}.cx-ftc b{font-size:15px}.cx-ftc small{font-size:11.5px;opacity:.85}
+.cx-ms{display:flex;gap:10px;align-items:flex-start}.cx-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.cx-c{background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:var(--fg);display:block;animation:ghIn .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.03s);box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.cx-c.hid{opacity:.5}.cx-ci{position:relative}.cx-ci img{width:100%;display:block;max-height:340px;min-height:120px;object-fit:cover;background:#E8EAE4}.cx-pl,.cx-ni{position:absolute;top:8px;right:8px;font-style:normal;font-size:11px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:3px 8px}
+.cx-ct{background:linear-gradient(150deg,#E9F2DE,#D6E8D0);padding:18px 14px;min-height:110px;display:flex;align-items:center}.cx-ct p{margin:0;font-size:14px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;color:#1F3328}
+.cx-cm{padding:8px 10px 10px;display:flex;flex-direction:column;gap:5px}.cx-cm>b{font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cx-tg{display:flex;gap:4px;flex-wrap:wrap}.cx-tg em{font-style:normal;font-size:10.5px;font-weight:700;background:#EEF0EA;color:var(--fg2);border-radius:6px;padding:2px 6px}.cx-tg em.pin{background:#FFE9C2;color:#8A4B00}.cx-tg em.feat{background:#FFF3C4;color:#7A5B00}
+.cx-cf{display:flex;align-items:center;gap:8px}.cx-au{display:flex;align-items:center;gap:5px;flex:1;min-width:0}.cx-au small{font-size:11.5px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cx-au .ch-av{width:20px!important;height:20px!important;font-size:10px!important}.cx-cf>small{font-size:11.5px;color:var(--fg2);white-space:nowrap}.cx-lk.on{color:#E8452C}
+.cx-fab{position:fixed;right:16px;bottom:calc(150px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:#1F5C42;color:#fff;font-size:24px;box-shadow:0 12px 28px -10px rgba(0,0,0,.5);z-index:30;cursor:pointer}
+@media (min-width:900px){.cx-fab{display:none}}@media (max-width:899px){.cx-write{display:none}}
+.cx-ghh{display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px}.cx-ghh b{font-size:17px}
+/* 文章 */
+.cx-art{max-width:720px;margin:0 auto;padding-bottom:60px}
+.cx-ah{display:flex;align-items:center;gap:10px;margin:4px 0 12px}.cx-au2{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);flex:1;min-width:0}.cx-au2 b{display:block;font-size:15px}.cx-au2 small{font-size:12px;color:var(--fg2)}
+.cx-mw{position:relative}.cx-mw summary{list-style:none;cursor:pointer;font-size:22px;padding:0 8px;line-height:1}.cx-mw summary::-webkit-details-marker{display:none}
+.cx-menu{position:absolute;right:0;top:30px;background:#fff;border-radius:14px;box-shadow:0 18px 40px -12px rgba(0,0,0,.35);padding:6px;display:flex;flex-direction:column;min-width:160px;z-index:10}.cx-menu>button,.cx-menu .btn{border:0;background:none;font:inherit;font-size:14px;text-align:left;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--fg)}.cx-menu>button:hover{background:#F3F4F0}
+.cx-t{color:var(--fg);font-size:26px;line-height:1.3;margin:6px 0 14px;overflow-wrap:anywhere}
+.cx-body{display:flex;flex-direction:column;gap:14px;font-size:16px;line-height:1.75}
+.cx-rt p{margin:0 0 10px;overflow-wrap:anywhere}.cx-rt p:last-child{margin-bottom:0}.cx-tag{color:#1F5C42;font-weight:700;text-decoration:none}
+.cx-h2{font-size:22px;margin:10px 0 0}.cx-h3{font-size:18px;margin:6px 0 0}
+.cx-fig{margin:0}.cx-fig figcaption{font-size:13px;color:var(--fg2);text-align:center;margin-top:6px}
+.cx-swb{position:relative;margin:0 -16px}@media (min-width:760px){.cx-swb{margin:0}}
+.cx-sw{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.cx-sw::-webkit-scrollbar{display:none}.cx-swi{flex:none;width:100%;scroll-snap-align:center;aspect-ratio:4/5;background:#111;cursor:zoom-in}.cx-swi img,.cx-swi video{width:100%;height:100%;object-fit:cover;display:block}
+@media (min-width:760px){.cx-swi{aspect-ratio:4/3;border-radius:14px;overflow:hidden}}
+.cx-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:5px}.cx-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5)}.cx-dots i.on{background:#fff;width:16px;border-radius:3px}
+.cx-swn{position:absolute;top:10px;right:12px;font-size:11px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:3px 8px}
+.cx-ig{display:grid;gap:4px;border-radius:14px;overflow:hidden}.cx-ig.n1{grid-template-columns:1fr}.cx-ig.n2{grid-template-columns:1fr 1fr}.cx-ig.n3{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr}.cx-ig.n3 button:first-child{grid-row:span 2}.cx-ig.n4{grid-template-columns:1fr 1fr}
+.cx-ig button{border:0;padding:0;background:#EEE;cursor:zoom-in;aspect-ratio:1/1}.cx-ig.n3 button:first-child{aspect-ratio:auto}.cx-ig img{width:100%;height:100%;object-fit:cover;display:block}
+.cx-ib{display:flex;flex-direction:column;gap:8px}.cx-ib img{width:100%;border-radius:14px;display:block;cursor:zoom-in}
+.cx-v{width:100%;border-radius:14px;background:#000;max-height:80vh}
+.cx-pls{display:grid;gap:8px}.cx-plc{border:0;background:#fff;border-radius:16px;padding:8px;display:flex;gap:12px;align-items:center;text-align:left;font:inherit;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.05)}.cx-plc img{width:64px;height:64px;border-radius:12px;object-fit:cover}.cx-plc div{display:flex;flex-direction:column;gap:1px;min-width:0}.cx-plc b{font-size:15px}.cx-plc small{font-size:11px;color:var(--fg2)}.cx-plc em{font-style:normal;font-size:13px;font-weight:800;color:#1F5C42}.cx-plc em.g{color:var(--fg2);font-weight:600}
+.cx-poll,.cx-qz{background:#fff;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}.cx-poll>b,.cx-qz>b{font-size:16px}
+.cx-poll button,.cx-qz button{border:1.5px solid #DADDD5;background:#fff;font:inherit;font-size:15px;text-align:left;padding:11px 14px;border-radius:12px;cursor:pointer;position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:8px}
+.cx-poll.done button{cursor:default;border-color:transparent;background:#F3F4F0}.cx-poll.done button::before{content:'';position:absolute;inset:0 auto 0 0;width:var(--p);background:#DCEBC8;transition:width .8s cubic-bezier(.2,.8,.2,1)}.cx-poll button>*{position:relative}.cx-poll button.me{box-shadow:inset 0 0 0 2px #1F5C42}.cx-poll em{font-style:normal;font-weight:800}
+.cx-qz button.ok{border-color:#2E9E5B;background:#E3F7E9}.cx-qz button.no{border-color:#E8452C;background:#FDECE8}.cx-qzf{margin:0;font-size:14px}
+.cx-cmp{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3;background:#111;user-select:none}.cx-cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cx-cpa{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--x)) 0 0)}.cx-cph{position:absolute;top:0;bottom:0;left:var(--x);width:3px;background:#fff;transform:translateX(-50%);box-shadow:0 0 8px rgba(0,0,0,.4)}.cx-cph::after{content:'⇆';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center;font-style:normal;font-size:16px;color:#111}
+.cx-cmp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}.cx-cl{position:absolute;top:10px;font-size:12px;font-weight:800;background:rgba(0,0,0,.55);color:#fff;padding:3px 9px;border-radius:999px}.cx-cl.l{left:10px}.cx-cl.r{right:10px}
+.cx-care{background:linear-gradient(150deg,#EAF4E2,#DDEDE3);border-radius:16px;padding:14px}.cx-ct2{font-size:15px}.cx-cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px}.cx-cg div{background:rgba(255,255,255,.7);border-radius:12px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr;column-gap:6px}.cx-cg i{font-style:normal;grid-row:span 2}.cx-cg small{font-size:11px;color:var(--fg2)}.cx-cg b{font-size:13.5px;line-height:1.35}.cx-care p{margin:8px 0 0;font-size:14px}
+.cx-q{margin:0;border-left:4px solid #1F5C42;padding:6px 0 6px 14px;font-size:17px}.cx-q p{margin:0;font-style:italic}.cx-q cite{font-size:13px;color:var(--fg2);font-style:normal}
+.cx-co{display:flex;gap:10px;border-radius:14px;padding:12px 14px;align-items:flex-start}.cx-co i{font-style:normal;font-size:18px}.cx-co p{margin:0;font-size:15px}.cx-co.t-tip{background:#EAF4E2}.cx-co.t-warn{background:#FFF1D6}.cx-co.t-info{background:#E5EFF7}.cx-co.t-ok{background:#E3F7E9}
+.cx-ul{margin:0;padding-left:22px}.cx-ul.ck{list-style:none;padding-left:0}.cx-ul.ck li{display:flex;gap:8px;align-items:center}.cx-ul.ck input{width:18px;height:18px;accent-color:#1F5C42}
+.cx-sp{background:#fff;border-radius:14px;padding:12px 14px}.cx-sp summary{font-weight:800;cursor:pointer}
+.cx-lb{display:block;text-align:center;background:#111312;color:#D2FF00;border-radius:14px;padding:13px;font-weight:800;text-decoration:none}
+.cx-hr{border:0;margin:6px 0}.cx-hr.s-line{border-top:1px solid #DADDD5}.cx-hr.s-dots{height:8px;background:radial-gradient(circle,#B9C0B6 2px,transparent 2.5px) center/18px 8px repeat-x}.cx-hr.s-leaf{text-align:center}.cx-hr.s-leaf::after{content:'🌿 🌿 🌿';font-size:14px;opacity:.7}.cx-hr.s-space{height:20px}
+.cx-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}.cx-tags a{font-size:13px;color:#1F5C42;background:#EAF4E2;border-radius:999px;padding:4px 10px;text-decoration:none}
+.cx-bar{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;margin:20px 0;padding:8px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:999px;box-shadow:0 10px 30px -14px rgba(0,0,0,.35);z-index:4}
+@media (min-width:900px){.cx-bar{bottom:16px}}
+.cx-like{border:0;background:#FDECE8;color:#E8452C;font:inherit;font-weight:800;padding:9px 18px;border-radius:999px;display:flex;gap:6px;align-items:center;cursor:pointer;transition:transform .2s}.cx-like i{font-style:normal;font-size:18px}.cx-like.on{background:#E8452C;color:#fff}.cx-like:active{transform:scale(.92)}.cx-like.on i{animation:cmHeart .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes cmHeart{0%{transform:scale(.4)}60%{transform:scale(1.35)}}
+.cx-ab{border:0;background:#F3F4F0;font:inherit;font-weight:700;padding:9px 16px;border-radius:999px;cursor:pointer}
+.cx-cms h3{font-size:17px;margin:0 0 10px}.cx-cin{background:#fff;border-radius:16px;padding:10px;margin-bottom:14px}.cx-cir{display:flex;gap:8px;align-items:flex-end}.cx-cir textarea{flex:1;min-width:0;border:0;background:#F3F4F0;border-radius:14px;padding:10px 12px;font:inherit;font-size:15px;resize:none;outline:none}
+.cx-ci2{border:0;background:none;font-size:20px;cursor:pointer;padding:6px}.cx-re{display:flex;justify-content:space-between;font-size:12.5px;color:var(--fg2);margin-bottom:6px}.cx-re button{border:0;background:none;cursor:pointer}
+.cx-cip{display:flex;gap:6px;align-items:center;margin-top:6px}.cx-cip img{width:60px;height:60px;border-radius:10px;object-fit:cover}.cx-cip button{border:0;background:#E8452C;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer}
+.cx-cmt{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #ECEEE8}.cx-cmt.sub{margin-left:42px;border-bottom:0;padding-top:4px}.cx-cmb{flex:1;min-width:0}.cx-cmb>div:first-child{display:flex;gap:8px;align-items:baseline}.cx-cmb b{font-size:13.5px}.cx-cmb small{font-size:11.5px;color:var(--fg2)}.cx-cmb p{margin:3px 0;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.cx-cmb img{max-width:180px;border-radius:12px;display:block;cursor:zoom-in}
+.cx-cma{display:flex;gap:12px}.cx-cma button{border:0;background:none;font:inherit;font-size:12.5px;color:var(--fg2);cursor:pointer;padding:2px 0}
+/* 編輯器 */
+body.wx-on .tabbar,body.wx-on #chDock{display:none!important}
+.wx{max-width:720px;margin:0 auto;padding-bottom:150px}
+.wx-top{position:sticky;top:56px;z-index:20;display:flex;align-items:center;gap:8px;margin:0 -16px 10px;padding:10px 12px;background:rgba(243,242,238,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.wx-top>b{font-size:16px}.wx-top>small{flex:1}.wx-x{border:0;background:#fff;width:38px;height:38px;border-radius:50%;font-size:22px;cursor:pointer}.wx-pub{padding:9px 18px}
+.wx-cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px}.wx-cats::-webkit-scrollbar{display:none}.wx-cats button{flex:none;border:0;background:#fff;font:inherit;font-size:13.5px;font-weight:700;padding:8px 13px;border-radius:999px;cursor:pointer;color:var(--fg2)}.wx-cats button[aria-pressed="true"]{background:#1F5C42;color:#fff}
+.wx-title{width:100%;box-sizing:border-box;border:0;background:none;font:inherit;font-size:24px;font-weight:800;padding:10px 2px;outline:none;border-bottom:1px solid #DADDD5;margin-bottom:6px}
+.wx-list{display:flex;flex-direction:column}
+.wx-plus{align-self:center;border:0;background:none;color:#9AA19C;width:100%;height:26px;font-size:16px;cursor:pointer;position:relative}.wx-plus::before{content:'';position:absolute;left:20%;right:20%;top:50%;border-top:1px dashed #D3D7CF}.wx-plus{z-index:0}.wx-plus:hover{color:#1F5C42}
+.wx-plus.last{height:auto;border:1.5px dashed #C9CEC6;border-radius:14px;padding:14px;font-weight:700;margin-top:4px}.wx-plus.last::before{display:none}
+.wx-b{background:#fff;border-radius:16px;box-shadow:0 1px 0 rgba(0,0,0,.05);position:relative;z-index:1}.wx-b.open{box-shadow:0 0 0 2px #1F5C42}.wx-b.drag{box-shadow:0 18px 36px -12px rgba(0,0,0,.4);opacity:.95;z-index:5}.wx-b.gh-drop{box-shadow:0 -3px 0 #1F5C42}
+.wx-bh{display:flex;align-items:center;gap:2px;padding:4px 6px 0}.wx-bh>button{border:0;background:none;width:34px;height:34px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--fg2)}.wx-bh>button:disabled{opacity:.25}
+.wx-grip{cursor:grab;color:#9AA19C;padding:8px 6px;touch-action:none;user-select:none;letter-spacing:-2px;font-size:14px}
+.wx-bn{flex:1;width:auto!important;display:flex!important;align-items:center;gap:6px;justify-content:flex-start;color:var(--fg)!important}.wx-bn i{font-style:normal}.wx-bn b{font-size:13px}
+.wx-bb{padding:4px 12px 12px;display:flex;flex-direction:column;gap:8px}.wx-bp{padding:2px 12px 12px;cursor:pointer;max-height:220px;overflow:hidden;font-size:15px;pointer-events:auto}.wx-bp *{pointer-events:none}
+.wx-bb input:not([type=checkbox]):not([type=radio]),.wx-bb textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;border:1px solid #DADDD5;border-radius:12px;padding:10px 12px;background:#FAFAF8;outline:none;resize:none}.wx-bb textarea{line-height:1.6}
+.wx-bb input:focus,.wx-bb textarea:focus{border-color:#1F5C42;background:#fff}
+.wx-chips{display:flex;gap:6px;flex-wrap:wrap}.wx-chips button{border:0;background:#F3F4F0;font:inherit;font-size:13px;font-weight:700;padding:7px 12px;border-radius:999px;cursor:pointer}.wx-chips button[aria-pressed="true"]{background:#1F5C42;color:#fff}
+.wx-ims{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}@media (min-width:600px){.wx-ims{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.wx-im{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#EEE}.wx-im img,.wx-im video{width:100%;height:100%;object-fit:cover}.wx-im em{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:11px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:1px 7px}
+.wx-im button{position:absolute;border:0;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px}.wx-im .x{top:5px;right:5px;background:#E8452C;color:#fff}.wx-im .l{bottom:5px;right:5px;background:rgba(255,255,255,.9)}
+.wx-add{border:2px dashed #C9CEC6;background:#FAFAF8;border-radius:12px;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font:inherit;color:var(--fg2);padding:6px}.wx-add i{font-style:normal;font-size:26px;color:#1F5C42}.wx-add span{font-size:12px;text-align:center}
+.wx-mp{display:flex;flex-direction:column;gap:4px}.wx-mp>small{font-size:12px;color:var(--fg2)}.wx-mp .wx-add{width:120px}.wx-th{position:relative;width:120px;aspect-ratio:1/1;border-radius:12px;overflow:hidden}.wx-th img,.wx-th video{width:100%;height:100%;object-fit:cover}.wx-th button{position:absolute;top:5px;right:5px;border:0;width:26px;height:26px;border-radius:50%;background:#E8452C;color:#fff;cursor:pointer}
+.wx-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wx-fl{display:flex;flex-direction:column;gap:3px}.wx-fl small{font-size:12px;color:var(--fg2)}.wx-fl.full{grid-column:1/-1}
+.wx-ed>.wx-fl{margin-top:14px}.wx-ed>.wx-fl input{font:inherit;font-size:15px;border:1px solid #DADDD5;border-radius:12px;padding:10px 12px;background:#fff}
+.wx-ol{display:flex;flex-direction:column;gap:6px}.wx-or{display:flex;gap:6px;align-items:center}.wx-or>i{font-style:normal;width:22px;text-align:center;color:var(--fg2);font-size:13px}.wx-or>button{border:0;background:#F3F4F0;width:34px;height:34px;border-radius:10px;cursor:pointer;flex:none}.wx-or input[type=radio]{width:20px;height:20px;accent-color:#1F5C42;flex:none}
+.wx-more{align-self:flex-start;border:0;background:none;color:#1F5C42;font:inherit;font-weight:700;cursor:pointer;padding:4px 0}
+.wx-pr{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}.wx-pr button{flex:none;border:0;background:#F3F4F0;padding:4px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;gap:2px;width:76px}.wx-pr button.on{box-shadow:inset 0 0 0 2px #1F5C42;background:#EAF4E2}.wx-pr img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:9px}.wx-pr small{font-size:9.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wx-agree{display:flex;gap:8px;align-items:center;margin-top:14px;font-size:14px}.wx-agree input{width:20px;height:20px;accent-color:#1F5C42}
+.wx-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;background:#fff;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 24px -14px rgba(0,0,0,.3)}.wx-bar::-webkit-scrollbar{display:none}
+.wx-bar button{flex:none;border:0;background:#F3F4F0;border-radius:14px;width:62px;padding:7px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font:inherit}.wx-bar i{font-style:normal;font-size:20px}.wx-bar small{font-size:10.5px}
+@media (min-width:900px){.wx-bar{left:50%;right:auto;transform:translateX(-50%);width:min(720px,100vw);border-radius:20px 20px 0 0;justify-content:center;flex-wrap:wrap}}
+.gt.wx-ins{max-width:440px;width:calc(100vw - 32px)}.wx-ig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}.wx-ig button{border:0;background:#F3F4F0;border-radius:14px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:inherit}.wx-ig i{font-style:normal;font-size:22px}.wx-ig span{font-size:12px}
+.wx.pv .cx-art{padding-top:4px}
+/* 活動按鈕輪播 */
+.play-badge{left:-14px;right:auto;margin-left:0;top:-10px;transform-origin:left center;z-index:2}
+.tabbar .play-badge{left:2px;top:-4px;margin-left:0}.nav nav .play-badge{left:50%;top:-11px;margin-left:-6px}.tabbar a.nav-play,.nav nav a.nav-play{position:relative}
+.play-badge.pb-in{animation:pbIn .45s cubic-bezier(.3,1.5,.5,1)}.play-badge.live.pb-in{animation:pbIn .45s cubic-bezier(.3,1.5,.5,1),pbPulse 1.2s ease-in-out .45s infinite}
+.play-badge.k-auc{background:#1F5C42}.play-badge.k-soon{background:#7A5BD6}.play-badge.k-raf{background:#E8452C}
+@keyframes pbIn{0%{opacity:0;transform:translateY(6px) scale(.7)}100%{opacity:1}}
+.ru-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px}.ru-tabs a{flex:none;font-size:14px;font-weight:700;text-decoration:none;color:var(--fg2);background:#fff;padding:8px 14px;border-radius:999px}.ru-tabs a[aria-current="true"]{background:#111312;color:#D2FF00}
 </style>
 
 </head>
@@ -5195,8 +5306,8 @@ body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!impor
   <nav>
     <a href="#/" data-pg="home">首頁</a>
     <a href="#/store" data-pg="shop">商店</a>
-    <a href="#/store/auction" data-pg="auction">競標</a>
-    <a href="#/raffle" data-pg="raffle" class="nav-play">玩法<i class="play-badge" hidden></i></a>
+    <a href="#/community" data-pg="community">社群</a>
+    <a href="#/raffle" data-pg="raffle" class="nav-play">活動<i class="play-badge" hidden></i></a>
     <a href="#/verify" data-pg="verify">溯源</a>
     <a href="#/sell" data-pg="sell" class="nav-sell" id="navSell">免費開店</a>
   </nav>
@@ -5213,8 +5324,8 @@ body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!impor
 <nav class="tabbar" aria-label="主要">
   <a href="#/" data-pg="home"><svg class="i"><use href="#i-home"/></svg>首頁</a>
   <a href="#/store" data-pg="shop"><svg class="i"><use href="#i-bag"/></svg>商店</a>
-  <a href="#/store/auction" data-pg="auction"><svg class="i"><use href="#i-gavel"/></svg>競標</a>
-  <a href="#/raffle" data-pg="raffle" class="nav-play"><svg class="i"><use href="#i-gift"/></svg>玩法<i class="play-badge" hidden></i></a>
+  <a href="#/community" data-pg="community"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.6.2 4.6 1.8 5.1 4.6"/></svg>社群</a>
+  <a href="#/raffle" data-pg="raffle" class="nav-play"><svg class="i"><use href="#i-gift"/></svg>活動<i class="play-badge" hidden></i></a>
   <a href="#/verify" data-pg="verify"><svg class="i"><use href="#i-scan"/></svg>溯源</a>
   <a href="#/me" id="tabMe" data-pg="me"><svg class="i"><use href="#i-user"/></svg>我的</a>
 </nav>
@@ -5343,7 +5454,7 @@ body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!impor
   <div class="page" id="pgMe" hidden><section class="sec wrap page-top" id="me"><div id="mePage"></div></section></div>
   <div class="page" id="pgRaffle" hidden>
   <section class="sec wrap page-top" id="raffle">
-    <div class="sh"><h2>Play<small>特殊玩法</small></h2></div>
+    <div class="sh"><h2>Events<small>活動：競標、遭遇戰、福利組合、抽獎</small></h2></div>
     <nav class="play-tabs" id="playTabs"></nav>
     <div id="playBody"></div>
     <div id="playRaffle">
@@ -5359,6 +5470,9 @@ body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!impor
   <section class="sec wrap page-top" id="seller"><div id="sellerBody"></div></section>
   </div>
   <div class="page" id="pgGuide" hidden><section class="sec wrap page-top" id="guidePage"></section></div>
+  <div class="page" id="pgCommunity" hidden><section class="sec wrap page-top" id="communityPage"></section></div>
+  <div class="page" id="pgPost" hidden><section class="sec wrap page-top" id="postPage"></section></div>
+  <div class="page" id="pgWrite" hidden><section class="sec wrap page-top" id="writePage"></section></div>
   <div class="page" id="pgGh" hidden><section class="sec wrap page-top" id="ghPage"></section></div>
   <div class="page" id="pgChats" hidden><section class="sec wrap page-top" id="chatsPage"></section></div>
   <div class="page" id="pgFeed" hidden><section id="feedPage"></section></div>
@@ -5599,7 +5713,7 @@ function stmtFrame(){ const r=stmt.getBoundingClientRect(); const p=clamp((inner
 let lastY=scrollY;
 function navFrame(){ const y=scrollY; nav.classList.toggle('solid', y>30); nav.classList.toggle('hide', y>lastY+4 && y>innerHeight*1.2); if(y<lastY-4) nav.classList.remove('hide'); lastY=y;
   let on=null; if(PAGE==='home') ['collection','trace'].forEach(id=>{ const r=document.getElementById(id).getBoundingClientRect(); if(r.top<innerHeight*.4 && r.bottom>innerHeight*.4) on=id; });
-  const TP=PAGE==='shop'&&/^#\/store\/auction/.test(location.hash)?'auction':PAGE;
+  const TP=PAGE==='shop'&&/^#\/store\/auction/.test(location.hash)?'raffle':['post','write'].includes(PAGE)?'community':PAGE;
   document.querySelectorAll('.nav nav a').forEach(a=>a.classList.toggle('on', a.dataset.pg?a.dataset.pg===TP:a.dataset.sec===on)); document.querySelectorAll('.tabbar a[data-pg]').forEach(a=>a.classList.toggle('on', a.dataset.pg===TP)); }
 let ticking=false;
 function frame(){ ticking=false; if(PAGE==='home'){ heroFrame(); hsFrame(); wallFrame(); finalFrame(); toneFrame(); stmtFrame(); } else if(PAGE==='verify'){ storyFrame(); toneFrame(); } else if(document.body.dataset.tone!=='light') document.body.dataset.tone='light'; navFrame(); }
@@ -7911,20 +8025,26 @@ const encAll=()=>all().filter(p=>listed(p)&&!p.hidden&&!p.blocked&&approved(p.sh
 const dropAll=()=>[...S.drops.values()].filter(d=>approved(d.shop)&&dropState(d)!=='end');
 let playSig='';
 function playRender(){ const tabs=$('#playTabs'), body=$('#playBody'), rf=$('#playRaffle'); if(!tabs||!body) return;
-  const E=encAll(), D=dropAll(), R=pubRaffles().filter(r=>['open','soon'].includes(rState(r)));
+  const E=encAll(), D=dropAll(), R=pubRaffles().filter(r=>['open','soon'].includes(rState(r))), AU=pub().filter(live);
   const eLive=E.filter(p=>encState(p)==='live').length, dLive=D.filter(d=>dropState(d)==='live').length;
-  if(!S.playTab) S.playTab=E.length?'enc':D.length?'drop':'raffle';
+  if(!S.playTab) S.playTab=E.some(p=>encState(p)==='live')?'enc':AU.length?'auc':E.length?'enc':D.length?'drop':'raffle';
   const T=S.playTab;
-  const sig=JSON.stringify([T,E.map(p=>p.id+encState(p)),D.map(d=>d.id+dropState(d)),R.length]);
+  const sig=JSON.stringify([T,E.map(p=>p.id+encState(p)),D.map(d=>d.id+dropState(d)),R.length,T==='auc'?AU.map(p=>p.id+(topBid(p.id)?.amt||0)):AU.length]);
   if(sig===playSig&&body.firstChild!==undefined&&tabs.firstChild) return; playSig=sig;
   const tb=(k,ic,l,n,hot)=>h('button',{type:'button','aria-pressed':String(T===k),class:hot?'hot':'',onclick:()=>{ S.playTab=k; playSig=''; renderRafflePage(); }}, h('i',{text:ic}), h('span',{text:l}), hot?h('em',{class:/孵化|即將/.test(hot)?'soon':'',text:hot}):n?h('small',{text:String(n)}):null);
-  tabs.replaceChildren(tb('enc','⚔','遭遇戰',E.length,eLive?'戰鬥中':E.length?'孵化中':''), tb('drop','🎁','福利組合',D.length,dLive?'開搶中':D.length?'即將開搶':''), tb('raffle','🎲','抽獎',R.length,''));
+  tabs.replaceChildren(tb('auc','🔨','競標',AU.length,AU.length?'競標中':''), tb('enc','⚔','遭遇戰',E.length,eLive?'戰鬥中':E.length?'孵化中':''), tb('drop','🎁','福利組合',D.length,dLive?'開搶中':D.length?'即將開搶':''), tb('raffle','🎲','抽獎',R.length,''));
   rf.hidden=T!=='raffle';
   if(T==='enc'){ const z=encZone({grid:true}); body.replaceChildren(z?h('div',{class:'play-enc'}, z):h('div',{class:'play-empty'}, h('b',{text:'🥚'}), h('h3',{text:'目前沒有遭遇戰'}), h('p',{text:'追蹤喜歡的溫室，遭遇戰開始時會通知你'}), h('button',{type:'button',class:'btn soft',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}))); }
   else if(T==='drop') body.replaceChildren(D.length?h('div',{class:'play-drop'}, ...D.sort((a,b)=>a.at-b.at).map(d=>dropView(d,{shop:true}))):h('div',{class:'play-empty'}, h('b',{text:'🎁'}), h('h3',{text:'目前沒有福利組合'}), h('button',{type:'button',class:'btn soft',onclick:()=>dropIntro(true),text:'福利組合怎麼玩？'})));
+  else if(T==='auc'){ const w=h('div',{class:'play-auc'}); body.replaceChildren(w); try{ storeAuction(w); }catch(e){ console.warn(e); } if(!w.childElementCount) w.append(h('div',{class:'play-empty'}, h('b',{text:'🔨'}), h('h3',{text:'目前沒有競標'}))); }
   else body.replaceChildren(); }
-function playBadge(){ const E=encAll(), live=E.some(p=>encState(p)==='live'), D=dropAll().some(d=>dropState(d)==='live'), txt=live?'戰鬥中':D?'開搶中':E.length?'孵化中':'';
-  document.querySelectorAll('.play-badge').forEach(b=>{ b.hidden=!txt; b.textContent=txt; b.className='play-badge'+(live?' live':''); }); }
+// 活動按鈕左上角：正在進行的活動輪流顯示（競標中、戰鬥中、孵化中、開搶中、預約中、抽獎中）
+let PB_I=0;
+function playMsgs(){ const E=encAll(), DL=dropAll(), AU=pub().filter(live).length, R=pubRaffles().filter(r=>rState(r)==='open').length, out=[];
+  if(E.some(p=>encState(p)==='live')) out.push(['⚔ 戰鬥中','live']); if(AU) out.push(['🔨 競標中 '+AU,'auc']); if(DL.some(d=>dropState(d)==='live')) out.push(['🎁 開搶中','live']); if(E.some(p=>encState(p)==='soon')) out.push(['🥚 孵化中','soon']); if(DL.some(d=>dropState(d)!=='live')) out.push(['⏰ 預約中','soon']); if(R) out.push(['🎲 抽獎中 '+R,'raf']); return out; }
+function playBadge(){ const L=playMsgs(); if(PB_I>=L.length) PB_I=0; const cur=L[PB_I];
+  document.querySelectorAll('.play-badge').forEach(b=>{ b.hidden=!cur; if(!cur) return; if(b.textContent!==cur[0]){ b.classList.remove('pb-in'); void b.offsetWidth; b.textContent=cur[0]; b.classList.add('pb-in'); } b.className='play-badge pb-in k-'+cur[1]+(cur[1]==='live'?' live':''); }); }
+setInterval(()=>{ PB_I++; try{ playBadge(); }catch(e){} },2600);
 setInterval(()=>{ try{ playBadge(); if(PAGE==='raffle') playRender(); }catch(e){} },5000);
 function rafflePageOrig(box){
   const rs=pubRaffles(); box.replaceChildren();
@@ -8170,7 +8290,7 @@ function ghUndo(){ const s=GH.undo?.pop(); if(!s||!GH.edit) return; GH.edit.d=JS
 const GH_FONT={serif:'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap',kai:'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap'};
 function ghFont(k){ const u=GH_FONT[k]; if(!u||document.querySelector('link[data-ghf="'+k+'"]')) return; document.head.append(h('link',{rel:'stylesheet',href:u,'data-ghf':k})); }
 // 拖曳排序（元件清單）
-function ghDrag(list,onDrop){ list.addEventListener('pointerdown',e=>{ const hd=e.target.closest('.gh-grip'); if(!hd) return; const row=hd.closest('.gh-br'); if(!row) return; e.preventDefault(); const rows=[...list.querySelectorAll(':scope>.gh-br')], from=rows.indexOf(row); let to=from; row.classList.add('drag'); hd.setPointerCapture(e.pointerId); const y0=e.clientY;
+function ghDrag(list,onDrop,rowSel,gripSel){ rowSel=rowSel||'.gh-br'; gripSel=gripSel||'.gh-grip'; list.addEventListener('pointerdown',e=>{ const hd=e.target.closest(gripSel); if(!hd) return; const row=hd.closest(rowSel); if(!row) return; e.preventDefault(); const rows=[...list.querySelectorAll(':scope>'+rowSel)], from=rows.indexOf(row); let to=from; row.classList.add('drag'); hd.setPointerCapture(e.pointerId); const y0=e.clientY;
   const mv=ev=>{ row.style.transform='translateY('+(ev.clientY-y0)+'px)'; const mid=ev.clientY; to=rows.length-1; for(let i=0;i<rows.length;i++){ if(i===from) continue; const r=rows[i].getBoundingClientRect(); if(mid<r.top+r.height/2){ to=i>from?i-1:i; break; } } rows.forEach((r,i)=>r.classList.toggle('gh-drop',i===to&&i!==from)); };
   const up=()=>{ hd.removeEventListener('pointermove',mv); hd.removeEventListener('pointerup',up); hd.removeEventListener('pointercancel',up); row.style.transform=''; row.classList.remove('drag'); rows.forEach(r=>r.classList.remove('gh-drop')); if(to!==from) onDrop(from,to); };
   hd.addEventListener('pointermove',mv); hd.addEventListener('pointerup',up); hd.addEventListener('pointercancel',up); }); return list; }
@@ -8411,6 +8531,215 @@ async function ghPoster(u,fmt,st){ const D=ghPosterData(u); try{ await document.
   return {blob:await K.done(),photo:true}; }
 function ghShareText(u,fmt){ const D=ghPosterData(u); if(fmt==='story') return '🪴 '+D.name+'\n👉 '+D.url; return ['🪴 '+D.name+'｜VEIN 玩家溫室', D.bio||'', '🌿 收藏 '+D.n+' 株・'+D.gen+' 個屬', D.L.slice(0,3).map(p=>'・'+pName(p)).join('\n'), '', '👉 來逛：'+D.url, '', '#VEIN #我的溫室 #植物收藏'].filter((x,i,a)=>x!==''||(i>0&&a[i-1]!=='')).join('\n'); }
 function openGhShare(u){ lsSet('vein.didShare',true); return shareFmts({title:'轉發溫室',url:ghUrl(u),file:'greenhouse-'+String(u).slice(0,6),draw:(f,st)=>ghPoster(u,f,st||'theme'),text:f=>ghShareText(u,f),styles:GH_POST,lead:'選一種風格，會用溫室裡的植物（主打的排最前面）排成分享圖，附 QR code。'}); }
+const PSTAT=new Map();
+function pstatOf(u){ if(!u) return {}; if(!PSTAT.has(u)&&S.db){ PSTAT.set(u,{}); S.db.doc('pstat/'+u).get().then(d=>{ if(d.exists){ PSTAT.set(u,d.data()); BCACHE?.clear?.(); renderAll(); } }).catch(()=>{}); } return PSTAT.get(u)||{}; }
+/* ================= 植友社群：瀏覽溫室、發文、按讚留言、精選置頂 ================= */
+const CM_CAT=[['share','🌿','分享'],['grow','🪴','養護'],['ask','❓','發問'],['unbox','📦','開箱'],['show','🏆','炫耀'],['diary','📔','日記'],['trade','🤝','交流'],['news','📣','消息']];
+const CM_CN=Object.fromEntries(CM_CAT.map(([k,i,n])=>[k,i+' '+n]));
+const CM={feed:[],cur:null,done:false,busy:false,feat:null,pin:null,tab:'rec',cat:'',q:'',posts:new Map(),liked:new Map(),cmts:new Map(),votes:new Map(),sig:'',lim:30};
+const cmVis=p=>p&&(!p.hidden||S.admin||p.uid===S.me);
+async function cmMore(){ if(!S.db||CM.busy||CM.done) return; CM.busy=true; try{ let q=S.db.collection('posts').orderBy('at','desc'); if(CM.cur) q=q.startAfter(CM.cur); const sn=await q.limit(24).get();
+  sn.docs.forEach(d=>{ const x={id:d.id,...d.data()}; CM.posts.set(d.id,x); if(!CM.feed.some(y=>y.id===d.id)) CM.feed.push(x); }); if(sn.size<24) CM.done=true; CM.cur=sn.docs[sn.docs.length-1]?.data()?.at||CM.cur; resolveNames(CM.feed.map(p=>p.uid)); }
+  catch(e){ CM.done=true; } finally{ CM.busy=false; } if(PAGE==='community') renderCommunityPg(true); }
+async function cmSpecial(){ if(!S.db||CM.feat) return; CM.feat=[]; CM.pin=[]; try{ const [a,b]=await Promise.all([S.db.collection('posts').where('feat','==',true).limit(30).get(),S.db.collection('posts').where('pin','==',true).limit(10).get()]);
+  CM.feat=a.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.at-x.at); CM.pin=b.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>(y.pinAt||y.at)-(x.pinAt||x.at)); [...CM.feat,...CM.pin].forEach(p=>CM.posts.set(p.id,p)); resolveNames([...CM.feat,...CM.pin].map(p=>p.uid)); }catch(e){} if(PAGE==='community') renderCommunityPg(true); }
+const cmCover=p=>p.cover||null;
+function cmCard(p,i){ const cv=cmCover(p), nb=CM.liked.get(p.id);
+  return h('a',{class:'cx-c'+(cv?'':' txt')+(p.hidden?' hid':''),href:'#/post/'+p.id,style:'--i:'+Math.min(i||0,12)}, cv?h('div',{class:'cx-ci'}, h('img',{src:cv.thumb||cv.poster||cv.url,alt:'',loading:'lazy'}), cv.type==='video'?h('i',{class:'cx-pl',text:'▶'}):null, p.nImg>1?h('i',{class:'cx-ni',text:'❏ '+p.nImg}):null):h('div',{class:'cx-ct'}, h('p',{text:p.ex||p.title||''})),
+    h('div',{class:'cx-cm'}, h('div',{class:'cx-tg'}, p.pin?h('em',{class:'pin',text:'📌 置頂'}):null, p.feat?h('em',{class:'feat',text:'⭐ 精選'}):null, p.cat?h('em',{text:CM_CN[p.cat]||''}):null, p.hidden?h('em',{class:'pin',text:'已隱藏'}):null), h('b',{text:p.title||'（無標題）'}),
+      h('div',{class:'cx-cf'}, h('span',{class:'cx-au'}, chatAv(p.uid,20), h('small',{text:nameOf(p.uid)})), h('small',{class:'cx-lk'+(nb?' on':''),text:'♥ '+(p.likes||0)}), p.cmts?h('small',{text:'💬 '+p.cmts}):null))); }
+function cmMasonry(L){ const cols=innerWidth>=1100?4:innerWidth>=720?3:2, C=Array.from({length:cols},()=>h('div',{class:'cx-col'})); L.forEach((p,i)=>C[i%cols].append(cmCard(p,i))); return h('div',{class:'cx-ms'}, ...C); }
+function renderCommunityPg(force){ const box=$('#communityPage'); if(!box) return; if(!CM.feed.length&&!CM.done) cmMore(); cmSpecial(); if(!GH.list) ghListMore();
+  const T=CM.tab, q=(CM.q||'').toLowerCase(), pinIds=new Set((CM.pin||[]).map(p=>p.id));
+  let L=(T==='feat'?(CM.feat||[]):T==='mine'?CM.feed.filter(p=>p.uid===S.me):CM.feed).filter(cmVis).filter(p=>!CM.cat||p.cat===CM.cat).filter(p=>!q||[p.title,p.ex,(p.tags||[]).join(' '),nameOf(p.uid)].join(' ').toLowerCase().includes(q));
+  if (T==='rec') L=L.filter(p=>!pinIds.has(p.id)).map(p=>[p,(p.likes||0)*3+(p.cmts||0)*2+(p.feat?20:0)-Math.max(0,(Date.now()-p.at)/36e5)*.4+Math.random()]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  const sig=JSON.stringify([T,CM.cat,q,L.map(p=>p.id+(p.likes||0)+(p.cmts||0)),(CM.pin||[]).map(p=>p.id),GH.list?.items?.length,CM.done,S.me]); if(!force&&sig===CM.sig&&box.firstChild) return; CM.sig=sig;
+  const sy=box.firstChild?scrollY:null;
+  const srch=h('input',{type:'search',placeholder:'搜尋文章、標籤、作者',value:CM.q||''}); srch.addEventListener('input',()=>{ clearTimeout(srch._t); srch._t=setTimeout(()=>{ CM.q=srch.value.trim(); renderCommunityPg(true); const n=$('#communityPage .cx-s input'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },300); });
+  const tabs=[['rec','推薦'],['new','最新'],['feat','精選'],['gh','溫室'],...(S.me?[['mine','我的']]:[]),...(S.admin?[['rep','檢舉']]:[])];
+  const top=h('div',{class:'cx-top'}, h('div',{class:'cx-th'}, h('h1',{text:'植友社群'}), h('a',{class:'cx-rules',href:'#/rules/community',text:'社群公約'}), h('button',{type:'button',class:'cx-write',onclick:()=>cmWrite(),text:'✍️ 發文'})), h('label',{class:'cx-s'}, svg('i-search'), srch),
+    h('nav',{class:'cx-tabs'}, ...tabs.map(([k,l])=>h('button',{type:'button','aria-pressed':String(T===k),onclick:()=>{ CM.tab=k; renderCommunityPg(true); scrollTo(0,0); }},l))),
+    T!=='gh'&&T!=='rep'?h('div',{class:'cx-cats'}, h('button',{type:'button','aria-pressed':String(!CM.cat),onclick:()=>{ CM.cat=''; renderCommunityPg(true); },text:'全部'}), ...CM_CAT.map(([k,i,n])=>h('button',{type:'button','aria-pressed':String(CM.cat===k),onclick:()=>{ CM.cat=CM.cat===k?'':k; renderCommunityPg(true); },text:i+' '+n}))):null);
+  const kids=[top];
+  if (T==='gh'){ const items=(GH.list?.items||[]).filter(x=>(x.n||0)>0); kids.push(h('div',{class:'cx-ghh'}, h('b',{text:'玩家溫室'}), S.me?h('a',{class:'gh-b pri',href:'#/gh/'+S.me,text:'🏡 我的溫室'}):null),
+      items.length?h('div',{class:'ghl-g'}, ...items.map(x=>{ const c={...GH_DEF(),...x}; return h('a',{class:'ghl-c',href:'#/gh/'+x.uid,style:ghVars(c)}, h('div',{class:'ghl-pv'}, ...[0,1,2,3].map(i=>x.pv?.[i]?h('img',{src:x.pv[i],alt:'',loading:'lazy'}):h('i'))), h('div',{class:'ghl-m'}, h('b',{text:x.name||((x.uname||'玩家')+' 的溫室')}), h('small',{text:(x.n||0)+' 株 · '+(x.uname||'玩家')}), h('span',{class:'ghl-st',text:(c.st||[]).slice(0,4).join(' ')}))); })):h('div',{class:'gh-empty'}, h('i',{text:'🌱'}), h('b',{text:'還沒有人布置溫室'})),
+      !GH.list?.done&&items.length?h('button',{type:'button',class:'btn soft auto-more gh-more',onclick:()=>ghListMore(),text:'載入更多'}):null); }
+  else if (T==='rep') kids.push(cmReports());
+  else {
+    if (T==='rec'&&!CM.cat&&!q){ const pins=(CM.pin||[]).filter(cmVis); if(pins.length) kids.push(h('div',{class:'cx-pins'}, ...pins.map(p=>h('a',{class:'cx-pin',href:'#/post/'+p.id}, cmCover(p)?h('img',{src:cmCover(p).thumb||cmCover(p).url,alt:''}):null, h('div',{}, h('em',{text:'📌 置頂'}), h('b',{text:p.title||''}), h('small',{text:nameOf(p.uid)+' · '+ago(p.at)}))))));
+      const gh=(GH.list?.items||[]).filter(x=>(x.n||0)>0).slice(0,12); if(gh.length) kids.push(h('section',{class:'cx-sec'}, h('div',{class:'cx-sh'}, h('b',{text:'🏡 逛逛植友溫室'}), h('button',{type:'button',class:'bf-lk',onclick:()=>{ CM.tab='gh'; renderCommunityPg(true); },text:'看全部 →'})), h('div',{class:'cx-ghr'}, ...gh.map(x=>{ const c={...GH_DEF(),...x}; return h('a',{class:'cx-ghc',href:'#/gh/'+x.uid,style:ghVars(c)}, x.pv?.[0]?h('img',{src:x.pv[0],alt:'',loading:'lazy'}):h('i'), h('b',{text:x.name||((x.uname||'玩家')+' 的溫室')}), h('small',{text:(x.n||0)+' 株'})); }))));
+      const ft=(CM.feat||[]).filter(cmVis).slice(0,10); if(ft.length) kids.push(h('section',{class:'cx-sec'}, h('div',{class:'cx-sh'}, h('b',{text:'⭐ 精選文章'}), h('button',{type:'button',class:'bf-lk',onclick:()=>{ CM.tab='feat'; renderCommunityPg(true); },text:'看全部 →'})), h('div',{class:'cx-ftr'}, ...ft.map(p=>h('a',{class:'cx-ftc',href:'#/post/'+p.id}, cmCover(p)?h('img',{src:cmCover(p).thumb||cmCover(p).url,alt:'',loading:'lazy'}):h('i',{text:'📝'}), h('div',{}, h('b',{text:p.title||''}), h('small',{text:nameOf(p.uid)+' · ♥ '+(p.likes||0)})))))));
+    }
+    kids.push(L.length?cmMasonry(L.slice(0,CM.lim)):h('div',{class:'gh-empty'}, h('i',{text:CM.done||T==='feat'?'🌱':'⏳'}), h('b',{text:CM.done||T==='feat'?(T==='mine'?'你還沒有發過文':'還沒有文章，來當第一個'):'載入中…'}), h('button',{type:'button',class:'gh-b pri',onclick:()=>cmWrite(),text:'✍️ 寫一篇'})));
+    if (L.length>CM.lim||(!CM.done&&T!=='feat')) kids.push(h('button',{type:'button',class:'btn soft auto-more gh-more',onclick:()=>{ if(L.length>CM.lim) CM.lim+=24; else cmMore(); renderCommunityPg(true); },text:'載入更多'}));
+  }
+  kids.push(h('button',{type:'button',class:'cx-fab',onclick:()=>cmWrite(),'aria-label':'發文',text:'✍️'}));
+  box.replaceChildren(h('div',{class:'cx'}, ...kids)); if(sy!=null&&!force) scrollTo(0,sy); }
+function cmReports(){ const box=h('div',{class:'list'}, h('p',{class:'hint',text:'讀取中…'}));
+  S.db.collection('reports').orderBy('at','desc').limit(100).get().then(sn=>{ const L=sn.docs.map(d=>({id:d.id,...d.data()})); resolveNames(L.flatMap(x=>[x.by,x.uid]));
+    box.replaceChildren(...(L.length?L.map(x=>h('div',{class:'li',style:'background:#F7F7F4;grid-template-columns:1fr auto'}, h('div',{style:'min-width:0'}, h('b',{text:(x.kind==='cmt'?'留言':'文章')+'：'+(x.title||x.text||'').slice(0,40)}), h('span',{text:'原因：'+(x.why||'—')+' · 檢舉人 '+nameOf(x.by)}), h('small',{class:'hint',text:ago(x.at)})),
+      h('div',{class:'row',style:'gap:6px'}, x.pid?h('a',{class:'btn soft sm',href:'#/post/'+x.pid,text:'查看'}):null, confirmBtn('結案','soft',async()=>{ try{ await S.db.doc('reports/'+x.id).delete(); renderCommunityPg(true); }catch(e){ toast('操作失敗'); } })))):[h('p',{class:'hint',text:'沒有檢舉 🎉'})])); }).catch(()=>box.replaceChildren(h('p',{class:'hint',text:'讀取失敗'}))); return h('div',{class:'panel'}, h('h3',{text:'🚩 檢舉'}), box); }
+async function cmReport(kind,pid,x){ if(needLogin()) return; const why=await askWhy('檢舉這則'+(kind==='cmt'?'留言':'文章')); if(why===null) return; try{ await S.db.collection('reports').doc().set({kind,pid,cid:x?.id||null,uid:x?.uid||'',title:x?.title||'',text:(x?.text||'').slice(0,200),why,by:S.me,at:Date.now()}); toast('已送出檢舉，管理員會處理'); }catch(e){ toast('送出失敗'); } }
+
+/* ---- 文章內容（元件） ---- */
+const CMB={
+  txt:{n:'文字',ic:'📝',def:()=>({text:'',st:'p'})},
+  img:{n:'照片',ic:'🖼',def:()=>({items:[],view:'swipe',cap:''})},
+  vid:{n:'影片',ic:'🎬',def:()=>({m:null,cap:''})},
+  plant:{n:'植物卡',ic:'🌱',def:()=>({ids:[]})},
+  poll:{n:'投票',ic:'📊',def:()=>({q:'',opts:['',''],multi:false})},
+  cmp:{n:'前後對比',ic:'↔️',def:()=>({a:null,b:null,la:'之前',lb:'之後'})},
+  care:{n:'養護卡',ic:'💧',def:()=>({light:'',water:'',temp:'',hum:'',soil:'',note:''})},
+  quiz:{n:'小測驗',ic:'🧠',def:()=>({q:'',opts:['',''],ans:0,why:''})},
+  quote:{n:'引用',ic:'❝',def:()=>({text:'',by:''})},
+  callout:{n:'提示框',ic:'💡',def:()=>({tone:'tip',text:''})},
+  list:{n:'清單',ic:'☑️',def:()=>({items:[''],check:false})},
+  spoil:{n:'摺疊',ic:'🙈',def:()=>({title:'點開看',text:''})},
+  link:{n:'按鈕連結',ic:'🔗',def:()=>({label:'',url:''})},
+  div:{n:'分隔線',ic:'➖',def:()=>({st:'line'})}};
+const cmEsc=s=>String(s||'');
+function cmRich(text){ const out=h('div',{class:'cx-rt'}); String(text||'').split(/\n{2,}/).forEach(par=>{ const p=h('p',{}); par.split(/(\*\*[^*]+\*\*|#[\p{L}\p{N}_]+|https?:\/\/\S+)/u).forEach(seg=>{ if(!seg) return; if(/^\*\*[^*]+\*\*$/.test(seg)) p.append(h('b',{text:seg.slice(2,-2)})); else if(/^#/.test(seg)) p.append(h('a',{class:'cx-tag',href:'#/community',onclick:()=>{ CM.q=seg; CM.tab='new'; },text:seg})); else if(/^https?:/.test(seg)) p.append(h('a',{href:seg,target:'_blank',rel:'noopener nofollow',text:seg.replace(/^https?:\/\//,'').slice(0,40)})); else seg.split('\n').forEach((l,i)=>{ if(i) p.append(h('br')); p.append(l); }); }); out.append(p); }); return out; }
+function cmSwipe(items){ if(!items.length) return null; const tr=h('div',{class:'cx-sw'}, ...items.map((m,i)=>h('div',{class:'cx-swi',onclick:()=>lightbox(items.map(x=>({url:x.url,type:x.type,poster:x.poster})),i)}, m.type==='video'?h('video',{src:m.url,poster:m.poster||null,muted:true,playsinline:true,loop:true,autoplay:true}):h('img',{src:m.url,alt:'',loading:'lazy'})))),
+  dots=items.length>1?h('div',{class:'cx-dots'}, ...items.map((_,i)=>h('i',{class:i?'':'on'}))):null; tr.addEventListener('scroll',()=>{ const k=Math.round(tr.scrollLeft/tr.clientWidth); dots?.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===k)); },{passive:true}); return h('div',{class:'cx-swb'}, tr, dots, items.length>1?h('span',{class:'cx-swn',text:items.length+' 張'}):null); }
+function cmBlockView(b,post){ const c=b; switch(b.t){
+  case 'txt': if(!String(c.text||'').trim()) return null; return c.st==='h2'?h('h2',{class:'cx-h2',text:c.text}):c.st==='h3'?h('h3',{class:'cx-h3',text:c.text}):cmRich(c.text);
+  case 'img': { const L=(c.items||[]).filter(m=>m?.url); if(!L.length) return null; const el=c.view==='grid'?h('div',{class:'cx-ig n'+Math.min(L.length,4)}, ...L.map((m,i)=>h('button',{type:'button',onclick:()=>lightbox(L.map(x=>({url:x.url,type:x.type})),i)}, h('img',{src:m.thumb||m.url,alt:'',loading:'lazy'})))):c.view==='big'?h('div',{class:'cx-ib'}, ...L.map((m,i)=>h('img',{src:m.url,alt:'',loading:'lazy',onclick:()=>lightbox(L.map(x=>({url:x.url})),i)}))):cmSwipe(L); return h('figure',{class:'cx-fig'}, el, c.cap?h('figcaption',{text:c.cap}):null); }
+  case 'vid': return c.m?.url?h('figure',{class:'cx-fig'}, h('video',{class:'cx-v',src:c.m.url,poster:c.m.poster||null,controls:true,playsinline:true,preload:'metadata'}), c.cap?h('figcaption',{text:c.cap}):null):null;
+  case 'plant': { const L=(c.ids||[]).map(i=>S.plants.get(i)).filter(Boolean); if(!L.length) return null; return h('div',{class:'cx-pls'}, ...L.map(p=>h('button',{type:'button',class:'cx-plc',onclick:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('div',{}, h('b',{text:pName(p)}), h('small',{class:'mono',text:p.code||''}), onSale(p)&&p.status!=='sold'?h('em',{text:priceLabel(p).main}):h('em',{class:'g',text:'看履歷 →'}))))); }
+  case 'poll': return cmPoll(b,post);
+  case 'cmp': return c.a?.url&&c.b?.url?cmCompare(c):null;
+  case 'care': { const R=[['☀️','光照',c.light],['💧','澆水',c.water],['🌡','溫度',c.temp],['💨','濕度',c.hum],['🪨','介質',c.soil]].filter(x=>x[2]); if(!R.length&&!c.note) return null; return h('div',{class:'cx-care'}, h('b',{class:'cx-ct2',text:'🪴 養護卡'}), h('div',{class:'cx-cg'}, ...R.map(([i,l,v])=>h('div',{}, h('i',{text:i}), h('small',{text:l}), h('b',{text:v})))), c.note?h('p',{text:c.note}):null); }
+  case 'quiz': return cmQuiz(c);
+  case 'quote': return c.text?h('blockquote',{class:'cx-q'}, h('p',{text:c.text}), c.by?h('cite',{text:'— '+c.by}):null):null;
+  case 'callout': return c.text?h('div',{class:'cx-co t-'+(c.tone||'tip')}, h('i',{text:{tip:'💡',warn:'⚠️',info:'ℹ️',ok:'✅'}[c.tone]||'💡'}), h('p',{text:c.text})):null;
+  case 'list': { const L=(c.items||[]).filter(Boolean); if(!L.length) return null; return h(c.check?'ul':'ul',{class:'cx-ul'+(c.check?' ck':'')}, ...L.map(x=>h('li',{}, c.check?h('input',{type:'checkbox'}):null, h('span',{text:x})))); }
+  case 'spoil': return c.text?h('details',{class:'cx-sp'}, h('summary',{text:c.title||'點開看'}), cmRich(c.text)):null;
+  case 'link': return c.url&&c.label?h('a',{class:'cx-lb',href:c.url,target:/^#/.test(c.url)?null:'_blank',rel:'noopener nofollow',text:c.label+' →'}):null;
+  case 'div': return h('hr',{class:'cx-hr s-'+(c.st||'line')});
+  } return null; }
+function cmCompare(c){ const r=h('input',{type:'range',min:0,max:100,value:50,'aria-label':'拖曳比較'}), wrap=h('div',{class:'cx-cmp',style:'--x:50%'}, h('img',{src:c.b.url,alt:''}), h('div',{class:'cx-cpa'}, h('img',{src:c.a.url,alt:''})), h('i',{class:'cx-cph'}), h('span',{class:'cx-cl l',text:c.la||'之前'}), h('span',{class:'cx-cl r',text:c.lb||'之後'}), r);
+  r.addEventListener('input',()=>wrap.style.setProperty('--x',r.value+'%')); return wrap; }
+function cmQuiz(c){ const opts=(c.opts||[]).filter(Boolean); if(!c.q||opts.length<2) return null; const fb=h('p',{class:'cx-qzf',hidden:true});
+  const box=h('div',{class:'cx-qz'}, h('b',{text:'🧠 '+c.q}), ...opts.map((o,i)=>h('button',{type:'button',onclick:e=>{ if(box.dataset.done) return; box.dataset.done=1; box.querySelectorAll('button').forEach((x,j)=>x.classList.add(j===(+c.ans||0)?'ok':j===i?'no':'')); fb.hidden=false; fb.textContent=(i===(+c.ans||0)?'🎉 答對了！':'差一點！答案是「'+opts[+c.ans||0]+'」')+(c.why?' '+c.why:''); }},o)), fb); return box; }
+function cmPoll(b,post){ const c=b, opts=(c.opts||[]).filter(Boolean); if(!c.q||opts.length<2) return null; const pid=post?.id, myV=CM.votes.get(pid)?.[b.id], tal=(post?.poll||{})[b.id]||{}, tot=opts.reduce((n,_,i)=>n+(+tal[i]||0),0);
+  const voted=myV!=null, box=h('div',{class:'cx-poll'+(voted?' done':'')}, h('b',{text:'📊 '+c.q}), h('small',{class:'hint',text:tot+' 人投票'}), ...opts.map((o,i)=>{ const n=+tal[i]||0, pc=tot?Math.round(n/tot*100):0;
+    return h('button',{type:'button',class:(voted&&(Array.isArray(myV)?myV.includes(i):myV===i))?'me':'',style:'--p:'+(voted?pc:0)+'%',onclick:async()=>{ if(!pid) return; if(needLogin()||voted) return; const V={...(CM.votes.get(pid)||{}),[b.id]:i}; CM.votes.set(pid,V); post.poll={...(post.poll||{}),[b.id]:{...tal,[i]:(+tal[i]||0)+1}}; try{ await S.db.doc('posts/'+pid+'/votes/'+S.me+'~'+b.id).set({b:b.id,o:i,at:Date.now()}); }catch(e){ toast('投票失敗'); } cmPostPaint(); }}, h('span',{text:o}), voted?h('em',{text:pc+'%'}):null); })); return box; }
+
+/* ---- 文章頁 ---- */
+let CMP=null;
+async function renderPost(id){ const box=$('#postPage'); if(!box) return; let p=CM.posts.get(id);
+  if (!CMP||CMP.id!==id){ CMP={id,cm:null,liked:null}; box.replaceChildren(h('div',{class:'gh-empty'}, h('i',{text:'⏳'}), h('b',{text:'讀取中…'})));
+    try{ const d=await S.db.doc('posts/'+id).get(); if(!d.exists){ box.replaceChildren(h('div',{class:'gh-empty'}, h('i',{text:'🍂'}), h('b',{text:'這篇文章不存在或已被刪除'}), h('a',{class:'gh-b pri',href:'#/community',text:'回社群'}))); return; } p={id,...d.data()}; CM.posts.set(id,p); }catch(e){ if(!p) return; }
+    resolveNames([p.uid]); (p.blocks||[]).forEach(b=>{ if(b.t==='plant') (b.ids||[]).forEach(i=>{ if(!S.plants.has(i)&&p.pl?.[i]) S.db.doc('shops/'+p.pl[i]+'/plants/'+i).get().then(x=>{ if(x.exists){ S.plants.set(i,{id:i,...x.data(),shop:p.pl[i]}); cmPostPaint(); } }).catch(()=>{}); }); });
+    if (S.me){ S.db.doc('posts/'+id+'/likes/'+S.me).get().then(x=>{ CMP.liked=x.exists; CM.liked.set(id,x.exists); cmPostPaint(); }).catch(()=>{}); (p.blocks||[]).filter(b=>b.t==='poll').forEach(b=>S.db.doc('posts/'+id+'/votes/'+S.me+'~'+b.id).get().then(x=>{ if(x.exists){ CM.votes.set(id,{...(CM.votes.get(id)||{}),[b.id]:x.data().o}); cmPostPaint(); } }).catch(()=>{})); }
+    S.db.collection('posts/'+id+'/cmts').orderBy('at','asc').limit(300).get().then(sn=>{ CMP.cm=sn.docs.map(d=>({id:d.id,...d.data()})); resolveNames(CMP.cm.map(x=>x.uid)); cmPostPaint(); }).catch(()=>{ CMP.cm=[]; cmPostPaint(); }); }
+  cmPostPaint(); }
+function cmPostPaint(){ const box=$('#postPage'); if(!box||!CMP) return; const p=CM.posts.get(CMP.id); if(!p) return; if(!cmVis(p)){ box.replaceChildren(h('div',{class:'gh-empty'}, h('i',{text:'🙈'}), h('b',{text:'這篇文章已被隱藏'}))); return; }
+  if (box.contains(document.activeElement)&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { const cl=box.querySelector('.cx-cl2'); if(cl) cl.replaceWith(cmCmtList(p)); return; }
+  const own=p.uid===S.me, adm0=S.admin, lk=!!CMP.liked;
+  const likeB=h('button',{type:'button',class:'cx-like'+(lk?' on':''),onclick:()=>cmLike(p)}, h('i',{text:lk?'♥':'♡'}), h('b',{text:String(p.likes||0)}));
+  const menu=h('div',{class:'cx-menu'}, own?h('button',{type:'button',onclick:()=>cmWrite(p),text:'✏️ 編輯'}):null, own||adm0?confirmBtn('🗑 刪除','soft',()=>cmDelete(p)):null,
+    adm0?h('button',{type:'button',onclick:()=>cmAdm(p,{feat:!p.feat}),text:p.feat?'取消精選':'⭐ 設為精選'}):null, adm0?h('button',{type:'button',onclick:()=>cmAdm(p,{pin:!p.pin,pinAt:Date.now()}),text:p.pin?'取消置頂':'📌 置頂'}):null, adm0?h('button',{type:'button',onclick:()=>cmAdm(p,{hidden:!p.hidden}),text:p.hidden?'取消隱藏':'🙈 隱藏'}):null,
+    !own?h('button',{type:'button',onclick:()=>cmReport('post',p.id,p),text:'🚩 檢舉'}):null);
+  box.replaceChildren(h('article',{class:'cx-art'},
+    h('div',{class:'cx-ah'}, h('a',{class:'cx-au2',href:'#/gh/'+p.uid}, chatAv(p.uid,40), h('div',{}, h('b',{text:nameOf(p.uid)}), h('small',{text:ago(p.at)+(p.upd&&p.upd-p.at>6e4?' · 已編輯':'')}))), p.uid!==S.me&&S.me?h('button',{type:'button',class:'gh-b',onclick:()=>openChat(p.uid),text:'💬 聊聊'}):null, h('details',{class:'cx-mw'}, h('summary',{text:'⋯'}), menu)),
+    h('div',{class:'cx-tg'}, p.pin?h('em',{class:'pin',text:'📌 置頂'}):null, p.feat?h('em',{class:'feat',text:'⭐ 精選'}):null, p.cat?h('em',{text:CM_CN[p.cat]||''}):null),
+    h('h1',{class:'cx-t',text:p.title||''}),
+    h('div',{class:'cx-body'}, ...(p.blocks||[]).map(b=>{ try{ return cmBlockView(b,p); }catch(e){ return null; } }).filter(Boolean)),
+    (p.tags||[]).length?h('div',{class:'cx-tags'}, ...p.tags.map(t=>h('a',{href:'#/community',onclick:()=>{ CM.q='#'+t; CM.tab='new'; },text:'#'+t}))):null,
+    h('div',{class:'cx-bar'}, likeB, h('button',{type:'button',class:'cx-ab',onclick:()=>document.querySelector('.cx-cin textarea')?.focus(),text:'💬 '+(p.cmts||CMP.cm?.length||0)}), h('button',{type:'button',class:'cx-ab',onclick:()=>{ const url=location.origin+location.pathname+'#/post/'+p.id; if(navigator.share) navigator.share({title:p.title,url}).catch(()=>{}); else copyText(url); },text:'↗ 分享'})),
+    h('section',{class:'cx-cms'}, h('h3',{text:'留言'}), cmCmtBox(p), cmCmtList(p))));
+}
+function cmCmtList(p){ const L=CMP.cm; if(L==null) return h('div',{class:'cx-cl2'}, h('p',{class:'hint',text:'讀取中…'}));
+  const top=L.filter(x=>!x.re), kids=id=>L.filter(x=>x.re===id);
+  const one=(x,sub)=>h('div',{class:'cx-cmt'+(sub?' sub':'')}, h('a',{href:'#/gh/'+x.uid}, chatAv(x.uid,sub?26:32)), h('div',{class:'cx-cmb'}, h('div',{}, h('b',{text:x.uid===p.uid?nameOf(x.uid)+'（作者）':nameOf(x.uid)}), h('small',{text:ago(x.at)})), h('p',{text:x.text}), x.img?h('img',{src:x.thumb||x.img,alt:'',onclick:()=>lightbox([{url:x.img}],0)}):null,
+    h('div',{class:'cx-cma'}, !sub&&S.me?h('button',{type:'button',onclick:()=>{ CMP.re=x.id; cmPostPaint(); setTimeout(()=>document.querySelector('.cx-cin textarea')?.focus(),50); },text:'回覆'}):null, S.me&&(x.uid===S.me||p.uid===S.me||S.admin)?h('button',{type:'button',onclick:()=>cmCmtDel(p,x),text:'刪除'}):null, S.me&&x.uid!==S.me?h('button',{type:'button',onclick:()=>cmReport('cmt',p.id,x),text:'檢舉'}):null)));
+  return h('div',{class:'cx-cl2'}, ...(top.length?top.map(x=>h('div',{}, one(x), ...kids(x.id).map(y=>one(y,true)))):[h('p',{class:'hint',text:'還沒有留言，留下第一句話吧'})])); }
+function cmCmtBox(p){ if(!S.me) return h('button',{type:'button',class:'gh-b pri',onclick:openLogin,text:'登入後留言'}); const re=CMP.re&&CMP.cm?.find(x=>x.id===CMP.re);
+  const ta=h('textarea',{rows:2,maxlength:1000,placeholder:re?'回覆 '+nameOf(re.uid)+'…':'說點什麼…'}); ta.addEventListener('input',()=>{ ta.style.height='auto'; ta.style.height=Math.min(160,ta.scrollHeight)+'px'; });
+  let img=null; const fi=h('input',{type:'file',accept:'image/*',hidden:true}), pv=h('span',{class:'cx-cip'});
+  fi.addEventListener('change',async()=>{ const f=fi.files[0]; fi.value=''; if(!f) return; pv.textContent='上傳中…'; try{ img=await uploadMediaFile(f); pv.replaceChildren(h('img',{src:img.thumb||img.url,alt:''}), h('button',{type:'button',onclick:()=>{ S.assets?.removeUrl?.(img.url).catch(()=>{}); img=null; pv.replaceChildren(); },text:'✕'})); }catch(e){ pv.textContent=''; toast('上傳失敗'); } });
+  const send=async()=>{ const v=ta.value.trim(); if(!v&&!img) return; if(!rateOK('chat')) return; const d={uid:S.me,text:v,at:Date.now(),...(re?{re:re.id}:{}),...(img?{img:img.url,thumb:img.thumb||null}:{})}; ta.disabled=true;
+    try{ const r=S.db.collection('posts/'+p.id+'/cmts').doc(); await r.set(d); CMP.cm=[...(CMP.cm||[]),{id:r.id,...d}]; p.cmts=(p.cmts||0)+1; CMP.re=null; cmPostPaint(); }catch(e){ toast('留言失敗：'+(e?.code==='permission-denied'?'目前不能留言':'請稍後再試')); ta.disabled=false; } };
+  return h('div',{class:'cx-cin'}, re?h('div',{class:'cx-re'}, h('span',{text:'回覆 '+nameOf(re.uid)+'：'+String(re.text||'').slice(0,30)}), h('button',{type:'button',onclick:()=>{ CMP.re=null; cmPostPaint(); },text:'✕'})):null, h('div',{class:'cx-cir'}, chatAv(S.me,32), ta, h('button',{type:'button',class:'cx-ci2',onclick:()=>fi.click(),'aria-label':'照片',text:'📷'}), fi, h('button',{type:'button',class:'gh-b pri',onclick:send,text:'送出'})), pv); }
+async function cmCmtDel(p,x){ try{ await S.db.doc('posts/'+p.id+'/cmts/'+x.id).delete(); if(x.img&&x.uid===S.me) mediaCleanup({a:{url:x.img,thumb:x.thumb}},null); CMP.cm=CMP.cm.filter(y=>y.id!==x.id&&y.re!==x.id); p.cmts=Math.max(0,(p.cmts||1)-1); cmPostPaint(); }catch(e){ toast('刪除失敗'); } }
+async function cmLike(p){ if(needLogin()) return; const on=!CMP.liked; CMP.liked=on; CM.liked.set(p.id,on); p.likes=Math.max(0,(p.likes||0)+(on?1:-1)); cmPostPaint();
+  try{ const r=S.db.doc('posts/'+p.id+'/likes/'+S.me); if(on) await r.set({at:Date.now()}); else await r.delete(); }catch(e){ CMP.liked=!on; p.likes=Math.max(0,(p.likes||0)+(on?-1:1)); cmPostPaint(); toast('操作失敗'); } }
+async function cmAdm(p,patch){ try{ await S.db.doc('posts/'+p.id).update(patch); Object.assign(p,patch); CM.feat=null; CM.pin=null; cmSpecial(); toast('已更新'); admLog(p.uid,'post',(p.title||'').slice(0,30)+'：'+Object.entries(patch).filter(([k])=>k!=='pinAt').map(([k,v])=>({feat:'精選',pin:'置頂',hidden:'隱藏'}[k]+(v?'':'取消'))).join('、')); cmPostPaint(); }catch(e){ toast('操作失敗'); } }
+async function cmDelete(p){ try{ await S.db.doc('posts/'+p.id).delete(); if(p.uid===S.me) mediaCleanup({b:p.blocks},null); CM.posts.delete(p.id); CM.feed=CM.feed.filter(x=>x.id!==p.id); toast('已刪除'); if(S.admin&&p.uid!==S.me) admLog(p.uid,'post','刪除文章：'+(p.title||'').slice(0,30)); go('#/community'); }catch(e){ toast('刪除失敗'); } }
+
+/* ---- 發文編輯器（手機優先：大按鈕、拖曳排序、一次選多張照片） ---- */
+let CMW=null;
+const CMW_QUICK=['txt','h','img','vid','plant','poll','cmp','care','quiz','callout','list','quote','spoil','link','div'];
+function cmWrite(p,nav){ if(needLogin()) return; if(!limOK('post')) return;
+  if (p){ CMW={id:p.id,edit:true,old:JSON.parse(JSON.stringify(p.blocks||[])),d:{title:p.title||'',cat:p.cat||'share',tags:(p.tags||[]).join(' '),blocks:JSON.parse(JSON.stringify(p.blocks||[]))},up:[],at:p.at}; }
+  else { const dr=lsGet('vein.draft:'+S.me,null); CMW={id:null,edit:false,d:dr?.d||{title:'',cat:'share',tags:'',blocks:[{id:scId(),t:'txt',text:'',st:'p'}]},up:dr?.up||[]}; if(dr) setTimeout(()=>toast('已接續上次的草稿'),300); }
+  CMW.open=null; CMW.pv=false; if(nav!==false) go('#/write'); }
+function cmDraft(){ if(!CMW||CMW.edit||!S.me) return; clearTimeout(cmDraft.t); cmDraft.t=setTimeout(()=>lsSet('vein.draft:'+S.me,{d:CMW.d,up:CMW.up,at:Date.now()}),500); }
+function cmAddBlock(t,at){ const k=t==='h'?'txt':t, b={id:scId(),t:k,...CMB[k].def(),...(t==='h'?{st:'h2'}:{})}; const B=CMW.d.blocks, i=at==null?B.length:at; B.splice(i,0,b); CMW.open=b.id; cmDraft(); renderWrite(); requestAnimationFrame(()=>{ const el=document.querySelector('#writePage [data-bid="'+b.id+'"]'); el?.scrollIntoView({behavior:'smooth',block:'center'}); el?.querySelector('textarea,input:not([type=file])')?.focus(); if(k==='img'||k==='vid') el?.querySelector('.wx-add')?.click(); }); }
+function cmInsSheet(at){ const ov=h('div',{class:'gt-ov',onclick:e=>{ if(e.target===ov) ov.remove(); }}, h('div',{class:'gt wx-ins'}, h('b',{class:'gt-t',text:'插入元件'}), h('div',{class:'wx-ig'}, ...CMW_QUICK.map(k=>{ const d=k==='h'?{n:'標題',ic:'🔠'}:CMB[k]; return h('button',{type:'button',onclick:()=>{ ov.remove(); cmAddBlock(k,at); }}, h('i',{text:d.ic}), h('span',{text:d.n})); })), h('button',{type:'button',class:'gt-no',onclick:()=>ov.remove(),text:'取消'}))); topHost().append(ov); }
+function cwUpload(files,onOne,st,multi){ const L=[...files].slice(0,multi?20:1); (async()=>{ for(let i=0;i<L.length;i++){ const f=L[i]; try{ st&&(st.textContent='上傳中 '+(i+1)+'/'+L.length+'…'); const md=await uploadMediaFile(f,x=>{ st&&(st.textContent='上傳中 '+(i+1)+'/'+L.length+' · '+Math.round(x/f.size*100)+'%'); }); CMW.up.push(md); onOne(md); }catch(x){ toast('上傳失敗：'+(x?.message||'')); } } st&&(st.textContent=''); cmDraft(); renderWrite(); })(); }
+function cwMedia(label,get,set,accept){ const st=h('small',{class:'hint'}), inp=h('input',{type:'file',hidden:true,accept:accept||'image/*'}); inp.addEventListener('change',()=>{ const f=inp.files; if(!f.length) return; cwUpload(f,md=>set(md),st,false); inp.value=''; }); const m=get();
+  return h('div',{class:'wx-mp'}, h('small',{text:label}), m?.url?h('div',{class:'wx-th'}, m.type==='video'?h('video',{src:m.url,muted:true,playsinline:true}):h('img',{src:m.thumb||m.url,alt:''}), h('button',{type:'button',onclick:()=>{ set(null); cmDraft(); renderWrite(); },text:'✕'})):h('button',{type:'button',class:'wx-add',onclick:()=>inp.click()}, h('i',{text:'＋'}), h('span',{text:'選擇'})), inp, st); }
+function cwBlockEd(b,P){ const ch=()=>{ CMW.dirty=true; cmDraft(); }, hard=()=>{ ch(); renderWrite(); };
+  const inp=(k,ph,max)=>{ const i=h('input',{value:b[k]||'',placeholder:ph,maxlength:max||120}); i.addEventListener('input',()=>{ b[k]=i.value; ch(); }); return i; };
+  const area=(k,ph,rows)=>{ const i=h('textarea',{rows:rows||3,placeholder:ph,maxlength:5000}); i.value=b[k]||''; const fit=()=>{ i.style.height='auto'; i.style.height=Math.max(60,i.scrollHeight)+'px'; }; i.addEventListener('input',()=>{ b[k]=i.value; fit(); ch(); }); requestAnimationFrame(fit); return i; };
+  const chips=(k,opts)=>h('div',{class:'wx-chips'}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String((b[k]??opts[0][0])===v),onclick:()=>{ b[k]=v; hard(); },text:l})));
+  const optList=(k,max)=>{ b[k]=b[k]||['','']; return h('div',{class:'wx-ol'}, ...b[k].map((o,i)=>h('div',{class:'wx-or'}, b.t==='quiz'?h('input',{type:'radio',name:'qz'+b.id,checked:(+b.ans||0)===i,title:'正確答案',onchange:()=>{ b.ans=i; ch(); }}):h('i',{text:String(i+1)}), (()=>{ const x=h('input',{value:o,placeholder:'選項 '+(i+1),maxlength:60}); x.addEventListener('input',()=>{ b[k][i]=x.value; ch(); }); return x; })(), b[k].length>2?h('button',{type:'button',onclick:()=>{ b[k].splice(i,1); hard(); },text:'✕'}):null)), b[k].length<max?h('button',{type:'button',class:'wx-more',onclick:()=>{ b[k].push(''); hard(); },text:'＋ 加選項'}):null); };
+  switch(b.t){
+    case 'txt': return h('div',{}, chips('st',[['p','內文'],['h2','大標題'],['h3','小標題']]), b.st==='p'?area('text','寫點什麼…\n**粗體** #標籤 網址都可以',4):inp('text','標題文字',80), b.st==='p'?h('small',{class:'hint',text:'**文字** 會變粗體，#標籤 可以點'}):null);
+    case 'img': { b.items=b.items||[]; const st=h('small',{class:'hint'}), fi=h('input',{type:'file',hidden:true,multiple:true,accept:'image/*,video/mp4,video/quicktime,video/webm'}); fi.addEventListener('change',()=>{ if(!fi.files.length) return; cwUpload(fi.files,md=>b.items.push(md),st,true); fi.value=''; });
+      const g=h('div',{class:'wx-ims'}, ...b.items.map((m,i)=>h('div',{class:'wx-im',draggable:'false'}, m.type==='video'?h('video',{src:m.url,muted:true,playsinline:true}):h('img',{src:m.thumb||m.url,alt:''}), h('em',{text:String(i+1)}), h('button',{type:'button',class:'x',onclick:()=>{ b.items.splice(i,1); hard(); },text:'✕'}), i?h('button',{type:'button',class:'l',onclick:()=>{ [b.items[i-1],b.items[i]]=[b.items[i],b.items[i-1]]; hard(); },text:'‹'}):null)), h('button',{type:'button',class:'wx-add',onclick:()=>fi.click()}, h('i',{text:'＋'}), h('span',{text:b.items.length?'再加':'選照片（可多選）'})));
+      return h('div',{}, g, fi, st, chips('view',[['swipe','左右滑'],['grid','拼貼'],['big','大圖一張張']]), inp('cap','照片說明（選填）')); }
+    case 'vid': return h('div',{}, cwMedia('影片',()=>b.m,m=>{ b.m=m; },'video/mp4,video/quicktime,video/webm'), inp('cap','影片說明（選填）'), h('small',{class:'hint',text:'影片最長 6 秒（認證會員可上傳）'}));
+    case 'plant': { b.ids=b.ids||[]; const mineP=all().filter(p=>(ownerOf(p)===S.me||p.shop===S.me)&&!p.hidden).sort((a,b2)=>toMs(b2.createdAt)-toMs(a.createdAt)); const q=h('input',{placeholder:'搜尋編號或品種（也能找別人的公開植物）'}), res=h('div',{class:'wx-pr'});
+      const draw=()=>{ const v=q.value.trim().toLowerCase(); const L=(v?all().filter(p=>!p.hidden&&!privFor(p)&&[p.code,p.species,p.cultivar].join(' ').toLowerCase().includes(v)):mineP).slice(0,30); res.replaceChildren(...L.map(p=>h('button',{type:'button',class:b.ids.includes(p.id)?'on':'',onclick:()=>{ const i=b.ids.indexOf(p.id); if(i>=0) b.ids.splice(i,1); else if(b.ids.length<8) b.ids.push(p.id); else return toast('最多 8 株'); hard(); }}, h('img',{src:cover(p),alt:''}), h('small',{class:'mono',text:p.code||''})))); };
+      q.addEventListener('input',()=>{ clearTimeout(q._t); q._t=setTimeout(draw,200); }); draw(); return h('div',{}, h('small',{class:'hint',text:'已選 '+b.ids.length+' 株（點一下選取／取消）'}), q, res); }
+    case 'poll': return h('div',{}, inp('q','投票問題，例如：你最喜歡哪一株？',80), optList('opts',6));
+    case 'quiz': return h('div',{}, inp('q','題目，例如：這株是哪個屬？',80), h('small',{class:'hint',text:'圈選正確答案'}), optList('opts',4), inp('why','答案說明（選填）',120));
+    case 'cmp': return h('div',{class:'wx-2'}, cwMedia('之前的照片',()=>b.a,m=>{ b.a=m; }), cwMedia('之後的照片',()=>b.b,m=>{ b.b=m; }), inp('la','左邊標籤',12), inp('lb','右邊標籤',12));
+    case 'care': return h('div',{class:'wx-2'}, ...[['light','☀️ 光照','例如 散射光 8000 lux'],['water','💧 澆水','例如 介質半乾就澆'],['temp','🌡 溫度','例如 20–28°C'],['hum','💨 濕度','例如 70% 以上'],['soil','🪨 介質','例如 水苔＋樹皮']].map(([k,l,ph])=>h('label',{class:'wx-fl'}, h('small',{text:l}), inp(k,ph,40))), h('label',{class:'wx-fl full'}, h('small',{text:'備註'}), area('note','其他想分享的',2)));
+    case 'quote': return h('div',{}, area('text','引用的話',2), inp('by','出處（選填）',40));
+    case 'callout': return h('div',{}, chips('tone',[['tip','💡 小技巧'],['warn','⚠️ 注意'],['info','ℹ️ 資訊'],['ok','✅ 完成']]), area('text','提示內容',2));
+    case 'list': { b.items=b.items||['']; return h('div',{}, chips('check',[[false,'• 項目'],[true,'☑ 勾選清單']]), h('div',{class:'wx-ol'}, ...b.items.map((o,i)=>h('div',{class:'wx-or'}, h('i',{text:b.check?'☐':'•'}), (()=>{ const x=h('input',{value:o,placeholder:'項目 '+(i+1),maxlength:120}); x.addEventListener('input',()=>{ b.items[i]=x.value; ch(); }); x.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); b.items.splice(i+1,0,''); hard(); requestAnimationFrame(()=>document.querySelectorAll('#writePage [data-bid="'+b.id+'"] .wx-or input')[i+1]?.focus()); } }); return x; })(), b.items.length>1?h('button',{type:'button',onclick:()=>{ b.items.splice(i,1); hard(); },text:'✕'}):null)), h('button',{type:'button',class:'wx-more',onclick:()=>{ b.items.push(''); hard(); },text:'＋ 加一項'}))); }
+    case 'spoil': return h('div',{}, inp('title','摺疊標題，例如：答案揭曉',40), area('text','點開才看得到的內容',3));
+    case 'link': return h('div',{class:'wx-2'}, inp('label','按鈕文字',30), inp('url','網址（https://… 或 #/gh/…）',300));
+    case 'div': return chips('st',[['line','細線'],['dots','點點'],['leaf','葉子'],['space','空白']]);
+  } return null; }
+function renderWrite(){ const box=$('#writePage'); if(!box) return; if(!S.me){ box.replaceChildren(h('div',{class:'gh-empty'}, h('b',{text:'登入後才能發文'}), h('button',{class:'gh-b pri',type:'button',onclick:openLogin,text:'登入'}))); return; }
+  if (!CMW){ cmWrite(null,false); if(!CMW) return; } const D=CMW.d, B=D.blocks; const sy=scrollY, act=document.activeElement;
+  const title=h('input',{class:'wx-title',value:D.title,maxlength:60,placeholder:'標題'}); title.addEventListener('input',()=>{ D.title=title.value; cmDraft(); });
+  const tags=h('input',{value:D.tags,maxlength:120,placeholder:'標籤，用空白分開：火鶴 實生 新手'}); tags.addEventListener('input',()=>{ D.tags=tags.value; cmDraft(); });
+  const agreed=lsGet('vein.cmAgree',false), ag=h('input',{type:'checkbox',checked:!!agreed||!!CMW.ag,onchange:e=>{ CMW.ag=e.target.checked; }});
+  const row=(b,i)=>{ const d=CMB[b.t]||{n:b.t,ic:'▫️'}, open=CMW.open===b.id||b.t==='txt';
+    return h('div',{class:'wx-b'+(open?' open':''),'data-bid':b.id}, h('div',{class:'wx-bh'}, h('span',{class:'wx-grip',title:'按住拖曳',text:'⋮⋮'}), h('button',{type:'button',class:'wx-bn',onclick:()=>{ CMW.open=CMW.open===b.id?null:b.id; renderWrite(); }}, h('i',{text:b.t==='txt'&&b.st!=='p'?'🔠':d.ic}), h('b',{text:b.t==='txt'&&b.st!=='p'?'標題':d.n})),
+        h('button',{type:'button',disabled:!i,onclick:()=>{ [B[i-1],B[i]]=[B[i],B[i-1]]; cmDraft(); renderWrite(); },text:'↑'}), h('button',{type:'button',disabled:i===B.length-1,onclick:()=>{ [B[i+1],B[i]]=[B[i],B[i+1]]; cmDraft(); renderWrite(); },text:'↓'}), h('button',{type:'button',onclick:()=>{ B.splice(i+1,0,{...JSON.parse(JSON.stringify(b)),id:scId()}); cmDraft(); renderWrite(); },text:'⧉'}), h('button',{type:'button',onclick:()=>{ B.splice(i,1); cmDraft(); renderWrite(); },text:'✕'})),
+      open?h('div',{class:'wx-bb'}, cwBlockEd(b)):h('div',{class:'wx-bp',onclick:()=>{ CMW.open=b.id; renderWrite(); }}, cmBlockView(b,null)||h('small',{class:'hint',text:'點一下編輯'}))); };
+  const list=ghDrag(h('div',{class:'wx-list'}, ...B.flatMap((b,i)=>[h('button',{type:'button',class:'wx-plus',onclick:()=>cmInsSheet(i),'aria-label':'在這裡插入',text:'＋'}),row(b,i)]), h('button',{type:'button',class:'wx-plus last',onclick:()=>cmInsSheet(B.length),text:'＋ 加元件'})),(f,t)=>{ const [x]=B.splice(f,1); B.splice(t,0,x); cmDraft(); renderWrite(); },'.wx-b','.wx-grip');
+  const pv=CMW.pv;
+  box.replaceChildren(h('div',{class:'wx'+(pv?' pv':'')},
+    h('div',{class:'wx-top'}, h('button',{type:'button',class:'wx-x',onclick:()=>history.length>1?history.back():go('#/community'),'aria-label':'返回',text:'‹'}), h('b',{text:CMW.edit?'編輯文章':'寫文章'}), h('small',{class:'hint',text:CMW.edit?'':'草稿自動儲存'}), h('button',{type:'button',class:'gh-b',onclick:()=>{ CMW.pv=!CMW.pv; renderWrite(); scrollTo(0,0); },text:pv?'✏️ 編輯':'👁 預覽'}), h('button',{type:'button',class:'gh-b pri wx-pub',onclick:e=>cmPublish(e.currentTarget),text:CMW.edit?'更新':'發佈'})),
+    pv?h('article',{class:'cx-art'}, h('div',{class:'cx-tg'}, h('em',{text:CM_CN[D.cat]||''})), h('h1',{class:'cx-t',text:D.title||'（無標題）'}), h('div',{class:'cx-body'}, ...B.map(b=>cmBlockView(b,{id:null,poll:{}})).filter(Boolean)))
+    :h('div',{class:'wx-ed'},
+      h('div',{class:'wx-cats'}, ...CM_CAT.map(([k,i,n])=>h('button',{type:'button','aria-pressed':String(D.cat===k),onclick:()=>{ D.cat=k; cmDraft(); renderWrite(); },text:i+' '+n}))),
+      title, list,
+      h('label',{class:'wx-fl full'}, h('small',{text:'🏷 標籤'}), tags),
+      !agreed?h('label',{class:'wx-agree'}, ag, h('span',{}, '我已閱讀並同意', h('a',{href:'#/rules/community',target:'_blank',text:'社群公約'}), '（只要勾一次）')):null,
+      !CMW.edit?h('button',{type:'button',class:'bf-lk',style:'margin:10px 0 0',onclick:()=>{ if(!confirm('確定捨棄這篇草稿？上傳的照片也會刪除。')) return; mediaCleanup({up:CMW.up},null); lsSet('vein.draft:'+S.me,null); CMW=null; go('#/community'); },text:'捨棄草稿'}):null),
+    pv?null:h('div',{class:'wx-bar'}, ...CMW_QUICK.map(k=>{ const d=k==='h'?{n:'標題',ic:'🔠'}:CMB[k]; return h('button',{type:'button',onclick:()=>cmAddBlock(k)}, h('i',{text:d.ic}), h('small',{text:d.n})); }))));
+  if(sy) scrollTo(0,sy); }
+async function cmPublish(btn){ const D=CMW.d; if(!lsGet('vein.cmAgree',false)){ const ag=document.querySelector('.wx-agree input'); if(!CMW.ag&&!ag?.checked){ toast('請先勾選同意社群公約'); ag?.closest('label')?.scrollIntoView({behavior:'smooth',block:'center'}); return; } lsSet('vein.cmAgree',true); }
+  const B=D.blocks.filter(b=>{ const v=cmBlockView(b,{id:null,poll:{}}); return !!v; }); if(!D.title.trim()&&!B.length){ toast('寫點東西再發佈吧'); return; } if(!D.title.trim()){ toast('請幫文章取個標題'); document.querySelector('.wx-title')?.focus(); return; }
+  if(!rateOK('chat')) return; btn.disabled=true; btn.textContent='發佈中…';
+  const media=B.flatMap(b=>b.t==='img'?(b.items||[]):b.t==='vid'&&b.m?[b.m]:b.t==='cmp'?[b.a,b.b].filter(Boolean):[]), cv=media[0]?{url:media[0].url,thumb:media[0].thumb||null,poster:media[0].poster||null,type:media[0].type||'image'}:null;
+  const ex=B.filter(b=>b.t==='txt'&&b.st==='p').map(b=>b.text).join(' ').replace(/\*\*/g,'').replace(/\s+/g,' ').slice(0,140);
+  const pl={}; B.filter(b=>b.t==='plant').forEach(b=>(b.ids||[]).forEach(i=>{ const p=S.plants.get(i); if(p) pl[i]=p.shop; }));
+  const tags=[...new Set(String(D.tags||'').split(/[\s,，#]+/).map(x=>x.trim()).filter(Boolean))].slice(0,10);
+  const doc={uid:S.me,title:D.title.trim().slice(0,60),cat:D.cat||'share',tags,blocks:B,ex,cover:cv,nImg:media.length,pl,upd:Date.now()};
+  try{ if(CMW.edit){ await S.db.doc('posts/'+CMW.id).update(doc); mediaCleanup({old:CMW.old,up:CMW.up},B); const p=CM.posts.get(CMW.id); if(p) Object.assign(p,doc); const id=CMW.id; CMW=null; toast('已更新'); go('#/post/'+id); }
+    else { const ref=S.db.collection('posts').doc(), full={...doc,at:Date.now(),likes:0,cmts:0}; await ref.set(full); mediaCleanup({up:CMW.up},B); lsSet('vein.draft:'+S.me,null); const x={id:ref.id,...full}; CM.posts.set(ref.id,x); CM.feed.unshift(x); CMW=null; toast('發佈成功 🌿'); go('#/post/'+ref.id); } }
+  catch(e){ btn.disabled=false; btn.textContent=CMW.edit?'更新':'發佈'; toast('發佈失敗：'+(e?.code==='permission-denied'?'目前不能發文':'請稍後再試')); } }
+
 let meSig='';
 function renderMe(force){
   const box=$('#mePage'); if(!box||!S.me) return;
@@ -8776,7 +9105,7 @@ async function boot(){
 // 立牌（先印、之後再綁）：掃 QR 或碰 NFC 進站是 ?t=代碼（NFC 多帶 &n=1），轉成 #/tag/代碼
 (()=>{ try{ const q=new URLSearchParams(location.search), c=(q.get('t')||'').toUpperCase().replace(/[^0-9A-Z]/g,''); if(!c) return;
   if(q.get('n')==='1') sessionStorage.setItem('vein.tagNfc',c); history.replaceState(null,'',location.pathname+'#/tag/'+c); }catch(e){} })();
-const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','tag','guide','chats','feed','sell','about','rules','me','staff','lp','batch','gh'];
+const PAGES=['home','shop','store','verify','raffle','seller','plant','group','history','claim','tag','guide','chats','feed','sell','about','rules','me','staff','lp','batch','gh','community','post','write'];
 function go(hash){ if(location.hash===hash) route(); else if((history.state?.bl||0)>(window.__BL?.length||0)){ history.replaceState(null,'',hash); route(); } /* 剛關掉的視窗留下的那筆紀錄直接換掉，按上一頁才不會多按一次 */ else location.hash=hash; }
 // 返回鍵：所有不是主要分頁的頁面都顯示（App 模式沒有瀏覽器返回鍵，一定要有）；有上一頁就回上一頁，沒有就回首頁
 const ROOT_HASH=new Set(['','#','#/','#/store','#/store/auction','#/raffle','#/verify','#/me']);
@@ -8842,7 +9171,7 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
     $('#pgTag').hidden=pg!=='tag'; if (pg==='tag'){ S.tagCode=String(arg||'').toUpperCase(); S.tagDoc=null; renderTag(); }
-    $('#pgGh').hidden=pg!=='gh'; if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); document.body.classList.remove('gh-dockb','gh-edm'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
+    $('#pgCommunity').hidden=pg!=='community'; $('#pgPost').hidden=pg!=='post'; $('#pgWrite').hidden=pg!=='write'; document.body.classList.toggle('wx-on',pg==='write'); if(pg==='community') renderCommunityPg(true); if(pg==='post'){ if(CMP&&CMP.id!==arg) CMP=null; renderPost(arg); } else CMP=null; if(pg==='write') renderWrite(); $('#pgGh').hidden=pg!=='gh'; if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); document.body.classList.remove('gh-dockb','gh-edm'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
     if (pg==='sell') renderSell(); if (pg==='about') renderAbout(); if (pg==='rules') renderRules();
     if (['plant','history','verify','group','claim'].includes(pg)||(pg==='shop'&&['search','cat'].includes(S.storeTab))){ S.wantAll=true; ensurePlants(); }
     if (pg==='seller'&&S.sellerId){ S.wantShop=S.sellerId; ensurePlants(S.sellerId); }
@@ -10994,7 +11323,7 @@ function encBanList(m){ if(S.encBans===undefined||S.encBans===null){ S.encBans=f
   const top=m.querySelector('table')?.closest('.panel, .tbl, div')||m.querySelector('.empty'), par=top?.parentNode||m; par.insertBefore(h('div',{class:'panel',style:'border:1.5px solid #F3C7C2'}, h('h3',{text:'⚔ 遭遇戰被鎖定的會員（'+S.encBans.length+'）'}),
     h('div',{class:'list'}, ...S.encBans.map(b=>h('div',{class:'li',style:'background:#FFF6F5;grid-template-columns:1fr auto'}, h('div',{style:'min-width:0;cursor:pointer',onclick:()=>{ S.userSel=b.u; renderAdmin(true); }}, h('b',{text:nameOf(b.u)}), h('span',{text:encBanTxt(b)})), confirmBtn('解除','soft',()=>encUnban(b.u,false)))))),top); }
 /* ===== 會員管理：查詢、篩選、批次處分（停權／功能限制／警告）、代管資料與內容、查看紀錄、匯出 ===== */
-const LIM_K=[['bid','出價'],['order','下單'],['offer','議價'],['chat','聊天・留言'],['qa','提問'],['raffle','抽獎'],['enc','遭遇戰'],['list','上架登錄']];
+const LIM_K=[['post','社群發文'],['bid','出價'],['order','下單'],['offer','議價'],['chat','聊天・留言'],['qa','提問'],['raffle','抽獎'],['enc','遭遇戰'],['list','上架登錄']];
 const LIM_N=Object.fromEntries(LIM_K);
 const DUR=[['1','1 天'],['3','3 天'],['7','7 天'],['30','30 天'],['90','90 天'],['0','永久']];
 const PERM_T=9e15, durMs=d=>+d?Date.now()+(+d)*864e5:0, untilTxt=t=>!t||+t>=PERM_T?'永久':'到 '+fmtDate(tsLocal(+t));
@@ -12323,16 +12652,44 @@ function renderAbout(){ const box=$('#aboutPage'), st=platStats(), sc=storeConta
 }
 
 /* ---- 交易保障與規範 ---- */
-function renderRules(){ const box=$('#rulesPage');
+function renderRules(){ const box=$('#rulesPage'), T=(location.hash.match(/^#\/rules\/(\w+)/)||[])[1]||'trade';
   const sec=(t,items)=>h('section',{class:'ru-s'}, h('h2',{text:t}), h('ul',{}, ...items.map(x=>h('li',{text:x}))));
-  box.replaceChildren(h('div',{class:'ru'},
+  const tabs=h('nav',{class:'ru-tabs'}, ...[['trade','🔒 交易保障'],['community','🌿 社群公約'],['auction','🔨 拍賣公約'],['disclaimer','⚖️ 免責聲明']].map(([k,l])=>h('a',{href:'#/rules'+(k==='trade'?'':'/'+k),'aria-current':String(T===k),onclick:e=>{ e.preventDefault(); history.replaceState(history.state,'','#/rules'+(k==='trade'?'':'/'+k)); renderRules(); },text:l})));
+  const foot=()=>h('p',{class:'hint',style:'margin-top:28px',text:'本公約會隨平台發展更新，重大變更會在網站公告。使用 VEIN 即表示同意遵守最新版本。'});
+  if (T==='community'){ box.replaceChildren(h('div',{class:'ru'}, tabs,
+    h('section',{class:'ab-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'COMMUNITY GUIDELINES'), h('h1',{text:'植友社群公約'}), h('p',{class:'ab-lead',text:'植友社群是大家分享植物、交流養護經驗的地方。為了讓每個人都待得舒服，請一起遵守以下約定。'})),
+    h('div',{class:'ru-g'},
+      sec('🤝 友善交流',['尊重每一位植友，不人身攻擊、不嘲諷新手、不歧視。','意見不同時就事論事，討論植物，不討論人。','不散布未經證實的指控；交易糾紛請走平台的檢舉與客服流程。']),
+      sec('📷 內容真實',['照片與影片請使用自己拍攝或已取得授權的素材，轉貼請註明出處。','品種、親本、來源資訊請如實分享；不確定時請寫「不確定」或用發問分類。','不可冒充他人、其他賣家或平台官方。']),
+      sec('🚫 禁止的內容',['廣告洗版、重複發文、無關的推銷連結。','色情、暴力、仇恨、違法內容（含違法或未經檢疫許可的植物交易）。','公開他人個資（電話、地址、帳號等）或私下對話截圖未經同意。','詐騙、引導到站外私下交易以規避平台保障。']),
+      sec('🛒 社群裡的買賣',['社群文章可以分享自己的植物與賣場連結，但實際交易請走 VEIN 的直購、競標或議價，才有訂單紀錄與保障。','在社群私下約定的交易，平台無法提供協助與保障。']),
+      sec('⭐ 精選與置頂',['管理員會把優質、有幫助的文章設為精選或置頂，作者會獲得「精選作者」徽章。','精選與置頂由平台依內容品質決定，不接受付費。']),
+      sec('⚖️ 違規處理',['違規內容會被隱藏或刪除，視情況給予警告、暫停發文或留言功能、停權。','看到違規內容請按「⋯ → 檢舉」，管理員會盡快處理。','對處理結果有疑問可以聯絡平台。'])), foot())); return; }
+  if (T==='auction'){ box.replaceChildren(h('div',{class:'ru'}, tabs,
+    h('section',{class:'ab-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'AUCTION RULES'), h('h1',{text:'拍賣公約'}), h('p',{class:'ab-lead',text:'競標、遭遇戰、福利組合與抽獎都適用以下規則。出價就代表你同意這些約定。'})),
+    h('div',{class:'ru-g'},
+      sec('🔨 出價',['每一次出價都是正式的購買承諾，得標就要完成付款。','出價必須高於目前最高價加上最低加價；畫面上顯示的價格以伺服器紀錄為準。','結標前幾分鐘有人出價時會自動延長（防尾刀），延長規則會顯示在競標頁。','禁止自己或親友帳號抬價（假出價），一經查證會取消訂單並停權。']),
+      sec('🏆 得標與付款',['結標後訂單自動成立，請在賣家要求的時間內付款並填寫收件資料。','訂單一律自動成立；要取消必須買賣雙方都同意。','得標後不付款或惡意棄標，會被限制出價或停權。']),
+      sec('⚔ 遭遇戰與福利組合',['遭遇戰收服成功即成立訂單，成交價以伺服器結算為準。','取消遭遇戰訂單會被暫時鎖定：第 1 次 1 週、第 2 次 1 個月、第 3 次永久。','福利組合先搶先贏，數量以伺服器紀錄為準。']),
+      sec('🎲 抽獎',['抽獎免費參加，每人一次；用多個帳號參加會被取消資格。','開獎由系統隨機抽出，結果公開透明。','中獎後請在期限內與主辦賣家聯絡，逾期視同放棄。']),
+      sec('📦 賣家責任',['競標品的照片與描述必須是實際出貨的那一株。','結標後應在約定時間內出貨，並提供物流資訊。','賣家不可在結標後片面取消或加價。'])), foot())); return; }
+  if (T==='disclaimer'){ box.replaceChildren(h('div',{class:'ru'}, tabs,
+    h('section',{class:'ab-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'DISCLAIMER'), h('h1',{text:'免責聲明'}), h('p',{class:'ab-lead',text:'請在使用 VEIN 前詳細閱讀。'})),
+    h('div',{class:'ru-g'},
+      sec('🏪 平台角色',['VEIN 是提供植物登錄、溯源與交易媒合的平台，商品由各個獨立賣家販售，平台不是買賣契約的當事人。','平台會盡力審核賣家與內容，但無法保證每一筆交易、每一則內容都完全正確。']),
+      sec('🌱 植物狀態',['植物是活體，運送途中的溫度、時間與環境可能影響狀態，請買賣雙方事先約定運送方式與處理方式。','品種、親本、來源等資訊由賣家或登錄者提供，平台的溯源紀錄只能證明「誰在何時登錄了什麼」，不保證資訊本身的真實性。']),
+      sec('💬 社群內容',['社群文章、留言與溫室內容由會員自行發表，觀點不代表 VEIN 立場。','養護分享僅供參考，請依自己的環境判斷；因參考內容造成的植物損失，平台不負責任。','平台有權在不事先通知的情況下隱藏或刪除違規內容。']),
+      sec('💳 付款與糾紛',['交易款項由買賣雙方自行收付，請使用訂單頁提供的資訊並保留紀錄。','在平台以外私下交易所產生的損失與糾紛，平台無法協助處理。','發生糾紛時，平台可提供聊天、訂單與出價紀錄協助釐清，但不負賠償責任。']),
+      sec('🛠 服務與資料',['平台可能因維護、網路或第三方服務異常而暫停，平台會盡快修復，但不保證服務永遠不中斷。','請妥善保管自己的帳號；因帳號被他人使用造成的損失，平台不負責任。','平台依隱私權政策處理你的資料，只在提供服務、處理糾紛或法律要求時使用。'])), foot())); return; }
+  box.replaceChildren(h('div',{class:'ru'}, tabs,
     h('section',{class:'ab-hero'}, h('span',{class:'tr-k mono'}, h('i'), 'TRUST & RULES'), h('h1',{text:'交易保障與規範'}), h('p',{class:'ab-lead',text:'VEIN 是平台，商品由各個獨立賣家販售。以下是平台提供的保障機制，以及買賣雙方都需要遵守的規範。'})),
     h('div',{class:'ru-g'},
       sec('🔒 平台提供的保障',['賣家需經平台審核才能公開商品；認證賣家另有標章。','每株植物有唯一編號，照片保留原始拍攝時間，登錄後編號與紀錄不能修改或刪除。','所有權轉移會寫進履歷；轉手後品種與父母本等血統資料會鎖定，避免事後竄改。','匯款帳號、匯款後五碼、物流資訊與聊天內容，只有該筆交易的買賣雙方看得到。','任何人都能用編號查驗一株植物的履歷與目前所有者。']),
       sec('🛒 交易流程',['直購：加入購物車送出訂單 → 賣家確認 → 依賣家提供的方式付款 → 賣家出貨 → 買家確認收貨並評價。','議價：買家出價，賣家同意後自動成立訂單；同一株的其他議價會自動婉拒。','競標：倒數結束時最高出價者得標，賣家會與得標者聯絡付款與出貨。','抽獎：免費參加，到點公開開獎。','VEIN 不經手金流，付款直接在買賣雙方之間進行，請保留匯款與對話紀錄。']),
       sec('✅ 賣家需要遵守',['照片與影片必須是該株植物本身，不可盜用他人照片。','品種、父母本、側芽或實生苗等資訊要如實填寫；不確定時請在備註說明。','不可販售法律禁止或需檢疫許可而未取得的植物。','收款後應在約定時間內出貨，並在聊天或訂單中提供出貨資訊。']),
       sec('🙋 買家需要遵守',['下單或得標後請在約定時間內付款。','出價與議價視為購買意願，請勿惡意出價。','收到植物有問題時，請先拍照並透過聊天與賣家聯絡。']),
-      sec('⚖️ 爭議與檢舉',['交易爭議請先與對方溝通，並保留聊天與付款紀錄。','無法解決時可聯絡平台協助；平台可視情況下架商品、隱藏內容或停權帳號。','發現盜圖、假資料或可疑賣家，歡迎向平台檢舉。'])),
+      sec('⚖️ 爭議與檢舉',['交易爭議請先與對方溝通，並保留聊天與付款紀錄。','無法解決時可聯絡平台協助；平台可視情況下架商品、隱藏內容或停權帳號。','發現盜圖、假資料或可疑賣家，歡迎向平台檢舉。']),
+      sec('📚 其他公約',['社群發文與留言請看「社群公約」。','競標、遭遇戰、福利組合與抽獎請看「拍賣公約」。','平台責任範圍請看「免責聲明」。'])),
     h('p',{class:'hint',style:'margin-top:28px',text:'本規範會隨平台發展更新。使用 VEIN 即表示同意遵守最新版本。'}),
     h('div',{class:'row',style:'gap:10px;flex-wrap:wrap;margin-top:12px'}, h('a',{class:'btn soft',href:'#/about',text:'關於 VEIN'}), h('a',{class:'btn lime',href:'#/sell',text:'開店招募'}))));
 }
@@ -12379,9 +12736,9 @@ const BADGES=[
 const revOf=u=>[...S.sorders.values()].filter(o=>o.shop===u&&OK_ST.includes(o.status)).reduce((a,o)=>a+(+o.total||0),0);
 const SPECIAL_BADGES=[['honest','🛡','誠信賣家','平台確認交易紀錄良好'],['top','👑','年度溫室','VEIN 年度推薦溫室'],['pick','⭐','編輯精選','VEIN 編輯推薦'],['event','🎪','活動夥伴','與 VEIN 合作舉辦活動'],['rescue','🚑','救援達人','熱心協助其他玩家'],
   ['quality','🌿','品質保證','平台抽查植株狀態優良'],['breedpro','🎓','育種專家','育種成果獲平台肯定'],['mentor','🧑‍🏫','熱心教學','常分享照顧與育種知識'],['photo','📷','攝影大師','植物照片拍得特別好'],['pack','🎁','包裝細心','買家一致稱讚包裝'],
-  ['fastship','🚀','出貨神速','下單後很快就出貨'],['rare','💠','稀有品種','擁有少見的品種'],['media','📰','媒體推薦','曾被媒體或社群報導'],['ambassador','🏳️','VEIN 大使','協助推廣 VEIN'],['champion','🥇','比賽冠軍','植物比賽得獎'],['charity','❤️','公益夥伴','參與公益活動']];
+  ['fastship','🚀','出貨神速','下單後很快就出貨'],['rare','💠','稀有品種','擁有少見的品種'],['media','📰','媒體推薦','曾被媒體或社群報導'],['ambassador','🏳️','VEIN 大使','協助推廣 VEIN'],['champion','🥇','比賽冠軍','植物比賽得獎'],['charity','❤️','公益夥伴','參與公益活動'],['comm','🌿','社群夥伴','經常在社群分享知識'],['live','🎬','直播賣家','定期直播介紹植物'],['eco','♻️','環保包裝','使用環保包材'],['local','📍','在地溫室','支持在地生產'],['newbie','🐣','新手友善','對新手特別有耐心']];
 // 會員（買家／收藏家）的平台頒發徽章，跟賣家共用 site/badges
-const MEMBER_SPECIAL=[['vip','💠','VIP 買家','平台認定的重要買家'],['trusted','🤝','誠信買家','付款、取貨都很準時'],['helper','🙋','熱心玩家','常幫忙解答問題'],['og','🐣','元老會員','VEIN 早期就加入的會員'],['reporter','🕵️','回報達人','幫忙回報問題或可疑內容'],['winner','🏆','活動得主','在 VEIN 活動中得獎'],['creator','🎥','內容創作者','分享優質植物內容']];
+const MEMBER_SPECIAL=[['vip','💠','VIP 買家','平台認定的重要買家'],['trusted','🤝','誠信買家','付款、取貨都很準時'],['helper','🙋','熱心玩家','常幫忙解答問題'],['og','🐣','元老會員','VEIN 早期就加入的會員'],['reporter','🕵️','回報達人','幫忙回報問題或可疑內容'],['winner','🏆','活動得主','在 VEIN 活動中得獎'],['creator','🎥','內容創作者','分享優質植物內容'],['star','🌟','社群之星','社群裡特別活躍、受歡迎'],['doctor','🩺','植物醫生','常幫大家看病蟲害、救植物'],['guide','🧭','新手導師','耐心帶新手入門'],['shooter','📸','攝影師','植物照片拍得特別好'],['writer','✒️','優質作者','文章內容紮實、有幫助'],['champ','🏆','比賽冠軍','VEIN 活動或比賽冠軍'],['early','🌱','種子會員','VEIN 第一批社群會員'],['collector','🗝','稀有收藏家','擁有少見的品種'],['host','🎪','活動志工','協助舉辦社群活動'],['peace','🕊','和平使者','幫忙化解爭議、維持友善']];
 S.badges={};
 const BCACHE=new Map();
 function badgesOf(u){ const c=BCACHE.get(u); if(c&&Date.now()-c.t<4000) return c.out; const out=[]; BCACHE.set(u,{t:Date.now(),out}); for(const [k,ic,n,d,fn,tier] of BADGES){ let r={}; try{ r=fn(u)||{}; }catch(e){} out.push({k,ic,n,d,tier,ok:!!r.ok,prog:r.prog,txt:r.txt||''}); }
@@ -12395,9 +12752,9 @@ function badgeWall(u,opts={}){ const L=badgesOf(u), mine=u===S.me;
 function openBadges(u){ const n=earned(u).length; openDialog(shopName(u)+' 的徽章', h('div',{}, h('p',{class:'hint',style:'margin:0 0 14px',text:'已獲得 '+n+' / '+badgesOf(u).length+' 枚。徽章依真實的成交、評價、追蹤與紀錄自動頒發，特別徽章由 VEIN 平台頒發。'}), badgeWall(u,{showProg:u===S.me}))); }
 async function setSpecialBadge(u,k,on){ BCACHE.clear(); const cur=JSON.parse(JSON.stringify(S.badges||{})); cur[u]={...(cur[u]||{})}; if(on) cur[u][k]=Date.now(); else delete cur[u][k]; try{ await S.db.doc('site/badges').set({uids:cur}); S.badges=cur; toast(on?'已頒發':'已收回'); renderAdmin(true); }catch(e){ toast('操作失敗'); } }
 // 會員（買家／收藏家）徽章
-function memberBadges(u){ const P=purchasesOf(u), buys=P.length, spend=P.reduce((a,o)=>a+(+o.total||0),0), my=S.socialAll?.get(u)||{}, revs=Object.keys(my.reviews||{}).length, fol=(my.follows||[]).length, reg=all().filter(p=>p.shop===u).length;
+function memberBadges(u){ const ps=pstatOf(u), G=GH.doc?.get?.(u), ghOk=!!G, ghBk=(G?.blocks||[]).filter(b=>b.k&&b.k[0]!=='_').length, gens=new Set(all().filter(p=>ownerOf(p)===u).map(p=>genusOf(p.species)).filter(Boolean)).size, encWin=all().filter(p=>p.encDone?.uid===u).length; const P=purchasesOf(u), buys=P.length, spend=P.reduce((a,o)=>a+(+o.total||0),0), my=S.socialAll?.get(u)||{}, revs=Object.keys(my.reviews||{}).length, fol=(my.follows||[]).length, reg=all().filter(p=>p.shop===u).length;
   const bidsN=Object.keys(my.bids||{}).length, won=all().filter(p=>isAuc(p)&&p.status==='sold'&&p.buyer===u).length, rafN=Object.keys(my.raffles||{}).length, lucky=[...S.raffles.values()].filter(r=>(r.drawn?.winners||[]).includes(u)).length, owns=all().filter(p=>ownerOf(p)===u&&p.shop!==u).length;
-  const auto=[['🛍','首購',buys,1],['💚','常客',buys,5],['💎','鐵粉',buys,20],['💰','大戶',spend,10000],['✍️','評價達人',revs,3],['👀','追蹤 10 間溫室',fol,10],['🔭','追蹤 30 間溫室',fol,30],['🔨','競標玩家',bidsN,5],['🏅','得標者',won,1],['🎟','抽獎常客',rafN,5],['🍀','幸運兒',lucky,1],['🔄','傳承者',owns,5],['📒','收藏家',reg,10],['🌳','大收藏家',reg,50]]
+  const auto=[['🛍','首購',buys,1],['💚','常客',buys,5],['💎','鐵粉',buys,20],['💰','大戶',spend,10000],['✍️','評價達人',revs,3],['👀','追蹤 10 間溫室',fol,10],['🔭','追蹤 30 間溫室',fol,30],['🔨','競標玩家',bidsN,5],['🏅','得標者',won,1],['🎟','抽獎常客',rafN,5],['🍀','幸運兒',lucky,1],['🔄','傳承者',owns,5],['📒','收藏家',reg,10],['🌳','大收藏家',reg,50],['📝','首篇文章',ps.posts||0,1],['🖋','社群寫手',ps.posts||0,10],['📚','專欄作家',ps.posts||0,50],['💗','人氣作者',ps.likes||0,100],['🔥','萬人迷',ps.likes||0,1000],['💬','熱心留言',ps.cmts||0,50],['🗣','話題王',ps.cmts||0,300],['🌟','精選作者',ps.feat||0,1],['🏅','精選常客',ps.feat||0,5],['🏡','溫室主人',ghOk?1:0,1],['🎨','溫室設計師',ghBk,4],['🧬','屬別達人',gens,10],['🌈','百屬收藏',gens,30],['⚔','遭遇戰勇者',encWin,1],['🛡','遭遇戰霸主',encWin,10]]
     .map(([ic,n,cur,goal])=>({ic,n,ok:cur>=goal,prog:[Math.min(cur,goal),goal],d:n,tier:cur>=goal?'silver':'bronze'}));
   const ph=u===S.me?!!S.meInfo?.phoneVerified:!!S.profC?.get(u); auto.unshift({ic:'📱',n:'手機已驗證',ok:ph,prog:null,d:'完成手機簡訊驗證',tier:ph?'lime':'bronze',act:true});
   const sp=S.badges?.[u]||{}; return [...auto,...MEMBER_SPECIAL.map(([k,ic,n,d])=>({k,ic,n,d,ok:!!sp[k],tier:'special',special:true}))]; }function computeShopStats(docs){ const ids=new Set(docs.map(d=>d.id)); let par=0,recs=0,vids=0,bred=0; const gen=new Set();
@@ -15021,6 +15378,7 @@ function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ a
   if (S.me&&hasShop()&&S.ready) try{ sellerOrders(S.me).forEach(o=>{ if(o.status==='pending') ordAuto(o); }); }catch(e){}
   if (PAGE==='me'&&!typing($('#pgMe'))) renderMe();
   if (PAGE==='gh'&&!typing($('#pgGh'))) renderGh();
+  if (PAGE==='community'&&!typing($('#pgCommunity'))) renderCommunityPg();
   if (PAGE==='chats'&&S.me&&!document.querySelector('#chatsPage .cp')) renderChats(decodeURIComponent((location.hash.match(/^#\/chats\/(.+)$/)||[])[1]||''));
   if (dlg.open){ if(S.open) refreshDetail(false); else if(S.openR) renderRaffleDetail(false); else if(S.openCart&&!typing($('#cartBody'))) renderCart(); }
   if (adm.open) renderAdmin(false); autoTransfers(); }); }
