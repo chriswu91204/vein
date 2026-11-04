@@ -23,10 +23,19 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/site/admins)
         && request.auth.uid in get(/databases/$(database)/documents/site/admins).data.uids);
     }
+    // 停權：until＝0 是永久，有時間的到期就自動恢復
+    function banEnt() { return get(/databases/$(database)/documents/site/bans).data.get('uids', {}).get(request.auth.uid, {}); }
     function notBanned() {
       return !exists(/databases/$(database)/documents/site/bans)
-        || !(request.auth.uid in get(/databases/$(database)/documents/site/bans).data.get('uids', {}));
+        || !(request.auth.uid in get(/databases/$(database)/documents/site/bans).data.get('uids', {}))
+        || (banEnt().get('until', 0) > 0 && banEnt().get('until', 0) < request.time.toMillis());
     }
+    // 功能限制（管理員設定）：site/restrict.uids[會員][功能]＝到期時間（毫秒）
+    function lim(k) {
+      return signedIn() && exists(/databases/$(database)/documents/site/restrict)
+        && get(/databases/$(database)/documents/site/restrict).data.get('uids', {}).get(request.auth.uid, {}).get(k, 0) > request.time.toMillis();
+    }
+    function touches(k) { return resource == null ? (k in request.resource.data) : request.resource.data.diff(resource.data).affectedKeys().hasAny([k]); }
     function phoneOK() {
       return hasPhone()
         || !exists(/databases/$(database)/documents/site/info)
@@ -78,6 +87,7 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if isMe(uid)
         && request.resource.data.get('phoneVerified', false) == hasPhone();
+      allow update: if isAdmin() && request.resource.data.get('phoneVerified', false) == resource.data.get('phoneVerified', false);
       allow delete: if isMe(uid) || isAdmin();
     }
 
@@ -93,8 +103,9 @@ service cloud.firestore {
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['bids', 'orders', 'raffles']);
       }
       allow read: if true;
-      allow create, update: if (isMe(uid) && notBanned() && (phoneOK() || noTrade() || tradeUnchanged()))
-        || (isAdmin() && resource != null && onlyKeys(['qa', 'reviews']));
+      allow create, update: if (isMe(uid) && notBanned() && (phoneOK() || noTrade() || tradeUnchanged())
+          && !(lim('bid') && touches('bids')) && !(lim('order') && touches('orders')) && !(lim('qa') && touches('qa')) && !(lim('raffle') && touches('raffles')))
+        || (isAdmin() && resource != null && onlyKeys(['qa', 'reviews', 'orders', 'follows']));
       allow delete: if isMe(uid) || isAdmin();
     }
 
@@ -105,7 +116,7 @@ service cloud.firestore {
       function shopOK(u) { return exists(/databases/$(database)/documents/site/sellers) && get(/databases/$(database)/documents/site/sellers).data.get('approved', {}).get(u, false) == true; }
       function nameSame() { return request.resource.data.get('name', '') == resource.data.get('name', ''); }
       allow create: if seller(uid);
-      allow update: if (seller(uid) && (nameSame() || !shopOK(uid) || isAdmin())) || modOnly(['store', 'avatar', 'banner', 'name', 'nameReq', 'nameRej', 'nameLog']);
+      allow update: if (seller(uid) && (nameSame() || !shopOK(uid) || isAdmin())) || isAdmin();
       allow delete: if seller(uid) || isAdmin();
       // 小編：有「賣場設定與裝修」權限可以改賣場資料；有「植物與商品」權限只能動群組與統計欄位
       allow update: if (staff(uid, 'design') && blockedUnchanged() && nameSame())
@@ -134,13 +145,13 @@ service cloud.firestore {
     }
     match /shops/{uid}/plants/{pid} {
       allow read: if true;
-      allow create: if shopper(uid, 'plants') && blockedUnchanged();
+      allow create: if (shopper(uid, 'plants') && blockedUnchanged() && !lim('list')) || isAdmin();
       // 植物轉給別人之後，原賣家就不能再改；改由現在的主人照顧（只能動紀錄相關欄位）
       allow update: if (shopper(uid, 'plants') && holder(uid, pid) && blockedUnchanged() && (!locked(pid) || lineageSame()))
         || (holder(uid, pid) && request.auth.uid != uid && !staff(uid, 'plants') && blockedUnchanged() && ownerFieldsOnly())
         // 只有「訂單」權限的小編：接受／取消訂單時只能改售出狀態與整盤庫存
         || (staff(uid, 'orders') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'buyer', 'soldPrice', 'stock', 'soldN', 'updatedAt']))
-        || modOnly(['media', 'vid']);
+        || isAdmin();
       allow delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/plants/{pid}/photos/{photoId} {
@@ -157,7 +168,7 @@ service cloud.firestore {
     }
     match /shops/{uid}/orders/{oid} {
       allow read: if true;
-      allow write: if shopper(uid, 'orders');
+      allow write: if shopper(uid, 'orders') || isAdmin();
     }
     match /shops/{uid}/answers/{aid} {
       allow read: if true;
@@ -171,7 +182,7 @@ service cloud.firestore {
       function same() { return request.resource.data.buyer == resource.data.buyer && request.resource.data.seller == resource.data.seller
         && request.resource.data.amt == resource.data.amt && request.resource.data.pid == resource.data.pid; }
       allow read: if party() || staff(resource.data.seller, 'orders');
-      allow create: if signedIn() && notBanned() && request.resource.data.buyer == request.auth.uid
+      allow create: if signedIn() && notBanned() && !lim('offer') && request.resource.data.buyer == request.auth.uid
         && request.resource.data.seller != request.auth.uid && request.resource.data.status == 'open'
         && request.resource.data.get('msg', '').size() <= 500 && request.resource.data.size() <= 12;
       allow update: if signedIn() && same() && (
@@ -182,14 +193,14 @@ service cloud.firestore {
     // 即時聊天：對話編號是兩個人的帳號用 ~ 連起來，只有這兩個人讀寫得到
     match /chats/{cid} {
       function mem() { return signedIn() && request.auth.uid in cid.split('~'); }
-      allow get: if mem();
-      allow list: if signedIn() && request.auth.uid in resource.data.members;
+      allow get: if mem() || isAdmin();
+      allow list: if (signedIn() && request.auth.uid in resource.data.members) || isAdmin();
       allow create: if mem() && notBanned() && cid.split('~').size() == 2
         && request.resource.data.members.hasAll(cid.split('~')) && request.resource.data.members.size() == 2;
       allow update: if mem() && request.resource.data.members == resource.data.members;
       match /messages/{mid} {
-        allow read: if mem();
-        allow create: if mem() && notBanned() && request.resource.data.from == request.auth.uid
+        allow read: if mem() || isAdmin();
+        allow create: if mem() && notBanned() && !lim('chat') && request.resource.data.from == request.auth.uid
           && request.resource.data.size() <= 20
           && (!('text' in request.resource.data) || (request.resource.data.text is string && request.resource.data.text.size() <= 2000));
         allow update: if mem() && resource.data.from != request.auth.uid
@@ -223,8 +234,32 @@ service cloud.firestore {
     // 我的溫室：每個會員自己的展示頁裝修設定
     match /gh/{uid} {
       allow read: if true;
-      allow create, update: if isMe(uid) && notBanned() && request.resource.data.size() < 30;
+      allow create, update: if (isMe(uid) && notBanned() && request.resource.data.size() < 30) || isAdmin();
       allow delete: if isMe(uid) || isAdmin();
+    }
+    // 管理員給會員的警告：本人看得到、可以按「我知道了」
+    match /warns/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow write: if isAdmin();
+      allow update: if isMe(uid) && onlyKeys(['ack']);
+    }
+    // 會員上線紀錄（最近幾次的時間與裝置），只有本人與管理員看得到
+    match /seen/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow write: if isMe(uid) && request.resource.data.get('log', []).size() <= 30;
+    }
+    // 管理員操作紀錄：誰、對誰、做了什麼（只能新增，不能改）
+    match /admlog/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.by == request.auth.uid;
+    }
+    // 溫室訪客留言板：登入就能留言；本人、留言者、管理員可以刪
+    match /ghMsg/{uid}/m/{mid} {
+      allow read: if true;
+      allow create: if signedIn() && notBanned() && !lim('chat') && request.resource.data.from == request.auth.uid
+        && request.resource.data.keys().hasOnly(['from', 'text', 'at'])
+        && request.resource.data.text is string && request.resource.data.text.size() <= 200;
+      allow delete: if isMe(uid) || (signedIn() && resource.data.from == request.auth.uid) || isAdmin();
     }
     match /tags/{code} {
       allow read: if true;
@@ -273,7 +308,7 @@ service cloud.firestore {
     // 遭遇戰：收服（伺服器擲骰後把結果寫回）
     match /encTry/{id} {
       allow read: if signedIn() && resource.data.uid == request.auth.uid;
-      allow create: if signedIn() && notBanned() && encOK() && request.resource.data.uid == request.auth.uid
+      allow create: if signedIn() && notBanned() && !lim('enc') && encOK() && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['uid', 'pid', 'shop', 'price', 'ok', 'at']);
     }
     // 福利組合：認證賣家建立；搶購：每一組只能被建立一次（先搶先贏），時間到才能搶
@@ -320,14 +355,14 @@ service cloud.firestore {
           || (exists(socDoc()) && get(socDoc()).data.get('orders', {}).get(oid, {}).get('seller', '') == shop)
           || (exists(ordDoc()) && get(ordDoc()).data.get('buyer', '') == request.auth.uid));
       }
-      allow read: if ordParty();
-      allow create: if ordParty() && notBanned() && request.resource.data.from == request.auth.uid
+      allow read: if ordParty() || isAdmin();
+      allow create: if ordParty() && notBanned() && !lim('chat') && request.resource.data.from == request.auth.uid
         && request.resource.data.size() <= 8
         && (!('text' in request.resource.data) || (request.resource.data.text is string && request.resource.data.text.size() <= 1000))
         && (!('img' in request.resource.data) || (request.resource.data.img is string && request.resource.data.img.size() <= 600));
     }
     match /deals/{id} {
-      allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid || staff(resource.data.seller, 'orders'));
+      allow read: if signedIn() && (resource.data.buyer == request.auth.uid || resource.data.seller == request.auth.uid || staff(resource.data.seller, 'orders') || isAdmin());
       allow create: if signedIn() && ((request.resource.data.seller == request.auth.uid && id.matches(request.auth.uid + '_.*'))
         || (staff(request.resource.data.seller, 'orders') && id.matches(request.resource.data.seller + '_.*')));
       allow update: if signedIn() && (request.auth.uid == resource.data.seller || request.auth.uid == resource.data.buyer || staff(resource.data.seller, 'orders'))

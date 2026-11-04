@@ -5006,6 +5006,69 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .me-stats.one{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.me-stats.one button{padding:8px 2px;border-radius:12px}.me-stats.one button b{font-size:17px}.me-stats.one button span{font-size:11px}.me-stats.one button small{font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-acts.one{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
 .mp-acts.one .mp-act{padding:9px 2px 8px;border-radius:14px;gap:1px}.mp-acts.one .mp-ai{font-size:19px}.mp-acts.one .mp-act b{font-size:12px}.mp-acts.one .mp-act small{font-size:9.5px}
+/* 溫室元件 */
+.gh-main>.gh-blk{margin-bottom:18px}.gh-main>.gh-blk.off{opacity:.35}
+.gh-editing .gh-main>.gh-blk{outline:1.5px dashed color-mix(in srgb,var(--gf) 22%,transparent);outline-offset:4px;border-radius:12px;cursor:pointer}
+.gh-editing .gh-main>.gh-blk.sel{outline:2.5px solid var(--ga)}
+.ghx-sec{color:var(--gf)}
+.ghx-spot{display:grid;grid-template-columns:1fr;border-radius:24px;overflow:hidden;background:var(--gc);cursor:pointer;box-shadow:0 0 0 2px var(--ga),0 20px 40px -22px rgba(0,0,0,.5)}
+.ghx-spi{position:relative;aspect-ratio:4/3;overflow:hidden}.ghx-spi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.2s}.ghx-spot:hover .ghx-spi img{transform:scale(1.05)}
+.ghx-spc{padding:16px 18px 18px;display:flex;flex-direction:column;gap:3px}.ghx-spc h2{margin:0;font-size:24px}.ghx-spn{font-size:17px}.ghx-spc small{color:var(--gs)}.ghx-spc p{margin:6px 0 0;font-size:14px;line-height:1.6;color:var(--gs)}
+@media (min-width:760px){.ghx-spot{grid-template-columns:1.3fr 1fr}.ghx-spi{aspect-ratio:auto;min-height:340px}.ghx-spc{justify-content:center;padding:28px}.ghx-spc h2{font-size:32px}}
+.ghx-pks{display:grid;gap:10px}.ghx-pks.v-rail{grid-auto-flow:column;grid-auto-columns:42%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.ghx-pks.v-rail::-webkit-scrollbar{display:none}
+.ghx-pks.v-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ghx-pks.v-big{grid-auto-flow:column;grid-auto-columns:86%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+@media (min-width:760px){.ghx-pks.v-rail{grid-auto-columns:22%}.ghx-pks.v-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.ghx-pks.v-big{grid-auto-columns:48%}}
+.ghx-pk{border:0;padding:0;background:none;color:var(--gf);font:inherit;text-align:left;cursor:pointer;scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ghx-pk img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;display:block;box-shadow:0 12px 24px -16px rgba(0,0,0,.6)}.v-big .ghx-pk img{aspect-ratio:4/3}.ghx-pk b{font-size:13px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ghx-pk small{font-size:10.5px;color:var(--gs)}
+.ghx-st{background:var(--gc);border-radius:22px;padding:16px}.ghx-stg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;text-align:center}
+.ghx-stg b{display:block;font-size:26px;font-variant-numeric:tabular-nums;color:var(--ga);line-height:1.1}.ghx-stg span{font-size:11px;color:var(--gs)}
+@media (min-width:760px){.ghx-stg b{font-size:40px}.ghx-stg span{font-size:13px}}
+.ghx-gn{display:flex;flex-direction:column;gap:8px}.ghx-gn>div{display:grid;grid-template-columns:110px 1fr 34px;align-items:center;gap:10px;font-size:13px}
+.ghx-gn span{font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ghx-gn i{height:12px;border-radius:999px;background:color-mix(in srgb,var(--gf) 10%,transparent);position:relative;overflow:hidden}
+.ghx-gn i::after{content:'';position:absolute;inset:0 auto 0 0;width:var(--w);background:linear-gradient(90deg,var(--ga),color-mix(in srgb,var(--ga) 60%,var(--gf)));border-radius:999px;animation:ghGrow 1s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*.08s)}
+@keyframes ghGrow{from{width:0}}.ghx-gn b{text-align:right;font-variant-numeric:tabular-nums}
+.ghx-tl{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid color-mix(in srgb,var(--ga) 60%,transparent);display:flex;flex-direction:column;gap:12px}
+.ghx-tl li{display:flex;gap:12px;align-items:center;position:relative;cursor:pointer}.ghx-tl li>i{position:absolute;left:-21px;width:12px;height:12px;border-radius:50%;background:var(--ga);box-shadow:0 0 0 4px var(--gb)}
+.ghx-tl img{width:56px;height:56px;border-radius:12px;object-fit:cover}.ghx-tl b{display:block;font-size:14px}.ghx-tl small{font-size:11.5px;color:var(--gs)}
+.ghx-wl{display:grid;gap:8px}@media (min-width:760px){.ghx-wl{grid-template-columns:1fr 1fr}}
+.ghx-wi{display:flex;align-items:center;gap:12px;background:var(--gc);border-radius:16px;padding:12px 14px}.ghx-wi>i{font-style:normal;font-size:22px}.ghx-wi>div{flex:1;min-width:0}.ghx-wi b{display:block;font-size:14px;font-style:italic}.ghx-wi small{font-size:12px;color:var(--gs)}
+.ghx-gb{background:var(--gc);border-radius:22px;padding:16px}.ghx-gf{display:flex;gap:8px;margin-bottom:12px}.ghx-gf input{flex:1;min-width:0;font:inherit;font-size:14px;padding:10px 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gf) 18%,transparent);background:var(--gb);color:var(--gf)}
+.ghx-gl{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto}.ghx-gm{display:flex;gap:10px;align-items:flex-start}.ghx-gm>div{flex:1;min-width:0}.ghx-gm b{font-size:13px}.ghx-gm p{margin:2px 0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}.ghx-gm small{font-size:11px;color:var(--gs)}
+.ghx-ga .ch-av{width:30px!important;height:30px!important}.ghx-gx{border:0;background:none;color:var(--gs);cursor:pointer;font-size:12px}
+.gh-pg:not(.gh-lp){--fg:var(--gf);--fg2:var(--gs);--surface:var(--gc);--paper:var(--gc)}
+.gh-pg .sc-hero.s-grad h2{background-image:linear-gradient(90deg,var(--gf),var(--ga),var(--gf),var(--ga))}.gh-pg .tr-k{color:var(--ga)}
+.gh-pg .sc-ph{background:color-mix(in srgb,var(--gf) 6%,transparent);color:var(--gs)}
+/* 元件編輯 */
+.gh-eo.bk{display:block;max-height:min(46vh,380px)}
+.gh-bl{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.gh-br{background:#202527;border-radius:12px;padding:4px}.gh-br.open{box-shadow:0 0 0 2px #C9D98A}.gh-br.off .gh-brn{opacity:.45}
+.gh-brh{display:flex;align-items:center;gap:2px}.gh-brh>button{border:0;background:none;color:#C9CEC8;font:inherit;font-size:14px;width:32px;height:32px;border-radius:8px;cursor:pointer}.gh-brh>button:disabled{opacity:.25}
+.gh-brn{flex:1;width:auto!important;display:flex!important;align-items:center;gap:8px;text-align:left;padding:0 8px!important;color:#EEF0EA!important;min-width:0}.gh-brn i{font-style:normal}.gh-brn b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gh-brn small{font-size:10.5px;color:#8C938E}
+.gh-cf{display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px}.gh-cf select{font:inherit;font-size:14px;background:#24292B;color:#fff;border:1px solid #333A3C;border-radius:10px;padding:8px 10px}
+.gh-pkg{display:flex;flex-wrap:wrap;gap:5px}.gh-pkg .gh-o.cv img{width:48px;height:48px}
+.gh-ml{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.gh-mi{position:relative}.gh-mi img{width:56px;height:56px;object-fit:cover;border-radius:9px;display:block}.gh-mi button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#E8452C;color:#fff;font-size:11px;cursor:pointer}
+.gh-lr{display:flex;gap:6px;align-items:center}.gh-lr input,.gh-lr textarea{flex:1;min-width:0;font:inherit;font-size:13px;background:#24292B;color:#fff;border:1px solid #333A3C;border-radius:9px;padding:7px 9px}
+.gh-pal{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0 4px}
+/* 分享風格 */
+.sh-sts{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px}.sh-sts::-webkit-scrollbar{display:none}
+.sh-sts button{flex:none;border:0;font:inherit;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;background:var(--paper,#EEF0EA);color:var(--fg);cursor:pointer}.sh-sts button[aria-pressed="true"]{background:#111;color:#D2FF00}
+/* 會員管理 */
+.mm-fs{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px}.mm-q{flex:1 1 260px;max-width:420px}
+.mm-f{display:flex;flex-direction:column;gap:2px}.mm-f small{font-size:11px;color:var(--fg2)}.mm-f select{font:inherit;font-size:13px;padding:7px 10px;border-radius:10px;border:1px solid #DADDD5;background:#fff}
+.mm-bar{position:sticky;top:0;z-index:5;display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:#111312;color:#fff;border-radius:14px;padding:10px 12px;margin-bottom:10px;box-shadow:0 10px 24px -14px rgba(0,0,0,.6)}
+.mm-bar b{margin-right:6px}.mm-bar .btn.soft{background:#2A2F2D;color:#fff}.mm-bar .bf-lk{color:#C9D98A}
+.mtbl tr.sel td{background:#F4F9E4}.mtbl td input[type=checkbox],.mtbl th input[type=checkbox]{width:18px;height:18px;accent-color:#1F5C42}
+.tag.mst-l{background:#FFE9D6;color:#8A4B00}.tag.mst-w{background:#FFF3C4;color:#7A5B00}
+.kpis button.kpi{border:0;font:inherit;text-align:left;cursor:pointer}
+.gt.sx{max-width:460px;width:calc(100vw - 32px)}.sx-b{display:flex;flex-direction:column;gap:12px;width:100%;text-align:left}.sx-k{display:grid;grid-template-columns:repeat(3,1fr)}
+.sx-b textarea,.sx-b input{font:inherit;font-size:14px;padding:10px 12px;border-radius:12px;border:1px solid #DADDD5;width:100%;box-sizing:border-box}
+.ud-pun .ud-lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.ud-li{background:#F4F5F1;border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:1px}.ud-li b{font-size:13px}.ud-li small{font-size:11.5px;color:var(--fg2)}.ud-li.on{background:#FFE9D6}.ud-li.on small{color:#8A4B00;font-weight:700}.ud-li .bf-lk{align-self:flex-start;font-size:12px}
+.ud-pl{grid-template-columns:auto 1fr auto!important;align-items:center}.ud-pi{border:0;padding:0;background:none;cursor:pointer}.ud-pi img{width:52px;height:52px;border-radius:10px;object-fit:cover;display:block}
+@media (max-width:700px){.ud-pl{grid-template-columns:auto 1fr!important}.ud-pa{grid-column:1/-1}}
+.ud-cv{display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow-y:auto}.ud-cv>.btn{align-self:flex-start}
+.ud-m{max-width:80%;background:#F1F2EE;border-radius:14px 14px 14px 4px;padding:8px 12px;align-self:flex-start}.ud-m.me{align-self:flex-end;background:#E6F4D7;border-radius:14px 14px 4px 14px}
+.ud-m small{font-size:11px;color:var(--fg2)}.ud-m p{margin:2px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}.ud-m img{max-width:200px;border-radius:10px;margin-top:4px;display:block}
 </style>
 
 </head>
@@ -7818,7 +7881,7 @@ function playDraw(r){
     roll.firstChild.textContent=names[i++%names.length]; t=setTimeout(step, 40+e*e*220); };
   step();
 }
-async function joinRaffle(r){ if(needLogin()||needPhone()) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(!entryOK(r,'raffle')) return; try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
+async function joinRaffle(r){ if(needLogin()||needPhone()||!limOK('raffle')) return; if(rState(r)!=='open'){ toast('抽獎目前沒有開放'); return; } if(!entryOK(r,'raffle')) return; try{ await saveSocial({raffles:{...mySocial().raffles,[rKey(r)]:Date.now()}}); toast('已參加：'+r.title); }catch(e){} }
 async function leaveRaffle(r){ const x={...mySocial().raffles}; delete x[rKey(r)]; try{ await saveSocial({raffles:x}); toast('已取消參加'); }catch(e){} }
 
 /* ---------- verify ---------- */
@@ -7848,7 +7911,7 @@ $('#vcode').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefaul
 /* ---------- account ---------- */
 const sheet=$('#sheet');
 function renderNav(){ try{ playBadge(); }catch(e){}
-  let bb=$('#banBar'); if(S.me&&banned(S.me)){ if(!bb){ bb=h('div',{id:'banBar',class:'banbar'}); document.body.append(bb); } bb.textContent='你的帳號已被停權：'+(S.bans[S.me]?.reason||'違反平台規範')+'。如有疑問請聯絡 '+(storeContact()||'平台管理員')+'。'; } else if(bb) bb.remove();
+  let bb=$('#banBar'); if(S.me&&banned(S.me)){ if(!bb){ bb=h('div',{id:'banBar',class:'banbar'}); document.body.append(bb); } bb.textContent='你的帳號已被停權'+(+S.bans[S.me]?.until?'（'+untilTxt(S.bans[S.me].until)+'）':'')+'：'+(S.bans[S.me]?.reason||'違反平台規範')+'。如有疑問請聯絡 '+(storeContact()||'平台管理員')+'。'; } else if(S.me&&!S.admin&&limOf(S.me).length){ if(!bb){ bb=h('div',{id:'banBar',class:'banbar'}); document.body.append(bb); } bb.textContent='部分功能暫停中：'+limOf(S.me).map(x=>x.l+'（'+untilTxt(x.until)+'）').join('、'); } else if(bb) bb.remove();
   const b=$('#navMe'); b.replaceChildren(S.meInfo?.id&&S.meInfo.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:''}):svg('i-user'));
   const n=(S.prefs.favs||[]).length; $('#favBadge').hidden=!n; $('#favBadge').textContent=String(n);
   const c=cart().length; $('#cartBadge').hidden=!c; $('#cartBadge').textContent=String(c);
@@ -7944,8 +8007,8 @@ const GH_FT=[['serif','明體'],['sans','黑體'],['mono','等寬']];
 const GH_AN=[['up','浮上'],['fade','淡入'],['zoom','放大'],['tilt','翻轉'],['none','不動']];
 const GH_GP=[['none','不分'],['genus','依屬分區']];
 const GH_ST=['🌿','🪴','🌵','🍃','🌱','🍄','🦋','🐌','🐸','🌙','✨','💧','☀️','🪨','🌸','🐝','🫧','🌈','🏺','🕯'];
-const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'serif',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none'});
-const GH={doc:new Map(),edit:null,lim:30,list:null,got:new Set(),tab:'th',sig:''};
+const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'serif',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null});
+const GH={doc:new Map(),edit:null,lim:30,list:null,got:new Set(),tab:'bk',sig:'',bOpen:null,msgs:new Map()};
 async function ghLoad(u){ if(GH.doc.has(u)||!S.db) return; GH.doc.set(u,undefined); try{ const d=await S.db.doc('gh/'+u).get(); GH.doc.set(u,d.exists?d.data():null); }catch(e){ GH.doc.set(u,null); } if(PAGE==='gh'&&S.ghId===u) renderGh(true); }
 // 這個人「現在擁有」的植物：自己登錄還沒轉走的＋別人轉給他的
 async function ghFetch(u){ if(GH.got.has(u)||!S.db) return; GH.got.add(u);
@@ -7967,7 +8030,6 @@ async function ghSave(btn){ const e=GH.edit; if(!e) return; if(btn){ btn.disable
   const P=ghOrder(S.me,e.d,ghPlants(S.me)).filter(p=>!(e.d.hide||[]).includes(p.id)), d={...e.d,name:(e.d.name||'').trim().slice(0,30),bio:(e.d.bio||'').trim().slice(0,160),n:P.length,pv:P.slice(0,4).map(cover),uname:S.meInfo?.name||'',updatedAt:Date.now()};
   try{ await S.db.doc('gh/'+S.me).set(d); GH.doc.set(S.me,d); if(GH.list) GH.list.items=GH.list.items.filter(x=>x.uid!==S.me); toast('溫室已更新 🌿'); ghEdClose(); }
   catch(x){ toast('儲存失敗，請再試一次'); if(btn){ btn.disabled=false; btn.textContent='儲存'; } } }
-function ghShare(u,c){ const url=location.origin+location.pathname+'#/gh/'+u; if(navigator.share) navigator.share({title:ghName(u,c),url}).catch(()=>{}); else copyText(url); }
 function ghCard(p,i,c,ed){ const hid=(c.hide||[]).includes(p.id), ft=(c.feat||[]).includes(p.id), note=(c.notes||{})[p.id]||'';
   const cap=h('div',{class:'gh-cap'}, h('b',{text:pName(p)}), note?h('q',{text:note}):null, h('small',{class:'mono',text:p.code||''}));
   const el=h('article',{class:'gh-c'+(hid?' hid':'')+(ft?' ft':''),style:'--i:'+Math.min(i,14),onclick:ed?null:()=>openPlant(p.id)}, h('div',{class:'gh-ph'}, h('img',{src:cover(p),alt:'',loading:'lazy',decoding:'async'})), cap);
@@ -7979,9 +8041,10 @@ function ghCard(p,i,c,ed){ const hid=(c.hide||[]).includes(p.id), ft=(c.feat||[]
       hid?h('span',{class:'gh-hb',text:'已隱藏'}):null); }
   return el; }
 function ghEditor(c,P){ const T=GH.tab, chip=(k,v,l,extra)=>h('button',{type:'button',class:'gh-o'+(c[k]===v?' on':''),onclick:()=>ghSet(k,v),...(extra||{})}, l);
-  const tabs=[['th','主題'],['lay','版面'],['fr','相框'],['bg','背景'],['st','貼紙'],['tx','文字'],['cv','封面'],['ft','字體・動畫']];
+  const tabs=[['bk','元件'],['th','主題'],['lay','版面'],['fr','相框'],['bg','背景'],['st','貼紙'],['tx','文字'],['cv','封面'],['ft','字體・動畫']];
   let body;
-  if (T==='th') body=Object.entries(GH_TH).map(([k,t])=>chip('th',k,[h('i',{class:'gh-sw',style:`background:${t[1]};box-shadow:inset 0 0 0 5px ${t[2]},inset 0 0 0 7px ${t[5]}`}),t[0]]));
+  if (T==='bk') body=ghBlkEditor(c,P);
+  else if (T==='th') body=Object.entries(GH_TH).map(([k,t])=>chip('th',k,[h('i',{class:'gh-sw',style:`background:${t[1]};box-shadow:inset 0 0 0 5px ${t[2]},inset 0 0 0 7px ${t[5]}`}),t[0]]));
   else if (T==='lay') body=GH_LAY.map(([k,l])=>chip('lay',k,[h('i',{class:'gh-li l-'+k},h('u'),h('u'),h('u'),h('u')),l])).concat(GH_GP.map(([k,l])=>chip('grp',k,l)));
   else if (T==='fr') body=GH_FR.map(([k,l])=>chip('fr',k,[h('i',{class:'gh-fi f-'+k}),l]));
   else if (T==='bg') body=GH_BG.map(([k,l])=>chip('bg',k,[h('i',{class:'gh-bi b-'+k}),l]));
@@ -7993,7 +8056,7 @@ function ghEditor(c,P){ const T=GH.tab, chip=(k,v,l,extra)=>h('button',{type:'bu
   else if (T==='cv') body=[chip('cover','',[h('i',{class:'gh-sw',style:'background:var(--gb)'}),'主題色']),...P.slice(0,40).map(p=>h('button',{type:'button',class:'gh-o cv'+(c.cover===p.id?' on':''),onclick:()=>ghSet('cover',p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'})))];
   else body=[...GH_FT.map(([k,l])=>chip('ft',k,l,{style:k==='serif'?'font-family:var(--gh-serif)':k==='mono'?'font-family:ui-monospace,monospace':''})),h('i',{class:'gh-sep'}),...GH_AN.map(([k,l])=>chip('an',k,l))];
   return h('div',{class:'gh-ed'}, h('div',{class:'gh-et'}, ...tabs.map(([k,l])=>h('button',{type:'button',class:T===k?'on':'',onclick:()=>{ GH.tab=k; renderGh(true); }},l))),
-    h('div',{class:'gh-eo'+(T==='cv'?' cvs':'')}, ...body),
+    h('div',{class:'gh-eo'+(T==='cv'?' cvs':'')+(T==='bk'?' bk':'')}, ...body),
     h('div',{class:'gh-ef'}, h('small',{text:'點植物上的 ★ 主打、👁 隱藏、✎ 備註、⤒ 排最前'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>ghEdClose(),text:'取消'}), h('button',{type:'button',class:'btn lime sm',onclick:e=>ghSave(e.currentTarget),text:'儲存'}))); }
 function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#pgGh'), u=S.ghId||'';
   if (!u){ renderGhList(box,force); return; }
@@ -8006,21 +8069,14 @@ function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#
   const genera=new Set(vis.map(p=>genusOf(p.species)).filter(Boolean)), cv=c.cover&&by.get(c.cover);
   const av=own&&S.meInfo?.avatarUrl?h('img',{class:'gh-av',src:S.meInfo.avatarUrl,alt:''}):h('span',{class:'gh-av'}, chatAv(u,64));
   const stk=(c.st||[]).slice(0,6).map((s,i)=>h('i',{class:'gh-sk k'+i,text:s}));
-  const acts=own?[ed?null:h('button',{type:'button',class:'gh-b pri',onclick:ghEdit,text:'🎨 裝修溫室'}), h('button',{type:'button',class:'gh-b',onclick:()=>openPlants('reg'),text:'＋ 登錄植物'}), h('button',{type:'button',class:'gh-b',onclick:()=>ghShare(u,c),text:'↗ 分享'})]
-    :[S.me?h('button',{type:'button',class:'gh-b pri',onclick:()=>openChat(u),text:'💬 聊聊'}):h('button',{type:'button',class:'gh-b pri',onclick:openLogin,text:'💬 登入後聊聊'}), shopOf(u)?h('a',{class:'gh-b',href:'#/seller/'+u,text:'🏪 逛賣場'}):null, h('button',{type:'button',class:'gh-b',onclick:()=>ghShare(u,c),text:'↗ 分享'})];
+  const acts=own?[ed?null:h('button',{type:'button',class:'gh-b pri',onclick:ghEdit,text:'🎨 裝修溫室'}), h('button',{type:'button',class:'gh-b',onclick:()=>openPlants('reg'),text:'＋ 登錄植物'}), h('button',{type:'button',class:'gh-b',onclick:()=>openGhShare(u),text:'↗ 分享'})]
+    :[S.me?h('button',{type:'button',class:'gh-b pri',onclick:()=>openChat(u),text:'💬 聊聊'}):h('button',{type:'button',class:'gh-b pri',onclick:openLogin,text:'💬 登入後聊聊'}), shopOf(u)?h('a',{class:'gh-b',href:'#/seller/'+u,text:'🏪 逛賣場'}):null, h('button',{type:'button',class:'gh-b',onclick:()=>openGhShare(u),text:'↗ 分享'})];
   const head=h('header',{class:'gh-hd'+(cv?' cv':'')}, cv?h('img',{class:'gh-cvi',src:cover(cv),alt:''}):null, ...stk,
     h('div',{class:'gh-hi'}, av, h('div',{class:'gh-hm'}, h('span',{class:'gh-k mono',text:'GREENHOUSE'}), h('h1',{class:'gh-t',text:ghName(u,c)}), c.bio?h('p',{class:'gh-bio',text:c.bio}):h('p',{class:'gh-bio'}),
       h('div',{class:'gh-sts'}, h('span',{},h('b',{text:String(vis.filter(p=>!hide.has(p.id)).length)}),'株'), h('span',{},h('b',{text:String(genera.size)}),'屬'), feat.length?h('span',{},h('b',{text:String(feat.length)}),'主打'):null))),
     h('div',{class:'gh-acts'}, ...acts));
-  const kids=[head];
-  if (feat.length) kids.push(h('section',{class:'gh-fts n'+feat.length}, ...feat.map((p,i)=>h('article',{class:'gh-fc',style:'--i:'+i,onclick:ed?null:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('i',{class:'gh-sh'}), h('div',{class:'gh-fm'}, h('span',{class:'mono',text:'★ 主打'}), h('b',{text:pName(p)}), (c.notes||{})[p.id]?h('q',{text:c.notes[p.id]}):h('small',{class:'mono',text:p.code||''}))))));
-  if (!vis.length){ const loading=!GH.got.has(u)||GH.doc.get(u)===undefined;
-    kids.push(h('div',{class:'gh-empty'}, h('i',{text:loading?'⏳':'🪴'}), h('b',{text:loading?'溫室整理中…':own?'溫室還空空的':'這間溫室還沒有展示植物'}), own&&!loading?h('p',{text:'登錄你的植物，或買到的植物會自動搬進來。'}):null, own&&!loading?h('button',{type:'button',class:'gh-b pri',onclick:()=>openPlants('reg'),text:'＋ 登錄第一株'}):null)); }
-  else { const L=vis.slice(0,GH.lim), grid=arr=>h('div',{class:'gh-g l-'+c.lay+' f-'+c.fr+' an-'+c.an}, ...arr.map((p,i)=>ghCard(p,i,c,ed)));
-    if (c.grp==='genus'){ const G=new Map(); L.forEach(p=>{ const g=genusOf(p.species)||'其他'; if(!G.has(g)) G.set(g,[]); G.get(g).push(p); });
-      [...G.entries()].sort((a,b)=>b[1].length-a[1].length).forEach(([g,arr])=>kids.push(h('section',{class:'gh-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:g.replace(/^./,x=>x.toUpperCase())}), h('small',{text:arr.length+' 株'})), grid(arr)))); }
-    else kids.push(grid(L));
-    if (vis.length>GH.lim) kids.push(h('button',{type:'button',class:'btn soft auto-more gh-more',onclick:()=>{ GH.lim+=30; renderGh(true); },text:'載入更多'})); }
+  const kids=[head], main=h('div',{class:'gh-main'}); kids.push(main);
+  const env={u,own,ed,c,P,vis,hide,feat,by,genera}; GH.env=env; ghPaintMain(main,env);
   if (ed) kids.push(ghEditor(c,P));
   const sy=box.firstChild?scrollY:null; box.replaceChildren(h('div',{class:'gh'}, ...kids)); if(sy!=null&&force) scrollTo(0,sy); }
 async function ghListMore(){ if(!S.db) return; const L=GH.list||(GH.list={items:[],cur:null,done:false,busy:false}); if(L.done||L.busy) return; L.busy=true;
@@ -8036,6 +8092,145 @@ function renderGhList(box,force){ const pg=$('#pgGh'); pg.removeAttribute('style
   box.replaceChildren(h('div',{class:'ghl'}, h('div',{class:'ghl-h'}, h('h1',{text:'玩家溫室'}), S.me?h('a',{class:'gh-b pri',href:'#/gh/'+S.me,text:mine?'🏡 我的溫室':'🏡 布置我的溫室'}):null),
     items.length?h('div',{class:'ghl-g'}, ...items.map(x=>card(x.uid,x))):h('div',{class:'gh-empty'}, h('i',{text:L.done?'🌱':'⏳'}), h('b',{text:L.done?'還沒有人布置溫室，當第一個吧':'載入中…'})),
     !L.done&&items.length?h('button',{type:'button',class:'btn soft auto-more gh-more',onclick:()=>ghListMore(),text:'載入更多'}):null)); }
+/* ---- 溫室的互動元件：跟賣場裝修同一套，再加上溫室專用的（主角、精選收藏、願望清單、留言板、收藏數據…） ---- */
+const GH_SF=['notice','hero','imgtext','video','story','gallery','compare','milestones','care','faq','countdown','tagtabs','pmarquee','links','spacer'];
+const ghBlocks=c=>Array.isArray(c.blocks)&&c.blocks.length?c.blocks:[{id:'_feat',k:'_feat',on:true},{id:'_coll',k:'_coll',on:true}];
+const ghPlantSel=(P,cur,fn)=>{ const i=h('select',{}, h('option',{value:'',text:'— 選一株 —'}), ...P.map(p=>h('option',{value:p.id,text:p.code+' · '+pName(p),selected:cur===p.id}))); i.addEventListener('change',()=>fn(i.value)); return i; };
+const GH_COMP={
+  _feat:{n:'主打植物',ic:'★',d:'你在植物上按 ★ 的那幾株',fixed:true},
+  _coll:{n:'全部收藏',ic:'🪴',d:'溫室裡所有植物（版面、相框在上面的分頁改）',fixed:true},
+  ghspot:{n:'本月主角',ic:'🔦',d:'一株大大的放在最顯眼的地方',def:()=>({pid:'',title:'本月主角',text:''}),f:[['plant','pid','哪一株'],['text','title','標題'],['area','text','想說的話']],
+    r:(c,e)=>{ const p=e.by.get(c.pid)||e.vis[0]; if(!p) return null; return h('section',{class:'ghx-spot',onclick:e.ed?null:()=>openPlant(p.id)}, h('div',{class:'ghx-spi'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('i',{class:'gh-sh',style:'--i:0'})),
+      h('div',{class:'ghx-spc'}, h('span',{class:'gh-k mono',text:'SPOTLIGHT'}), h('h2',{text:c.title||'本月主角'}), h('b',{class:'ghx-spn',text:pName(p)}), h('small',{class:'mono',text:p.code||''}), c.text?h('p',{text:c.text}):(e.c.notes||{})[p.id]?h('p',{text:e.c.notes[p.id]}):null)); }},
+  ghpicks:{n:'精選收藏',ic:'💎',d:'挑幾株你最得意的，排成一列',def:()=>({title:'我的得意之作',ids:[],view:'rail'}),f:[['text','title','標題'],['gpicks','ids','挑植物（最多 12 株）'],['select','view','排法',[['rail','橫向滑動'],['grid','格狀'],['big','大圖輪播']]]],
+    r:(c,e)=>{ const L=(c.ids||[]).map(i=>e.by.get(i)).filter(p=>p&&!e.hide.has(p.id)); if(!L.length) return e.ed?scPh('精選收藏：在右下的設定挑植物'):null; const card=p=>h('button',{type:'button',class:'ghx-pk',onclick:e.ed?null:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('b',{text:pName(p)}), h('small',{class:'mono',text:p.code||''}));
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'精選收藏'}), h('small',{text:L.length+' 株'})), h('div',{class:'ghx-pks v-'+(c.view||'rail')}, ...L.map(card))); }},
+  ghstats:{n:'收藏數據',ic:'📊',d:'株數、屬、種、最久的一株，跳動的數字',def:()=>({title:''}),f:[['text','title','標題（可空白）']],
+    r:(c,e)=>{ const V=e.vis.filter(p=>!e.hide.has(p.id)); if(!V.length) return null; const sp=new Set(V.map(p=>normSp(p.species))), old=Math.min(...V.map(p=>toMs(p.createdAt)||Date.now())), mo=V.filter(p=>toMs(p.createdAt)>Date.now()-30*864e5).length;
+      const it=[[V.length,'株收藏'],[e.genera.size,'個屬'],[sp.size,'個種'],[Math.max(1,Math.round((Date.now()-old)/864e5)),'天的資歷'],[mo,'株本月新進']];
+      return h('section',{class:'ghx-st'}, c.title?h('h2',{class:'gh-sh2'}, h('span',{text:c.title})):null, h('div',{class:'ghx-stg'}, ...it.map(([n,l])=>{ const b=h('b',{text:'0'}); ghCount(b,n); return h('div',{}, b, h('span',{text:l})); }))); }},
+  ghgenus:{n:'屬別分佈',ic:'🧬',d:'每個屬有幾株，長條會長出來',def:()=>({title:'收藏的屬'}),f:[['text','title','標題']],
+    r:(c,e)=>{ const m=new Map(); e.vis.filter(p=>!e.hide.has(p.id)).forEach(p=>{ const g=genusOf(p.species)||'其他'; m.set(g,(m.get(g)||0)+1); }); const L=[...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8); if(!L.length) return null; const mx=L[0][1];
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'收藏的屬'})), h('div',{class:'ghx-gn'}, ...L.map(([g,n],i)=>h('div',{style:'--w:'+Math.round(n/mx*100)+'%;--i:'+i}, h('span',{text:g.replace(/^./,x=>x.toUpperCase())}), h('i'), h('b',{text:String(n)}))))); }},
+  ghtl:{n:'新進收藏',ic:'🗓',d:'最近搬進溫室的植物，照時間排',def:()=>({title:'最近搬進來的',n:'6'}),f:[['text','title','標題'],['select','n','顯示幾株',[['4','4'],['6','6'],['8','8']]]],
+    r:(c,e)=>{ const L=[...e.vis].filter(p=>!e.hide.has(p.id)).sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt)).slice(0,+c.n||6); if(!L.length) return null;
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'最近搬進來的'})), h('ol',{class:'ghx-tl'}, ...L.map(p=>h('li',{onclick:e.ed?null:()=>openPlant(p.id)}, h('i'), h('img',{src:cover(p),alt:'',loading:'lazy'}), h('div',{}, h('b',{text:pName(p)}), h('small',{text:fmtDay(tsLocal(toMs(p.createdAt)||Date.now()))+' · '+(p.code||'')})))))); }},
+  ghwish:{n:'願望清單',ic:'🌠',d:'想找的植物，別人有可以直接聊聊',def:()=>({title:'我在找',items:[{q:'Anthurium warocqueanum',a:'想找成株'}]}),f:[['text','title','標題'],['list','items','清單',[['q','植物名稱'],['a','備註（大小、預算…）']]]],
+    r:(c,e)=>{ const L=(c.items||[]).filter(x=>x.q); if(!L.length) return e.ed?scPh('願望清單：加幾株你想找的植物'):null;
+      return h('section',{class:'ghx-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'我在找'}), h('small',{text:L.length+' 株'})), h('div',{class:'ghx-wl'}, ...L.map(x=>h('div',{class:'ghx-wi'}, h('i',{text:'🌠'}), h('div',{}, h('b',{text:x.q}), x.a?h('small',{text:x.a}):null),
+        !e.own&&!e.ed?h('button',{type:'button',class:'gh-b',onclick:()=>{ if(!S.me){ openLogin(); return; } openChat(e.u); setTimeout(()=>{ const t=document.querySelector('#chatsPage textarea, .cw textarea'); if(t&&!t.value){ t.value='你好，我有你在找的 '+x.q+'，有興趣嗎？'; t.dispatchEvent(new Event('input')); } },700); },text:'我有'}):null)))); }},
+  ghguest:{n:'訪客留言板',ic:'📝',d:'來逛的人可以留言打招呼',def:()=>({title:'訪客留言'}),f:[['text','title','標題']],r:(c,e)=>ghGuest(c,e)},
+};
+const ghComp=k=>GH_COMP[k]||(GH_SF.includes(k)?SF_COMP[k]:null);
+function ghCount(el,n){ if(REDUCE){ el.textContent=String(n); return; } const io=new IntersectionObserver(es=>{ if(!es[0].isIntersecting) return; io.disconnect(); const t0=performance.now(), d=900; const f=t=>{ const k=Math.min(1,(t-t0)/d), v=Math.round(n*(1-Math.pow(1-k,3))); el.textContent=String(v); if(k<1) requestAnimationFrame(f); }; requestAnimationFrame(f); }); requestAnimationFrame(()=>io.observe(el)); }
+function ghGuest(c,e){ const u=e.u, box=h('div',{class:'ghx-gb'}), L=GH.msgs.get(u);
+  if (L===undefined){ GH.msgs.set(u,null); S.db?.collection('ghMsg/'+u+'/m').orderBy('at','desc').limit(40).get().then(sn=>{ GH.msgs.set(u,sn.docs.map(d=>({id:d.id,...d.data()}))); resolveNames(GH.msgs.get(u).map(m=>m.from)); if(PAGE==='gh'&&S.ghId===u) ghPaintMain(); }).catch(()=>GH.msgs.set(u,[])); }
+  const list=L||[];
+  const ta=h('input',{maxlength:200,placeholder:S.me?'留言給'+(e.own?'訪客':'溫室主人')+'…':'登入後可以留言'}), send=async ev=>{ ev.preventDefault(); if(!S.me){ openLogin(); return; } const v=ta.value.trim(); if(!v||!rateOK('chat')) return; ta.disabled=true;
+    try{ const m={from:S.me,text:v,at:Date.now()}; const ref=S.db.collection('ghMsg/'+u+'/m').doc(); await ref.set(m); GH.msgs.set(u,[{id:ref.id,...m},...list]); ta.value=''; ghPaintMain(); }catch(x){ toast('留言失敗：'+(x?.code==='permission-denied'?'目前不能留言':'請稍後再試')); } ta.disabled=false; };
+  box.append(h('h2',{class:'gh-sh2'}, h('span',{text:c.title||'訪客留言'}), h('small',{text:list.length?list.length+' 則':''})), e.ed?null:h('form',{class:'ghx-gf',onsubmit:send}, ta, h('button',{class:'gh-b pri',type:'submit',text:'留言'})),
+    h('div',{class:'ghx-gl'}, ...(list.length?list.map(m=>h('div',{class:'ghx-gm'}, h('span',{class:'ghx-ga'}, chatAv(m.from,30)), h('div',{}, h('b',{text:m.from===S.me?'你':nameOf(m.from)}), h('p',{text:m.text}), h('small',{text:ago(m.at)})),
+      (S.me&&(m.from===S.me||e.own||S.admin))?h('button',{type:'button',class:'ghx-gx',title:'刪除',onclick:async()=>{ try{ await S.db.doc('ghMsg/'+u+'/m/'+m.id).delete(); GH.msgs.set(u,(GH.msgs.get(u)||[]).filter(x=>x.id!==m.id)); ghPaintMain(); }catch(x){ toast('刪除失敗'); } },text:'✕'}):null)):[h('p',{class:'gh-bio',text:L===null?'讀取中…':'還沒有留言，當第一個吧'})])));
+  return h('section',{class:'ghx-sec'}, box); }
+function ghPaintMain(main,env){ main=main||$('#ghPage .gh-main'); env=env||GH.env; if(!main||!env) return; const {u,ed,c,vis,feat}=env;
+  if (env.c!==ghCfg(u)) Object.assign(env,{c:ghCfg(u)}); const C=env.c, kids=[];
+  for (const b of ghBlocks(C)){ if(b.on===false&&!ed) continue; let el=null;
+    try{ if(b.k==='_feat') el=feat.length?h('section',{class:'gh-fts n'+feat.length}, ...feat.map((p,i)=>h('article',{class:'gh-fc',style:'--i:'+i,onclick:ed?null:()=>openPlant(p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('i',{class:'gh-sh'}), h('div',{class:'gh-fm'}, h('span',{class:'mono',text:'★ 主打'}), h('b',{text:pName(p)}), (C.notes||{})[p.id]?h('q',{text:C.notes[p.id]}):h('small',{class:'mono',text:p.code||''}))))):(ed?scPh('主打植物：在下面的植物上按 ★'):null);
+      else if(b.k==='_coll') el=ghColl(env);
+      else { const d=ghComp(b.k); if(d){ const cf={...(d.def?d.def():{}),...(b.cfg||{})}; el=GH_COMP[b.k]?d.r(cf,env):d.r(cf,{uid:u,s:{name:ghName(u,C),line:''},forSale:vis,avail:vis,rv:[],rt:{n:0,avg:0},sold:[],mineAll:vis,preview:ed,goAll:()=>{}}); if(el&&!GH_COMP[b.k]) applySx(el,cf); } } }catch(x){ console.warn('[VEIN] 溫室元件',b.k,x); el=null; }
+    if (!el) continue; el.classList.add('gh-blk'); if(b.on===false) el.classList.add('off'); if(ed){ el.dataset.bid=b.id; if(GH.bOpen===b.id) el.classList.add('sel'); el.addEventListener('click',ev=>{ if(ev.target.closest('.gh-eb,.gh-ni,input,textarea,select,form')) return; GH.bOpen=b.id; GH.tab='bk'; renderGh(true); },true); } kids.push(el); }
+  main.replaceChildren(...kids); }
+function ghColl(env){ const {u,own,ed,c,vis}=env; const C=ghCfg(u);
+  if (!vis.length){ const loading=!GH.got.has(u)||GH.doc.get(u)===undefined;
+    return h('div',{class:'gh-empty'}, h('i',{text:loading?'⏳':'🪴'}), h('b',{text:loading?'溫室整理中…':own?'溫室還空空的':'這間溫室還沒有展示植物'}), own&&!loading?h('p',{text:'登錄你的植物，或買到的植物會自動搬進來。'}):null, own&&!loading?h('button',{type:'button',class:'gh-b pri',onclick:()=>openPlants('reg'),text:'＋ 登錄第一株'}):null); }
+  const L=vis.slice(0,GH.lim), grid=arr=>h('div',{class:'gh-g l-'+C.lay+' f-'+C.fr+' an-'+C.an}, ...arr.map((p,i)=>ghCard(p,i,C,ed))), out=h('div',{class:'gh-coll'});
+  if (C.grp==='genus'){ const G=new Map(); L.forEach(p=>{ const g=genusOf(p.species)||'其他'; if(!G.has(g)) G.set(g,[]); G.get(g).push(p); });
+    [...G.entries()].sort((a,b)=>b[1].length-a[1].length).forEach(([g,arr])=>out.append(h('section',{class:'gh-sec'}, h('h2',{class:'gh-sh2'}, h('span',{text:g.replace(/^./,x=>x.toUpperCase())}), h('small',{text:arr.length+' 株'})), grid(arr)))); }
+  else out.append(grid(L));
+  if (vis.length>GH.lim) out.append(h('button',{type:'button',class:'btn soft auto-more gh-more',onclick:()=>{ GH.lim+=30; renderGh(true); },text:'載入更多'}));
+  return out; }
+// 元件設定表單（溫室版）
+function ghCfgForm(b,P){ const d=ghComp(b.k); if(!d||!d.f) return h('p',{class:'gh-eh',text:d?.d||''}); const c=b.cfg||(b.cfg={...(d.def?d.def():{})}), ch=()=>{ GH.edit.dirty=true; clearTimeout(ghCfgForm.t); ghCfgForm.t=setTimeout(()=>ghPaintMain(),350); }, hard=()=>{ GH.edit.dirty=true; renderGh(true); };
+  const fl=(label,el)=>h('label',{class:'gh-fl'}, h('small',{text:label}), el);
+  return h('div',{class:'gh-cf'}, ...d.f.map(([t,key,label,opt])=>{
+    if(t==='text'){ const i=h('input',{value:c[key]||'',maxlength:120}); i.addEventListener('input',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
+    if(t==='area'){ const i=h('textarea',{rows:3,maxlength:600}); i.value=c[key]||''; i.addEventListener('input',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
+    if(t==='select'){ const i=h('select',{}, ...opt.map(([v,l])=>h('option',{value:v,text:l,selected:(c[key]||opt[0][0])===v}))); i.addEventListener('change',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
+    if(t==='datetime'){ const i=h('input',{type:'datetime-local',value:c[key]||''}); i.addEventListener('input',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
+    if(t==='link'){ const i=h('input',{value:c[key]||'',placeholder:'https://… 或 #/gh/…'}); i.addEventListener('input',()=>{ c[key]=i.value; ch(); }); return fl(label,i); }
+    if(t==='plant') return fl(label,ghPlantSel(P,c[key],v=>{ c[key]=v; ch(); }));
+    if(t==='gpicks'){ c[key]=c[key]||[]; const A=c[key]; return h('div',{class:'gh-fl'}, h('small',{text:label+'（'+A.length+'）'}), h('div',{class:'gh-pkg'}, ...P.slice(0,80).map(p=>{ const on=A.includes(p.id); return h('button',{type:'button',class:'gh-o cv'+(on?' on':''),onclick:()=>{ const i=A.indexOf(p.id); if(i>=0) A.splice(i,1); else { if(A.length>=12){ toast('最多 12 株'); return; } A.push(p.id); } hard(); }}, h('img',{src:cover(p),alt:'',loading:'lazy'})); }))); }
+    if(t==='media'||t==='mlist'){ const st=h('small',{class:'gh-eh'}), multi=t==='mlist'; if(multi) c[key]=c[key]||[]; const inp=h('input',{type:'file',hidden:true,accept:'image/*,video/mp4,video/webm,video/quicktime',multiple:multi});
+      inp.addEventListener('change',async()=>{ const fs=[...inp.files].slice(0,multi?12-(c[key]||[]).length:1); inp.value=''; for(const f0 of fs){ try{ st.textContent='上傳中…'; const md=await uploadMediaFile(f0,x=>{ st.textContent='上傳中 '+Math.round(x/f0.size*100)+'%'; }); if(multi) c[key].push(md); else c[key]=md; }catch(x){ toast('上傳失敗：'+(x?.message||'')); } } st.textContent=''; hard(); });
+      const cur=multi?c[key]:(c[key]?.url?[c[key]]:[]);
+      return h('div',{class:'gh-fl'}, h('small',{text:label}), h('div',{class:'gh-ml'}, ...cur.map((m,i)=>h('span',{class:'gh-mi'}, h('img',{src:mediaThumb(m),alt:''}), h('button',{type:'button',onclick:()=>{ if(multi) c[key].splice(i,1); else c[key]=null; hard(); },text:'✕'}))), (multi?cur.length<12:!cur.length)?h('button',{type:'button',class:'gh-o',onclick:()=>inp.click(),text:'＋ 上傳'}):null, inp, st)); }
+    if(t==='list'){ c[key]=c[key]||[]; const L=c[key]; return h('div',{class:'gh-fl'}, h('small',{text:label}), ...L.map((it,i)=>h('div',{class:'gh-lr'}, ...opt.map(([k2,ph])=>{ const big=k2==='a'&&b.k!=='ghwish'; const i2=h(big?'textarea':'input',{placeholder:ph,maxlength:big?400:120,rows:big?2:null}); i2.value=it[k2]||''; i2.addEventListener('input',()=>{ it[k2]=i2.value; ch(); }); return i2; }), h('button',{type:'button',class:'gh-o',onclick:()=>{ L.splice(i,1); hard(); },text:'✕'}))), L.length<12?h('button',{type:'button',class:'gh-o',onclick:()=>{ L.push({}); hard(); },text:'＋ 新增一項'}):null); }
+    return null; })); }
+function ghBlkEditor(c,P){ const B=GH.edit.d.blocks=(Array.isArray(GH.edit.d.blocks)&&GH.edit.d.blocks.length?GH.edit.d.blocks:ghBlocks({})).map(x=>({...x})), set=()=>{ GH.edit.d={...GH.edit.d,blocks:B}; GH.edit.dirty=true; renderGh(true); };
+  const row=(b,i)=>{ const d=ghComp(b.k)||{n:b.k,ic:'▫️'}, open=GH.bOpen===b.id;
+    return h('div',{class:'gh-br'+(open?' open':'')+(b.on===false?' off':'')}, h('div',{class:'gh-brh'}, h('button',{type:'button',class:'gh-brn',onclick:()=>{ GH.bOpen=open?null:b.id; renderGh(true); requestAnimationFrame(()=>document.querySelector('#ghPage [data-bid="'+b.id+'"]')?.scrollIntoView({behavior:'smooth',block:'center'})); }}, h('i',{text:d.ic}), h('b',{text:d.n}), d.fixed?h('small',{text:'內建'}):null),
+      h('button',{type:'button',disabled:!i,onclick:()=>{ [B[i-1],B[i]]=[B[i],B[i-1]]; set(); },text:'↑'}), h('button',{type:'button',disabled:i===B.length-1,onclick:()=>{ [B[i+1],B[i]]=[B[i],B[i+1]]; set(); },text:'↓'}),
+      h('button',{type:'button',title:b.on===false?'顯示':'隱藏',onclick:()=>{ b.on=b.on===false; set(); },text:b.on===false?'🙈':'👁'}), d.fixed?null:h('button',{type:'button',title:'刪除',onclick:()=>{ B.splice(i,1); if(GH.bOpen===b.id) GH.bOpen=null; set(); },text:'✕'})),
+      open&&!d.fixed?ghCfgForm(b,P):open?h('p',{class:'gh-eh',text:d.d}):null); };
+  const pal=[...Object.entries(GH_COMP).filter(([,d])=>!d.fixed),...GH_SF.filter(k=>SF_COMP[k]).map(k=>[k,SF_COMP[k]])];
+  const add=k=>{ const d=ghComp(k), b={id:scId(),k,on:true,cfg:d.def?d.def():{}}; const at=GH.bOpen?B.findIndex(x=>x.id===GH.bOpen)+1:B.length; B.splice(at<=0?B.length:at,0,b); GH.bOpen=b.id; set(); requestAnimationFrame(()=>document.querySelector('#ghPage [data-bid="'+b.id+'"]')?.scrollIntoView({behavior:'smooth',block:'center'})); };
+  return [h('div',{class:'gh-bl'}, ...B.map(row)), h('small',{class:'gh-eh',text:'＋ 加元件（會加在選取的元件下面）'}), h('div',{class:'gh-pal'}, ...pal.map(([k,d])=>h('button',{type:'button',class:'gh-o',title:d.d||'',onclick:()=>add(k)}, h('i',{style:'font-style:normal',text:d.ic}), d.n)))]; }
+
+/* ---- 溫室分享圖：7 種風格 × 貼文／限動／方形 ---- */
+const GH_POST=[['theme','溫室招牌'],['grid','暗色拼貼'],['polaroid','拍立得牆'],['shelf','木層架'],['museum','典藏展'],['mag','雜誌封面'],['mosaic','滿版拼貼']];
+const ghUrl=u=>location.origin+location.pathname+'#/gh/'+u;
+function ghPosterData(u){ const c=ghCfg(u), P=ghOrder(u,c,ghPlants(u)).filter(p=>!(c.hide||[]).includes(p.id)), by=new Map(P.map(p=>[p.id,p])), feat=(c.feat||[]).map(i=>by.get(i)).filter(Boolean), L=[...feat,...P.filter(p=>!feat.includes(p))];
+  const t=GH_TH[c.th]||GH_TH.moss, hex=v=>{ const m=String(v).match(/#[0-9a-f]{6}/gi); return m?m:[v]; };
+  return {u,c,name:ghName(u,c),owner:u===S.me?(S.meInfo?.name||''):nameOf(u),bio:c.bio||'',av:u===S.me?S.meInfo?.avatarUrl||'':'',L,n:P.length,gen:new Set(P.map(p=>genusOf(p.species)).filter(Boolean)).size,st:(c.st||[]).slice(0,4),
+    bg:hex(t[1]),card:/^rgba/.test(t[2])?null:t[2],fg:t[3],sub:t[4],acc:t[5],dark:['moss','night','forest','ink'].includes(c.th),url:ghUrl(u)}; }
+const ghImg=p=>sdImg((p.media||[]).find(m=>m.type!=='video')?.url||p.coverThumb||p.thumb||cover(p));
+async function ghFoot(K,D,fg,bg,cap){ const QS=K.sq?170:190, qx=K.R-QS, qy=K.B-QS; const ok=await K.qr(D.url,qx,qy,QS,bg,fg); if(ok) K.text(cap||'掃描逛溫室',qx+QS/2,qy-14,'800 22px '+K.F,fg,'center'); K.text(location.host+'/#/gh',K.L,K.B-6,'600 24px '+K.F,fg); return QS; }
+function ghBg(K,D){ const {g,W,H}=K; if(D.bg.length>1){ const gr=g.createLinearGradient(0,0,W*.4,H); gr.addColorStop(0,D.bg[0]); gr.addColorStop(1,D.bg[1]); g.fillStyle=gr; } else g.fillStyle=D.bg[0]; g.fillRect(0,0,W,H); }
+function ghLeaves(K,col,n){ const {g,W,H}=K; g.save(); g.strokeStyle=col; g.lineWidth=3; for(let i=0;i<(n||14);i++){ const x=(i*397)%W, y=(i*613)%H, s=50+(i*37)%60, r=(i*1.3)%6; g.save(); g.translate(x,y); g.rotate(r); g.beginPath(); g.moveTo(0,0); g.bezierCurveTo(s*.5,-s*.5,s,-s*.2,s*1.2,0); g.bezierCurveTo(s,s*.2,s*.5,s*.5,0,0); g.moveTo(0,0); g.lineTo(s*1.1,0); g.stroke(); g.restore(); } g.restore(); }
+function ghHead(K,D,y,fg,sub,acc,big){ const {g}=K; K.text('MY GREENHOUSE',K.L,y,'800 24px '+K.MONO,acc); const ts=K.fitSize(D.name,K.R-K.L-(D.st.length?90:0),'900',big||76,40); K.text(D.name,K.L,y+ts+12,'900 '+ts+'px '+K.F,fg);
+  if(D.st.length){ g.font=Math.round(ts*.8)+'px '+K.F; D.st.slice(0,2).forEach((s,i)=>g.fillText(s,K.R-70-i*70,y+ts*.9)); }
+  let yy=y+ts+12; if(D.bio){ K.wrap(D.bio,K.R-K.L,'600 28px '+K.F,2).forEach((l,i)=>K.text(l,K.L,yy+48+i*40,'600 28px '+K.F,sub)); yy+=48+Math.min(2,K.wrap(D.bio,K.R-K.L,'600 28px '+K.F,2).length)*40-20; }
+  K.text(D.n+' 株 · '+D.gen+' 個屬'+(D.owner?' · '+D.owner:''),K.L,yy+50,'700 26px '+K.F,acc); return yy+70; }
+async function ghPoster(u,fmt,st){ const D=ghPosterData(u); try{ await document.fonts?.ready; }catch(e){}
+  if (st==='grid') return gridPoster({pill:'GREENHOUSE',kicker:'MY GREENHOUSE',title:D.name,sub:D.bio||(D.owner?D.owner+' 的收藏':''),avatar:D.av,stats:[['收藏',D.n+' 株'],['屬',String(D.gen)],['主打',String((D.c.feat||[]).length)]],items:D.L.map(p=>({img:(p.media||[]).find(m=>m.type!=='video')?.url||p.coverThumb||p.thumb||cover(p),code:p.code,tag:pName(p),badge:(D.c.feat||[]).includes(p.id)?'★ 主打':null})),line:'來逛逛我的溫室',url:D.url,qrCap:'掃描逛溫室'},fmt);
+  const K=pkCanvas(fmt), {g,W,H}=K; const ims=await Promise.all(D.L.slice(0,9).map(ghImg));
+  if (st==='theme'){ ghBg(K,D); ghLeaves(K,D.dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)'); K.logo(K.L,K.T,48,D.fg); let y=ghHead(K,D,K.T+(K.story?120:100),D.fg,D.sub,D.acc);
+    const QS=K.sq?170:190, bot=K.B-QS-40, rest=Math.max(0,Math.min(3,ims.length-1)), smallH=rest?(K.sq?0:K.story?300:220):0, bigH=Math.max(200,bot-y-(smallH?smallH+18:0)); 
+    K.img(ims[0],K.L,y,W-112,bigH,28); g.strokeStyle=D.acc; g.lineWidth=4; g.beginPath(); g.roundRect(K.L,y,W-112,bigH,28); g.stroke(); if(D.L[0]){ K.pill(K.L+18,y+18,(D.c.feat||[]).includes(D.L[0].id)?'★ '+pName(D.L[0]):pName(D.L[0]),D.acc,D.bg[0],24); }
+    if (smallH){ const n=rest, gap=16, cw=(W-112-gap*(n-1))/n; for(let i=0;i<n;i++) K.img(ims[i+1],K.L+i*(cw+gap),y+bigH+18,cw,smallH,20); }
+    await ghFoot(K,D,D.fg,D.card||D.bg[0]); }
+  else if (st==='polaroid'){ g.fillStyle='#EFE8DA'; g.fillRect(0,0,W,H); ghLeaves(K,'rgba(90,70,40,.07)',18); K.logo(K.L,K.T,48,'#2A2620'); const y=ghHead(K,{...D},K.T+(K.story?120:100),'#2A2620','#7B7264','#9A5B3A',70);
+    const QS=K.sq?170:190, area=[y+10,K.B-QS-30], n=Math.min(ims.length,K.story?6:K.sq?3:4), cols=K.sq?3:2, rows=Math.ceil(n/cols)||1, cw=(W-112)/cols, chh=(area[1]-area[0])/rows, ps=Math.min(cw*.92,chh*.84);
+    for(let i=0;i<n;i++){ const cx=K.L+(i%cols)*cw+cw/2, cy=area[0]+Math.floor(i/cols)*chh+chh/2, rot=[-.06,.05,-.03,.07,-.05,.04][i]; g.save(); g.translate(cx,cy); g.rotate(rot); g.shadowColor='rgba(0,0,0,.28)'; g.shadowBlur=24; g.shadowOffsetY=10; g.fillStyle='#FBFAF6'; const pw=ps*.86, ph=ps; g.fillRect(-pw/2,-ph/2,pw,ph); g.shadowColor='transparent'; K.img(ims[i],-pw/2+16,-ph/2+16,pw-32,pw-32,0);
+      K.text(K.wrap(pName(D.L[i]),pw-40,'700 24px '+K.F,1)[0]||'',0,ph/2-26,'700 24px '+K.F,'#2A2620','center'); g.fillStyle='rgba(201,217,138,.75)'; g.save(); g.rotate(-.05); g.fillRect(-45,-ph/2-14,90,30); g.restore(); g.restore(); }
+    await ghFoot(K,D,'#2A2620','#FBFAF6'); }
+  else if (st==='shelf'){ ghBg(K,D); K.logo(K.L,K.T,48,D.fg); const y=ghHead(K,D,K.T+(K.story?120:100),D.fg,D.sub,D.acc,66); const QS=K.sq?170:190, top=y+10, bot=K.B-QS-40, rows=K.story?3:K.sq?1:2, rh=(bot-top)/rows, cols=3, cw=(W-112)/cols;
+    for(let r=0;r<rows;r++){ const by0=top+(r+1)*rh; for(let c2=0;c2<cols;c2++){ const i=r*cols+c2, im=ims[i]; if(!D.L[i]) continue; const pw=cw*.78, phh=rh*.74, x=K.L+c2*cw+(cw-pw)/2, y0=by0-24-phh; g.save(); g.beginPath(); g.roundRect(x,y0,pw,phh,[pw/2,pw/2,14,14]); g.clip(); K.img(im,x,y0,pw,phh,0); g.restore();
+        g.fillStyle='#B65E3C'; g.beginPath(); g.moveTo(x+pw*.12,by0-24-phh*.22); g.lineTo(x+pw*.88,by0-24-phh*.22); g.lineTo(x+pw*.8,by0-24); g.lineTo(x+pw*.2,by0-24); g.closePath(); g.fill(); K.text(K.wrap(D.L[i].code||'',pw*.6,'700 18px '+K.MONO,1)[0]||'',x+pw/2,by0-24-phh*.07,'700 18px '+K.MONO,'#F6EADF','center'); }
+      const gr=g.createLinearGradient(0,by0-24,0,by0); gr.addColorStop(0,'#A27B53'); gr.addColorStop(1,'#6E4F33'); g.fillStyle=gr; g.fillRect(K.L-20,by0-24,W-72,24); g.fillStyle='rgba(0,0,0,.25)'; g.fillRect(K.L-20,by0,W-72,10); }
+    await ghFoot(K,D,D.fg,D.card||D.bg[0]); }
+  else if (st==='museum'){ g.fillStyle='#17171A'; g.fillRect(0,0,W,H); const sp=g.createRadialGradient(W/2,H*.38,40,W/2,H*.38,W*.8); sp.addColorStop(0,'rgba(255,240,200,.16)'); sp.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=sp; g.fillRect(0,0,W,H);
+    K.text('THE COLLECTION',W/2,K.T+30,'800 24px '+K.MONO,'#D8B48A','center'); const ts=K.fitSize(D.name,W-160,'900',58,34); K.text(D.name,W/2,K.T+40+ts+10,'900 '+ts+'px '+K.F,'#F0EEE9','center');
+    const QS=K.sq?150:170, fy=K.T+ts+(K.story?160:100), fh=K.B-QS-(K.sq?130:200)-fy, fw=Math.min(W-220,fh*.8), fx=(W-fw)/2;
+    g.fillStyle='#8C6A2C'; g.fillRect(fx-34,fy-34,fw+68,fh+68); g.fillStyle='#C7A45B'; g.fillRect(fx-26,fy-26,fw+52,fh+52); g.fillStyle='#EED9A0'; g.fillRect(fx-10,fy-10,fw+20,fh+20); K.img(ims[0],fx,fy,fw,fh,0);
+    const p=D.L[0]; if(p){ const py=fy+fh+56, pwid=Math.min(560,W-200); g.fillStyle='#F3EEE3'; g.fillRect((W-pwid)/2,py,pwid,K.sq?86:110); K.text(K.wrap(pName(p),pwid-40,'800 30px '+K.F,1)[0],W/2,py+44,'800 30px '+K.F,'#2A2620','center'); K.text((p.code||'')+((D.c.notes||{})[p.id]?' · '+D.c.notes[p.id]:''),W/2,py+(K.sq?74:86),'600 22px '+K.F,'#7B7264','center'); }
+    const qx=K.R-QS, qy=K.B-QS; if(await K.qr(D.url,qx,qy,QS,'#F0EEE9','#17171A')) K.text('掃描入館',qx+QS/2,qy-12,'800 22px '+K.F,'#D8B48A','center'); K.text(D.n+' 件典藏 · '+location.host,K.L,K.B-6,'600 24px '+K.F,'rgba(240,238,233,.6)'); }
+  else if (st==='mag'){ K.img(ims[0],0,0,W,H,0); K.grad(0,H*.4,'rgba(0,0,0,.55)','rgba(0,0,0,0)'); K.grad(H*.5,H,'rgba(0,0,0,0)','rgba(0,0,0,.85)');
+    const mh=K.story?190:K.sq?130:170; g.save(); g.font='900 '+mh+'px "Didot","Bodoni 72",Georgia,serif'; g.fillStyle='#fff'; g.textAlign='center'; g.fillText('GREEN',W/2,K.T+mh*.82); g.restore();
+    K.text('HOUSE · '+new Date().getFullYear()+'.'+String(new Date().getMonth()+1).padStart(2,'0'),W/2,K.T+mh+20,'800 24px '+K.MONO,D.acc,'center');
+    let y=K.B-(K.sq?300:420); const ts=K.fitSize(D.name,W-112,'900',K.sq?56:72,36); K.text(D.name,K.L,y,'900 '+ts+'px '+K.F,'#fff'); y+=20;
+    D.L.slice(1,K.sq?3:4).forEach((p,i)=>{ K.text('— '+pName(p),K.L,y+46+i*44,'700 30px '+K.F,'rgba(255,255,255,.9)'); });
+    K.sticker(K.R-260,K.T+mh+60,D.n+' 株收藏',30,.08,D.acc,'#111'); const QS=K.sq?150:170; if(await K.qr(D.url,K.R-QS,K.B-QS,QS,'#fff','#111')) K.text('SCAN',K.R-QS/2,K.B-QS-12,'800 22px '+K.MONO,'#fff','center'); K.text(location.host,K.L,K.B-6,'600 24px '+K.F,'rgba(255,255,255,.7)'); }
+  else { /* mosaic */ g.fillStyle='#0E1110'; g.fillRect(0,0,W,H); const gap=8, n=Math.min(ims.length,K.story?7:K.sq?4:5), band=K.sq?200:260, AH=H-band; const cells=[]; 
+    if(n<=1) cells.push([0,0,W,AH]); else if(n===2) cells.push([0,0,W/2,AH],[W/2,0,W/2,AH]); else if(n===3) cells.push([0,0,W*.6,AH],[W*.6,0,W*.4,AH/2],[W*.6,AH/2,W*.4,AH/2]); else if(n===4) cells.push([0,0,W/2,AH/2],[W/2,0,W/2,AH/2],[0,AH/2,W/2,AH/2],[W/2,AH/2,W/2,AH/2]);
+    else if(n===5) cells.push([0,0,W*.62,AH*.6],[W*.62,0,W*.38,AH*.3],[W*.62,AH*.3,W*.38,AH*.3],[0,AH*.6,W*.38,AH*.4],[W*.38,AH*.6,W*.62,AH*.4]);
+    else { cells.push([0,0,W,AH*.38]); const r2=(n-1), rows2=Math.ceil(r2/2); for(let i=0;i<r2;i++){ const c2=i%2, r=Math.floor(i/2), ch=AH*.62/rows2; cells.push([c2*W/2,AH*.38+r*ch,W/2,ch]); } }
+    cells.forEach(([x,y,w,hh],i)=>K.img(ims[i],x+gap/2,y+gap/2,w-gap,hh-gap,10)); g.fillStyle=D.acc; g.fillRect(0,AH,W,band); const fg=/^#[0-3]/.test(D.acc)?'#fff':'#111';
+    const ts=K.fitSize(D.name,W-112-200,'900',60,34); K.text(D.name,K.L,AH+40+ts,'900 '+ts+'px '+K.F,fg); K.text(D.n+' 株 · '+D.gen+' 個屬 · '+location.host,K.L,AH+40+ts+46,'700 26px '+K.F,fg);
+    const QS=band-60; await K.qr(D.url,K.R-QS,AH+30,QS,fg==='#fff'?'#111':'#fff',fg==='#fff'?'#fff':'#111'); }
+  return {blob:await K.done(),photo:true}; }
+function ghShareText(u,fmt){ const D=ghPosterData(u); if(fmt==='story') return '🪴 '+D.name+'\n👉 '+D.url; return ['🪴 '+D.name+'｜VEIN 玩家溫室', D.bio||'', '🌿 收藏 '+D.n+' 株・'+D.gen+' 個屬', D.L.slice(0,3).map(p=>'・'+pName(p)).join('\n'), '', '👉 來逛：'+D.url, '', '#VEIN #我的溫室 #植物收藏'].filter((x,i,a)=>x!==''||(i>0&&a[i-1]!=='')).join('\n'); }
+function openGhShare(u){ lsSet('vein.didShare',true); return shareFmts({title:'轉發溫室',url:ghUrl(u),file:'greenhouse-'+String(u).slice(0,6),draw:(f,st)=>ghPoster(u,f,st||'theme'),text:f=>ghShareText(u,f),styles:GH_POST,lead:'選一種風格，會用溫室裡的植物（主打的排最前面）排成分享圖，附 QR code。'}); }
 let meSig='';
 function renderMe(force){
   const box=$('#mePage'); if(!box||!S.me) return;
@@ -8348,7 +8543,7 @@ async function boot(){
   if (!c?.use){ S.failed=true; renderAll(); return; }
   const [db,user,assets]=await Promise.all([c.use('db'),c.use('user'),c.use('assets')]);
   S.db=db; S.user=user; S.assets=assets; if(snapLoad()) renderAll();
-  if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.realMe=S.me; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write');
+  if (user){ S.meInfo=await user.me(); S.me=S.meInfo.id; S.realMe=S.me; S.admin=await user.canEdit(); S.isOwner=await user.isOwner(); S.canWrite=await user.can('data.write'); setTimeout(()=>{ try{ seenLog(); myWarns(); }catch(e){} },4000);
     // 小編模式：用自己的帳號登入，但以受邀賣場的身分管理（資料庫規則會依權限把關）
     let act=null; try{ act=sessionStorage.getItem('vein.actAs'); }catch(e){}
     if (act&&act!==S.realMe&&db){ try{ const d=await db.doc(`shops/${act}/staff/${S.realMe}`).get(); if(d.exists){ S.work={shop:act,perms:d.data().perms||{}}; S.me=act; S.admin=false; S.isOwner=false; } else { sessionStorage.removeItem('vein.actAs'); setTimeout(()=>toast('你已經不是這個賣場的小編'),1500); } }catch(e){ try{ sessionStorage.removeItem('vein.actAs'); }catch(x){} } } }
@@ -8366,8 +8561,9 @@ async function boot(){
   db.collection('drops').onSnapshot(sn=>{ S.drops=new Map(sn.docs.map(d=>[d.id,{...d.data(),id:d.id}])); shopRSig=''; renderAll(); if(PAGE==='seller') renderSeller(true); },()=>{});
   db.collection('dropClaims').onSnapshot(sn=>{ S.dclaims=new Map(sn.docs.map(d=>[d.id,d.data()])); shopRSig=''; renderAll(); },()=>{});
   db.doc('site/bans').onSnapshot(d=>{ S.bans=(d.exists&&d.data().uids)||{}; syncSocial(); renderAll(); }, ()=>{});
+  db.doc('site/restrict').onSnapshot(d=>{ S.restrict=(d.exists&&d.data().uids)||{}; renderAll(); }, ()=>{});
   db.doc('site/admins').onSnapshot(d=>{ S.adminUids=(d.exists&&d.data().uids)||{}; if(adm.open) renderAdmin(false); }, ()=>{});
-  if (S.admin) db.collection('profiles').onSnapshot(sn=>{ S.profiles.clear(); sn.docs.forEach(d=>S.profiles.set(d.id,d.data())); if(adm.open) renderAdmin(false); }, ()=>{});
+  if (S.admin) db.collection('profiles').onSnapshot(sn=>{ S.profiles.clear(); sn.docs.forEach(d=>S.profiles.set(d.id,d.data())); if(adm.open) renderAdmin(S.admTab==='users'&&!S.userSel&&!typing(adm)); }, ()=>{});
   db.doc('site/info').onSnapshot(d=>{ S.site=d.exists?d.data():{}; renderAll(); }, ()=>{});
   db.collection('owners').onSnapshot(sn=>{ S.owners.clear(); sn.docs.forEach(d=>S.owners.set(d.id,d.data())); renderAll(); }, ()=>{});
   db.doc('site/verified').onSnapshot(d=>{ S.verified=(d.exists&&d.data().uids)||{}; renderAll(); }, ()=>{});
@@ -8850,13 +9046,14 @@ async function shareDialog(o){
   const modes=o.modes||[{k:'x',image:o.image,text:o.text,file:o.file}];
   const txt=h('textarea',{class:'sh-txt',rows:7});
   const prev=h('div',{class:'sh-prev'}), btns=h('div',{class:'sh-btns'}), note=h('p',{class:'hint sh-note'}), tip=h('p',{class:'sh-tip',hidden:true});
-  const cache=new Map(); let cur=null, tok=0;
+  const cache=new Map(); let cur=null, tok=0, curSt=o.styles?.[0]?.[0]||'';
   const seg=modes.length>1?h('div',{class:'sh-modes'}, ...modes.map(m=>h('button',{type:'button','data-k':m.k,onclick:()=>load(m)}, h('b',{text:m.label}), m.sub?h('small',{text:m.sub}):null))):null;
-  openDialog(o.title, h('div',{}, seg, h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, o.lead?h('div',{class:'sh-lead'}, o.lead):null, tip, h('label',{class:'field'}, h('span',{text:'要一起傳出去的文字（可以改）'}), txt), btns, note))), false);
+  const stSeg=o.styles?.length?h('div',{class:'sh-sts'}, ...o.styles.map(([k,l])=>h('button',{type:'button','data-s':k,'aria-pressed':String(k===curSt),onclick:()=>{ curSt=k; stSeg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===k))); if(cur) load(cur); }},l))):null;
+  openDialog(o.title, h('div',{}, stSeg, seg, h('div',{class:'sh'}, prev, h('div',{class:'sh-side'}, o.lead?h('div',{class:'sh-lead'}, o.lead):null, tip, h('label',{class:'field'}, h('span',{text:'要一起傳出去的文字（可以改）'}), txt), btns, note))), false);
   async function load(m){ cur=m; const my=++tok; seg?.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===m.k)));
     prev.className='sh-prev'+(m.aspect?' a-'+m.aspect:''); txt.value=m.text; tip.hidden=!m.tip; tip.textContent=m.tip||''; note.textContent=''; btns.replaceChildren();
     prev.replaceChildren(h('div',{class:'sh-load'}, h('i'), '產生分享圖中…'));
-    if (!cache.has(m.k)) cache.set(m.k,m.image()); const {blob,photo}=await cache.get(m.k); if(!prev.isConnected||my!==tok) return;
+    const ck=m.k+'|'+curSt; if (!cache.has(ck)) cache.set(ck,m.image(curSt)); const {blob,photo}=await cache.get(ck); if(!prev.isConnected||my!==tok) return;
     const url=blob?URL.createObjectURL(blob):null, file=blob?new File([blob],vfn(),{type:'image/jpeg',lastModified:Date.now()}):null;
     prev.replaceChildren(url?h('img',{src:url,alt:'分享圖'}):h('p',{class:'hint',style:'color:#fff',text:'分享圖產生失敗，可以先傳文字與連結。'}));
     if (!photo) note.textContent='分享圖暫時放不進植物照片，先用圖示代替；文字和連結不受影響。';
@@ -9523,8 +9720,8 @@ async function renderBatch(key){ const box=$('#batchPage'); if(!box) return; con
     h('div',{class:'bt-g'}, ...M.map(card)));
 }
 // 共用：三種尺寸的分享視窗
-function shareFmts(o){ const mk=(k,label,sub,aspect)=>({k,label,sub,aspect,image:()=>o.draw(k),text:o.text(k),file:o.file+'-'+k});
-  return shareDialog({title:o.title,lead:o.lead,url:o.url,start:o.start,modes:[mk('post','貼文 4:5','IG／FB／Threads'),mk('story','限動 9:16','IG／FB 限動','916'),mk('square','方形 1:1','LINE／訊息','11')]}); }
+function shareFmts(o){ const mk=(k,label,sub,aspect)=>({k,label,sub,aspect,image:st=>o.draw(k,st),text:o.text(k),file:o.file+'-'+k});
+  return shareDialog({title:o.title,lead:o.lead,url:o.url,start:o.start,styles:o.styles,modes:[mk('post','貼文 4:5','IG／FB／Threads'),mk('story','限動 9:16','IG／FB 限動','916'),mk('square','方形 1:1','LINE／訊息','11')]}); }
 function openAucShare(p){ lsSet('vein.didShare',true);
   return shareFmts({title:live(p)?'轉發這場競標':'分享競標結果',url:plantUrl(p),file:p.code+'-auction',draw:f=>aucPoster(p,f),text:f=>aucText(p,f),
     lead:h('div',{}, h('span',{text:live(p)?'圖上會放目前出價、截止時間和 QR code，朋友掃了就能直接出價。':'圖上會放得標價與完整履歷的 QR code。'}), ' ', h('button',{class:'link',type:'button',onclick:()=>openShare(p,'auction'),text:'想自己排版？用分享圖設計工具'}))}); }
@@ -10508,7 +10705,7 @@ function refreshDetail(first){
     const same=pub().filter(x=>x.id!==p.id&&spKey(x)===gk&&x.status!=='sold'), shopMore=pub().filter(x=>x.id!==p.id&&x.shop===p.shop&&x.status!=='sold');
     rel.replaceChildren(...[fam,techRow({kicker:'SAME GENUS',title:'同屬的其他植株',items:same.slice(0,16)}),techRow({kicker:'SAME GREENHOUSE',title:shopName(p.shop)+' 的其他植株',items:shopMore.slice(0,16)})].filter(Boolean)); }
 }
-async function placeBid(id,amt){ if(needLogin()||needPhone()||needRecv()) return false; const p=S.plants.get(id); if(!entryOK(p,'bid')) return false; const e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(!live(p)){ err.textContent=aucSoon(p)?'競標還沒開始，'+fmtLeft(p.startsAtMs-Date.now())+' 後開始。':'競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ const prevTop=topBid(id)?.amt||+p.startPrice||0; const now=Date.now(), pv=mySocial().bids?.[id], ts=[...(Array.isArray(pv?.ts)?pv.ts:pv?.at?[pv.at]:[]),now].slice(-12); await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:now,shop:p.shop,ts}}}); try{ applySnipe(); }catch(e){} try{ bidFxAnywhere(p,amt,prevTop); }catch(e){} const sn=snipeOf(p); toast('已出價 '+money(amt)+(sn&&p.endsAtMs-now<sn.ext*6e4+2000&&p.endsAtRaw&&p.endsAtMs>p.endsAtRaw?'，結標延長到 '+fmtMD(p.endsAtMs):'')); return true; }catch(e){ return false; } }
+async function placeBid(id,amt){ if(needLogin()||needPhone()||needRecv()||!limOK('bid')) return false; const p=S.plants.get(id); if(!entryOK(p,'bid')) return false; const e0=$('#bidErr'), err={set textContent(v){ if(e0&&e0.isConnected) e0.textContent=v; else if(v) toast(v); }}; err.textContent=''; if(!live(p)){ err.textContent=aucSoon(p)?'競標還沒開始，'+fmtLeft(p.startsAtMs-Date.now())+' 後開始。':'競標已經結束。'; return false; } const mb=minBid(p); if(!amt||amt<mb){ err.textContent='出價至少要 '+money(mb)+'。'; return false; } if(!rateOK('bid')) return false; try{ const prevTop=topBid(id)?.amt||+p.startPrice||0; const now=Date.now(), pv=mySocial().bids?.[id], ts=[...(Array.isArray(pv?.ts)?pv.ts:pv?.at?[pv.at]:[]),now].slice(-12); await saveSocial({bids:{...mySocial().bids,[id]:{amt,at:now,shop:p.shop,ts}}}); try{ applySnipe(); }catch(e){} try{ bidFxAnywhere(p,amt,prevTop); }catch(e){} const sn=snipeOf(p); toast('已出價 '+money(amt)+(sn&&p.endsAtMs-now<sn.ext*6e4+2000&&p.endsAtRaw&&p.endsAtMs>p.endsAtRaw?'，結標延長到 '+fmtMD(p.endsAtMs):'')); return true; }catch(e){ return false; } }
 async function askQ(id,text,inp){ if(needLogin()||!text||!rateOK('qa')) return; const p=S.plants.get(id); const qa=[...mySocial().qa,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:id,shop:p?.shop,text,at:Date.now()}].slice(-200); try{ await saveSocial({qa}); inp.value=''; toast('已送出提問'); }catch(e){} }
 
 /* ---------- viewer ---------- */
@@ -10522,7 +10719,7 @@ $('#vNext').addEventListener('click',()=>{ if(vi<S.photos.length-1){ vi++; showV
 viewer.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft') $('#vPrev').click(); if(e.key==='ArrowRight') $('#vNext').click(); });
 
 /* ================= 超級管理員：內容管理、會員管理、封禁 ================= */
-const banned=uid=>!!uid&&!!S.bans?.[uid];
+const banned=uid=>{ const b=uid&&S.bans?.[uid]; return !!b&&!(+b.until>0&&+b.until<Date.now()); };
 const isAdminUid=uid=>!!S.adminUids?.[uid];
 function syncSocial(){ S.social=new Map([...S.socialAll].filter(([u])=>u===S.me||!banned(u))); }
 function confirmBtn(label,cls,fn){ let armed=false, t=0; const b=h('button',{class:'btn sm '+(cls||'soft'),type:'button',text:label});
@@ -10586,6 +10783,7 @@ function memberRows(){
     return {u,name:pr.name||nameOf(u),avatar:pr.avatar,phone:!!pr.phoneVerified,shop:shopOf(u),level:levelOf(u),pending:S.shops.has(u)&&!approved(u),banned:banned(u),
       buyN:bo.length,spend:bo.reduce((n,o)=>n+(o.total||0),0),sellN:sh.length,revenue:sh.reduce((n,o)=>n+(o.total||0),0),plants:all().filter(p=>p.shop===u).length,owns:all().filter(p=>ownerOf(p)===u&&p.shop!==u).length,
       bids:Object.keys(so.bids||{}).length,qa:(so.qa||[]).length,fol:followers(u),rt:rating(u),
+      joined:Math.min(...[pr.createdAt,S.shops.get(u)?.createdAt,...Object.values(so.orders||{}).map(o=>o.at),...Object.values(so.bids||{}).map(b=>b.at)].map(x=>+x||0).filter(Boolean),Date.now()),
       last:Math.max(pr.updatedAt||0,...Object.values(so.bids||{}).map(b=>b.at||0),...Object.values(so.orders||{}).map(o=>o.at||0),S.shops.get(u)?.createdAt||0)}; }); }
 async function setLevel(u,lv){
   try{
@@ -10615,62 +10813,185 @@ function encBanList(m){ if(S.encBans===undefined||S.encBans===null){ S.encBans=f
   if(!S.encBans||!S.encBans.length) return; resolveNames(S.encBans.map(b=>b.u));
   const top=m.querySelector('table')?.closest('.panel, .tbl, div')||m.querySelector('.empty'), par=top?.parentNode||m; par.insertBefore(h('div',{class:'panel',style:'border:1.5px solid #F3C7C2'}, h('h3',{text:'⚔ 遭遇戰被鎖定的會員（'+S.encBans.length+'）'}),
     h('div',{class:'list'}, ...S.encBans.map(b=>h('div',{class:'li',style:'background:#FFF6F5;grid-template-columns:1fr auto'}, h('div',{style:'min-width:0;cursor:pointer',onclick:()=>{ S.userSel=b.u; renderAdmin(true); }}, h('b',{text:nameOf(b.u)}), h('span',{text:encBanTxt(b)})), confirmBtn('解除','soft',()=>encUnban(b.u,false)))))),top); }
+/* ===== 會員管理：查詢、篩選、批次處分（停權／功能限制／警告）、代管資料與內容、查看紀錄、匯出 ===== */
+const LIM_K=[['bid','出價'],['order','下單'],['offer','議價'],['chat','聊天・留言'],['qa','提問'],['raffle','抽獎'],['enc','遭遇戰'],['list','上架登錄']];
+const LIM_N=Object.fromEntries(LIM_K);
+const DUR=[['1','1 天'],['3','3 天'],['7','7 天'],['30','30 天'],['90','90 天'],['0','永久']];
+const PERM_T=9e15, durMs=d=>+d?Date.now()+(+d)*864e5:0, untilTxt=t=>!t||+t>=PERM_T?'永久':'到 '+fmtDate(tsLocal(+t));
+const limOf=u=>{ const r=S.restrict?.[u]||{}, now=Date.now(); return LIM_K.filter(([k])=>+r[k]>now).map(([k,l])=>({k,l,until:+r[k]})); };
+const limited=(u,k)=>+(S.restrict?.[u]?.[k]||0)>Date.now();
+function limOK(k){ if(S.me&&!S.admin&&limited(S.me,k)){ toast('你的「'+LIM_N[k]+'」功能暫停中（'+untilTxt(S.restrict[S.me][k])+'）'); return false; } return true; }
+const warnsOf=u=>(S.warns?.get?.(u)?.list)||[];
+async function admLog(u,act,detail){ try{ await S.db.collection('admlog').doc().set({by:S.me,u:u||'',act,detail:String(detail||'').slice(0,300),at:Date.now()}); }catch(e){} }
+function csvDl(name,rows){ const esc=v=>{ const s=v==null?'':String(v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }; const blob=new Blob(['﻿'+rows.map(r=>r.map(esc).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=h('a',{href:URL.createObjectURL(blob),download:name+'.csv'}); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); toast('已匯出 '+name+'.csv'); }
+// 處分（可以一次對很多人）
+async function banMany(us,days,reason){ const cur={...(S.bans||{})}; us.forEach(u=>{ cur[u]={at:Date.now(),reason:reason||'違反平台規範',by:S.me,until:durMs(days)}; });
+  await S.db.doc('site/bans').set({uids:cur}); S.bans=cur; for(const u of us) await admLog(u,'ban',(+days?days+' 天':'永久')+'・'+(reason||'')); syncSocial(); }
+async function unbanMany(us){ const cur={...(S.bans||{})}, rs={...(S.restrict||{})}; us.forEach(u=>{ delete cur[u]; delete rs[u]; }); await S.db.doc('site/bans').set({uids:cur}); await S.db.doc('site/restrict').set({uids:rs}); S.bans=cur; S.restrict=rs; for(const u of us) await admLog(u,'unban','解除停權與所有限制'); syncSocial(); }
+async function limMany(us,ks,days,reason){ const rs=JSON.parse(JSON.stringify(S.restrict||{})), t=+days?durMs(days):PERM_T; us.forEach(u=>{ const r=rs[u]||{}; ks.forEach(k=>{ r[k]=t; }); r.reason=reason||''; r.by=S.me; r.at=Date.now(); rs[u]=r; });
+  await S.db.doc('site/restrict').set({uids:rs}); S.restrict=rs; for(const u of us) await admLog(u,'limit',ks.map(k=>LIM_N[k]).join('、')+'・'+(+days?days+' 天':'永久')+'・'+(reason||'')); }
+async function unlimOne(u,k){ const rs=JSON.parse(JSON.stringify(S.restrict||{})); if(rs[u]){ if(k) delete rs[u][k]; else delete rs[u]; } await S.db.doc('site/restrict').set({uids:rs}); S.restrict=rs; await admLog(u,'unlimit',k?LIM_N[k]:'全部'); }
+async function warnMany(us,text){ for(const u of us){ const old=S.warns?.get(u)||{list:[]}; const d={list:[...(old.list||[]),{at:Date.now(),by:S.me,text}].slice(-50),ack:old.ack||0}; await S.db.doc('warns/'+u).set(d); S.warns?.set(u,d); await admLog(u,'warn',text); } }
+function admLoadAux(){ if(S.warns||!S.db||!S.admin) return; S.warns=new Map(); S.db.collection('warns').get().then(sn=>{ sn.docs.forEach(d=>S.warns.set(d.id,d.data())); if(adm.open) renderAdmin(true); }).catch(()=>{}); }
+// 處分視窗（單人或批次共用）
+function sanctionSheet(us,kind0){ us=us.filter(u=>u!==S.me&&!isAdminUid(u)||S.isOwner&&u!==S.me); if(!us.length){ toast('不能處分自己'); return; } let kind=kind0||'ban', days='7'; const ks=new Set(); const reason=h('input',{maxlength:100,placeholder:'原因（會記錄，停權時本人看得到）'}), warnT=h('textarea',{rows:3,maxlength:300,placeholder:'要提醒對方的話（對方登入會看到）'});
+  const host=topHost(), body=h('div',{class:'sx-b'}); const ov=h('div',{class:'gt-ov',onclick:e=>{ if(e.target===ov) ov.remove(); }}, h('div',{class:'gt sx'}, h('b',{class:'gt-t',text:us.length>1?'處分 '+us.length+' 位會員':'處分 '+nameOf(us[0])}), body));
+  const draw=()=>{ body.replaceChildren(
+    h('div',{class:'segs sx-k'}, ...[['ban','⛔ 停權'],['limit','🚫 限制功能'],['warn','⚠️ 警告']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(kind===k),onclick:()=>{ kind=k; draw(); },text:l}))),
+    kind==='limit'?h('div',{class:'sx-ls'}, h('small',{class:'hint',text:'要暫停哪些功能'}), h('div',{class:'chips'}, ...LIM_K.map(([k,l])=>h('button',{type:'button',class:'chip','aria-pressed':String(ks.has(k)),onclick:()=>{ ks.has(k)?ks.delete(k):ks.add(k); draw(); },text:l})), h('button',{type:'button',class:'chip',onclick:()=>{ LIM_K.forEach(([k])=>ks.add(k)); draw(); },text:'全選'}))):null,
+    kind!=='warn'?h('div',{}, h('small',{class:'hint',text:'期限'}), h('div',{class:'chips'}, ...DUR.map(([d,l])=>h('button',{type:'button',class:'chip','aria-pressed':String(days===d),onclick:()=>{ days=d; draw(); },text:l})))):null,
+    kind==='warn'?warnT:reason,
+    h('p',{class:'hint',text:kind==='ban'?'停權後不能出價、下單、議價、聊天、上架…，賣場與出價會從前台消失；到期自動恢復。':kind==='limit'?'只暫停勾選的功能，其他照常；到期自動恢復。':'警告不會限制任何功能，會留下紀錄，對方登入時會看到提醒。'}),
+    h('button',{type:'button',class:'btn ink gt-go',onclick:async e=>{ const b=e.currentTarget; b.disabled=true; b.textContent='處理中…';
+      try{ if(kind==='ban') await banMany(us,days,reason.value.trim()); else if(kind==='limit'){ if(!ks.size){ toast('請勾選要暫停的功能'); b.disabled=false; b.textContent='確定'; return; } await limMany(us,[...ks],days,reason.value.trim()); } else { if(!warnT.value.trim()){ toast('請寫警告內容'); b.disabled=false; b.textContent='確定'; return; } await warnMany(us,warnT.value.trim()); }
+        toast('已完成'+(us.length>1?'（'+us.length+' 位）':'')); ov.remove(); renderAll(); renderAdmin(true); }catch(x){ toast('操作失敗：'+(x?.code==='permission-denied'||x?.code==='invalid_argument'?'沒有權限':'請稍後再試')); b.disabled=false; b.textContent='確定'; } },text:'確定'}),
+    h('button',{type:'button',class:'gt-no',onclick:()=>ov.remove(),text:'取消'})); };
+  draw(); host.append(ov); }
+function memStatus(r){ const L=[]; if(r.banned) L.push(h('span',{class:'tag live',text:'停權'+(S.bans[r.u]?.until?'・'+untilTxt(S.bans[r.u].until):'')})); const lm=limOf(r.u); if(lm.length) L.push(h('span',{class:'tag mst-l',title:lm.map(x=>x.l+' '+untilTxt(x.until)).join('\n'),text:'限制 '+lm.length})); const w=warnsOf(r.u).length; if(w) L.push(h('span',{class:'tag mst-w',text:'警告 '+w})); return L; }
 function admUsers(m){
-  if (S.userSel) return admUserDetail(m,S.userSel);
-  const all0=memberRows(), F=S.mF||(S.mF={tab:'all',q:'',sort:'last'});
-  const tabs=[['all','全部',()=>true],['buyer','買家',r=>r.level==='buyer'&&!r.pending],['seller','一般賣家',r=>r.level==='seller'],['verified','認證賣家',r=>r.level==='verified'],['pending','待審核賣家',r=>r.pending],['admin','管理員',r=>r.level==='admin'],['banned','已停權',r=>r.banned]];
-  const cur=tabs.find(t=>t[0]===F.tab)||tabs[0], q=F.q.toLowerCase();
-  const sorters={last:(a,b)=>b.last-a.last,spend:(a,b)=>b.spend-a.spend,revenue:(a,b)=>b.revenue-a.revenue,name:(a,b)=>String(a.name).localeCompare(String(b.name))};
-  const list=all0.filter(cur[2]).filter(r=>!q||[r.name,r.u,r.shop?.name,r.shop?.location].join(' ').toLowerCase().includes(q)).sort(sorters[F.sort]||sorters.last);
-  const search=h('input',{type:'search',placeholder:'搜尋名稱、賣場、地區或會員 ID',value:F.q}); search.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); F.q=search.value.trim(); renderAdmin(true); } });
-  const kp=(l,v)=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{text:v}));
-  m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('會員中心'),
-    h('div',{class:'kpis'}, kp('會員',String(all0.length)), kp('賣家',String(all0.filter(r=>r.level==='seller'||r.level==='verified').length)), kp('認證賣家',String(all0.filter(r=>r.level==='verified').length)), kp('待審核',String(all0.filter(r=>r.pending).length)), kp('已停權',String(all0.filter(r=>r.banned).length)), kp('平台成交額',money(all0.reduce((n,r)=>n+r.revenue,0)))),
-    h('div',{class:'htabs',style:'margin-bottom:12px'}, ...tabs.map(([k,l,fn])=>h('button',{type:'button','aria-selected':String(cur[0]===k),onclick:()=>{ F.tab=k; renderAdmin(true); }}, l, h('span',{class:'n',text:String(all0.filter(fn).length)})))),
-    h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-bottom:12px'}, h('label',{class:'search',style:'max-width:380px;flex:1'}, svg('i-search'), search), h('select',{class:'chip',onchange:e=>{ F.sort=e.target.value; renderAdmin(true); }}, ...[['last','最近活動'],['spend','消費金額'],['revenue','銷售額'],['name','名稱']].map(([k,l])=>h('option',{value:k,text:l,selected:F.sort===k})))),
-    list.length?h('div',{class:'tblwrap'}, h('table',{class:'tbl mtbl'}, h('thead',{}, h('tr',{}, ...['會員','等級','賣場','買入','消費','賣出','銷售額','植株','狀態',''].map(t=>h('th',{text:t})))),
-      h('tbody',{}, ...list.slice(0,500).map(r=>{ const tr=h('tr',{class:'rg-tr'+(r.banned?' ban':'')},
-        h('td',{}, h('div',{class:'row',style:'gap:10px;flex-wrap:nowrap'}, r.avatar?h('img',{src:r.avatar,alt:'',style:'width:36px;height:36px;border-radius:50%'}):h('span',{class:'av',style:'width:36px;height:36px;font-size:15px',text:(r.name||'?').slice(0,1)}), h('div',{style:'min-width:0'}, h('b',{text:r.name||'（未設定名稱）'}), h('div',{class:'hint mono',style:'font-size:11px',text:r.u.slice(0,14)+'…'})))),
+  admLoadAux(); if (S.userSel) return admUserDetail(m,S.userSel);
+  const all0=memberRows(), F=S.mF||(S.mF={tab:'all',q:'',sort:'last',shop:'',phone:'',act:'',st:'',lim:100}); if(!S.mSel) S.mSel=new Set(); const SEL=S.mSel, now=Date.now();
+  const tabs=[['all','全部',()=>true],['buyer','買家',r=>r.level==='buyer'&&!r.pending],['seller','一般賣家',r=>r.level==='seller'],['verified','認證賣家',r=>r.level==='verified'],['pending','待審核賣家',r=>r.pending],['admin','管理員',r=>r.level==='admin'],['banned','已停權',r=>r.banned],['limited','限制中',r=>limOf(r.u).length>0],['warned','有警告',r=>warnsOf(r.u).length>0]];
+  const cur=tabs.find(t=>t[0]===F.tab)||tabs[0], q=(F.q||'').toLowerCase();
+  const fl=r=>(!F.shop||(F.shop==='y'?!!r.shop:!r.shop))&&(!F.phone||(F.phone==='y'?r.phone:!r.phone))&&(!F.act||(F.act==='7'?now-r.last<7*864e5:F.act==='30'?now-r.last<30*864e5:F.act==='sleep'?now-r.last>90*864e5:F.act==='new'?now-(r.joined||0)<14*864e5:true))&&(!F.st||(F.st==='ok'?!r.banned&&!limOf(r.u).length:F.st==='buy'?r.buyN>0:F.st==='sell'?r.sellN>0:F.st==='nobuy'?r.buyN===0:true));
+  const sorters={last:(a,b)=>b.last-a.last,joined:(a,b)=>(b.joined||0)-(a.joined||0),spend:(a,b)=>b.spend-a.spend,revenue:(a,b)=>b.revenue-a.revenue,buyN:(a,b)=>b.buyN-a.buyN,plants:(a,b)=>b.plants-a.plants,fol:(a,b)=>b.fol-a.fol,warn:(a,b)=>warnsOf(b.u).length-warnsOf(a.u).length,name:(a,b)=>String(a.name).localeCompare(String(b.name))};
+  const list=all0.filter(cur[2]).filter(fl).filter(r=>!q||[r.name,r.u,r.shop?.name,r.shop?.location,r.shop?.line].join(' ').toLowerCase().includes(q)).sort(sorters[F.sort]||sorters.last);
+  [...SEL].forEach(u=>{ if(!all0.some(r=>r.u===u)) SEL.delete(u); });
+  const search=h('input',{type:'search',placeholder:'搜尋名稱、賣場、地區、LINE 或會員 ID',value:F.q}); search.addEventListener('input',()=>{ clearTimeout(search._t); search._t=setTimeout(()=>{ F.q=search.value.trim(); F.lim=100; renderAdmin(true); const n=adm.querySelector('.mm-q input'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },300); });
+  const sel=(k,l,opts)=>h('label',{class:'mm-f'}, h('small',{text:l}), h('select',{onchange:e=>{ F[k]=e.target.value; F.lim=100; renderAdmin(true); }}, ...opts.map(([v,t])=>h('option',{value:v,text:t,selected:(F[k]||'')===v}))));
+  const kp=(l,v,fn)=>h(fn?'button':'div',{class:'kpi',type:fn?'button':null,onclick:fn||null}, h('span',{text:l}), h('b',{text:v}));
+  const csvRows=L=>[['會員ID','名稱','等級','賣場','手機驗證','買入筆數','消費','賣出筆數','銷售額','植株','追蹤者','狀態','限制','警告數','最近活動','加入'],...L.map(r=>[r.u,r.name,Object.fromEntries(LEVELS)[r.level],r.shop?.name||'',r.phone?'是':'否',r.buyN,r.spend,r.sellN,r.revenue,r.plants,r.fol,r.banned?'停權':'正常',limOf(r.u).map(x=>x.l).join('/'),warnsOf(r.u).length,r.last?fmtDate(tsLocal(r.last)):'',r.joined?fmtDate(tsLocal(r.joined)):''])];
+  const allOn=list.length&&list.every(r=>SEL.has(r.u));
+  const bar=SEL.size?h('div',{class:'mm-bar'}, h('b',{text:'已選 '+SEL.size+' 位'}), h('button',{class:'btn ink sm',type:'button',onclick:()=>sanctionSheet([...SEL],'ban'),text:'⛔ 停權'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>sanctionSheet([...SEL],'limit'),text:'🚫 限制功能'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>sanctionSheet([...SEL],'warn'),text:'⚠️ 警告'}),
+    confirmBtn('解除處分','soft',async()=>{ try{ await unbanMany([...SEL]); toast('已解除'); renderAll(); renderAdmin(true); }catch(e){ toast('操作失敗'); } }), h('button',{class:'btn soft sm',type:'button',onclick:()=>csvDl('會員-已選-'+SEL.size,csvRows(all0.filter(r=>SEL.has(r.u)))),text:'⬇ 匯出所選'}), h('button',{class:'bf-lk',type:'button',onclick:()=>{ SEL.clear(); renderAdmin(true); },text:'清除選取'})):null;
+  m.append(h('form',{onsubmit:e=>e.preventDefault()}, admTop('會員中心', h('div',{class:'row',style:'gap:6px'}, h('button',{class:'btn soft sm',type:'button',onclick:()=>admLogSheet(),text:'📜 操作紀錄'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>csvDl('會員-'+cur[1]+'-'+list.length,csvRows(list)),text:'⬇ 匯出'}))),
+    h('div',{class:'kpis'}, kp('會員',String(all0.length),()=>{ F.tab='all'; renderAdmin(true); }), kp('賣家',String(all0.filter(r=>r.level==='seller'||r.level==='verified').length),()=>{ F.tab='seller'; renderAdmin(true); }), kp('待審核',String(all0.filter(r=>r.pending).length),()=>{ F.tab='pending'; renderAdmin(true); }), kp('停權中',String(all0.filter(r=>r.banned).length),()=>{ F.tab='banned'; renderAdmin(true); }), kp('限制中',String(all0.filter(r=>limOf(r.u).length).length),()=>{ F.tab='limited'; renderAdmin(true); }), kp('7 天內活躍',String(all0.filter(r=>now-r.last<7*864e5).length)), kp('平台成交額',money(all0.reduce((n,r)=>n+r.revenue,0)))),
+    h('div',{class:'htabs scroll',style:'margin-bottom:10px'}, ...tabs.map(([k,l,fn])=>h('button',{type:'button','aria-selected':String(cur[0]===k),onclick:()=>{ F.tab=k; F.lim=100; renderAdmin(true); }}, l, h('span',{class:'n',text:String(all0.filter(fn).length)})))),
+    h('div',{class:'mm-fs'}, h('label',{class:'search mm-q'}, svg('i-search'), search),
+      sel('shop','賣場',[['','全部'],['y','有賣場'],['n','沒有賣場']]), sel('phone','手機',[['','全部'],['y','已驗證'],['n','未驗證']]), sel('act','活動',[['','全部'],['7','7 天內有來'],['30','30 天內有來'],['new','14 天內新加入'],['sleep','超過 90 天沒來']]),
+      sel('st','交易',[['','全部'],['buy','買過東西'],['nobuy','還沒買過'],['sell','賣過東西'],['ok','沒有處分']]), sel('sort','排序',[['last','最近活動'],['joined','最新加入'],['spend','消費金額'],['revenue','銷售額'],['buyN','買入筆數'],['plants','植株數'],['fol','追蹤者'],['warn','警告次數'],['name','名稱']]),
+      (F.shop||F.phone||F.act||F.st||F.q)?h('button',{class:'bf-lk',type:'button',onclick:()=>{ Object.assign(F,{q:'',shop:'',phone:'',act:'',st:''}); renderAdmin(true); },text:'清除篩選'}):null),
+    h('p',{class:'hint',style:'margin:2px 0 8px',text:'符合 '+list.length+' 位'}), bar,
+    list.length?h('div',{class:'tblwrap'}, h('table',{class:'tbl mtbl'}, h('thead',{}, h('tr',{}, h('th',{}, h('input',{type:'checkbox',checked:!!allOn,onclick:e=>{ e.stopPropagation(); if(allOn) list.forEach(r=>SEL.delete(r.u)); else list.forEach(r=>SEL.add(r.u)); renderAdmin(true); }})), ...['會員','等級','賣場','買入','消費','賣出','銷售額','植株','狀態',''].map(t=>h('th',{text:t})))),
+      h('tbody',{}, ...list.slice(0,F.lim).map(r=>{ const tr=h('tr',{class:'rg-tr'+(r.banned?' ban':'')+(SEL.has(r.u)?' sel':'')},
+        h('td',{onclick:e=>e.stopPropagation()}, h('input',{type:'checkbox',checked:SEL.has(r.u),onchange:e=>{ e.target.checked?SEL.add(r.u):SEL.delete(r.u); renderAdmin(true); }})),
+        h('td',{}, h('div',{class:'row',style:'gap:10px;flex-wrap:nowrap'}, r.avatar?h('img',{src:r.avatar,alt:'',style:'width:36px;height:36px;border-radius:50%'}):h('span',{class:'av',style:'width:36px;height:36px;font-size:15px',text:(r.name||'?').slice(0,1)}), h('div',{style:'min-width:0'}, h('b',{text:r.name||'（未設定名稱）'}), h('div',{class:'hint mono',style:'font-size:11px',text:r.u.slice(0,14)+'…'+(r.phone?' · 📱':'')})))),
         h('td',{}, h('span',{class:'lvl '+r.level,text:Object.fromEntries(LEVELS)[r.level]}), r.pending?h('span',{class:'tag grey',style:'margin-left:4px',text:'待審'}):null),
         h('td',{text:r.shop?.name||'—'}), h('td',{text:String(r.buyN)}), h('td',{class:'mono',text:r.spend?money(r.spend):'—'}), h('td',{text:String(r.sellN)}), h('td',{class:'mono',text:r.revenue?money(r.revenue):'—'}), h('td',{text:String(r.plants||'—')}),
-        h('td',{}, r.banned?h('span',{class:'tag live',text:'停權'}):h('span',{class:'hint',text:r.last?ago(r.last):'—'})),
-        h('td',{}, h('button',{class:'btn soft sm',type:'button',text:'詳細'})));
-        tr.addEventListener('click',()=>{ S.userSel=r.u; renderAdmin(true); }); return tr; })))):h('div',{class:'empty'}, h('h3',{text:'沒有符合的會員'}))));
- if(S.admin) encBanList(m); }
-
+        h('td',{}, h('div',{class:'row',style:'gap:4px;flex-wrap:wrap'}, ...memStatus(r), !r.banned&&!limOf(r.u).length&&!warnsOf(r.u).length?h('span',{class:'hint',text:r.last?ago(r.last):'—'}):null)),
+        h('td',{onclick:e=>e.stopPropagation()}, h('div',{class:'row',style:'gap:4px;flex-wrap:nowrap'}, h('button',{class:'btn soft sm',type:'button',title:'處分',onclick:()=>sanctionSheet([r.u]),text:'⚖'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>{ S.userSel=r.u; S.udTab='sum'; renderAdmin(true); },text:'詳細'}))));
+        tr.addEventListener('click',()=>{ S.userSel=r.u; S.udTab='sum'; renderAdmin(true); }); return tr; }))),
+      list.length>F.lim?h('button',{class:'btn soft auto-more',type:'button',style:'display:block;margin:14px auto',onclick:()=>{ F.lim+=100; renderAdmin(true); },text:'載入更多'}):null):h('div',{class:'empty'}, h('h3',{text:'沒有符合的會員'}))));
+  if(S.admin) encBanList(m); }
+async function admLogSheet(u){ const box=h('div',{class:'list'}, h('p',{class:'hint',text:'讀取中…'}));
+  openDialog(u?'管理紀錄：'+nameOf(u):'管理員操作紀錄', box, true);
+  try{ let q=S.db.collection('admlog'); const sn=u?await q.where('u','==',u).get():await q.orderBy('at','desc').limit(200).get(); const L=sn.docs.map(d=>d.data()).sort((a,b)=>b.at-a.at); resolveNames(L.flatMap(x=>[x.by,x.u]));
+    const AN={ban:'⛔ 停權',unban:'✅ 解除處分',limit:'🚫 限制功能',unlimit:'✅ 解除限制',warn:'⚠️ 警告',edit:'✏️ 改資料',plant:'🌱 代管植物',order:'📦 代管訂單',level:'🎚 改等級',gh:'🏡 溫室'};
+    box.replaceChildren(...(L.length?L.map(x=>h('div',{class:'li',style:'background:#F7F7F4'}, h('div',{style:'min-width:0'}, h('b',{text:(AN[x.act]||x.act)+(u?'':' · '+nameOf(x.u))}), h('span',{text:x.detail||''}), h('small',{class:'hint',text:fmtDate(tsLocal(x.at))+' · 由 '+nameOf(x.by)})))):[h('p',{class:'hint',text:'沒有紀錄。'})]));
+    if(L.length) box.prepend(h('button',{class:'btn soft sm',type:'button',style:'align-self:flex-start',onclick:()=>csvDl('管理紀錄'+(u?'-'+nameOf(u):''),[['時間','動作','對象','內容','管理員'],...L.map(x=>[fmtDate(tsLocal(x.at)),AN[x.act]||x.act,nameOf(x.u),x.detail,nameOf(x.by)])]),text:'⬇ 匯出'})); }
+  catch(e){ box.replaceChildren(h('p',{class:'hint',text:'讀取失敗'})); } }
+// 代管：訂單狀態、取消
+async function admOrdSet(o,status,note){ const so=S.sorders.get(o.shop+'/'+o.id)||{}; const base={buyer:o.buyer,items:o.items||[],total:o.total||0,note:o.note||'',at:o.at,payMethod:o.payMethod||'transfer',src:o.src||null,...(o.ship?{ship:o.ship}:{}),...(o.qty?{qty:o.qty}:{})};
+  await S.db.doc('shops/'+o.shop+'/orders/'+o.id).set({...base,...so,id:undefined,shop:undefined,status,updatedAt:Date.now(),admBy:S.me,...(status==='cancelled'?{cancelledAt:Date.now(),cancelWhy:note||'管理員取消'}:{})});
+  if (status==='cancelled') for(const id of o.items||[]){ const p=S.plants.get(id); if(!p) continue; const q=Math.max(1,+(o.qty?.[id])||1); try{ if(isLot(p)||o.qty?.[id]){ if((so.status||'pending')!=='pending') await S.db.doc(pPath(p)).update({stock:lotLeft(p)+q,soldN:Math.max(0,(+p.soldN||0)-q),status:p.status==='sold'?'available':p.status}); } else if(p.buyer===o.buyer) await S.db.doc(pPath(p)).update({status:listed(p)?'available':'keep',buyer:null,soldPrice:null}); }catch(e){} }
+  await admLog(o.buyer,'order','訂單 '+o.id+'（'+shopName(o.shop)+'）→ '+(OST[status]||status)+(note?'・'+note:'')); }
+function admChatView(cid,u){ const box=h('div',{class:'ud-cv'}, h('p',{class:'hint',text:'讀取中…'})); const other=cid.split('~').find(x=>x!==u);
+  openDialog('聊天紀錄：'+nameOf(u)+' ↔ '+nameOf(other), box, true);
+  S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(300).get().then(sn=>{ const L=sn.docs.map(d=>d.data()).sort((a,b)=>a.at-b.at);
+    box.replaceChildren(h('button',{class:'btn soft sm',type:'button',onclick:()=>csvDl('聊天-'+nameOf(u)+'-'+nameOf(other),[['時間','誰','內容'],...L.map(m=>[fmtDate(tsLocal(m.at)),nameOf(m.from),m.text||(m.img?'[照片] '+m.img:m.t||'')])]),text:'⬇ 匯出'}),
+      ...(L.length?L.map(m=>h('div',{class:'ud-m'+(m.from===u?' me':'')}, h('small',{text:nameOf(m.from)+' · '+fmtDate(tsLocal(m.at))}), m.text?h('p',{text:m.text}):null, m.img?h('img',{src:m.thumb||m.img,alt:'',loading:'lazy'}):null, !m.text&&!m.img?h('p',{class:'hint',text:'['+(m.t||'系統')+']'}):null)):[h('p',{class:'hint',text:'沒有訊息。'})])); }).catch(()=>box.replaceChildren(h('p',{class:'hint',text:'讀取失敗（可能還沒有權限）'}))); }
+function admOrdMsgs(o){ const box=h('div',{class:'ud-cv'}, h('p',{class:'hint',text:'讀取中…'})); openDialog('訂單留言 '+o.id, box, true);
+  S.db.collection('ordmsg/'+o.shop+'/o/'+o.id+'/m').orderBy('at','asc').limit(300).get().then(sn=>{ const L=sn.docs.map(d=>d.data()); box.replaceChildren(...(L.length?L.map(m=>h('div',{class:'ud-m'+(m.side==='b'?' me':'')}, h('small',{text:(m.side==='s'?'賣家 ':'買家 ')+nameOf(m.from)+' · '+fmtDate(tsLocal(m.at))}), m.text?h('p',{text:m.text}):null, m.img?h('img',{src:m.thumb||m.img,alt:''}):null)):[h('p',{class:'hint',text:'沒有留言。'})])); }).catch(()=>box.replaceChildren(h('p',{class:'hint',text:'讀取失敗'}))); }
 function admUserDetail(m,u){
-  const r={buyN:0,sellN:0,spend:0,revenue:0,plants:0,owns:0,bids:0,fol:0,...(memberRows().find(x=>x.u===u)||{u,name:nameOf(u),level:levelOf(u)})}, sh=shopOf(u), b=S.bans?.[u], me=u===S.me;
-  const bo=buyerOrders(u), so=S.shops.has(u)?sellerOrders(u):[], ps=all().filter(p=>p.shop===u), owns=all().filter(p=>ownerOf(p)===u&&p.shop!==u);
-  const lvSel=h('select',{disabled:me}, ...LEVELS.filter(([k])=>S.isOwner||k==='buyer'||k==='seller'||k===r.level).map(([k,l])=>h('option',{value:k,text:l,selected:r.level===k,disabled:(k==='seller'||k==='verified')&&!S.shops.has(u)})));
-  const reason=h('input',{maxlength:100,placeholder:'停權原因（會記錄）'});
-  const ordRow=(o,role)=>h('div',{class:'li',style:'background:#F7F7F4'}, h('div',{style:'min-width:0'}, h('b',{text:(role==='buy'?shopName(o.shop):nameOf(o.buyer))+' · '+money(o.total)}), h('span',{text:fmtDate(tsLocal(o.at))+' · '+(o.items||[]).map(i=>S.plants.get(i)?.code||i).join('、')})), h('span',{class:'tag '+(o.status==='done'?'lime':'grey'),text:OST[o.status]}));
+  const r={buyN:0,sellN:0,spend:0,revenue:0,plants:0,owns:0,bids:0,fol:0,...(memberRows().find(x=>x.u===u)||{u,name:nameOf(u),level:levelOf(u)})}, sh=shopOf(u), b=banned(u)?S.bans?.[u]:null, me=u===S.me, so0=S.socialAll.get(u)||{};
+  const bo=buyerOrders(u), so=S.shops.has(u)?sellerOrders(u):[], ps=all().filter(p=>p.shop===u), owns=all().filter(p=>ownerOf(p)===u&&p.shop!==u), T=S.udTab||'sum', rr=()=>renderAdmin(true);
+  const run=async(fn,msg)=>{ try{ await fn(); toast(msg||'已完成'); renderAll(); rr(); }catch(e){ toast('操作失敗：'+(e?.code==='permission-denied'||e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } };
   const info=(k,v)=>h('div',{}, h('dt',{text:k}), h('dd',{}, v||'—'));
-  m.append(h('div',{class:'top'}, h('div',{}, h('button',{class:'bf-lk',type:'button',onclick:()=>admBack(()=>{ S.userSel=null; renderAdmin(true); }),text:'← 上一頁'}), h('h2',{text:r.name||'（未設定名稱）'}), h('div',{class:'row',style:'gap:6px;margin-top:6px'}, h('span',{class:'lvl '+r.level,text:Object.fromEntries(LEVELS)[r.level]}), b?h('span',{class:'tag live',text:'已停權'}):null, r.phone?h('span',{class:'tag lime',text:'手機已驗證'}):null)),
-      sh?h('a',{class:'btn soft',href:'#/seller/'+u,onclick:()=>adm.close(),text:'看賣場 →'}):null),
-    h('div',{class:'kpis'}, ...[['買入',r.buyN+' 筆'],['消費',money(r.spend||0)],['賣出',r.sellN+' 筆'],['銷售額',money(r.revenue||0)],['登錄植株',String(r.plants||0)],['擁有他人植株',String(r.owns||0)],['出價',String(r.bids||0)],['追蹤者',String(r.fol||0)],['評分',r.rt?.n?r.rt.avg.toFixed(1)+'★（'+r.rt.n+'）':'—']].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{style:'font-size:24px',text:v})))),
-    S.admin?tierPanel(u):null,
-    S.isOwner?h('div',{class:'panel'}, h('h3',{text:'🏅 頒發徽章'}), h('p',{class:'hint',text:'點一下頒發，再點一次收回。頒發的徽章會顯示在對方的賣場或個人頁。'}),
-      sh?h('div',{class:'aw-g'}, h('small',{class:'hint',text:'賣家徽章'}), h('div',{class:'aw-l'}, ...SPECIAL_BADGES.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); }))):null,
-      h('div',{class:'aw-g'}, h('small',{class:'hint',text:'會員徽章'}), h('div',{class:'aw-l'}, ...MEMBER_SPECIAL.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); })))):null,
-    (()=>{ const t=h('span',{class:'hint',text:'讀取中…'}), pn=h('div',{class:'panel',style:'display:flex;gap:12px;align-items:center;flex-wrap:wrap'}, h('b',{text:'📱 手機驗證簡訊'}), t);
-      S.db.doc('smsq/'+u).get().then(d=>{ const q=d.exists?d.data():null, K=smsKeys(); const dn=q&&q.dk===K.dk?q.dn:0, mn=q&&q.mk===K.mk?q.mn:0;
-        t.textContent='今天 '+dn+' / '+SMS_DAY+' 次 · 本月 '+mn+' / '+SMS_MONTH+' 次';
-        if (q) pn.append(confirmBtn('重設次數（讓他可以再傳）','soft',async()=>{ try{ await S.db.doc('smsq/'+u).delete(); toast('已重設簡訊次數'); renderAdmin(true); }catch(e){ toast('重設失敗'); } })); }).catch(()=>{ t.textContent='讀取失敗'; });
-      return pn; })(),
-    S.admin?encBanPanel(u):null,
-    h('div',{class:'two',style:'align-items:start'},
-      h('div',{class:'panel'}, h('h3',{text:'基本資料'}), h('dl',{class:'spec',style:'padding:0 4px;box-shadow:none'}, info('會員 ID',h('code',{style:'font-size:12px;word-break:break-all',text:u})), info('名稱',r.name), info('最近活動',r.last?fmtDate(tsLocal(r.last)):''),
-        ...(sh?[info('賣場',sh.name),info('地區',sh.location),info('LINE',sh.line),info('其他聯絡',sh.contact),info('賣家代碼',shopCode(u)),info('開店',fmtDay(tsLocal(sh.createdAt||0))),info('介紹',sh.bio)]:[info('賣場','未開店')]))),
-      h('div',{class:'panel'}, h('h3',{text:'等級與停權'}), me?h('p',{class:'hint',text:'這是你自己的帳號。'}):h('div',{class:'form',style:'gap:10px'},
-        field('會員等級', lvSel), h('div',{class:'row'}, h('button',{class:'btn pri sm',type:'button',onclick:()=>setLevel(u,lvSel.value),text:'套用等級'})),
-        h('p',{class:'hint',text:'買家：一般會員（有賣場會停用）。一般賣家：核准賣場上架。認證賣家：可用賣場裝修。管理員：可進平台管理。認證與管理員只有擁有者能設定。'}),
-        b?h('div',{}, h('p',{class:'hint',style:'color:#B3261E',text:'停權原因：'+b.reason+' · '+fmtDate(tsLocal(b.at))}), h('button',{class:'btn soft sm',type:'button',onclick:()=>setBan(u,false),text:'解除停權'})):h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, reason, confirmBtn('停權','ink',()=>setBan(u,true,reason.value.trim()))),
-        h('p',{class:'hint',text:'停權後不能出價、下單、議價、提問、抽獎或上架；賣場、出價與留言會從前台消失，解除停權就恢復。'})))),
-    h('div',{class:'two',style:'align-items:start'},
-      h('div',{class:'panel'}, h('h3',{text:'買入的訂單（'+bo.length+'）'}), bo.length?h('div',{class:'list'}, ...bo.slice(0,30).map(o=>ordRow(o,'buy'))):h('p',{class:'hint',text:'沒有。'})),
-      h('div',{class:'panel'}, h('h3',{text:'賣出的訂單（'+so.length+'）'}), so.length?h('div',{class:'list'}, ...so.slice(0,30).map(o=>ordRow(o,'sell'))):h('p',{class:'hint',text:'沒有。'}))),
-    ps.length||owns.length?h('div',{class:'panel'}, h('h3',{text:'植株'}), h('div',{class:'dz-pick'}, ...[...ps,...owns].slice(0,60).map(p=>h('button',{type:'button',class:'dz-pi',onclick:()=>{ adm.close(); openPlant(p.id); }}, (p.coverThumb||p.thumb)?h('img',{src:cover(p),alt:''}):h('span',{class:'rg-ph'}), h('b',{class:'mono',text:p.code}), h('small',{text:(p.shop===u?'登錄':'擁有')+' · '+short(p.species)}))))):null);
+  const TABS=[['sum','總覽'],['pun','處分'],['edit','資料'],['plants','植物 '+(ps.length+owns.length)],['orders','訂單 '+(bo.length+so.length)],['chat','聊天'],['log','紀錄']];
+  m.append(h('div',{class:'top'}, h('div',{}, h('button',{class:'bf-lk',type:'button',onclick:()=>admBack(()=>{ S.userSel=null; rr(); }),text:'← 上一頁'}), h('h2',{text:r.name||'（未設定名稱）'}), h('div',{class:'row',style:'gap:6px;margin-top:6px;flex-wrap:wrap'}, h('span',{class:'lvl '+r.level,text:Object.fromEntries(LEVELS)[r.level]}), ...memStatus({...r,banned:!!b}), r.phone?h('span',{class:'tag lime',text:'手機已驗證'}):null)),
+      h('div',{class:'row',style:'gap:6px;flex-wrap:wrap'}, me?null:h('button',{class:'btn ink sm',type:'button',onclick:()=>sanctionSheet([u]),text:'⚖ 處分'}), h('a',{class:'btn soft sm',href:'#/gh/'+u,onclick:()=>adm.close(),text:'🏡 溫室'}), sh?h('a',{class:'btn soft sm',href:'#/seller/'+u,onclick:()=>adm.close(),text:'🏪 賣場'}):null, me?null:h('button',{class:'btn soft sm',type:'button',onclick:()=>{ adm.close(); openChat(u); },text:'💬 聊聊'}))),
+    h('div',{class:'htabs scroll',style:'margin:4px 0 14px'}, ...TABS.map(([k,l])=>h('button',{type:'button','aria-selected':String(T===k),onclick:()=>{ S.udTab=k; rr(); }},l))));
+  const add=(...x)=>m.append(...x.filter(Boolean));
+  if (T==='sum'){
+    const lvSel=h('select',{disabled:me}, ...LEVELS.filter(([k])=>S.isOwner||k==='buyer'||k==='seller'||k===r.level).map(([k,l])=>h('option',{value:k,text:l,selected:r.level===k,disabled:(k==='seller'||k==='verified')&&!S.shops.has(u)})));
+    add(h('div',{class:'kpis'}, ...[['買入',r.buyN+' 筆'],['消費',money(r.spend||0)],['賣出',r.sellN+' 筆'],['銷售額',money(r.revenue||0)],['登錄植株',String(r.plants||0)],['擁有他人植株',String(r.owns||0)],['出價',String(r.bids||0)],['追蹤者',String(r.fol||0)],['評分',r.rt?.n?r.rt.avg.toFixed(1)+'★（'+r.rt.n+'）':'—'],['警告',String(warnsOf(u).length)]].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{style:'font-size:22px',text:v})))),
+      h('div',{class:'two',style:'align-items:start'},
+        h('div',{class:'panel'}, h('h3',{text:'基本資料'}), h('dl',{class:'spec',style:'padding:0 4px;box-shadow:none'}, info('會員 ID',h('span',{class:'row',style:'gap:6px'}, h('code',{style:'font-size:12px;word-break:break-all',text:u}), h('button',{class:'bf-lk',type:'button',onclick:()=>copyText(u),text:'複製'}))), info('名稱',r.name), info('加入',r.joined?fmtDate(tsLocal(r.joined)):''), info('最近活動',r.last?fmtDate(tsLocal(r.last))+'（'+ago(r.last)+'）':''),
+          ...(sh?[info('賣場',sh.name),info('地區',sh.location),info('LINE',sh.line),info('其他聯絡',sh.contact),info('賣家代碼',shopCode(u)),info('開店',fmtDay(tsLocal(sh.createdAt||0)))]:[info('賣場','未開店')]))),
+        h('div',{class:'panel'}, h('h3',{text:'會員等級'}), me?h('p',{class:'hint',text:'這是你自己的帳號。'}):h('div',{class:'form',style:'gap:10px'}, field('等級', lvSel), h('div',{class:'row'}, h('button',{class:'btn pri sm',type:'button',onclick:async()=>{ await setLevel(u,lvSel.value); admLog(u,'level',Object.fromEntries(LEVELS)[lvSel.value]); },text:'套用等級'})),
+          h('p',{class:'hint',text:'買家：一般會員。一般賣家：核准賣場上架。認證賣家：可用賣場裝修。管理員：可進平台管理（只有擁有者能設定）。'})))),
+      S.admin?tierPanel(u):null,
+      S.isOwner?h('div',{class:'panel'}, h('h3',{text:'🏅 頒發徽章'}), sh?h('div',{class:'aw-g'}, h('small',{class:'hint',text:'賣家徽章'}), h('div',{class:'aw-l'}, ...SPECIAL_BADGES.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); }))):null,
+        h('div',{class:'aw-g'}, h('small',{class:'hint',text:'會員徽章'}), h('div',{class:'aw-l'}, ...MEMBER_SPECIAL.map(([k,ic,n,d])=>{ const on=!!S.badges?.[u]?.[k]; return h('button',{type:'button',class:'chip aw'+(on?' on':''),'aria-pressed':String(on),title:d,onclick:()=>setSpecialBadge(u,k,!on)}, ic+' '+n); })))):null); }
+  else if (T==='pun'){
+    const lm=limOf(u), W=warnsOf(u);
+    add(h('div',{class:'panel ud-pun'}, h('h3',{text:'⛔ 停權'}), b?h('div',{}, h('p',{style:'color:#B3261E;font-weight:700',text:'停權中（'+untilTxt(b.until)+'）：'+(b.reason||'')}), h('p',{class:'hint',text:'由 '+nameOf(b.by)+' 在 '+fmtDate(tsLocal(b.at))+' 設定'}), h('div',{class:'row',style:'gap:8px'}, confirmBtn('解除停權','pri',()=>run(async()=>{ const cur={...S.bans}; delete cur[u]; await S.db.doc('site/bans').set({uids:cur}); S.bans=cur; await admLog(u,'unban','解除停權'); syncSocial(); },'已解除停權')), h('button',{class:'btn soft sm',type:'button',onclick:()=>sanctionSheet([u],'ban'),text:'改期限'})))
+      :h('div',{}, h('p',{class:'hint',text:'目前沒有停權。'}), me?null:h('button',{class:'btn ink sm',type:'button',onclick:()=>sanctionSheet([u],'ban'),text:'停權…'}))),
+      h('div',{class:'panel ud-pun'}, h('h3',{text:'🚫 功能限制'}), h('div',{class:'ud-lg'}, ...LIM_K.map(([k,l])=>{ const x=lm.find(y=>y.k===k); return h('div',{class:'ud-li'+(x?' on':'')}, h('b',{text:l}), h('small',{text:x?untilTxt(x.until):'正常'}), x?h('button',{class:'bf-lk',type:'button',onclick:()=>run(()=>unlimOne(u,k),'已解除「'+l+'」限制'),text:'解除'}):null); })),
+        h('div',{class:'row',style:'gap:8px;margin-top:10px'}, me?null:h('button',{class:'btn soft sm',type:'button',onclick:()=>sanctionSheet([u],'limit'),text:'設定限制…'}), lm.length?confirmBtn('全部解除','soft',()=>run(()=>unlimOne(u),'已解除所有限制')):null), S.restrict?.[u]?.reason?h('p',{class:'hint',text:'原因：'+S.restrict[u].reason}):null),
+      h('div',{class:'panel ud-pun'}, h('h3',{text:'⚠️ 警告紀錄（'+W.length+'）'}), W.length?h('div',{class:'list'}, ...[...W].reverse().map(w=>h('div',{class:'li',style:'background:#FFF8E8'}, h('div',{style:'min-width:0'}, h('span',{text:w.text}), h('small',{class:'hint',text:fmtDate(tsLocal(w.at))+' · '+nameOf(w.by)+((S.warns.get(u)?.ack||0)>=w.at?' · 已讀':' · 未讀')}))))):h('p',{class:'hint',text:'沒有警告。'}),
+        me?null:h('button',{class:'btn soft sm',type:'button',style:'margin-top:8px',onclick:()=>sanctionSheet([u],'warn'),text:'新增警告…'})),
+      (()=>{ const t=h('span',{class:'hint',text:'讀取中…'}), pn=h('div',{class:'panel',style:'display:flex;gap:12px;align-items:center;flex-wrap:wrap'}, h('b',{text:'📱 手機驗證簡訊'}), t);
+        S.db.doc('smsq/'+u).get().then(d=>{ const q=d.exists?d.data():null, K=smsKeys(); const dn=q&&q.dk===K.dk?q.dn:0, mn=q&&q.mk===K.mk?q.mn:0; t.textContent='今天 '+dn+' / '+SMS_DAY+' 次 · 本月 '+mn+' / '+SMS_MONTH+' 次';
+          if (q) pn.append(confirmBtn('重設次數','soft',async()=>{ try{ await S.db.doc('smsq/'+u).delete(); toast('已重設簡訊次數'); rr(); }catch(e){ toast('重設失敗'); } })); }).catch(()=>{ t.textContent='讀取失敗'; }); return pn; })(),
+      S.admin?encBanPanel(u):null); }
+  else if (T==='edit'){
+    const pr=S.profiles.get(u)||{}, nm=h('input',{maxlength:30,value:pr.name||''});
+    const sf=sh?['name','location','bio','line','contact'].map(k=>[k,h(k==='bio'?'textarea':'input',{maxlength:k==='bio'?600:60,rows:k==='bio'?3:null})]):[]; sf.forEach(([k,i])=>{ i.value=sh[k]||''; });
+    const G=GH.doc.get(u); if(!GH.doc.has(u)) ghLoad(u).then(()=>{ if(adm.open&&S.udTab==='edit') rr(); });
+    add(h('div',{class:'panel'}, h('h3',{text:'會員名稱'}), h('div',{class:'row',style:'gap:8px'}, nm, h('button',{class:'btn pri sm',type:'button',onclick:()=>run(async()=>{ await S.db.doc('profiles/'+u).set({...pr,name:nm.value.trim()}); S.profiles.set(u,{...pr,name:nm.value.trim()}); S.names.set(u,nm.value.trim()); await admLog(u,'edit','名稱 → '+nm.value.trim()); },'已更新名稱'),text:'儲存'})), h('p',{class:'hint',text:'用在聊天、訂單、留言上顯示的名字。'})),
+      sh?h('div',{class:'panel'}, h('h3',{text:'賣場資料'}), h('div',{class:'form',style:'gap:8px'}, ...sf.map(([k,i])=>field({name:'賣場名稱',location:'地區',bio:'介紹',line:'LINE ID',contact:'其他聯絡'}[k],i)),
+        h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('button',{class:'btn pri sm',type:'button',onclick:()=>run(async()=>{ const d={}; sf.forEach(([k,i])=>d[k]=i.value.trim()); await S.db.doc('shops/'+u).update({...d,updatedAt:Date.now()}); S.shops.set(u,{...sh,...d}); await admLog(u,'edit','賣場資料：'+Object.entries(d).map(([k,v])=>k+'='+v).join('、').slice(0,200)); },'已更新賣場資料'),text:'儲存賣場資料'}),
+          sh.avatar?confirmBtn('移除頭像','soft',()=>run(async()=>{ await S.db.doc('shops/'+u).update({avatar:''}); await admLog(u,'edit','移除賣場頭像'); })):null, sh.banner?confirmBtn('移除橫幅','soft',()=>run(async()=>{ await S.db.doc('shops/'+u).update({banner:''}); await admLog(u,'edit','移除賣場橫幅'); })):null,
+          sh.store?confirmBtn('清除賣場裝修','soft',()=>run(async()=>{ await S.db.doc('shops/'+u).update({store:null}); await admLog(u,'edit','清除賣場裝修'); })):null))):null,
+      h('div',{class:'panel'}, h('h3',{text:'🏡 溫室'}), G?h('div',{}, h('p',{text:(G.name||'（沒取名）')+' · '+(G.n||0)+' 株展示'}), G.bio?h('p',{class:'hint',text:G.bio}):null, h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, confirmBtn('清除名稱與介紹','soft',()=>run(async()=>{ await S.db.doc('gh/'+u).set({...G,name:'',bio:'',updatedAt:Date.now()}); GH.doc.set(u,{...G,name:'',bio:''}); await admLog(u,'gh','清除溫室名稱與介紹'); })), confirmBtn('清除元件','soft',()=>run(async()=>{ await S.db.doc('gh/'+u).set({...G,blocks:null,updatedAt:Date.now()}); GH.doc.set(u,{...G,blocks:null}); await admLog(u,'gh','清除溫室元件'); })), confirmBtn('重設整間溫室','soft',()=>run(async()=>{ await S.db.doc('gh/'+u).delete(); GH.doc.set(u,null); await admLog(u,'gh','重設溫室'); }))))
+        :h('p',{class:'hint',text:GH.doc.has(u)?'還沒有布置溫室。':'讀取中…'}))); }
+  else if (T==='plants'){
+    const L=[...ps,...owns], q=(S.udPq||'').toLowerCase(), F2=S.udPf||'all', fl={all:()=>true,sale:p=>onSale(p),hidden:p=>p.hidden||p.listed===false,blocked:p=>p.blocked,sold:p=>p.status==='sold',own:p=>p.shop!==u};
+    const vis=L.filter(fl[F2]||fl.all).filter(p=>!q||[p.code,p.species,p.cultivar].join(' ').toLowerCase().includes(q));
+    const qi=h('input',{type:'search',class:'ofq',placeholder:'搜尋編號、品種',value:S.udPq||''}); qi.addEventListener('input',()=>{ clearTimeout(qi._t); qi._t=setTimeout(()=>{ S.udPq=qi.value; rr(); const n=adm.querySelector('.ud-pf .ofq'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },300); });
+    const pAct=(p,patch,msg)=>run(async()=>{ await S.db.doc(pPath(p)).update({...patch,updatedAt:Date.now()}); await admLog(u,'plant',p.code+'：'+msg); },msg);
+    add(h('div',{class:'ud-pf row',style:'gap:8px;flex-wrap:wrap;margin-bottom:10px'}, h('div',{class:'chips'}, ...[['all','全部'],['sale','在售'],['hidden','隱藏/未上架'],['blocked','被下架'],['sold','已售出'],['own','買來的']].map(([k,l])=>h('button',{type:'button',class:'chip','aria-pressed':String(F2===k),onclick:()=>{ S.udPf=k; rr(); }}, l+' '+L.filter(fl[k]).length))), qi),
+      vis.length?h('div',{class:'list'}, ...vis.slice(0,200).map(p=>{ const pr=h('input',{type:'number',min:0,value:p.price||'',style:'width:96px',placeholder:'價格'});
+        return h('div',{class:'li ud-pl',style:'background:#F7F7F4'}, h('button',{type:'button',class:'ud-pi',onclick:()=>{ adm.close(); openPlant(p.id); }}, h('img',{src:cover(p),alt:''})), h('div',{style:'min-width:0'}, h('b',{class:'mono',text:p.code}), h('span',{text:pName(p)+' · '+(p.shop===u?'登錄':'擁有（'+shopName(p.shop)+'）')}), h('div',{class:'row',style:'gap:4px;flex-wrap:wrap;margin-top:4px'}, p.blocked?h('span',{class:'tag live',text:'被下架'}):null, p.hidden?h('span',{class:'tag grey',text:'隱藏'}):null, p.status==='sold'?h('span',{class:'tag grey',text:'已售出'}):onSale(p)?h('span',{class:'tag lime',text:priceLabel(p).main}):null)),
+          p.shop===u?h('div',{class:'row ud-pa',style:'gap:4px;flex-wrap:wrap;justify-content:flex-end'}, !isAuc(p)?h('form',{class:'row',style:'gap:4px',onsubmit:e=>{ e.preventDefault(); pAct(p,{price:Math.max(0,Math.round(+pr.value||0))},'改價 '+money(+pr.value||0)); }}, pr, h('button',{class:'btn soft sm',type:'submit',text:'改價'})):null,
+            h('button',{class:'btn soft sm',type:'button',onclick:()=>pAct(p,{listed:p.listed===false},p.listed===false?'上架':'下架（不賣）'),text:p.listed===false?'上架':'不賣'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>pAct(p,{hidden:!p.hidden},p.hidden?'取消隱藏':'隱藏'),text:p.hidden?'取消隱藏':'隱藏'}),
+            p.blocked?h('button',{class:'btn soft sm',type:'button',onclick:()=>pAct(p,{blocked:false,blockedReason:''},'恢復（解除違規下架）'),text:'恢復'}):confirmBtn('違規下架','ink',()=>pAct(p,{blocked:true,blockedReason:'違反平台規範',blockedAt:Date.now()},'違規下架')),
+            confirmBtn('刪除','soft',()=>run(async()=>{ await S.db.doc(pPath(p)).delete(); S.plants.delete(p.id); await admLog(u,'plant',p.code+'：刪除'); },'已刪除'))):null); })):h('div',{class:'empty'}, h('h3',{text:'沒有植物'}))); }
+  else if (T==='orders'){
+    const ST=['confirmed','paid','preparing','shipped','done','cancelled'], STN={confirmed:'待付款',preparing:'備貨中',shipped:'出貨中',done:'已完成',cancelled:'已取消'};
+    const row=(o,role)=>{ const sel=h('select',{}, ...['confirmed','preparing','shipped','done','cancelled'].map(s=>h('option',{value:s,text:STN[s],selected:(o.base||o.status)===s})));
+      return h('div',{class:'li',style:'background:#F7F7F4;grid-template-columns:1fr auto'}, h('div',{style:'min-width:0'}, h('b',{text:(role==='buy'?'向 '+shopName(o.shop)+' 買':'賣給 '+nameOf(o.buyer))+' · '+money(ordGrand(o))}), h('span',{text:fmtDate(tsLocal(o.at))+' · #'+o.id+' · '+(o.items||[]).map(i=>S.plants.get(i)?.code||i).join('、')}), h('div',{class:'row',style:'gap:4px;margin-top:4px'}, h('span',{class:'tag '+(o.status==='done'?'lime':o.status==='cancelled'?'live':'grey'),text:OST[o.status]||o.status}), cancelReqOf(o)?h('span',{class:'tag mst-w',text:'取消申請中'}):null)),
+        h('div',{class:'row',style:'gap:4px;flex-wrap:wrap;justify-content:flex-end'}, h('button',{class:'btn soft sm',type:'button',onclick:()=>admOrdMsgs(o),text:'留言'}), sel, h('button',{class:'btn soft sm',type:'button',onclick:()=>run(()=>admOrdSet(o,sel.value,sel.value==='cancelled'?'管理員取消':''),'已更新訂單'),text:'套用'}))); };
+    add(h('p',{class:'hint',text:'管理員可以直接改訂單狀態；改成「已取消」會把植物放回賣場。每次修改都會留下紀錄。'}),
+      h('div',{class:'row',style:'gap:8px;margin-bottom:10px'}, h('button',{class:'btn soft sm',type:'button',onclick:()=>csvDl('訂單-'+nameOf(u),[['角色','訂單','時間','對象','金額','狀態','商品'],...bo.map(o=>['買',o.id,fmtDate(tsLocal(o.at)),shopName(o.shop),ordGrand(o),OST[o.status],(o.items||[]).map(i=>S.plants.get(i)?.code||i).join('/')]),...so.map(o=>['賣',o.id,fmtDate(tsLocal(o.at)),nameOf(o.buyer),ordGrand(o),OST[o.status],(o.items||[]).map(i=>S.plants.get(i)?.code||i).join('/')])]),text:'⬇ 匯出訂單'})),
+      h('div',{class:'panel'}, h('h3',{text:'買入（'+bo.length+'）'}), bo.length?h('div',{class:'list'}, ...bo.slice(0,100).map(o=>row(o,'buy'))):h('p',{class:'hint',text:'沒有。'})),
+      h('div',{class:'panel'}, h('h3',{text:'賣出（'+so.length+'）'}), so.length?h('div',{class:'list'}, ...so.slice(0,100).map(o=>row(o,'sell'))):h('p',{class:'hint',text:'沒有。'}))); }
+  else if (T==='chat'){
+    const box=h('div',{class:'list'}, h('p',{class:'hint',text:'讀取中…'}));
+    add(h('p',{class:'hint',text:'只供處理檢舉與糾紛使用。'}), h('div',{class:'panel'}, h('h3',{text:'聊天對象'}), box));
+    S.db.collection('chats').where('members','array-contains',u).get().then(sn=>{ const L=sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)); resolveNames(L.flatMap(c=>c.members||[]));
+      box.replaceChildren(...(L.length?L.map(c=>{ const o=(c.members||[]).find(x=>x!==u); return h('button',{type:'button',class:'li',style:'background:#F7F7F4;text-align:left',onclick:()=>admChatView(c.id,u)}, h('div',{style:'min-width:0'}, h('b',{text:nameOf(o)+(shopOf(o)?'（'+shopName(o)+'）':'')}), h('span',{text:(c.last?.text||c.last?.t||'').slice(0,60)}), h('small',{class:'hint',text:c.updatedAt?ago(c.updatedAt):''}))); }):[h('p',{class:'hint',text:'沒有聊天。'})])); }).catch(()=>box.replaceChildren(h('p',{class:'hint',text:'讀取失敗（規則部署後才看得到）'}))); }
+  else { // 紀錄
+    const seenBox=h('div',{}, h('p',{class:'hint',text:'讀取中…'}));
+    S.db.doc('seen/'+u).get().then(d=>{ const L=(d.exists?d.data().log:[])||[]; seenBox.replaceChildren(...(L.length?[h('div',{class:'list'}, ...[...L].reverse().slice(0,30).map(x=>h('div',{class:'li',style:'background:#F7F7F4;display:flex;gap:14px;align-items:center'}, h('b',{class:'mono',style:'white-space:nowrap',text:fmtDate(tsLocal(x.at))}), h('span',{text:(x.ua||'')+(x.dev?' · 裝置 '+String(x.dev).slice(-6):'')}))))]:[h('p',{class:'hint',text:'還沒有上線紀錄（新版上線後開始記錄）。'})])); }).catch(()=>seenBox.replaceChildren(h('p',{class:'hint',text:'讀取失敗'})));
+    const bids=Object.entries(so0.bids||{}).map(([pid,x])=>({pid,...x})).sort((a,b)=>(b.at||0)-(a.at||0)), qa=(so0.qa||[]).slice().reverse(), rv=Object.entries(so0.reviews||{}).map(([oid,x])=>({oid,...x}));
+    add(h('div',{class:'row',style:'gap:8px;flex-wrap:wrap;margin-bottom:10px'}, h('button',{class:'btn soft sm',type:'button',onclick:()=>admLogSheet(u),text:'📜 管理員對他的操作紀錄'}),
+        h('button',{class:'btn soft sm',type:'button',onclick:()=>csvDl('紀錄-'+nameOf(u),[['類型','時間','內容'],...bids.map(x=>['出價',fmtDate(tsLocal(x.at||0)),(S.plants.get(x.pid)?.code||x.pid)+' '+money(x.amt||0)]),...qa.map(x=>['提問',fmtDate(tsLocal(x.at||0)),x.text]),...rv.map(x=>['評價',fmtDate(tsLocal(x.at||0)),shopName(x.seller)+' '+(x.stars||'')+'★ '+(x.text||'')])]),text:'⬇ 匯出出價／提問／評價'})),
+      h('div',{class:'panel'}, h('h3',{text:'🕒 上線紀錄'}), seenBox),
+      h('div',{class:'two',style:'align-items:start'},
+        h('div',{class:'panel'}, h('h3',{text:'⚡ 出價（'+bids.length+'）'}), bids.length?h('div',{class:'list'}, ...bids.slice(0,50).map(x=>h('div',{class:'li',style:'background:#F7F7F4'}, h('div',{}, h('b',{text:(S.plants.get(x.pid)?.code||x.pid)+' · '+money(x.amt||0)}), h('span',{text:fmtDate(tsLocal(x.at||0))}))))):h('p',{class:'hint',text:'沒有。'})),
+        h('div',{class:'panel'}, h('h3',{text:'💬 提問（'+qa.length+'）'}), qa.length?h('div',{class:'list'}, ...qa.slice(0,50).map(x=>h('div',{class:'li',style:'background:#F7F7F4'}, h('div',{}, h('b',{text:S.plants.get(x.pid)?.code||''}), h('span',{text:x.text}), h('small',{class:'hint',text:fmtDate(tsLocal(x.at||0))}))))):h('p',{class:'hint',text:'沒有。'}))),
+      h('div',{class:'panel'}, h('h3',{text:'⭐ 給出的評價（'+rv.length+'）'}), rv.length?h('div',{class:'list'}, ...rv.map(x=>h('div',{class:'li',style:'background:#F7F7F4'}, h('div',{}, h('b',{text:shopName(x.seller)+' · '+stars(x.stars||0)}), x.text?h('span',{text:x.text}):null)))):h('p',{class:'hint',text:'沒有。'}))); }
 }
+// 會員自己：上線紀錄（每台裝置每小時最多一筆）、警告提醒、功能限制提示
+async function seenLog(){ if(!S.me||!S.db) return; const k='vein.seenAt:'+S.me; if(Date.now()-(+lsGet(k,0)||0)<36e5) return; lsSet(k,Date.now());
+  try{ const ref=S.db.doc('seen/'+S.me), d=await ref.get(), L=(d.exists?d.data().log:[])||[]; const ua=navigator.userAgent, os=/iPhone|iPad/.test(ua)?'iPhone/iPad':/Android/.test(ua)?'Android':/Mac/.test(ua)?'Mac':/Windows/.test(ua)?'Windows':'其他', br=/Line\//.test(ua)?'LINE':/FBAN|FBAV|Instagram/.test(ua)?'FB/IG':/CriOS|Chrome/.test(ua)?'Chrome':/Safari/.test(ua)?'Safari':/Firefox/.test(ua)?'Firefox':'';
+    await ref.set({log:[...L,{at:Date.now(),ua:os+(br?' · '+br:'')+(isStandalone()?' · App':''),dev:devId}].slice(-30),at:Date.now()}); }catch(e){} }
+async function myWarns(){ if(!S.me||!S.db||S.myWarnLoaded) return; S.myWarnLoaded=true; try{ const d=await S.db.doc('warns/'+S.me).get(); if(!d.exists) return; const w=d.data(), L=(w.list||[]).filter(x=>x.at>(w.ack||0)); if(!L.length) return;
+  const ov=h('div',{class:'gt-ov'}, h('div',{class:'gt'}, h('div',{class:'gt-ic',text:'⚠️'}), h('b',{class:'gt-t',text:'管理員提醒'}), ...L.slice(-3).map(x=>h('p',{class:'gt-s',style:'text-align:left;background:#FFF8E8;border-radius:12px;padding:10px 12px',text:x.text})), h('p',{class:'hint',text:'再犯可能會被限制功能或停權。'}),
+    h('button',{type:'button',class:'btn lime gt-go',onclick:async()=>{ ov.remove(); try{ await S.db.doc('warns/'+S.me).update({ack:Date.now()}); }catch(e){} },text:'我知道了'}))); document.body.append(ov); }catch(e){} }
 
 /* ================= BACK OFFICE (seller + admin) ================= */
 const adm=$('#admin');
@@ -12416,7 +12737,7 @@ function admTiers(m){ const reqBox=h('div',{class:'list'}, h('p',{class:'hint',t
 // 原則：一般人碰不到的門檻才擋；擋的時候只暫停那個動作，不會自動封鎖帳號，要不要封禁由管理員在後台決定
 const devId=(()=>{ let d=lsGet('vein.dev',''); if(!d||d.length<8){ d=Date.now().toString(36)+Math.random().toString(36).slice(2,10); lsSet('vein.dev',d); } return d; })();
 const RL={chat:[30,6e4,'傳訊息'],offer:[6,6e5,'議價'],qa:[10,6e5,'提問'],bid:[20,6e4,'出價'],order:[6,6e5,'下單'],xfer:[10,6e5,'產生轉移連結']};
-function rateOK(k){ if(S.admin||!RL[k]) return true; const [max,win,lab]=RL[k], now=Date.now(), st=lsGet('vein.rl',{})||{}, r=st[k]||{t:[],hit:[]};
+function rateOK(k){ if(['chat','offer','qa','order','bid'].includes(k)&&!limOK(k)) return false; if(S.admin||!RL[k]) return true; const [max,win,lab]=RL[k], now=Date.now(), st=lsGet('vein.rl',{})||{}, r=st[k]||{t:[],hit:[]};
   const save=()=>{ st[k]=r; lsSet('vein.rl',st); };
   if (r.until>now){ toast('「'+lab+'」暫時停用，約 '+Math.ceil((r.until-now)/6e4)+' 分鐘後自動恢復'); return false; }
   r.t=(r.t||[]).filter(x=>now-x<win); r.hit=(r.hit||[]).filter(x=>now-x<36e5);
@@ -12466,7 +12787,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -13319,7 +13640,7 @@ function encPanel(p,deal){
       el.classList.remove('catching'); if(mine) busy=false; },left); }
   async function encCapture(){ const pp=S.plants.get(pid)||p; if(busy) return; if(encState(pp)!=='live'||encReady(pp)){ toast(encState(pp)==='catch'?'有人正在收服，等結果出來':encReady(pp)?'還在集合中，等開打':'現在不能收服'); return; }
     if(needLogin()||needPhone()||needRecv()) return; if(Date.now()<cdUntil){ toast('喘口氣，'+Math.ceil((cdUntil-Date.now())/1000)+' 秒後再丟'); return; }
-    encFlush(); const c=encCalc(pp,Date.now(),encPendOf(pid)); busy=true;
+    if(!limOK('enc')) return; encFlush(); const c=encCalc(pp,Date.now(),encPendOf(pid)); busy=true;
     const br=cap.getBoundingClientRect(); myBall=mkBall(); ballTo(myBall,br.left+24,br.top).then(()=>{ if(myBall){ mon.classList.add('sucked'); myBall.classList.add('flash','wobble'); } });
     let out=null;
     try{ const ref=S.db.collection('encTry').doc(); await ref.set({uid:S.me,pid,shop:pp.shop,price:c.price,ok:true,at:Date.now()});
