@@ -2635,9 +2635,9 @@ html.fd-on #nav,html.fd-on footer,html.fd-on #chDock,html.fd-on .tabbar{display:
 .fd-snd{border:0;background:rgba(255,255,255,.14);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px}
 .fd-up{position:absolute;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:7;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;transition:opacity .5s}.fd-up.gone{opacity:0}
 .fd-up b{font-size:13px;color:#fff;background:rgba(0,0,0,.55);padding:6px 14px;border-radius:999px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.fd-up-a{position:relative;width:34px;height:64px}.fd-up-a i{position:absolute;left:50%;width:22px;height:22px;margin-left:-11px;border-left:4px solid #D4F25A;border-top:4px solid #D4F25A;transform:rotate(45deg);border-radius:3px;opacity:0;animation:fdUp 1.5s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(212,242,90,.8))}
+.fd-up-a{position:relative;width:34px;height:64px}.fd-up-a i{position:absolute;left:50%;width:22px;height:22px;margin-left:-11px;border-left:4px solid #D4F25A;border-top:4px solid #D4F25A;transform:rotate(45deg);border-radius:3px;opacity:0;animation:fdArrow 1.5s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(212,242,90,.8))}
 .fd-up-a i:nth-child(2){animation-delay:.25s}.fd-up-a i:nth-child(3){animation-delay:.5s}
-@keyframes fdUp{0%{top:46px;opacity:0}30%{opacity:1}100%{top:0;opacity:0}}
+@keyframes fdArrow{0%{top:46px;opacity:0}30%{opacity:1}100%{top:0;opacity:0}}
 @media (prefers-reduced-motion:reduce){.fd-up-a i{animation:none;opacity:1;top:20px}}
 .fd-hint{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);z-index:6;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:999px;font-size:13px;pointer-events:none;animation:fdHint 1.4s ease-in-out infinite;transition:opacity .5s}.fd-hint.gone{opacity:0}
 @keyframes fdHint{50%{transform:translate(-50%,-10px)}}
@@ -3774,7 +3774,7 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ftx-c::before{content:'';position:absolute;inset:-2px;border-radius:22px;padding:2px;background:conic-gradient(from var(--bga),#FFD000,#FF8A3D,#FF3B7F,#B07CFF,#7FD4FF,#FFD000);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bgaSpin 3s linear infinite;pointer-events:none}
 @keyframes ftIn{from{opacity:0;transform:translateY(20px) scale(.92)}}
 .ftx-i{position:relative;aspect-ratio:1;border-radius:18px 18px 0 0;overflow:hidden}.ftx-i img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s}.ftx-c:hover .ftx-i img{transform:scale(1.07)}
-.ftx-crown{position:absolute;left:10px;top:8px;font-size:22px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4));animation:crownB 2s ease-in-out infinite}@keyframes crownB{50%{transform:translateY(-4px) rotate(-8deg)}}
+.ftx-crown{position:absolute;left:10px;top:8px;font-size:22px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4));animation:crownB2 2s ease-in-out infinite}@keyframes crownB2{50%{transform:translateY(-4px) rotate(-8deg)}}
 .ftx-sh{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);background-size:250% 100%;animation:ftShine 3s ease-in-out infinite}
 .ftx-t{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px}.ftx-t small{font-size:11px;color:rgba(255,255,255,.55)}.ftx-t b{font-size:14px;line-height:1.25}.ftx-t .mono{font-size:11px;color:#8CF5C0}.ftx-t strong{font-size:16px;color:#FFD000;margin-top:2px}
 @media (prefers-reduced-motion:reduce){.bst-pn::before,.bst-ft::before,.ftx::before,.ftx-c::before,.ftx-sh,.bst-ft .ti::after{animation:none}}
@@ -4876,14 +4876,14 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .nudge.in{transform:none}.nudge-i{font-size:24px}.nudge b{flex:1;font-size:14px;line-height:1.35}.nudge-x{border:0;background:rgba(255,255,255,.12);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}
 @media (min-width:700px){.nudge{left:auto;right:96px;bottom:24px;max-width:420px}}
 /* ---- 我的溫室 ---- */
-.gh-pg{--gh-serif:"Noto Serif TC","Songti TC","PMingLiU",serif;background:var(--gb,#F3EEE3);color:var(--gf,#222);min-height:100vh;position:relative;isolation:isolate}
+.gh-pg{--gh-serif:"Noto Serif TC","Songti TC",serif;background:var(--gb,#F3EEE3);color:var(--gf,#222);min-height:100vh;position:relative;isolation:isolate}
 .gh-pg::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1}
 .gh-pg.b-dots::before{background:radial-gradient(color-mix(in srgb,var(--gf) 13%,transparent) 1.3px,transparent 1.8px) 0 0/18px 18px}
 .gh-pg.b-grid::before{background:linear-gradient(color-mix(in srgb,var(--gf) 7%,transparent) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,color-mix(in srgb,var(--gf) 7%,transparent) 1px,transparent 1px) 0 0/26px 26px}
 .gh-pg.b-stripe::before{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--gf) 5%,transparent) 0 14px,transparent 14px 28px)}
 .gh-pg.b-glow::before{background:radial-gradient(60vmax 50vmax at 10% 0%,color-mix(in srgb,var(--ga) 28%,transparent),transparent 60%),radial-gradient(50vmax 40vmax at 100% 70%,color-mix(in srgb,var(--ga) 18%,transparent),transparent 60%)}
 .gh-pg.b-leaf::before{background:color-mix(in srgb,var(--gf) 8%,transparent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' fill='none' stroke='%23000' stroke-width='1.6'%3E%3Cpath d='M20 60c10-28 34-38 50-36-2 22-18 42-50 36zM20 60l40-28'/%3E%3Cpath d='M92 122c-4-22 8-40 26-46 6 18-4 38-26 46zM92 122l20-38'/%3E%3Cpath d='M98 20c14 0 24 10 24 22-14 2-24-8-24-22z'/%3E%3C/svg%3E") 0 0/140px 140px;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' fill='none' stroke='%23000' stroke-width='1.6'%3E%3Cpath d='M20 60c10-28 34-38 50-36-2 22-18 42-50 36zM20 60l40-28'/%3E%3Cpath d='M92 122c-4-22 8-40 26-46 6 18-4 38-26 46zM92 122l20-38'/%3E%3Cpath d='M98 20c14 0 24 10 24 22-14 2-24-8-24-22z'/%3E%3C/svg%3E") 0 0/140px 140px}
-.gh-pg.ft-serif .gh{font-family:var(--gh-serif)}.gh-pg.ft-mono .gh{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.gh-pg.ft-serif .gh{font-family:var(--gh-serif)}.gh-pg.ft-kai .gh{font-family:"LXGW WenKai TC","Kaiti TC",serif}.gh-pg.ft-sans .gh{font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}
 .gh-pg.ft-serif .gh-t{letter-spacing:.02em}
 .gh{padding-bottom:40px}.gh-editing .gh{padding-bottom:min(52vh,380px)}
 .gh-hd{position:relative;border-radius:24px;padding:22px 18px 16px;background:var(--gc);overflow:hidden;margin-bottom:14px;box-shadow:0 1px 0 color-mix(in srgb,var(--gf) 6%,transparent)}
@@ -5069,6 +5069,46 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .ud-cv{display:flex;flex-direction:column;gap:8px;max-height:70vh;overflow-y:auto}.ud-cv>.btn{align-self:flex-start}
 .ud-m{max-width:80%;background:#F1F2EE;border-radius:14px 14px 14px 4px;padding:8px 12px;align-self:flex-start}.ud-m.me{align-self:flex-end;background:#E6F4D7;border-radius:14px 14px 4px 14px}
 .ud-m small{font-size:11px;color:var(--fg2)}.ud-m p{margin:2px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}.ud-m img{max-width:200px;border-radius:10px;margin-top:4px;display:block}
+/* 溫室裝修面板 v2 */
+.gh-ed{display:flex;flex-direction:column;padding:0;max-width:none;margin:0;height:min(54vh,520px);z-index:210;font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif}
+.gh-ed.s-s{height:auto}.gh-ed.s-s .gh-eo{display:none}.gh-ed.s-l{height:88vh}
+.gh-edh{display:flex;align-items:center;gap:6px;padding:14px 12px 8px;position:relative}.gh-edh>b{flex:1;font-size:15px}
+.gh-grab{position:absolute;left:50%;top:0;transform:translateX(-50%);width:80px;height:14px;border:0;background:none;cursor:pointer}.gh-grab::after{content:'';position:absolute;left:18px;right:18px;top:5px;height:4px;border-radius:9px;background:#4A524E}
+.gh-et{padding:0 10px 8px}.gh-et button{font-size:13px}
+.gh-ed .gh-eo{flex:1;display:block;overflow-y:auto;max-height:none;padding:6px 12px 30px;overscroll-behavior:contain}
+.gh-es{margin:4px 0 16px}.gh-es>h4{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:#EEF0EA;margin:0 0 8px;font-weight:800}.gh-es>h4 small{font-size:11px;color:#8C938E;font-weight:500}
+.gh-es input,.gh-es textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;background:#24292B;color:#fff;border:1px solid #333A3C;border-radius:10px;padding:10px 12px;resize:vertical}
+.gh-og{display:grid;gap:6px}.gh-og.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.gh-og.c4{grid-template-columns:repeat(4,minmax(0,1fr))}.gh-og.st,.gh-og.cvs{display:flex;flex-wrap:wrap}
+.gh-o.v{flex-direction:column;justify-content:center;padding:8px 4px;text-align:center;gap:5px;min-width:0}.gh-o.v span{font-size:11.5px}
+.gh-og .gh-o:not(.v):not(.st):not(.cv){justify-content:center}
+.gh-sw.lg{width:100%;height:36px;border-radius:9px;display:flex;align-items:flex-end;gap:3px;padding:5px;box-sizing:border-box;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.gh-sw.lg em{flex:1;height:11px;border-radius:3px}
+.gh-fp{font-size:22px;line-height:1.1}
+.gh-tpls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.gh-tp{border:0;background:#202527;border-radius:16px;padding:6px;text-align:left;color:#C9CEC8;cursor:pointer;display:flex;flex-direction:column;gap:6px;font:inherit;transition:transform .15s}
+.gh-tp:hover{transform:translateY(-2px)}.gh-tp.on{box-shadow:0 0 0 2px #C9D98A}
+.gh-tpv{border-radius:11px;padding:10px;height:118px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:7px;box-sizing:border-box}
+.gh-tpv b{font-size:15px;line-height:1.2;padding-right:24px}.gh-tpe{position:absolute;right:8px;top:7px;font-style:normal;font-size:18px}
+.gh-tpg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;flex:1;min-height:0}.gh-tpg u{background:var(--tc);border-radius:5px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ta) 70%,transparent)}
+.gh-tpg.l-grid3{grid-template-columns:repeat(4,1fr)}.gh-tpg.l-list,.gh-tpg.l-museum{grid-template-columns:1fr}.gh-tpg.l-list u:nth-child(n+4),.gh-tpg.l-museum u:nth-child(n+3){display:none}
+.gh-tpg.l-polaroid u{background:#FBFAF6;transform:rotate(-5deg)}.gh-tpg.l-polaroid u:nth-child(even){transform:rotate(5deg)}.gh-tpg.l-shelf u{border-bottom:3px solid #A27B53;border-radius:5px 5px 0 0}.gh-tpg.l-masonry u:nth-child(odd){transform:scaleY(1.15)}
+.gh-tp small{font-size:11px;line-height:1.4;padding:0 4px 4px}
+.gh-pal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:0}
+.gh-pc{border:0;background:#202527;color:#EEF0EA;border-radius:12px;padding:10px;text-align:left;display:grid;grid-template-columns:auto 1fr;column-gap:8px;row-gap:2px;cursor:pointer;font:inherit;align-items:start}
+.gh-pc:hover{background:#2A3032}.gh-pc i{font-style:normal;grid-row:span 2;font-size:18px}.gh-pc b{font-size:13px}.gh-pc small{font-size:11px;color:#8C938E;line-height:1.35}
+.gh-grip{cursor:grab;color:#6C746F;padding:0 6px;touch-action:none;user-select:none;font-size:13px;letter-spacing:-2px}
+.gh-br.drag{position:relative;z-index:3;box-shadow:0 12px 24px rgba(0,0,0,.55);opacity:.92}.gh-br.gh-drop{box-shadow:0 -3px 0 #C9D98A}
+.gh-ib{border:0;background:#2A2F2D;color:#fff;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:16px}.gh-ib:disabled{opacity:.3;cursor:default}
+.gh-edh .btn.soft{background:#2A2F2D;color:#fff}.gh-pvs{display:flex;background:#24292B;border-radius:10px;padding:2px}.gh-pvs button{border:0;background:none;padding:4px 8px;border-radius:8px;cursor:pointer}.gh-pvs button[aria-pressed="true"]{background:#EEF0EA}
+.gh-editing .gh{padding-bottom:58vh}
+@media (min-width:980px){
+  .gh-dock .gh-ed{left:auto;right:0;top:0;bottom:0;width:420px;height:100vh;border-radius:0;animation:ghSide .3s cubic-bezier(.2,.8,.2,1);box-shadow:-20px 0 40px -20px rgba(0,0,0,.5)}
+  .gh-dock .gh-edh{padding-top:16px}
+  body.gh-dockb{padding-right:420px}body.gh-dockb #nav{right:420px}body.gh-dockb #chDock{right:440px}
+  .gh-dock .gh{padding-bottom:40px}.gh-pvm .gh{max-width:420px;margin:0 auto;border-radius:28px;box-shadow:0 0 0 10px #111,0 30px 60px -20px rgba(0,0,0,.5);overflow:hidden;padding:12px 12px 40px}
+  .gh-pvm .gh-g{grid-template-columns:repeat(2,minmax(0,1fr))}.gh-pvm .l-grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.gh-pvm .l-masonry{columns:2}.gh-pvm .l-shelf{grid-template-columns:repeat(3,minmax(0,1fr))}.gh-pvm .l-museum,.gh-pvm .l-list{grid-template-columns:1fr}.gh-pvm .gh-t{font-size:26px}
+}
+@keyframes ghSide{from{transform:translateX(100%)}}
+body.gh-edm .tabbar,body.gh-edm #chDock,body.gh-dockb #chDock{display:none!important}.gh-ed{bottom:0}
 </style>
 
 </head>
@@ -8003,12 +8043,12 @@ const GH_TH={ moss:['苔蘚','#2F4A3A','#3A5745','#F1EEDF','#B9C7B3','#D9C98A'],
 const GH_LAY=[['gallery','畫廊'],['masonry','瀑布'],['grid3','小格'],['shelf','層架'],['polaroid','拍立得'],['museum','展覽'],['list','清單']];
 const GH_FR=[['round','圓角'],['none','方角'],['line','細框'],['white','白邊'],['gold','金框'],['wood','木框'],['circle','圓形']];
 const GH_BG=[['leaf','葉片'],['plain','素面'],['dots','點點'],['grid','方格'],['stripe','條紋'],['glow','光暈']];
-const GH_FT=[['serif','明體'],['sans','黑體'],['mono','等寬']];
+const GH_FT=[['sans','黑體'],['serif','明體'],['kai','楷書']];
 const GH_AN=[['up','浮上'],['fade','淡入'],['zoom','放大'],['tilt','翻轉'],['none','不動']];
 const GH_GP=[['none','不分'],['genus','依屬分區']];
 const GH_ST=['🌿','🪴','🌵','🍃','🌱','🍄','🦋','🐌','🐸','🌙','✨','💧','☀️','🪨','🌸','🐝','🫧','🌈','🏺','🕯'];
-const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'serif',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null});
-const GH={doc:new Map(),edit:null,lim:30,list:null,got:new Set(),tab:'bk',sig:'',bOpen:null,msgs:new Map()};
+const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'sans',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null,tpl:''});
+const GH={doc:new Map(),edit:null,lim:30,list:null,got:new Set(),tab:'tpl',sig:'',bOpen:null,msgs:new Map()};
 async function ghLoad(u){ if(GH.doc.has(u)||!S.db) return; GH.doc.set(u,undefined); try{ const d=await S.db.doc('gh/'+u).get(); GH.doc.set(u,d.exists?d.data():null); }catch(e){ GH.doc.set(u,null); } if(PAGE==='gh'&&S.ghId===u) renderGh(true); }
 // 這個人「現在擁有」的植物：自己登錄還沒轉走的＋別人轉給他的
 async function ghFetch(u){ if(GH.got.has(u)||!S.db) return; GH.got.add(u);
@@ -8023,9 +8063,9 @@ function ghOrder(u,c,P){ const by=new Map(P.map(p=>[p.id,p])), o=(c.order||[]).f
   return [...o.map(i=>by.get(i)),...P.filter(p=>!os.has(p.id)).sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt))]; }
 function ghVars(c){ const t=GH_TH[c.th]||GH_TH.moss; return `--gb:${t[1]};--gc:${t[2]};--gf:${t[3]};--gs:${t[4]};--ga:${t[5]}`; }
 function ghSet(k,v){ if(!GH.edit) return; GH.edit.d={...GH.edit.d,[k]:v}; GH.edit.dirty=true; renderGh(true); }
-function ghToggle(k,id,max){ const L=[...(GH.edit.d[k]||[])], i=L.indexOf(id); if(i>=0) L.splice(i,1); else { if(max&&L.length>=max){ toast('最多 '+max+' 株主打'); return; } L.push(id); } ghSet(k,L); }
-function ghEdit(){ if(!S.me||S.ghId!==S.me) return; GH.edit={u:S.me,d:{...GH_DEF(),...(GH.doc.get(S.me)||{})},dirty:false}; blPush('ghed',()=>ghEdClose(true)); renderGh(true); }
-function ghEdClose(fromBack){ if(!GH.edit) return; GH.edit=null; if(!fromBack) blDone('ghed'); renderGh(true); }
+function ghToggle(k,id,max){ ghUndoPush(); const L=[...(GH.edit.d[k]||[])], i=L.indexOf(id); if(i>=0) L.splice(i,1); else { if(max&&L.length>=max){ toast('最多 '+max+' 株主打'); return; } L.push(id); } ghSet(k,L); }
+function ghEdit(){ if(!S.me||S.ghId!==S.me) return; GH.undo=[]; GH.sz='m'; GH.edit={u:S.me,d:{...GH_DEF(),...(GH.doc.get(S.me)||{})},dirty:false}; blPush('ghed',()=>ghEdClose(true)); renderGh(true); }
+function ghEdClose(fromBack){ if(!GH.edit) return; GH.edit=null; document.body.classList.remove('gh-dockb','gh-edm'); if(!fromBack) blDone('ghed'); renderGh(true); }
 async function ghSave(btn){ const e=GH.edit; if(!e) return; if(btn){ btn.disabled=true; btn.textContent='儲存中…'; }
   const P=ghOrder(S.me,e.d,ghPlants(S.me)).filter(p=>!(e.d.hide||[]).includes(p.id)), d={...e.d,name:(e.d.name||'').trim().slice(0,30),bio:(e.d.bio||'').trim().slice(0,160),n:P.length,pv:P.slice(0,4).map(cover),uname:S.meInfo?.name||'',updatedAt:Date.now()};
   try{ await S.db.doc('gh/'+S.me).set(d); GH.doc.set(S.me,d); if(GH.list) GH.list.items=GH.list.items.filter(x=>x.uid!==S.me); toast('溫室已更新 🌿'); ghEdClose(); }
@@ -8040,31 +8080,69 @@ function ghCard(p,i,c,ed){ const hid=(c.hide||[]).includes(p.id), ft=(c.feat||[]
       h('button',{type:'button',title:'移到最前面',onclick:e=>{ e.stopPropagation(); const o=ghOrder(S.me,GH.edit.d,ghPlants(S.me)).map(x=>x.id).filter(x=>x!==p.id); ghSet('order',[p.id,...o]); },text:'⤒'})),
       hid?h('span',{class:'gh-hb',text:'已隱藏'}):null); }
   return el; }
-function ghEditor(c,P){ const T=GH.tab, chip=(k,v,l,extra)=>h('button',{type:'button',class:'gh-o'+(c[k]===v?' on':''),onclick:()=>ghSet(k,v),...(extra||{})}, l);
-  const tabs=[['bk','元件'],['th','主題'],['lay','版面'],['fr','相框'],['bg','背景'],['st','貼紙'],['tx','文字'],['cv','封面'],['ft','字體・動畫']];
-  let body;
-  if (T==='bk') body=ghBlkEditor(c,P);
-  else if (T==='th') body=Object.entries(GH_TH).map(([k,t])=>chip('th',k,[h('i',{class:'gh-sw',style:`background:${t[1]};box-shadow:inset 0 0 0 5px ${t[2]},inset 0 0 0 7px ${t[5]}`}),t[0]]));
-  else if (T==='lay') body=GH_LAY.map(([k,l])=>chip('lay',k,[h('i',{class:'gh-li l-'+k},h('u'),h('u'),h('u'),h('u')),l])).concat(GH_GP.map(([k,l])=>chip('grp',k,l)));
-  else if (T==='fr') body=GH_FR.map(([k,l])=>chip('fr',k,[h('i',{class:'gh-fi f-'+k}),l]));
-  else if (T==='bg') body=GH_BG.map(([k,l])=>chip('bg',k,[h('i',{class:'gh-bi b-'+k}),l]));
-  else if (T==='st') body=[h('small',{class:'gh-eh',text:'最多 6 個，會飄在溫室招牌上'}),...GH_ST.map(s=>h('button',{type:'button',class:'gh-o st'+((c.st||[]).includes(s)?' on':''),onclick:()=>{ const L=[...(GH.edit.d.st||[])], i=L.indexOf(s); if(i>=0) L.splice(i,1); else if(L.length<6) L.push(s); else { toast('最多 6 個貼紙'); return; } ghSet('st',L); },text:s}))];
-  else if (T==='tx'){ const nm=h('input',{maxlength:30,placeholder:ghName(S.me,{}),value:c.name||''}), bio=h('textarea',{maxlength:160,rows:2,placeholder:'介紹一下你的溫室、收藏方向…',value:c.bio||''});
+// ---- 溫室模板：一鍵套用整套風格與元件（名稱、主打、備註、隱藏都會保留） ----
+const GH_TPL=[
+  ['moss','🌿','苔蘚書房','深綠、明體、畫廊，有大標語和數據',{th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'serif',an:'up',st:['🌿','✨']},['hero','_feat','ghstats','_coll','ghguest']],
+  ['lab','🧪','白色實驗室','乾淨的方格與細框，數據和屬別分佈',{th:'lab',lay:'grid3',fr:'line',bg:'grid',ft:'sans',an:'fade',st:['🧪','🌱']},['ghstats','ghgenus','_feat','_coll']],
+  ['diary','📔','拍立得日記','和紙底、拍立得、手寫字，有新進時間軸',{th:'paper',lay:'polaroid',fr:'white',bg:'dots',ft:'kai',an:'tilt',st:['🌸','🦋','✨']},['story','_feat','ghtl','_coll','ghguest']],
+  ['night','🌙','夜間溫室','深色瀑布流與光暈，本月主角打光',{th:'night',lay:'masonry',fr:'round',bg:'glow',ft:'sans',an:'zoom',st:['🌙','✨']},['hero','ghspot','_coll','ghguest']],
+  ['museum','🖼','典藏美術館','墨黑底、金框、展覽排列',{th:'ink',lay:'museum',fr:'gold',bg:'plain',ft:'serif',an:'fade',st:['🕯']},['ghspot','_feat','_coll']],
+  ['shelf','🏺','陶盆層架','陶土色木層架，像真的擺在架上',{th:'terra',lay:'shelf',fr:'none',bg:'dots',ft:'sans',an:'up',st:['🏺','🌵']},['_feat','_coll','ghwish']],
+  ['sakura','🌸','櫻花小屋','粉色圓框、精選收藏、留言板',{th:'sakura',lay:'gallery',fr:'circle',bg:'dots',ft:'kai',an:'zoom',st:['🌸','🐝','🦋']},['hero','ghpicks','_coll','ghguest']],
+  ['desert','🌵','沙漠收藏','沙色條紋、小格，適合多肉仙人掌',{th:'desert',lay:'grid3',fr:'round',bg:'stripe',ft:'sans',an:'up',st:['🌵','☀️','🪨']},['ghstats','ghgenus','_coll','ghwish']],
+  ['glass','🫧','玻璃屋','透明玻璃感、白邊瀑布流',{th:'glass',lay:'masonry',fr:'white',bg:'leaf',ft:'sans',an:'fade',st:['🫧','🌿']},['ghspot','ghpicks','_coll']],
+  ['forest','🌲','深林探險','深林漸層、屬別分佈、願望清單',{th:'forest',lay:'gallery',fr:'round',bg:'glow',ft:'serif',an:'up',st:['🍄','🐸','🌿']},['hero','_feat','ghgenus','ghtl','_coll','ghwish']],
+  ['vintage','📜','復古相簿','米黃底、木框、溫室故事',{th:'vintage',lay:'polaroid',fr:'wood',bg:'stripe',ft:'serif',an:'tilt',st:['📜','🌾']},['story','_coll','ghguest']],
+  ['mini','▫️','極簡清單','霧藍清單，資訊一目了然',{th:'mist',lay:'list',fr:'round',bg:'plain',ft:'sans',an:'none',st:[]},['ghstats','_coll']]];
+function ghTplApply(t){ if(!GH.edit) return; ghUndoPush(); const d=GH.edit.d, B=t[5].map(k=>k[0]==='_'?{id:k,k,on:true}:{id:scId(),k,on:true,cfg:(ghComp(k)?.def?.())||{}});
+  GH.edit.d={...d,...t[4],tpl:t[0],blocks:B}; GH.edit.dirty=true; GH.bOpen=null; toast('已套用「'+t[2]+'」，每一項都還能再改'); renderGh(true); }
+function ghUndoPush(){ if(!GH.edit) return; (GH.undo||(GH.undo=[])).push(JSON.stringify(GH.edit.d)); if(GH.undo.length>40) GH.undo.shift(); }
+function ghUndo(){ const s=GH.undo?.pop(); if(!s||!GH.edit) return; GH.edit.d=JSON.parse(s); renderGh(true); }
+// 字型：明體、楷書用網路字型（電腦上不會變成難看的系統字）
+const GH_FONT={serif:'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap',kai:'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap'};
+function ghFont(k){ const u=GH_FONT[k]; if(!u||document.querySelector('link[data-ghf="'+k+'"]')) return; document.head.append(h('link',{rel:'stylesheet',href:u,'data-ghf':k})); }
+// 拖曳排序（元件清單）
+function ghDrag(list,onDrop){ list.addEventListener('pointerdown',e=>{ const hd=e.target.closest('.gh-grip'); if(!hd) return; const row=hd.closest('.gh-br'); if(!row) return; e.preventDefault(); const rows=[...list.querySelectorAll(':scope>.gh-br')], from=rows.indexOf(row); let to=from; row.classList.add('drag'); hd.setPointerCapture(e.pointerId); const y0=e.clientY;
+  const mv=ev=>{ row.style.transform='translateY('+(ev.clientY-y0)+'px)'; const mid=ev.clientY; to=rows.length-1; for(let i=0;i<rows.length;i++){ if(i===from) continue; const r=rows[i].getBoundingClientRect(); if(mid<r.top+r.height/2){ to=i>from?i-1:i; break; } } rows.forEach((r,i)=>r.classList.toggle('gh-drop',i===to&&i!==from)); };
+  const up=()=>{ hd.removeEventListener('pointermove',mv); hd.removeEventListener('pointerup',up); hd.removeEventListener('pointercancel',up); row.style.transform=''; row.classList.remove('drag'); rows.forEach(r=>r.classList.remove('gh-drop')); if(to!==from) onDrop(from,to); };
+  hd.addEventListener('pointermove',mv); hd.addEventListener('pointerup',up); hd.addEventListener('pointercancel',up); }); return list; }
+function ghEditor(c,P){ const T=['tpl','bk','look','lay','tx'].includes(GH.tab)?GH.tab:'tpl', set=(k,v)=>{ ghUndoPush(); ghSet(k,v); };
+  const opt=(k,v,kids,cls,extra)=>h('button',{type:'button',class:'gh-o'+(cls?' '+cls:'')+(c[k]===v?' on':''),onclick:()=>set(k,v),...(extra||{})}, ...kids);
+  const sec=(t,sub,...kids)=>h('section',{class:'gh-es'}, h('h4',{}, t, sub?h('small',{text:sub}):null), ...kids);
+  let body=[];
+  if (T==='tpl') body=[h('p',{class:'gh-eh',text:'挑一套模板一鍵換裝；名稱、主打、備註、隱藏的植物都會保留。'}), h('div',{class:'gh-tpls'}, ...GH_TPL.map(t=>{ const th=GH_TH[t[4].th]; return h('button',{type:'button',class:'gh-tp'+(c.tpl===t[0]?' on':''),onclick:()=>ghTplApply(t)},
+      h('div',{class:'gh-tpv',style:`background:${th[1]};--tc:${th[2]};--ta:${th[5]};--tf:${th[3]}`}, h('i',{class:'gh-tpe',text:t[1]}), h('b',{style:'color:'+th[3]+';font-family:'+(t[4].ft==='serif'?'"Noto Serif TC",serif':t[4].ft==='kai'?'"LXGW WenKai TC",serif':'inherit'),text:t[2]}), h('span',{class:'gh-tpg l-'+t[4].lay}, h('u'),h('u'),h('u'),h('u'),h('u'),h('u'))),
+      h('small',{text:t[3]})); }))];
+  else if (T==='bk') body=ghBlkEditor(c,P);
+  else if (T==='look') body=[
+    sec('主題配色','',h('div',{class:'gh-og c4'}, ...Object.entries(GH_TH).map(([k,t])=>opt('th',k,[h('i',{class:'gh-sw lg',style:`background:${t[1]}`}, h('em',{style:`background:${t[2]}`}), h('em',{style:`background:${t[5]}`})), h('span',{text:t[0]})],'v')))),
+    sec('背景花紋','',h('div',{class:'gh-og c3'}, ...GH_BG.map(([k,l])=>opt('bg',k,[h('i',{class:'gh-bi b-'+k}),h('span',{text:l})])))),
+    sec('字體','',h('div',{class:'gh-og c3'}, ...GH_FT.map(([k,l])=>{ ghFont(k); return opt('ft',k,[h('b',{class:'gh-fp',style:'font-family:'+(k==='serif'?'"Noto Serif TC",serif':k==='kai'?'"LXGW WenKai TC",serif':'inherit'),text:'溫室'}),h('span',{text:l})],'v'); }))),
+    sec('進場動畫','植物出現的方式',h('div',{class:'gh-og c3'}, ...GH_AN.map(([k,l])=>opt('an',k,[h('span',{text:l})])))),
+    sec('貼紙','最多 6 個，會飄在招牌上',h('div',{class:'gh-og st'}, ...GH_ST.map(s=>h('button',{type:'button',class:'gh-o st'+((c.st||[]).includes(s)?' on':''),onclick:()=>{ const L=[...(GH.edit.d.st||[])], i=L.indexOf(s); if(i>=0) L.splice(i,1); else if(L.length<6) L.push(s); else { toast('最多 6 個貼紙'); return; } set('st',L); },text:s})))),
+    sec('招牌封面','用一株植物的照片當招牌背景',h('div',{class:'gh-og cvs'}, opt('cover','',[h('i',{class:'gh-sw lg',style:'background:var(--gb)'}),h('span',{text:'主題色'})],'v'), ...P.slice(0,60).map(p=>h('button',{type:'button',class:'gh-o cv'+(c.cover===p.id?' on':''),onclick:()=>set('cover',p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'})))))];
+  else if (T==='lay') body=[
+    sec('植物怎麼排','',h('div',{class:'gh-og c4'}, ...GH_LAY.map(([k,l])=>opt('lay',k,[h('i',{class:'gh-li l-'+k},h('u'),h('u'),h('u'),h('u')),h('span',{text:l})],'v')))),
+    sec('相框','',h('div',{class:'gh-og c4'}, ...GH_FR.map(([k,l])=>opt('fr',k,[h('i',{class:'gh-fi f-'+k}),h('span',{text:l})],'v')))),
+    sec('分區','',h('div',{class:'gh-og c3'}, ...GH_GP.map(([k,l])=>opt('grp',k,[h('span',{text:l})])))),
+    h('p',{class:'gh-eh',text:'在植物上按 ★ 主打、👁 隱藏、✎ 寫一句話、⤒ 排到最前面。'})];
+  else { const nm=h('input',{maxlength:30,placeholder:ghName(S.me,{}),value:c.name||''}), bio=h('textarea',{maxlength:160,rows:4,placeholder:'介紹一下你的溫室、收藏方向…',value:c.bio||''});
     nm.addEventListener('input',()=>{ GH.edit.d={...GH.edit.d,name:nm.value}; GH.edit.dirty=true; const t=$('#ghPage .gh-t'); if(t) t.textContent=ghName(S.me,GH.edit.d); });
     bio.addEventListener('input',()=>{ GH.edit.d={...GH.edit.d,bio:bio.value}; GH.edit.dirty=true; const t=$('#ghPage .gh-bio'); if(t) t.textContent=bio.value; });
-    body=[h('label',{class:'gh-fl'}, h('small',{text:'溫室名稱'}), nm), h('label',{class:'gh-fl'}, h('small',{text:'介紹'}), bio)]; }
-  else if (T==='cv') body=[chip('cover','',[h('i',{class:'gh-sw',style:'background:var(--gb)'}),'主題色']),...P.slice(0,40).map(p=>h('button',{type:'button',class:'gh-o cv'+(c.cover===p.id?' on':''),onclick:()=>ghSet('cover',p.id)}, h('img',{src:cover(p),alt:'',loading:'lazy'})))];
-  else body=[...GH_FT.map(([k,l])=>chip('ft',k,l,{style:k==='serif'?'font-family:var(--gh-serif)':k==='mono'?'font-family:ui-monospace,monospace':''})),h('i',{class:'gh-sep'}),...GH_AN.map(([k,l])=>chip('an',k,l))];
-  return h('div',{class:'gh-ed'}, h('div',{class:'gh-et'}, ...tabs.map(([k,l])=>h('button',{type:'button',class:T===k?'on':'',onclick:()=>{ GH.tab=k; renderGh(true); }},l))),
-    h('div',{class:'gh-eo'+(T==='cv'?' cvs':'')+(T==='bk'?' bk':'')}, ...body),
-    h('div',{class:'gh-ef'}, h('small',{text:'點植物上的 ★ 主打、👁 隱藏、✎ 備註、⤒ 排最前'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>ghEdClose(),text:'取消'}), h('button',{type:'button',class:'btn lime sm',onclick:e=>ghSave(e.currentTarget),text:'儲存'}))); }
+    body=[sec('溫室名稱','',nm), sec('介紹','',bio)]; }
+  const dk=innerWidth>=980, pvB=dk?h('div',{class:'gh-pvs'}, ...[['d','🖥'],['m','📱']].map(([k,l])=>h('button',{type:'button','aria-pressed':String((GH.pv||'d')===k),title:k==='d'?'電腦版預覽':'手機版預覽',onclick:()=>{ GH.pv=k; renderGh(true); },text:l}))):null;
+  const ed=h('aside',{class:'gh-ed s-'+(GH.sz||'m')},
+    h('div',{class:'gh-edh'}, dk?null:h('button',{type:'button',class:'gh-grab','aria-label':'展開或收合',onclick:()=>{ GH.sz=GH.sz==='l'?'s':GH.sz==='s'?'m':'l'; renderGh(true); }}), h('b',{text:'🎨 裝修溫室'}), pvB, h('button',{type:'button',class:'gh-ib',title:'復原',disabled:!GH.undo?.length,onclick:ghUndo,text:'↶'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>ghEdClose(),text:'取消'}), h('button',{type:'button',class:'btn lime sm',onclick:e=>ghSave(e.currentTarget),text:'儲存'})),
+    h('nav',{class:'gh-et'}, ...[['tpl','✨ 模板'],['bk','🧩 元件'],['look','🎨 外觀'],['lay','🪴 排列'],['tx','✏️ 文字']].map(([k,l])=>h('button',{type:'button',class:T===k?'on':'',onclick:()=>{ GH.tab=k; if(!dk&&GH.sz==='s') GH.sz='m'; renderGh(true); }},l))),
+    h('div',{class:'gh-eo'}, ...body));
+  return ed; }
 function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#pgGh'), u=S.ghId||'';
   if (!u){ renderGhList(box,force); return; }
   ghLoad(u); ghFetch(u); resolveNames([u]);
   const own=S.me===u, ed=!!(GH.edit&&GH.edit.u===u), c=ghCfg(u), P=ghOrder(u,c,ghPlants(u)), hide=new Set(c.hide||[]), vis=ed?P:P.filter(p=>!hide.has(p.id));
   const sig=JSON.stringify([u,ed,GH.tab,c,GH.lim,P.map(p=>p.id+(p.coverThumb||p.thumb||'')),nameOf(u),GH.doc.get(u)===undefined]);
   if (!force&&sig===GH.sig&&box.firstChild) return; GH.sig=sig;
-  pg.setAttribute('style',ghVars(c)); pg.className='page gh-pg b-'+c.bg+' ft-'+c.ft+(ed?' gh-editing':'');
+  const ft=c.ft==='mono'?'sans':c.ft; ghFont(ft); pg.setAttribute('style',ghVars(c)); pg.className='page gh-pg b-'+c.bg+' ft-'+ft+(ed?' gh-editing'+(innerWidth>=980?' gh-dock':'')+(GH.pv==='m'&&innerWidth>=980?' gh-pvm':''):''); document.body.classList.toggle('gh-dockb',ed&&innerWidth>=980); document.body.classList.toggle('gh-edm',ed&&innerWidth<980);
   const by=new Map(P.map(p=>[p.id,p])), feat=(c.feat||[]).map(i=>by.get(i)).filter(p=>p&&!hide.has(p.id)).slice(0,3);
   const genera=new Set(vis.map(p=>genusOf(p.species)).filter(Boolean)), cv=c.cover&&by.get(c.cover);
   const av=own&&S.meInfo?.avatarUrl?h('img',{class:'gh-av',src:S.meInfo.avatarUrl,alt:''}):h('span',{class:'gh-av'}, chatAv(u,64));
@@ -8078,7 +8156,7 @@ function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#
   const kids=[head], main=h('div',{class:'gh-main'}); kids.push(main);
   const env={u,own,ed,c,P,vis,hide,feat,by,genera}; GH.env=env; ghPaintMain(main,env);
   if (ed) kids.push(ghEditor(c,P));
-  const sy=box.firstChild?scrollY:null; box.replaceChildren(h('div',{class:'gh'}, ...kids)); if(sy!=null&&force) scrollTo(0,sy); }
+  const sy=box.firstChild?scrollY:null, es=box.querySelector('.gh-eo')?.scrollTop||0, et=box.querySelector('.gh-et')?.scrollLeft||0; box.replaceChildren(h('div',{class:'gh'}, ...kids)); if(sy!=null&&force) scrollTo(0,sy); const eo=box.querySelector('.gh-eo'); if(eo&&GH.tabWas===GH.tab) eo.scrollTop=es; const tb=box.querySelector('.gh-et'); if(tb) tb.scrollLeft=et; GH.tabWas=GH.tab; }
 async function ghListMore(){ if(!S.db) return; const L=GH.list||(GH.list={items:[],cur:null,done:false,busy:false}); if(L.done||L.busy) return; L.busy=true;
   try{ let q=S.db.collection('gh').orderBy('updatedAt','desc'); if(L.cur) q=q.startAfter(L.cur); const sn=await q.limit(24).get();
     sn.docs.forEach(d=>{ const x=d.data(); GH.doc.set(d.id,x); if(!L.items.some(y=>y.uid===d.id)) L.items.push({uid:d.id,...x}); }); if(sn.size<24) L.done=true; L.cur=sn.docs[sn.docs.length-1]?.data()?.updatedAt||L.cur; }
@@ -8167,14 +8245,15 @@ function ghCfgForm(b,P){ const d=ghComp(b.k); if(!d||!d.f) return h('p',{class:'
     if(t==='list'){ c[key]=c[key]||[]; const L=c[key]; return h('div',{class:'gh-fl'}, h('small',{text:label}), ...L.map((it,i)=>h('div',{class:'gh-lr'}, ...opt.map(([k2,ph])=>{ const big=k2==='a'&&b.k!=='ghwish'; const i2=h(big?'textarea':'input',{placeholder:ph,maxlength:big?400:120,rows:big?2:null}); i2.value=it[k2]||''; i2.addEventListener('input',()=>{ it[k2]=i2.value; ch(); }); return i2; }), h('button',{type:'button',class:'gh-o',onclick:()=>{ L.splice(i,1); hard(); },text:'✕'}))), L.length<12?h('button',{type:'button',class:'gh-o',onclick:()=>{ L.push({}); hard(); },text:'＋ 新增一項'}):null); }
     return null; })); }
 function ghBlkEditor(c,P){ const B=GH.edit.d.blocks=(Array.isArray(GH.edit.d.blocks)&&GH.edit.d.blocks.length?GH.edit.d.blocks:ghBlocks({})).map(x=>({...x})), set=()=>{ GH.edit.d={...GH.edit.d,blocks:B}; GH.edit.dirty=true; renderGh(true); };
+  const go=id=>requestAnimationFrame(()=>document.querySelector('#ghPage [data-bid="'+id+'"]')?.scrollIntoView({behavior:'smooth',block:'center'}));
   const row=(b,i)=>{ const d=ghComp(b.k)||{n:b.k,ic:'▫️'}, open=GH.bOpen===b.id;
-    return h('div',{class:'gh-br'+(open?' open':'')+(b.on===false?' off':'')}, h('div',{class:'gh-brh'}, h('button',{type:'button',class:'gh-brn',onclick:()=>{ GH.bOpen=open?null:b.id; renderGh(true); requestAnimationFrame(()=>document.querySelector('#ghPage [data-bid="'+b.id+'"]')?.scrollIntoView({behavior:'smooth',block:'center'})); }}, h('i',{text:d.ic}), h('b',{text:d.n}), d.fixed?h('small',{text:'內建'}):null),
-      h('button',{type:'button',disabled:!i,onclick:()=>{ [B[i-1],B[i]]=[B[i],B[i-1]]; set(); },text:'↑'}), h('button',{type:'button',disabled:i===B.length-1,onclick:()=>{ [B[i+1],B[i]]=[B[i],B[i+1]]; set(); },text:'↓'}),
-      h('button',{type:'button',title:b.on===false?'顯示':'隱藏',onclick:()=>{ b.on=b.on===false; set(); },text:b.on===false?'🙈':'👁'}), d.fixed?null:h('button',{type:'button',title:'刪除',onclick:()=>{ B.splice(i,1); if(GH.bOpen===b.id) GH.bOpen=null; set(); },text:'✕'})),
-      open&&!d.fixed?ghCfgForm(b,P):open?h('p',{class:'gh-eh',text:d.d}):null); };
+    return h('div',{class:'gh-br'+(open?' open':'')+(b.on===false?' off':'')}, h('div',{class:'gh-brh'}, h('span',{class:'gh-grip',title:'按住拖曳排序',text:'⋮⋮'}), h('button',{type:'button',class:'gh-brn',onclick:()=>{ GH.bOpen=open?null:b.id; renderGh(true); go(b.id); }}, h('i',{text:d.ic}), h('b',{text:d.n}), d.fixed?h('small',{text:'內建'}):h('small',{text:open?'收起':'設定'})),
+      h('button',{type:'button',title:b.on===false?'顯示':'隱藏',onclick:()=>{ ghUndoPush(); b.on=b.on===false; set(); },text:b.on===false?'🙈':'👁'}), d.fixed?null:h('button',{type:'button',title:'複製',onclick:()=>{ ghUndoPush(); const x={...JSON.parse(JSON.stringify(b)),id:scId()}; B.splice(i+1,0,x); GH.bOpen=x.id; set(); go(x.id); },text:'⧉'}), d.fixed?null:h('button',{type:'button',title:'刪除',onclick:()=>{ ghUndoPush(); B.splice(i,1); if(GH.bOpen===b.id) GH.bOpen=null; set(); },text:'✕'})),
+      open&&!d.fixed?ghCfgForm(b,P):open?h('p',{class:'gh-eh',style:'padding:0 10px 8px',text:d.d}):null); };
   const pal=[...Object.entries(GH_COMP).filter(([,d])=>!d.fixed),...GH_SF.filter(k=>SF_COMP[k]).map(k=>[k,SF_COMP[k]])];
-  const add=k=>{ const d=ghComp(k), b={id:scId(),k,on:true,cfg:d.def?d.def():{}}; const at=GH.bOpen?B.findIndex(x=>x.id===GH.bOpen)+1:B.length; B.splice(at<=0?B.length:at,0,b); GH.bOpen=b.id; set(); requestAnimationFrame(()=>document.querySelector('#ghPage [data-bid="'+b.id+'"]')?.scrollIntoView({behavior:'smooth',block:'center'})); };
-  return [h('div',{class:'gh-bl'}, ...B.map(row)), h('small',{class:'gh-eh',text:'＋ 加元件（會加在選取的元件下面）'}), h('div',{class:'gh-pal'}, ...pal.map(([k,d])=>h('button',{type:'button',class:'gh-o',title:d.d||'',onclick:()=>add(k)}, h('i',{style:'font-style:normal',text:d.ic}), d.n)))]; }
+  const add=k=>{ ghUndoPush(); const d=ghComp(k), b={id:scId(),k,on:true,cfg:d.def?d.def():{}}; const at=GH.bOpen?B.findIndex(x=>x.id===GH.bOpen)+1:B.length; B.splice(at<=0?B.length:at,0,b); GH.bOpen=b.id; set(); go(b.id); };
+  return [h('section',{class:'gh-es'}, h('h4',{}, '頁面上的元件', h('small',{text:'按住 ⋮⋮ 拖曳排序'})), ghDrag(h('div',{class:'gh-bl'}, ...B.map(row)),(f,t)=>{ ghUndoPush(); const [x]=B.splice(f,1); B.splice(t,0,x); set(); })),
+    h('section',{class:'gh-es'}, h('h4',{}, '＋ 加元件', h('small',{text:'加在選取的元件下面'})), h('div',{class:'gh-pal'}, ...pal.map(([k,d])=>h('button',{type:'button',class:'gh-pc',onclick:()=>add(k)}, h('i',{text:d.ic}), h('b',{text:d.n}), h('small',{text:d.d||''})))))]; }
 
 /* ---- 溫室分享圖：7 種風格 × 貼文／限動／方形 ---- */
 const GH_POST=[['theme','溫室招牌'],['grid','暗色拼貼'],['polaroid','拍立得牆'],['shelf','木層架'],['museum','典藏展'],['mag','雜誌封面'],['mosaic','滿版拼貼']];
@@ -8662,7 +8741,7 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
     if (pg==='history') renderHistory(true);
     if (pg==='claim') renderClaim();
     $('#pgTag').hidden=pg!=='tag'; if (pg==='tag'){ S.tagCode=String(arg||'').toUpperCase(); S.tagDoc=null; renderTag(); }
-    $('#pgGh').hidden=pg!=='gh'; if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
+    $('#pgGh').hidden=pg!=='gh'; if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); document.body.classList.remove('gh-dockb','gh-edm'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
     if (pg==='sell') renderSell(); if (pg==='about') renderAbout(); if (pg==='rules') renderRules();
     if (['plant','history','verify','group','claim'].includes(pg)||(pg==='shop'&&['search','cat'].includes(S.storeTab))){ S.wantAll=true; ensurePlants(); }
     if (pg==='seller'&&S.sellerId){ S.wantShop=S.sellerId; ensurePlants(S.sellerId); }
