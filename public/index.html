@@ -5832,7 +5832,7 @@ function admPts(m){ m.append(admTop('精選點數'));
       h('div',{class:'row',style:'gap:6px;margin-top:8px;flex-wrap:wrap'}, inp, why, h('button',{class:'btn pri sm',type:'button',onclick:()=>add(1),text:'＋ 加'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>add(-1),text:'－ 扣'})))); }); }
 const bstDeco=FT=>FT?[h('span',{class:'bst-tag ft',text:'👑 商店精選'}), h('i',{class:'bst-sp',text:'✦'}), h('i',{class:'bst-sp',text:'✦'}), h('i',{class:'bst-sp',text:'✧'})]:[h('span',{class:'bst-tag pn',text:'📌 置頂精選'}), h('span',{class:'bst-rb',text:'PICK'})];
 function featStrip(){ const FP=featNowIds().map(id=>S.plants.get(id)).filter(p=>p&&onSale(p)); if(!FP.length) return null; const end=featStart(featIdx()+1);
-  return h('section',{class:'ftx'}, h('div',{class:'ftx-h'}, h('div',{}, h('span',{class:'ftx-k',text:'👑 STORE PICKS'}), h('h3',{text:'商店精選'})), h('small',{}, '剩 ', h('b',{'data-ends':String(end),text:fmtLeft(end-Date.now())}))),
+  return h('section',{class:'ftx'}, h('div',{class:'ftx-h'}, h('div',{}, h('span',{class:'ftx-k',text:'👑 STORE PICKS'}), h('h3',{text:'商店精選'})) ),
     h('div',{class:'ftx-g'}, ...FP.map((p,i)=>activate(h('article',{class:'ftx-c',style:'--d:'+i}, h('div',{class:'ftx-i'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), h('span',{class:'ftx-crown',text:'👑'}), h('i',{class:'ftx-sh'})),
       h('div',{class:'ftx-t'}, h('small',{text:shopName(p.shop)}), h('b',{text:pName(p)}), h('span',{class:'mono',text:p.code}), h('strong',{text:priceLabel(p).main}))), ()=>openPlant(p.id))))); }
 function tile(p){
@@ -6579,7 +6579,10 @@ const SELLER_BLK=new Set(['shopstrip','sellers','feed','shopcta']);
 const isSellerBlk=b=>SELLER_BLK.has(b.k)||(b.k==='duo'&&(b.cfg?.ls==='shops'||b.cfg?.rs==='shops'));
 const blkAllowed=(key,b,idx)=>!(key==='hub'||key==='store')||!isSellerBlk(b)||idx===0||SFH_COMP[b.k]?.g==='ad';
 // 競標頁、抽獎頁、一頁式：依區塊排出來；「_page」就是原本的頁面內容
-function pdRender(key,body,orig){ const L=pdBlocks(key), now=Date.now(); let idx=0; if(key==='hub') boostTop(body);
+function pdRender(key,body,orig){ let L=pdBlocks(key); const now=Date.now(); let idx=0; if(key==='hub'){ boostTop(body);
+    // 主頁：頁面設計放的元件全部照放；沒有「首屏重點」「為你推薦」就自動補上
+    L=[...L]; if(!L.some(b=>b.k==='tbtop')){ const at=L.findIndex(b=>SFH_COMP[b.k]?.g!=='ad'); L.splice(at<0?L.length:at,0,{id:'hub-tbtop',k:'tbtop',on:true,cfg:SFH_COMP.tbtop.def()}); }
+    if(!L.some(b=>b.k==='mixfeed')) L.push({id:'hub-mixfeed',k:'mixfeed',on:true,cfg:{...SFH_COMP.mixfeed.def(),_st:'masonry'}}); }
   if (orig&&L.length===1&&L[0].k==='_page'&&L[0].on!==false&&!Object.keys(L[0].cfg||{}).length){ orig(body); return; }
   for (const b of L){ if(!sfhLive(b,now)) continue; if(!blkAllowed(key,b,idx)) continue; const c=b.cfg||{}; let el=null;
     try{ if(b.k==='_page'){ if(!orig) continue; el=h('div',{class:'pd-orig'}); orig(el); } else if(SFH_COMP[b.k]) el=SFH_COMP[b.k].r(c,b); if(b.k!=='_page'&&b.k!=='code') el=sfhCustom(c,b,el); }catch(e){ console.warn('區塊錯誤',b.k,e); el=null; }
@@ -6972,7 +6975,7 @@ function hbAdd(p,w){ if(!p) return; const x=hbGet(), inc=(f,k)=>{ if(!k) return;
 function hbQuery(q){ q=String(q||'').trim(); if(!q) return; pub().filter(p=>smatch([p.species,p.cultivar,...tagsOf(p)].join(' '),q)).slice(0,8).forEach(p=>hbAdd(p,.4)); }
 function hbBlock(k){ const x=hbGet(); x.b=x.b||{}; x.b[k]=(x.b[k]||0)+1; hbSave(x); }
 /* 商城：Amazon 式分類卡，一張接一張，滑到底自動載入更多；順序依你的使用習慣與喜好 */
-const MC_PAL=[['#EEF2EA','#2F4A33'],['#F4EEE4','#5A4228'],['#F2ECEE','#5E3444'],['#EAEFF4','#2D4459'],['#EDF1EF','#2C4A43'],['#F3EFE8','#4F4530'],['#EFEDF4','#433A5C'],['#F1EEEA','#4A3F38']];
+const MC_PAL=[['#D7E3D1','#24402A'],['#E8DCC6','#4E3820'],['#E6D3D8','#57293A'],['#D3DEE9','#22394E'],['#D2E2DD','#20403A'],['#E5DCC9','#463C25'],['#DCD7E8','#3A3054'],['#E3DAD2','#42372F']];
 function mallSections(){ const P=pub().filter(p=>p.status==='available'&&!p.blocked&&!mystery(p)); if(!P.length) return [];
   const H=hbGet(), fol=new Set(mySocial().follows||[]), favP=(S.prefs.favs||[]).map(i=>S.plants.get(i)).filter(Boolean), rvP=recentIds().map(i=>S.plants.get(i)).filter(Boolean);
   const aff=(f,k)=>+(H[f]?.[k]||0);
@@ -7017,7 +7020,11 @@ function mallFeed(body){ const SEC=mallSections(); if(!SEC.length){ body.append(
   more(); if(keep) while(n<Math.min(keep,SEC.length)) more(); setTimeout(()=>io.observe(sen),200); }
 function storeHome(body){
   $('#storeSrch')?.append(h('div',{class:'mall-q'}, h('a',{class:'mall-qb buy',href:'#/store/buy'}, h('i',{text:'🛒'}), h('b',{text:'直購'}), h('small',{text:'看到喜歡直接買'})), h('a',{class:'mall-qb auc',href:'#/store/auction'}, h('i',{text:'⚡'}), h('b',{text:'競標'}), h('small',{text:pub().filter(live).length+' 場進行中'}))));
-  boostTop(body); mallFeed(body);
+  boostTop(body);
+  // 頁面設計（商城）放的元件：放在精選後面、分類卡前面；原本內建的舊區塊不再放
+  const now=Date.now(); let idx=0; for(const b of sfhBlocks()){ if(!SFH_COMP[b.k]||b.k==='mixfeed'||!sfhLive(b,now)||!blkAllowed('store',b,idx)) continue; const c=b.cfg||{}; let el=null;
+    try{ el=SFH_COMP[b.k].r(c,b); if(b.k!=='code') el=sfhCustom(c,b,el); }catch(e){ el=null; } if(!el) continue; idx++; el.dataset.sfid=b.id; el.classList.add('sfh'); applySx(el,c); if(!c._anim) scReveal(el); body.append(el); }
+  mallFeed(body);
 }
 // 預覽（後台的 iframe）：點區塊就在左邊選取
 if (PREVIEW&&new URLSearchParams(location.search).has('sfh')){ document.documentElement.classList.add('pv-sfh'); window.__veinSfRefresh=()=>{ try{ const y=scrollY; if(PAGE==='raffle') renderRafflePage(); else if(PAGE==='lp') renderLp(S.lpId); else { shopRSig=''; renderShop(true); } requestAnimationFrame(()=>scrollTo(0,y)); }catch(e){} };
@@ -8122,7 +8129,7 @@ async function boot(){
   db.doc('site/spot').onSnapshot(d=>{ S.spot=d.exists?d.data():{}; shopRSig=''; renderAll(); if(PAGE==='shop') renderShop(true); }, ()=>{});
   db.doc('site/storefront').onSnapshot(d=>{ S.sf=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
   db.doc('site/pg_auction').onSnapshot(d=>{ S.pg.auction=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
-  db.doc('site/pg_hub').onSnapshot(d=>{ S.pg.hub=d.exists?hubUpgrade(d.data()):null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
+  db.doc('site/pg_hub').onSnapshot(d=>{ S.pg.hub=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
   db.doc('site/pg_sellers').onSnapshot(d=>{ S.pg.sellers=d.exists?d.data():null; shopRSig=''; if(PAGE==='store'||PAGE==='shop') renderShop(true); }, ()=>{});
   db.doc('site/pg_raffle').onSnapshot(d=>{ S.pg.raffle=d.exists?d.data():null; if(PAGE==='raffle') renderRafflePage(); }, ()=>{});
   db.doc('site/text').onSnapshot(d=>{ applyText(d.exists?d.data():{}); }, ()=>{});
