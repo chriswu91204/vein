@@ -5772,7 +5772,7 @@ function priceLabel(p){ if(isEnc(p)){ const st=encState(p); return {main:money(s
 const storeContact=()=>S.site.line?('LINE '+S.site.line):(S.site.contact||'');
 const shopContact=uid=>{ const s=shopOf(uid); return s?.line?('LINE '+s.line):(s?.contact||''); };
 /* orders */
-const OST={pending:'等待賣家確認',confirmed:'待付款',paid:'已付款 · 等賣家確認',preparing:'備貨中',shipped:'出貨中',done:'已完成',cancelled:'已取消'};
+const OST={pending:'訂單成立中',confirmed:'待付款',paid:'已付款 · 等賣家確認',preparing:'備貨中',shipped:'出貨中',done:'已完成',cancelled:'已取消'};
 const OK_ST=['confirmed','preparing','shipped','done'];
 const AUTO_DONE=14*864e5;
 // 訂單狀態：賣家文件（shops/{賣家}/orders）＋私密交易文件（deals，只有買賣雙方看得到：匯款帳號、匯款資訊、物流、收貨）
@@ -8136,7 +8136,7 @@ function renderMe(force){
   box.replaceChildren(h('div',{class:'me me-pg'}, side, main, extra));
   if (keepY!=null) scrollTo(0,keepY);
 }
-const OSTEPS=[['pending','下單'],['confirmed','賣家確認'],['paid','付款'],['preparing','備貨'],['shipped','出貨'],['done','完成']];
+const OSTEPS=[['pending','下單'],['confirmed','成立'],['paid','付款'],['preparing','備貨'],['shipped','出貨'],['done','完成']];
 function stepBar(st){ const idx=OSTEPS.findIndex(x=>x[0]===st); return h('div',{class:'osteps'+(st==='cancelled'?' off':'')}, ...OSTEPS.map(([k,l],i)=>h('div',{class:i<idx?'done':i===idx?'on':''}, h('i'), h('span',{text:l})))); }
 async function updDeal(o,patch,msg){ try{ await S.db.doc('deals/'+o.shop+'_'+o.id).update(patch); if(msg) toast(msg); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } }
 function bankCard(bk){ if(!bk) return h('p',{class:'hint',text:'賣家還沒提供匯款帳號，請透過聯絡方式詢問。'}); return h('div',{class:'bankc'}, h('b',{text:'匯款帳號'}), h('div',{class:'mono',text:[bk.bankName,bk.bankCode&&'('+bk.bankCode+')'].filter(Boolean).join(' ')}), h('div',{class:'row',style:'gap:8px;align-items:center'}, h('div',{class:'mono big',text:bk.account||''}), bk.account?h('button',{class:'btn soft sm',type:'button',onclick:e=>copyText(bk.account,e.currentTarget),text:'複製帳號'}):null), h('div',{text:'戶名 '+(bk.holder||'')}), bk.note?h('p',{class:'hint',text:bk.note}):null, h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(bk.account||''),text:'複製帳號'})); }
@@ -8150,7 +8150,7 @@ function orderCard(o,inD){
     h('div',{class:'oitems'}, ...items.map(p=>h('button',{type:'button',class:'oi pkable',onclick:()=>plantPeek(p)}, h('img',{src:cover(p),alt:''}), h('span',{class:'mono',text:p.code+(o.qty?.[p.id]?' × '+o.qty[p.id]+' 株':'')})))),
     h('div',{class:'row',style:'justify-content:space-between'}, h('span',{class:'hint',text:fmtDate(tsLocal(o.at))+(o.src==='offer'?' · 議價成交':'')+(o.note?' · '+o.note:'')}), h('b',{text:money(ordGrand(o))})), ordShipLine(o));
   if (st==='pending') c.append(h('div',{class:'row'}, h('span',{class:'hint',text:'等待賣家確認訂單。'}), null));
-  { const cb=cancelBar(o,'buyer'); if(cb) c.append(cb); else if(['pending','confirmed','paid','preparing'].includes(st)&&ordBo(o)&&o.buyer===S.me) c.append(h('div',{class:'row'}, h('button',{class:'bf-lk',type:'button',style:'margin-left:auto',onclick:()=>buyerCancelReq(o),text:'申請取消訂單'}))); }
+  { const cb=cancelBar(o,'buyer'); if(cb) c.append(cb); else if(['pending','confirmed','paid','preparing'].includes(st)&&ordBo(o)&&o.buyer===S.me) c.append(h('div',{class:'row'}, h('button',{class:'bf-lk',type:'button',style:'margin-left:auto',onclick:()=>buyerCancelReq(o),text:'申請取消（需賣家同意）'}))); }
   if (st==='confirmed'){
     if (o.payMethod==='transfer'){ if(!d) c.append(h('p',{class:'hint',text:'賣家已確認，匯款資訊載入中…'}));
       else { const last5=h('input',{maxlength:5,inputmode:'numeric',placeholder:'帳號後五碼',required:true}), amt=h('input',{type:'number',min:0,value:ordGrand(o)||'',required:true}), when=h('input',{type:'datetime-local',value:tsLocal(Date.now()).slice(0,16)}), note=h('input',{maxlength:200,placeholder:'留言給賣家（選填，例如：已用網銀轉帳）'});
@@ -10877,7 +10877,7 @@ function admHome(m){
   if (hasShop()) setTimeout(()=>{ if(m.querySelector('.adm-bdg')||!m.isConnected||S.admTab!=='home') return; const L=badgesOf(S.me), n=L.filter(b=>b.ok).length, next=L.filter(b=>!b.ok&&b.prog).sort((a,b)=>b.prog[0]/b.prog[1]-a.prog[0]/a.prog[1]).slice(0,3); m.append(h('div',{class:'panel adm-bdg'}, h('div',{class:'row',style:'justify-content:space-between;flex-wrap:wrap;gap:8px'}, h('h3',{text:'🏅 我的徽章 '+n+' / '+L.length}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openBadges(S.me),text:'看全部'})), h('div',{class:'bdg-row',style:'margin:6px 0 10px'}, ...L.filter(b=>b.ok).map(b=>badgeChip(b))), next.length?h('div',{class:'adm-next'}, h('small',{class:'hint',text:'快要拿到：'}), ...next.map(b=>h('div',{class:'adm-nx'}, h('span',{text:b.ic+' '+b.n}), h('i',{}, h('em',{style:'width:'+(b.prog[0]/b.prog[1]*100)+'%'})), h('small',{text:b.prog[0]+' / '+b.prog[1]})))):null)); },0);
   const go=(t,sub)=>()=>{ if(ORDER_TABS.includes(t)){ S.admMode='order'; S.admTab=t; if(sub) S.admSub=sub; S.admEdit=null; renderAdmin(true); syncAdmHash(); return; } S.admTab=t; if(sub) S.admSub=sub; S.admEdit=null; renderAdmin(true); };
   const offN=offersIn().filter(o=>o.status==='open').length, aucEnd=ps.filter(p=>isAuc(p)&&!live(p)&&p.status!=='sold'&&topBid(p.id)).length;
-  const TODO=[['📦','待確認的訂單',os.filter(o=>o.status==='pending').length,'買家下單了，按「接受」才會成立',go('orders','pending')],
+  const TODO=[
     ['💰','待確認收款',os.filter(o=>o.status==='paid').length,'買家已填匯款資訊，對帳後開始備貨',go('orders','pay')],
     ['🚚','待出貨',os.filter(o=>o.status==='preparing').length,'填物流單號按「出貨」',go('orders','prep')],
     ['🤝','收到議價',offN,'同意或婉拒',go('offers')],
@@ -10886,7 +10886,7 @@ function admHome(m){
   const todo=h('div',{class:'panel hm-todo'}, h('h3',{text:TODO.length?'👉 現在要處理（'+TODO.reduce((n,x)=>n+x[2],0)+'）':'✅ 目前沒有要處理的事'}),
     TODO.length?h('div',{class:'hm-tl'}, ...TODO.map(([ic,t,n,d,fn])=>h('button',{type:'button',class:'hm-ti',onclick:fn}, h('i',{text:ic}), h('span',{}, h('b',{text:t}), h('small',{text:d})), h('em',{text:String(n)}), h('u',{text:'›'})))):h('p',{class:'hint',text:'有新訂單、議價、提問時會出現在這裡。'}));
   m.append(admTop('總覽', h('button',{class:'btn pri',type:'button','data-tour':'add',onclick:()=>{ S.admTab='new'; renderAdmin(true); },text:'＋ 登錄植物'})), todo, startChecklist()||'',
-    h('div',{class:'kpis'}, ...[['在售',ps.filter(p=>p.status==='available'&&!p.hidden).length],['待確認訂單',os.filter(o=>o.status==='pending').length],['競標中',ps.filter(live).length],['收到出價',bidsN],['待回覆提問',pend.length],['評分',rt.n?rt.avg.toFixed(1)+'★':'—'],['追蹤者',followers(S.me)],['營業額',money(os.filter(o=>OK_ST.includes(o.status)).reduce((n,o)=>n+(o.total||0),0))]].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{text:String(v)})))));
+    h('div',{class:'kpis'}, ...[['在售',ps.filter(p=>p.status==='available'&&!p.hidden).length],['待付款',os.filter(o=>o.status==='confirmed').length],['競標中',ps.filter(live).length],['收到出價',bidsN],['待回覆提問',pend.length],['評分',rt.n?rt.avg.toFixed(1)+'★':'—'],['追蹤者',followers(S.me)],['營業額',money(os.filter(o=>OK_ST.includes(o.status)).reduce((n,o)=>n+(o.total||0),0))]].map(([l,v])=>h('div',{class:'kpi'}, h('span',{text:l}), h('b',{text:String(v)})))));
   const recent=[]; for(const p of ps.filter(isAuc)) for(const b of bidsFor(p.id)) recent.push({t:b.at,txt:nameOf(b.uid)+' 出價 '+money(b.amt),go:()=>{ S.admTab='plants'; S.admEdit=p.id; },img:cover(p)});
   pend.forEach(q=>{ const p=S.plants.get(q.pid); recent.push({t:q.at,txt:nameOf(q.asker)+' 提問：'+q.text,go:()=>{ S.admTab='qa'; },img:p?.thumb}); });
   os.forEach(o=>recent.push({t:o.at,txt:nameOf(o.buyer)+' 下單 '+money(o.total)+' · '+OST[o.status],go:()=>{ S.admTab='orders'; },img:S.plants.get(o.items?.[0])?.thumb}));
@@ -11072,7 +11072,7 @@ function plantPeek(id,extra){ const p=typeof id==='string'?S.plants.get(id):id; 
   (adm.open?adm:document.body).append(ov); return close; }
 // ===== 賣家：新訂單絕對不會漏看 =====
 const ordCan=()=>!!S.me&&hasShop()&&(!S.work||tabOK('orders'));
-const ordTodo=()=>{ if(!ordCan()) return 0; try{ return sellerOrders(S.me).filter(o=>o.status==='pending'||o.status==='paid'||o.status==='preparing').length+offersIn().filter(o=>o.status==='open').length; }catch(e){ return 0; } };
+const ordTodo=()=>{ if(!ordCan()) return 0; try{ return sellerOrders(S.me).filter(o=>o.status==='paid'||o.status==='preparing'||cancelReqOf(o)?.by==='buyer').length+offersIn().filter(o=>o.status==='open').length; }catch(e){ return 0; } };
 let ordKnown=null, ordBaseTitle=null;
 function ordChime(){ try{ const C=new (window.AudioContext||window.webkitAudioContext)(), t=C.currentTime; [[880,0],[1175,.16],[1568,.32]].forEach(([f,d])=>{ const o=C.createOscillator(), g=C.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0,t+d); g.gain.linearRampToValueAtTime(.25,t+d+.02); g.gain.exponentialRampToValueAtTime(.001,t+d+.5); o.connect(g).connect(C.destination); o.start(t+d); o.stop(t+d+.55); }); setTimeout(()=>C.close(),1500); }catch(e){} try{ navigator.vibrate&&navigator.vibrate([180,90,180]); }catch(e){} }
 function ordAlert(){ if(ordBaseTitle==null) ordBaseTitle=document.title;
@@ -13874,7 +13874,14 @@ function openOrder(o0,k0){ if(!S.me) return;
 function ordOpenPend(){ const k=S.ordPend; if(!k||!S.me) return; const [shop,oid]=k.split('~'); const o=ordFind(shop,oid); if(o){ S.ordPend=null; openOrder(o); return; } if((S.ordPendN=(S.ordPendN||0)+1)<25) setTimeout(ordOpenPend,400); else S.ordPend=null; }
 async function setOrder(o,status,patch){ const base={buyer:o.buyer,items:o.items||[],total:o.total||0,note:o.note||'',at:o.at,payMethod:o.payMethod||'transfer',src:o.src||null,...(o.ship?{ship:o.ship}:{})};
   const so=S.sorders.get(o.shop+'/'+o.id)||{}; await S.db.doc(`shops/${S.me}/orders/${o.id}`).set({...base,...so,id:undefined,shop:undefined,...(patch||{}),status,updatedAt:Date.now()}); }
-async function ensureDeal(o){ const id=S.me+'_'+o.id; if(S.deals.has(id)) return; await S.db.doc('deals/'+id).set({seller:S.me,buyer:o.buyer,orderId:o.id,payMethod:o.payMethod||'transfer',bank:(o.payMethod||'transfer')==='transfer'?(S.bank||null):null,at:Date.now()}); }
+// 訂單一律自動成立：伺服器會處理；賣家打開網站時也幫還在「成立中」的訂單補上（不用按接受）
+const ORD_AUTO=new Set();
+function ordAuto(o){ if(!ordCan()||o.shop!==S.me||o.status!=='pending'||ORD_AUTO.has(o.id)||cancelReqOf(o)||(ordSo(o)?.cancelRej&&!ordSo(o)?.status)) return; ORD_AUTO.add(o.id);
+  setTimeout(async()=>{ const x=sellerOrders(S.me).find(y=>y.id===o.id); if(!x||x.status!=='pending'||cancelReqOf(x)||(ordSo(x)&&ordSo(x).status!=='pending')) return; const items=(x.items||[]).map(i=>S.plants.get(i)).filter(Boolean), qn=p=>Math.max(1,+(x.qty?.[p.id])||1), lotIt=p=>isLot(p)||!!x.qty?.[p.id];
+    if (items.some(p=>lotIt(p)?lotLeft(p)<qn(p):(p.status==='sold'||p.status==='reserved')&&p.buyer&&p.buyer!==x.buyer)) return;
+    try{ await setOrder(x,'confirmed',{confirmedAt:Date.now(),auto:true}); for(const p of items){ if(lotIt(p)){ const left=lotLeft(p)-qn(p); await S.db.doc(pPath(p)).update({stock:Math.max(0,left),soldN:(+p.soldN||0)+qn(p),status:left<=0?'sold':p.status}); } else await S.db.doc(pPath(p)).update({status:'sold',buyer:x.buyer,soldPrice:p.soldPrice||p.price||null}); } await ensureDeal(x); renderAll(); }catch(e){ ORD_AUTO.delete(o.id); } },4000); }
+// 交易資料只補不蓋：已經有的（買家填的收件資料、匯款、選的運送方式）一定保留
+async function ensureDeal(o){ const id=S.me+'_'+o.id; if(S.deals.has(id)) return; try{ const ex=await S.db.doc('deals/'+id).get(); if(ex.exists) return; }catch(e){} await S.db.doc('deals/'+id).set({seller:S.me,buyer:o.buyer,orderId:o.id,payMethod:o.payMethod||'transfer',bank:(o.payMethod||'transfer')==='transfer'?(S.bank||null):null,at:Date.now()}); }
 
 /* ===== 訂單列表（買家、賣家共用）：一眼看到對象、商品、金額、目前進度和下一步 ===== */
 // 訂單有新留言或對方更新：伺服器寫在 ordAct/{我}，看過的時間記在這台裝置
@@ -13885,9 +13892,9 @@ function ordNew(o){ const key=(o.shop||o.seller||S.me)+'~'+o.id, a=S.ordAct?.[ke
 function ordNext(o,side){ const st=o.status, cr=cancelReqOf(o);
   if(cr&&cr.by!==side) return ['回覆取消申請',1];
   if(cr) return ['取消申請中',0];
-  if(side==='buyer'){ if(st==='pending') return ['等賣家確認',0]; if(st==='confirmed'&&ordNeedRecv(o)) return ['填收件資料',1]; if(st==='confirmed') return [o.payMethod==='transfer'?'去匯款':'跟賣家約付款',1];
+  if(side==='buyer'){ if(st==='pending') return ['訂單成立中',0]; if(st==='confirmed'&&ordNeedRecv(o)) return ['填收件資料',1]; if(st==='confirmed') return [o.payMethod==='transfer'?'去匯款':'跟賣家約付款',1];
     if(st==='paid') return ['等賣家對帳',0]; if(st==='preparing') return ['賣家備貨中',0]; if(st==='shipped') return ['確認收到貨',1]; if(st==='done') return mySocial().reviews?.[o.id]?['已完成',0]:['給評價',1]; return ['已取消',0]; }
-  if(st==='pending') return ['接受訂單',1]; if(st==='confirmed') return ['等買家付款',0]; if(st==='paid') return ['確認收款',1]; if(st==='preparing') return ['出貨',1]; if(st==='shipped') return ['等買家收貨',0]; if(st==='done') return ['已完成',0]; return ['已取消',0]; }
+  if(st==='pending') return ['成立中',0]; if(st==='confirmed') return ['等買家付款',0]; if(st==='paid') return ['確認收款',1]; if(st==='preparing') return ['出貨',1]; if(st==='shipped') return ['等買家收貨',0]; if(st==='done') return ['已完成',0]; return ['已取消',0]; }
 function ordRow(o,side){ const ps=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), [nx,me]=ordNext(o,side), st=o.status, si=OSTEPS.findIndex(x=>x[0]===st), who=side==='buyer'?o.shop:o.buyer;
   const qty=(o.items||[]).reduce((n,i)=>n+Math.max(1,+(o.qty?.[i])||1),0);
   const nw=ordNew(o);
@@ -13896,7 +13903,7 @@ function ordRow(o,side){ const ps=(o.items||[]).map(i=>S.plants.get(i)).filter(B
     h('span',{class:'or-m'},
       h('span',{class:'or-who'}, side==='buyer'?avatar(who,18):h('span',{class:'av',style:'width:18px;height:18px;font-size:9px',text:[...nameOf(who)].slice(-1).join('')}), h('b',{text:side==='buyer'?shopName(who):nameOf(who)}), h('small',{text:'#'+String(o.id).slice(-6)})),
       h('span',{class:'or-it',text:ps.length?(ps[0].code+' '+pName(ps[0])+(ps.length>1?' 等 '+ps.length+' 件':'')):'（商品資料讀取中）'}),
-      st==='cancelled'?h('span',{class:'or-st x',text:'已取消'}):h('span',{class:'or-dots'}, ...OSTEPS.map((s,i)=>h('i',{class:i<si?'d':i===si?'c':''})), h('small',{text:OST[st]||''}))),
+      st==='cancelled'?h('span',{class:'or-st x',text:'已取消'+(ordSo(o)?.cancelWhy?'（'+ordSo(o).cancelWhy+'）':'')}):h('span',{class:'or-dots'}, ...OSTEPS.map((s,i)=>h('i',{class:i<si?'d':i===si?'c':''})), h('small',{text:OST[st]||''}))),
     h('span',{class:'or-r'}, h('b',{class:'mono',text:money(ordGrand(o))}), h('span',{class:'or-nx'+(me?' go':''),text:nx+(me?' →':'')}), h('small',{text:ago(o.at)}))); }
 function ordFilterBar(F,cur,set,list){ return h('div',{class:'ofb'}, ...F.map(([k,l,fn,hot])=>{ const n=list.filter(fn).length; return h('button',{type:'button','aria-pressed':String(cur===k),class:hot&&n?'hot':'',onclick:()=>set(k)}, l, h('b',{text:String(n)})); })); }
 
@@ -13907,14 +13914,14 @@ function admOrders(m){
   const cur=tabs.find(t=>t[0]===S.admSub);
   const exp=os.some(o=>o.status!=='cancelled')?h('button',{type:'button',class:'btn soft sm',onclick:()=>openTagExport(os),text:'🏷 匯出印花牌'}):null;
   m.append(admTop('訂單與出貨', exp), !S.bank?.account?h('div',{class:'panel',style:'background:#FFF8E1'}, h('b',{text:'還沒設定匯款帳號'}), h('p',{class:'hint',text:'請到「賣場設定」填匯款帳號。'})):null);
-  const todo=[['pending','🔔','待確認',o=>o.status==='pending'],['pay','💳','待對帳',o=>o.status==='paid'],['prep','📦','待出貨',o=>o.status==='preparing'],['cx','✋','取消申請',o=>{ const r=cancelReqOf(o); return r&&r.by==='buyer'; }]];
+  const todo=[['pay','💳','待對帳',o=>o.status==='paid'],['prep','📦','待出貨',o=>o.status==='preparing'],['cx','✋','取消申請',o=>{ const r=cancelReqOf(o); return r&&r.by==='buyer'; }]];
   const tot=os.filter(o=>ordNext(o,'seller')[1]).length;
-  m.append(h('div',{class:'otd'}, h('div',{class:'otd-h'}, h('b',{text:tot?'要你處理 '+tot+' 筆':'目前沒有要處理的 🎉'})), h('div',{class:'otd-g'}, ...todo.map(([k,ic,l,fn])=>{ const n=os.filter(fn).length; return h('button',{type:'button',class:'otd-c'+(n?' on':'')+(S.admSub===k?' sel':''),onclick:()=>{ S.admSub=k; S.odQ=''; renderAdmin(true); }}, h('i',{text:ic}), h('b',{class:'mono',text:String(n)}), h('span',{text:l})); }))));
-  const F=[['pending','待確認',o=>o.status==='pending'],['pay','待付款',o=>['confirmed','paid'].includes(o.status)],['prep','待出貨',o=>o.status==='preparing'],['ship','運送中',o=>o.status==='shipped'],['done','已完成',o=>o.status==='done'],['cancelled','已取消',o=>o.status==='cancelled'],['cx','取消申請',todo[3][3]],['all','全部',()=>true]];
-  if (!F.some(f=>f[0]===S.admSub)) S.admSub=os.some(o=>o.status==='pending')?'pending':'all';
+  m.append(h('div',{class:'otd'}, h('div',{class:'otd-h'}, h('b',{text:tot?'要你處理 '+tot+' 筆':'目前沒有要處理的 🎉'}), h('small',{class:'hint',style:'display:block;margin-top:2px;color:rgba(255,255,255,.6)',text:'訂單自動成立；取消要買賣雙方同意'})), h('div',{class:'otd-g'}, ...todo.map(([k,ic,l,fn])=>{ const n=os.filter(fn).length; return h('button',{type:'button',class:'otd-c'+(n?' on':'')+(S.admSub===k?' sel':''),onclick:()=>{ S.admSub=k; S.odQ=''; renderAdmin(true); }}, h('i',{text:ic}), h('b',{class:'mono',text:String(n)}), h('span',{text:l})); }))));
+  const F=[['pending','成立中',o=>o.status==='pending'],['pay','待付款',o=>['confirmed','paid'].includes(o.status)],['prep','待出貨',o=>o.status==='preparing'],['ship','運送中',o=>o.status==='shipped'],['done','已完成',o=>o.status==='done'],['cancelled','已取消',o=>o.status==='cancelled'],['cx','取消申請',todo[2][3]],['all','全部',()=>true]];
+  if (!F.some(f=>f[0]===S.admSub)||(S.admSub==='pending'&&!os.some(o=>o.status==='pending'))) S.admSub=os.some(o=>ordNext(o,'seller')[1])?(os.some(o=>o.status==='paid')?'pay':os.some(o=>o.status==='preparing')?'prep':'cx'):'all';
   const cur2=F.find(f=>f[0]===S.admSub), qi=h('input',{type:'search',class:'ofq',placeholder:'搜尋買家、編號、訂單號',value:S.odQ||''});
   qi.addEventListener('input',()=>{ S.odQ=qi.value; clearTimeout(qi._t); qi._t=setTimeout(()=>{ renderAdmin(true); const n=document.querySelector('.ohd .ofq'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },350); });
-  m.append(h('div',{class:'ohd'}, ordFilterBar(F.filter(f=>f[0]!=='cx'||os.some(f[2])),S.admSub,k=>{ S.admSub=k; renderAdmin(true); },os), qi));
+  m.append(h('div',{class:'ohd'}, ordFilterBar(F.filter(f=>(f[0]!=='cx'&&f[0]!=='pending')||os.some(f[2])),S.admSub,k=>{ S.admSub=k; renderAdmin(true); },os), qi));
   const oq=(S.odQ||'').trim().toLowerCase(), act0=['pending','pay','prep','cx'].includes(S.admSub);
   const list=os.filter(cur2[2]).filter(o=>!oq||smatch([nameOf(o.buyer),o.id,...(o.items||[]).map(i=>S.plants.get(i)?.code||'')].join(' '),oq)).sort((a,b)=>act0?a.at-b.at:b.at-a.at);
   if (!list.length){ m.append(h('div',{class:'empty'}, h('h3',{text:oq?'找不到符合的訂單':{pending:'沒有要確認的訂單 🎉',pay:'沒有等付款的訂單',prep:'沒有要出貨的訂單 🎉',ship:'沒有運送中的訂單'}[S.admSub]||'沒有訂單'}))); return; }
@@ -13922,10 +13929,10 @@ function admOrders(m){
 }
 function sellerOrdCard(o,inD){ const rr=()=>{ renderAdmin(true); ordDetRefresh(); }; const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), qn=p=>Math.max(1,+(o.qty?.[p.id])||1), lotIt=p=>isLot(p)||!!o.qty?.[p.id], lotShort=o.status==='pending'&&items.some(p=>lotIt(p)&&lotLeft(p)<qn(p)), soldElse=lotShort||items.some(p=>!lotIt(p)&&p.status==='sold'&&p.buyer&&p.buyer!==o.buyer), d=o.deal, act=[];
     const run=async(fn,msg)=>{ try{ await fn(); toast(msg); rr(); }catch(e){ toast('操作失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); } };
-    if (o.status==='pending'){ act.push(h('button',{class:'btn pri sm',type:'button',disabled:soldElse,onclick:()=>run(async()=>{ await setOrder(o,'confirmed'); for(const p of items){ if(lotIt(p)){ const left=lotLeft(p)-qn(p); await S.db.doc(pPath(p)).update({stock:Math.max(0,left),soldN:(+p.soldN||0)+qn(p),status:left<=0?'sold':p.status}); } else await S.db.doc(pPath(p)).update({status:'sold',buyer:o.buyer,soldPrice:p.price||null}); } await ensureDeal(o); },'已接受訂單'),text:'接受訂單'}), confirmBtn('婉拒','soft',()=>run(()=>setOrder(o,'cancelled'),'已婉拒'))); }
+    if (o.status==='pending'){ if(!soldElse) ordAuto(o); act.push(h('span',{class:'hint',text:soldElse?'商品已售出或庫存不足':'訂單成立中…'}), cancelReqOf(o)?null:h('button',{class:'btn soft sm',type:'button',onclick:()=>sellerCancelReq(o),text:'申請取消（需買家同意）'})); }
     if (o.status==='confirmed'||o.status==='paid'){ if(!d) act.push(h('button',{class:'btn soft sm',type:'button',onclick:()=>run(()=>ensureDeal(o),'已補上交易資料'),text:'補建交易資料'}));
-      act.push(h('button',{class:'btn pri sm',type:'button',onclick:()=>run(()=>setOrder(o,'preparing'),'已開始備貨'),text:o.status==='paid'?'確認收款・開始備貨':'已收款・開始備貨'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>sellerCancelReq(o),text:'申請取消'})); }
-    if (o.status==='preparing'&&!cancelReqOf(o)) act.push(h('button',{class:'btn soft sm',type:'button',onclick:()=>sellerCancelReq(o),text:'申請取消'}));
+      act.push(h('button',{class:'btn pri sm',type:'button',onclick:()=>run(()=>setOrder(o,'preparing'),'已開始備貨'),text:o.status==='paid'?'確認收款・開始備貨':'已收款・開始備貨'}), cancelReqOf(o)?null:h('button',{class:'btn soft sm',type:'button',onclick:()=>sellerCancelReq(o),text:'申請取消（需買家同意）'})); }
+    if (o.status==='preparing'&&!cancelReqOf(o)) act.push(h('button',{class:'btn soft sm',type:'button',onclick:()=>sellerCancelReq(o),text:'申請取消（需買家同意）'}));
     if (o.status==='cancelled'){ const so=ordSo(o); if(so&&so.status!=='cancelled'&&!SC_DONE.has(o.shop+o.id)){ SC_DONE.add(o.shop+o.id); sellerCancelNow(o).then(()=>rr()).catch(()=>{}); } }
     const cbar=cancelBar(o,'seller');
     let shipF=null;
@@ -13942,7 +13949,7 @@ function sellerOrdCard(o,inD){ const rr=()=>{ renderAdmin(true); ordDetRefresh()
       d?.pay?h('div',{class:'paybox'}, h('b',{text:'買家匯款資訊'}), h('div',{class:'mono',text:'後五碼 '+d.pay.last5+' · '+money(d.pay.amount)+' · '+(d.pay.time||'').replace('T',' ')}), d.pay.note?h('p',{class:'hint',text:'留言：'+d.pay.note}):null):null,
       o.status==='shipped'?h('p',{class:'hint',text:(d?.ship?[d.ship.carrier,d.ship.tracking].filter(Boolean).join(' · ')+'。':'')+'等待買家確認收貨，'+fmtDay(tsLocal((o.shippedAt||Date.now())+AUTO_DONE))+' 會自動完成。'}):null,
       o.status==='done'?h('p',{class:'hint',text:d?.receivedAt?'買家已於 '+fmtDate(tsLocal(d.receivedAt))+' 確認收貨':'出貨 14 天後自動完成'}):null,
-      soldElse?h('p',{class:'err',text:lotShort?'整盤庫存不夠這筆訂單的數量，請先到商品把數量加回去，或婉拒／聯絡買家。':'訂單中有商品已售給別人，請婉拒或聯絡買家。'}):null, shipF,
+      soldElse?h('p',{class:'err',text:lotShort?'整盤庫存不夠這筆訂單的數量，請先把數量加回去，或申請取消（買家同意後取消）。':'訂單中有商品已售給別人，請申請取消（買家同意後取消）或聯絡買家。'}):null, shipF,
       h('div',{class:'row',style:'justify-content:space-between;margin-top:10px'}, h('div',{}, h('b',{style:'font-size:20px',text:money(ordGrand(o))}), ordShipLine(o)), h('div',{class:'row'}, ...act)), cbar, inD?null:ordOpenBtn(o)); }
 const SC_DONE=new Set();
 // 賣家取消：標成已取消，已接受的訂單把植物（整盤庫存）放回去
@@ -14510,6 +14517,7 @@ function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ a
   if (PAGE==='seller') renderSeller(); if (PAGE==='group') renderGroup(); if (PAGE==='batch'&&S.batchKey) renderBatch(S.batchKey); if (PAGE==='history') renderHistory(); if (PAGE==='tag') renderTag(); if (PAGE==='claim') renderClaim(); if (PAGE==='raffle') renderRafflePage(); renderWall();
   if (PAGE==='plant'){ if(S.pendingPlant&&S.plants.has(S.pendingPlant)) buildPlantPage(S.pendingPlant); else refreshDetail(false); }
   if (S.pendingR&&S.raffles.has(S.pendingR)) openRaffle(S.pendingR);
+  if (S.me&&hasShop()&&S.ready) try{ sellerOrders(S.me).forEach(o=>{ if(o.status==='pending') ordAuto(o); }); }catch(e){}
   if (PAGE==='me'&&!typing($('#pgMe'))) renderMe();
   if (PAGE==='gh'&&!typing($('#pgGh'))) renderGh();
   if (PAGE==='chats'&&S.me&&!document.querySelector('#chatsPage .cp')) renderChats(decodeURIComponent((location.hash.match(/^#\/chats\/(.+)$/)||[])[1]||''));
