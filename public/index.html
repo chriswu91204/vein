@@ -887,10 +887,10 @@ a.shopchip:hover{color:var(--fg)}
 .rk:nth-child(1) .no{color:#E8A400}.rk:nth-child(2) .no{color:#9AA3A0}.rk:nth-child(3) .no{color:#B87333}
 .rk img{width:64px;height:64px;border-radius:14px;object-fit:cover}
 .rk>div{display:grid;gap:1px}.rk .mono{font-size:13px}
-#pushes{position:fixed;right:16px;top:76px;z-index:120;display:grid;gap:10px;width:min(360px,calc(100vw - 32px))}
-.push{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;border:0;background:#111;color:#fff;border-radius:22px;padding:14px 16px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);cursor:pointer;font:inherit;animation:pin .5s var(--ease) both}
-.push b{display:block;font-size:14.5px}.push span{font-size:13px;opacity:.75;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.push .pi{font-size:22px;opacity:1}.push .px{opacity:.5;font-size:13px}
+#pushes{position:fixed;right:16px;top:76px;z-index:120;display:grid;gap:6px;justify-items:end;width:min(300px,calc(100vw - 32px));pointer-events:none}
+.push{pointer-events:auto;max-width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;text-align:left;border:1px solid rgba(17,19,18,.08);background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#111312;border-radius:14px;padding:8px 10px 8px 12px;box-shadow:0 10px 26px -14px rgba(0,0,0,.35);cursor:pointer;font:inherit;animation:pin .4s var(--ease) both;position:relative;overflow:hidden}.push::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:#1F5C42}
+.push b{display:block;font-size:13px;line-height:1.3}.push span{font-size:12px;color:#5E625F;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.push .push-ic{font-size:17px;color:inherit;display:block}.push .push-x{color:#9A9E99;font-size:11px;padding:2px 4px;display:block}
 .push.out{animation:pout .45s var(--ease) forwards}
 @keyframes pin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 @keyframes pout{to{opacity:0;transform:translateX(30px)}}
@@ -912,7 +912,7 @@ a.shopchip:hover{color:var(--fg)}
   .hero-nav{display:none}.hero-dots{bottom:18px}
   .wcard{width:250px}
   .ci{width:60px;height:60px;border-radius:18px}.cat{width:70px}
-  #pushes{top:auto;bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  #pushes{top:calc(68px + env(safe-area-inset-top,0px));bottom:auto;right:12px;width:min(280px,calc(100vw - 24px))}
   .proof{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 }
 
@@ -8392,13 +8392,13 @@ function renderBell(){
   b.hidden=!unread; b.textContent=unread>9?'9+':String(unread);
   const td=meTodo().length+ordTodo(); for(const id of ['navMe','tabMe']){ const el=$('#'+id); if(!el) continue; let mb=el.querySelector('.me-b'); if(!mb){ mb=h('span',{class:'badge me-b'}); el.append(mb); } mb.hidden=!td; mb.textContent=td>9?'9+':String(td); }
   const ids=new Set(ns.map(n=>n.id));
-  if (knownN&&pushArmed&&S.ready) ns.filter(n=>!knownN.has(n.id)&&Date.now()-n.at<36e5).slice(0,3).forEach(pushCard);
+  if (knownN&&pushArmed&&S.ready) { const F=ns.filter(n=>!knownN.has(n.id)&&Date.now()-n.at<36e5); if(F.length===1) pushCard(F[0]); else if(F.length>1) pushCard({id:'many:'+F[0].id,ic:F[0].ic,t:F.length+' 則新通知',b:F.slice(0,2).map(n=>n.t).join('、'),go:openBell}); }
   knownN=ids;
 }
 function pushCard(n){
   let box=$('#pushes'); if(!box){ box=h('div',{id:'pushes','aria-live':'polite'}); document.body.append(box); }
-  const c=h('button',{class:'push',type:'button',onclick:()=>{ c.remove(); n.go(); }}, h('span',{class:'pi',text:n.ic}), h('div',{style:'min-width:0'}, h('b',{text:n.t}), h('span',{text:n.b})), h('span',{class:'px',text:'✕',onclick:e=>{ e.stopPropagation(); c.remove(); }}));
-  box.append(c); setTimeout(()=>c.classList.add('out'),6500); setTimeout(()=>c.remove(),7000);
+  const c=h('button',{class:'push',type:'button',onclick:()=>{ c.remove(); n.go(); }}, h('span',{class:'push-ic',text:n.ic}), h('div',{style:'min-width:0'}, h('b',{text:n.t}), h('span',{text:n.b})), h('span',{class:'push-x',text:'✕',onclick:e=>{ e.stopPropagation(); c.remove(); }}));
+  box.append(c); while(box.children.length>2) box.firstChild.remove(); setTimeout(()=>c.classList.add('out'),4500); setTimeout(()=>c.remove(),5000);
   if (document.hidden&&'Notification' in window&&Notification.permission==='granted'){ try{ new Notification('VEIN · '+n.t,{body:n.b,icon:'/favicon.svg',tag:n.id}); }catch(e){} }
 }
 function openBell(){
@@ -14048,7 +14048,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
