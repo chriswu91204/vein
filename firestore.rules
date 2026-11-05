@@ -241,7 +241,7 @@ service cloud.firestore {
     // 我的溫室：每個會員自己的展示頁裝修設定
     match /gh/{uid} {
       allow read: if true;
-      allow create, update: if (isMe(uid) && notBanned() && request.resource.data.size() < 30) || isAdmin();
+      allow create, update: if (isMe(uid) && notBanned() && request.resource.data.size() <= 80) || isAdmin();
       allow delete: if isMe(uid) || isAdmin();
     }
     // 植友社群：文章、按讚、留言、投票（按讚數、留言數、投票結果由伺服器計算）

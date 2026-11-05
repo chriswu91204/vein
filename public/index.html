@@ -8665,7 +8665,7 @@ function ghEdClose(fromBack){ if(!GH.edit) return; if(GH.edit.up?.length) mediaC
 async function ghSave(btn){ const e=GH.edit; if(!e) return; if(btn){ btn.disabled=true; btn.textContent='儲存中…'; }
   const P=ghOrder(S.me,e.d,ghPlants(S.me)).filter(p=>!(e.d.hide||[]).includes(p.id)), GC=new Map(); P.forEach(p=>{ const g=genusOf(p.species); if(g) GC.set(g,(GC.get(g)||0)+1); }); const d={...e.d,gens:[...GC.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]),name:(e.d.name||'').trim().slice(0,30),bio:(e.d.bio||'').trim().slice(0,160),n:P.length,pv:P.slice(0,4).map(cover),uname:S.meInfo?.name||'',updatedAt:Date.now()};
   try{ const prev=GH.doc.get(S.me); await S.db.doc('gh/'+S.me).set(d); mediaCleanup({prev,up:e.up||[]},d); GH.doc.set(S.me,d); e.up=[]; if(GH.list) GH.list.items=GH.list.items.filter(x=>x.uid!==S.me); toast('溫室已更新 🌿'); ghEdClose(); }
-  catch(x){ toast('儲存失敗，請再試一次'); if(btn){ btn.disabled=false; btn.textContent='儲存'; } } }
+  catch(x){ toast(x?.code==='invalid_argument'?'儲存失敗：沒有權限（帳號可能被限制），請聯絡管理員':'儲存失敗，請檢查網路後再試一次'); if(btn){ btn.disabled=false; btn.textContent='儲存'; } } }
 function ghCard(p,i,c,ed){ const hid=(c.hide||[]).includes(p.id), ft=(c.feat||[]).includes(p.id), note=(c.notes||{})[p.id]||'';
   const cap=h('div',{class:'gh-cap'}, h('b',{text:pName(p)}), note?h('q',{text:note}):null, h('small',{class:'mono',text:p.code||''}));
   const el=h('article',{class:'gh-c'+(hid?' hid':'')+(ft?' ft':''),style:'--i:'+Math.min(i,14),onclick:ed?null:()=>openPlant(p.id)}, h('div',{class:'gh-ph'}, h('img',{src:cover(p),alt:'',loading:'lazy',decoding:'async'})), cap);
