@@ -5700,6 +5700,8 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 .gh-spb i.run{animation:ghSpRun 1.4s ease-in-out infinite alternate}@keyframes ghSpRun{from{width:55%}to{width:92%}}
 .gh-sp.ok .gh-spb i{background:#7EE08A}
 .gx-m>div{min-width:0;flex:1}.gx-m small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gx-m b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gx-sr{display:flex;align-items:center;gap:8px}.gx-sr .cq-s{flex:1;min-width:0}
+.gx-my{flex:none;display:flex;align-items:center;gap:6px;height:38px;padding:0 12px 0 4px;border-radius:999px;border:1px solid rgba(210,255,0,.4);background:rgba(210,255,0,.08);color:#D2FF00;font-size:12.5px;font-weight:800;text-decoration:none;white-space:nowrap}.gx-my img,.gx-my i{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;font-style:normal;background:#1B1E20}
 </style>
 
 </head>
@@ -9068,9 +9070,8 @@ function renderGhShow(box,force){ if(!GH.list||(!GH.list.done&&!GH.list.items.le
   const card=(x,big)=>{ const c={...GH_DEF(),...x}, pv=x.pv||[]; return h('a',{class:'gx-c'+(big?' big':''),href:'#/gh/'+x.uid,style:ghVars(c)}, h('div',{class:'gx-cl'}, ...[0,1,2].map(i=>pv[i]?h('img',{src:pv[i],alt:'',loading:'lazy'}):h('i'))), h('div',{class:'gx-sk'}, ...(c.st||[]).slice(0,3).map((s,i)=>h('span',{style:'--i:'+i,text:s}))),
     h('div',{class:'gx-m'}, h('span',{class:'gx-av'}, x.avm?.url?h('img',{class:'ch-av',src:mediaThumb(x.avm)||x.avm.url,alt:'',style:'width:30px;height:30px;object-fit:cover'}):chatAv(x.uid,30)), h('div',{}, h('b',{text:x.name||((x.uname||'玩家')+' 的溫室')}), h('small',{text:(x.uname||'玩家')+' · '+(x.n||0)+' 株'+(x.updatedAt?' · '+ago(x.updatedAt)+'更新':'')}), big&&x.bio?h('p',{text:x.bio}):null), h('em',{class:'gx-th',text:(GH_TH[c.th]||GH_TH.moss)[0]}))); };
   const feat=[...all0].sort((a,b)=>(b.n||0)-(a.n||0)).slice(0,6), mine=S.me?GH.doc.get(S.me):null;
-  const kids=[cqTop('gh'), h('label',{class:'cx-s cq-s'}, svg('i-search'), srch),
+  const kids=[cqTop('gh'), h('div',{class:'gx-sr'}, h('label',{class:'cx-s cq-s'}, svg('i-search'), srch), S.me?h('a',{class:'gx-my',href:'#/gh/'+S.me,'aria-label':'我的溫室'}, mine?.pv?.[0]?h('img',{src:mine.pv[0],alt:''}):h('i',{text:'🏡'}), h('span',{text:mine?'我的溫室':'布置溫室'})):null),
     feat.length&&!q&&!th?h('section',{class:'gx-hero'}, h('div',{class:'cx-sh'}, h('b',{text:'🌟 本週焦點溫室'}), h('small',{class:'hint',text:'滑動看更多'})), h('div',{class:'gx-hr'}, ...feat.map(x=>card(x,true)))):null,
-    S.me?h('a',{class:'gx-mine',href:'#/gh/'+S.me}, h('div',{class:'gx-mi'}, ...[0,1,2,3].map(i=>mine?.pv?.[i]?h('img',{src:mine.pv[i],alt:''}):h('i'))), h('div',{}, h('b',{text:mine?(mine.name||'我的溫室'):'布置你的溫室'}), h('small',{text:mine?(mine.n||0)+' 株展示中 · 點進去裝修':'用模板一鍵換裝，展示你的收藏'})), h('span',{class:'gx-go',text:mine?'🎨 裝修':'✨ 開始'})):null,
     GN.size?h('div',{class:'gx-ths'}, h('small',{class:'gx-tl',text:'🌱 收藏了'}), h('button',{type:'button','aria-pressed':String(!th),onclick:()=>{ CM.gth=''; renderCommunityPg(true); },text:'全部'}), ...[...GN.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20).map(([g,n])=>h('button',{type:'button','aria-pressed':String(th===g),onclick:()=>{ CM.gth=th===g?'':g; renderCommunityPg(true); }}, h('i',{class:'gx-gi',text:g.slice(0,1).toUpperCase()}), g.replace(/^./,x=>x.toUpperCase()), h('small',{text:String(n)})))):null,
     h('div',{class:'cx-sh'}, h('b',{text:'🏡 所有溫室'+(L.length?' · '+L.length:'')}), h('div',{class:'gx-so'}, ...[['new','最新'],['n','植物最多'],['g','屬最多']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(so===k),onclick:()=>{ CM.gso=k; renderCommunityPg(true); },text:l})))),
     L.length?h('div',{class:'gx-g'}, ...L.map(x=>card(x))):h('div',{class:'cx-empty'}, h('i',{text:GH.list?.done?'🌱':'⏳'}), h('b',{text:GH.list?.done?(th||q?'沒有符合的溫室':'還沒有人布置溫室，當第一個吧'):'載入中…'}), S.me?h('a',{class:'gh-b pri',href:'#/gh/'+S.me,text:'🏡 布置我的溫室'}):null),
