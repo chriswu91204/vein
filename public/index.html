@@ -5712,6 +5712,7 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 .bcp-c img,.bcp-c i{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:11px;background:#EEF0EA;display:grid;place-items:center;font-style:normal;font-size:30px}
 .bcp-c b{font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}.bcp-c small{font-size:11px;color:#7A7E78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
 .bcp-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap}.bcp-f span{font-size:13.5px;min-width:0}
+.cm.cm-old{animation:none}
 </style>
 
 </head>
@@ -13707,7 +13708,8 @@ async function chatSend(cid,msg){ if(needLogin()) return false; if(msg.t!=='sys'
     return true;
   }catch(e){ toast('訊息沒送出：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試')); return false; } }
 async function chatRespond(cid,m,resp,note){ try{ await S.db.doc('chats/'+cid+'/messages/'+m.id).update({resp,respAt:Date.now(),respBy:S.me}); m.resp=resp; if(note) await chatSend(cid,{t:'sys',text:note}); chatRefresh(cid); }catch(e){ toast('操作失敗'); } }
-function chatMarkRead(cid){ const c=S.chats.get(cid); if(!c||!chatUnread(c)||document.hidden) return; const read={...(c.read||{}),[S.me]:Date.now()}; c.read=read; S.db.doc('chats/'+cid).update({read}).catch(()=>{}); chatRefresh(); }
+// 已讀時間至少要蓋過最後一則的時間（對方電腦時間比較快時，以前會一直寫已讀→列表更新→重畫→又寫已讀，畫面一直閃）
+function chatMarkRead(cid){ const c=S.chats.get(cid); if(!c||!chatUnread(c)||document.hidden) return; const k='mr:'+cid; if(Date.now()-(CH[k]||0)<2500) return; CH[k]=Date.now(); const read={...(c.read||{}),[S.me]:Math.max(Date.now(),(c.last?.at||0)+1)}; c.read=read; S.db.doc('chats/'+cid).update({read}).catch(()=>{}); chatRefresh(); }
 function chatVisible(cid){ return [...CH.views].some(v=>v.cid===cid&&v.el.isConnected&&!v.el.closest('.cw.min')); }
 function chatNotify(prev){ for(const c of S.chats.values()){ const at=c.last?.at||0; if(at>(prev.get(c.id)||0)&&c.last.from!==S.me){ if(chatVisible(c.id)&&!document.hidden){ chatMarkRead(c.id); continue; } chatPop(c); } } }
 function chatPop(c){ const u=chatOther(c); document.querySelectorAll('.ch-pop').forEach(x=>x.remove());
@@ -13826,7 +13828,9 @@ function chatConv(cid,opt={}){
           m.resp?h('div',{class:'cm-done',text:'✓ 已確認收到'}):!meS?h('div',{class:'cm-acts'}, actBtn('收到了 ✓',()=>chatRespond(cid,m,{v:'got'},'📬 已收到，謝謝！'),'pri')):h('div',{class:'cm-done wait',text:'等待對方確認收貨'})]);
       default: return h('div',{class:'cm-bub',text:m.text||''});
     } };
+  let rsig='', seenIds=null;
   const render=()=>{ const L=S.chatMsgs.get(cid);
+    { const c0=S.chats.get(cid), sg=L?JSON.stringify([L.length,L[L.length-1]?.id,L.map(m=>m.resp||'').join(''),(c0?.read||{})[other]||0,c0?.last?.at||0,CH.pullAt.get(cid)||0,!!CH.ctx[cid]]):''; if(L&&sg===rsig&&ms.firstChild) { drawQuick(); return; } rsig=sg; }
     if (!L){ ms.replaceChildren(h('div',{class:'cv-empty'}, h('i',{class:'lb-spin',style:'position:static'}))); drawQuick(); return; }
     const keepB=atBottom||lastN<0, oldH=ms.scrollHeight, oldT=ms.scrollTop;
     const c=S.chats.get(cid), oRead=(c?.read||{})[other]||0; let lastDay='', lastFrom=null, lastAt=0; const out=[];
@@ -13835,8 +13839,8 @@ function chatConv(cid,opt={}){
     L.forEach(m=>{ const d=new Date(m.at).toDateString(); if(d!==lastDay){ out.push(h('div',{class:'cm-day',text:chatWhen(m.at)===hhmm(m.at)?'今天':new Date(m.at).toLocaleDateString('zh-TW',{month:'long',day:'numeric',weekday:'short'})})); lastDay=d; lastFrom=null; }
       if (m.t==='sys'){ out.push(h('div',{class:'cm-sys',text:m.text})); lastFrom=null; return; }
       const meS=m.from===S.me, cont=lastFrom===m.from&&m.at-lastAt<5*60e3; lastFrom=m.from; lastAt=m.at;
-      out.push(h('div',{class:'cm'+(meS?' me':'')+(cont?' cont':'')+(['prod','offer','ask','pay','ship'].includes(m.t)?' wide':'')}, !meS?(cont?h('span',{class:'cm-sp'}):chatAv(other,28)):null, h('div',{class:'cm-b'}, msgBody(m), h('span',{class:'cm-t',text:hhmm(m.at)+(m===myLast&&oRead>=m.at?' · 已讀':'')})))); });
-    ms.replaceChildren(...out); drawQuick();
+      out.push(h('div',{class:'cm'+(meS?' me':'')+(cont?' cont':'')+(['prod','offer','ask','pay','ship'].includes(m.t)?' wide':'')+(seenIds&&!seenIds.has(m.id)?'':' cm-old')}, !meS?(cont?h('span',{class:'cm-sp'}):chatAv(other,28)):null, h('div',{class:'cm-b'}, msgBody(m), h('span',{class:'cm-t',text:hhmm(m.at)+(m===myLast&&oRead>=m.at?' · 已讀':'')})))); });
+    ms.replaceChildren(...out); drawQuick(); seenIds=new Set(L.map(m=>m.id));
     { const top=L[L.length-1]; if(c?.last?.at&&c.last.from&&c.last.at>(top?.at||0)+3000&&Date.now()-c.last.at>20000&&(CH.pullAt.get(cid)||0)>=c.last.at) ms.append(h('div',{class:'cm-sys cm-lost',text:'⚠️ '+(c.last.from===S.me?'你':chatName(other))+'的最後一則「'+String(c.last.text||'').slice(0,40)+'」沒有傳送成功'+(c.last.from===S.me?'，請重新傳送':'，可以請對方再傳一次')})); }
     if (keepB) ms.scrollTop=ms.scrollHeight; else ms.scrollTop=oldT+(L.length!==lastN?0:0);
     lastN=L.length; if(atBottom) setTimeout(()=>chatMarkRead(cid),0); };
