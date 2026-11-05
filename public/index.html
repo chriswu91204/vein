@@ -5702,6 +5702,16 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 .gx-m>div{min-width:0;flex:1}.gx-m small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gx-m b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gx-sr{display:flex;align-items:center;gap:8px}.gx-sr .cq-s{flex:1;min-width:0}
 .gx-my{flex:none;display:flex;align-items:center;gap:6px;height:38px;padding:0 12px 0 4px;border-radius:999px;border:1px solid rgba(210,255,0,.4);background:rgba(210,255,0,.08);color:#D2FF00;font-size:12.5px;font-weight:800;text-decoration:none;white-space:nowrap}.gx-my img,.gx-my i{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;font-style:normal;background:#1B1E20}
+.bcp{background:#fff;border-radius:22px;padding:16px;margin:0 0 18px;box-shadow:0 1px 0 rgba(0,0,0,.04)}.bcp h4{margin:0 0 10px;font-size:16px}
+.bcp-t{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px}.bcp-t::-webkit-scrollbar{display:none}
+.bcp-t button{flex:none;border:1px solid #E2E4DE;background:#F7F7F4;border-radius:999px;padding:7px 13px;font:700 13px var(--f);cursor:pointer;color:#333}.bcp-t button[aria-pressed="true"]{background:#111;color:#D2FF00;border-color:#111}
+.bcp>input{width:100%;margin-bottom:10px}
+.bcp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;max-height:360px;overflow-y:auto;padding:2px}
+.bcp-c{display:grid;grid-template-rows:auto auto auto;gap:3px;text-align:left;border:1.5px solid #ECEDE8;background:#FAFAF8;border-radius:16px;padding:6px 6px 9px;cursor:pointer;font:inherit;min-width:0;transition:border-color .15s,transform .15s}
+.bcp-c:hover{border-color:#B9D400}.bcp-c.on{border-color:#111;box-shadow:0 0 0 2px #D2FF00}
+.bcp-c img,.bcp-c i{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:11px;background:#EEF0EA;display:grid;place-items:center;font-style:normal;font-size:30px}
+.bcp-c b{font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}.bcp-c small{font-size:11px;color:#7A7E78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
+.bcp-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap}.bcp-f span{font-size:13.5px;min-width:0}
 </style>
 
 </head>
@@ -15157,6 +15167,22 @@ function msFled(wrap,anim){ wrap.classList.add('fled'); if(anim&&!REDUCE) wrap.c
   const t=wrap.querySelector('.ms-t'), lb=wrap.querySelector('.ms-lb'), cd=wrap.querySelector('.ms-cd'), fav=wrap.querySelector('.ms-fav');
   if(lb) lb.textContent='孵化取消'; if(cd) cd.textContent='頭目逃跑了'; if(fav) fav.remove(); wrap.querySelector('.ms-info div:last-child')?.remove(); const ms=wrap.querySelector('.ms-info'); if(ms) ms.style.gridTemplateColumns='1fr 1fr'; }
 
+/* ---- 管理員：一鍵推廣（點一下賣場／商品／競標／抽獎／頁面，自動寫好標題、內容、連結，再按一下就發出） ---- */
+const BC_PAGES=[['🛍','商城','/#/store/mall','🛍 商城新品上架','今天又有新植物上架，快來挑一株帶回家'],['🔨','競標專區','/#/store/auction','🔨 競標進行中','好幾株正在競標，別錯過最後出價時間'],['🎁','限時／抽獎','/#/raffle','🎁 限時活動開跑','抽獎與限時活動進行中，馬上參加'],['🌿','植友社群','/#/community','🌿 植友社群有新文章','看看大家的植物日常，也分享你的'],['🏡','逛溫室','/#/community/gh','🏡 來逛植友的溫室','好多植友布置了自己的溫室，進來逛逛'],['🏠','首頁','/','🌱 VEIN 有新消息','打開看看今天有什麼新鮮事']];
+function bcItems(T,v){ const cut=(x,n)=>String(x||'').replace(/\s+/g,' ').trim().slice(0,n), ok=p=>p&&!p.hidden&&p.status!=='sold'&&!mystery(p);
+  let L=[];
+  if (T==='shop') L=Object.keys(S.sellers?.approved||{}).filter(u=>S.shops.has(u)&&!banned(u)).map(u=>{ const sh=shopOf(u)||{}, n=all().filter(p=>p.shop===u&&onSale(p)&&ok(p)).length; return {k:'s:'+u,img:sh.avatar||'',ic:'🏪',t:shopName(u),s:n+' 件上架中',n,m:{title:cut('🏪 '+shopName(u)+'｜推薦賣場',40),body:cut((sh.bio?cut(sh.bio,60)+'｜':'')+n+' 件植物上架中，快來逛逛',120),link:'/#/seller/'+u}}; }).sort((a,b)=>b.n-a.n);
+  else if (T==='item') L=all().filter(p=>ok(p)&&onSale(p)&&!isAuc(p)).sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt)).map(p=>({k:'p:'+p.id,img:cover(p),ic:'🌿',t:pName(p),s:priceLabel(p).main+' · '+shopName(p.shop),m:{title:cut('🌿 '+pName(p),40),body:cut(priceLabel(p).main+'｜'+shopName(p.shop)+' 新上架'+(p.code?' · '+p.code:'')+'，數量有限',120),link:'/#/plant/'+encodeURIComponent(p.id)}}));
+  else if (T==='auc') L=all().filter(p=>ok(p)&&isAuc(p)&&Date.now()<p.endsAtMs).sort((a,b)=>a.endsAtMs-b.endsAtMs).map(p=>{ const on=live(p), tb=topBid(p.id); return {k:'a:'+p.id,img:cover(p),ic:'🔨',t:pName(p),s:(on?'剩 '+fmtLeft(p.endsAtMs-Date.now()):'即將開始')+' · '+shopName(p.shop),m:{title:cut((on?'🔨 競標中：':'⏰ 即將開標：')+pName(p),40),body:cut((tb?'目前出價 '+money(tb.amt):'起標 '+priceLabel(p).main)+'｜'+(on?'剩 '+fmtLeft(p.endsAtMs-Date.now())+' 結標':'快設提醒')+' · '+shopName(p.shop),120),link:'/#/plant/'+encodeURIComponent(p.id)}}; });
+  else if (T==='raf') L=[...S.raffles.values()].filter(r=>['open','soon'].includes(rState(r))).sort((a,b)=>a.endsAtMs-b.endsAtMs).map(r=>{ const pp=r.pid&&S.plants.get(r.pid); return {k:'r:'+rKey(r),img:r.img||r.cover||(pp?cover(pp):''),ic:'🎁',t:r.title||'抽獎',s:(rState(r)==='open'?'進行中':'即將開始')+' · '+shopName(r.shop),m:{title:cut('🎁 '+(r.title||'抽獎活動'),40),body:cut((r.prize?'獎品：'+r.prize+'｜':'')+(rState(r)==='open'?'現在就能參加，'+fmtLeft(r.endsAtMs-Date.now())+'後截止':'即將開始，先收藏起來'),120),link:'/#/raffle/'+rKey(r)}}; });
+  else L=BC_PAGES.map(([ic,t,link,title,body])=>({k:'g:'+link,img:'',ic,t,s:link,m:{title,body,link}}));
+  v=String(v||'').trim().toLowerCase(); return v?L.filter(x=>(x.t+' '+x.s).toLowerCase().includes(v)):L; }
+function bcPicker(onPick,onSend){ const D=S.bcPick||(S.bcPick={T:'shop',q:'',sel:null}); const grid=h('div',{class:'bcp-g'}), q=h('input',{type:'search',placeholder:'搜尋名稱、編號、賣場…',value:D.q}), foot=h('div',{class:'bcp-f'});
+  const tabs=h('div',{class:'bcp-t'}, ...[['shop','🏪 賣場'],['item','🌿 商品'],['auc','🔨 競標'],['raf','🎁 抽獎'],['page','🧭 頁面']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(D.T===k),onclick:e=>{ D.T=k; D.sel=null; tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); draw(); }},l)));
+  const draw=()=>{ const L=bcItems(D.T,q.value); grid.replaceChildren(...(L.length?L.slice(0,60).map(x=>h('button',{type:'button',class:'bcp-c'+(D.sel===x.k?' on':''),onclick:()=>{ D.sel=x.k; onPick(x.m); draw(); }}, x.img?h('img',{src:x.img,alt:'',loading:'lazy'}):h('i',{text:x.ic}), h('b',{text:x.t}), h('small',{text:x.s}))):[h('p',{class:'hint',text:'這一類目前沒有可以推的'})]));
+    const cur=D.sel&&L.find(x=>x.k===D.sel); foot.replaceChildren(...(cur?[h('span',{}, '已選：', h('b',{text:cur.t})), h('button',{type:'button',class:'btn lime',onclick:onSend,text:'🚀 立即推播'})]:[h('span',{class:'hint',text:'點一個要推廣的項目，標題和內容會自動寫好，可以再改'})])); };
+  q.addEventListener('input',()=>{ D.q=q.value; draw(); }); draw();
+  return h('div',{class:'bcp'}, h('h4',{text:'⚡ 一鍵推廣'}), tabs, q, grid, foot); }
 /* ---- 管理員：推播通知給全站 ---- */
 function admBcast(m){ m.append(admTop('推播通知'));
   const LINKS=[['/','首頁'],['/#/store/auction','競標'],['/#/store/mall','商城'],['/#/raffle','抽獎'],['/#/guide','教學'],['custom','自訂連結']];
@@ -15175,6 +15201,8 @@ function admBcast(m){ m.append(admTop('推播通知'));
     send.disabled=true; try{ await S.db.collection('broadcast').doc().set({title,body,link:link||'/',target:tg.value,by:S.realMe||S.me,at:Date.now()}); toast('推播已送出'); ti.value=''; bd.value=''; sync(); msg.textContent='已送出，稍後下方會顯示送達數量'; }
     catch(e){ msg.textContent='送出失敗：'+(e?.code==='invalid_argument'?'沒有權限':'請稍後再試'); } finally{ send.disabled=false; } };
   const hist=h('div',{class:'bc-h'});
+  const pick=bcPicker(x=>{ ti.value=x.title; bd.value=x.body; if(LINKS.some(([v])=>v===x.link)){ lk.value=x.link; cu.hidden=true; } else { lk.value='custom'; cu.value=x.link; cu.hidden=false; } sync(); }, ()=>send.click());
+  m.append(pick);
   m.append(h('div',{class:'bc'}, h('div',{class:'bc-f form'}, field('標題',ti), field('內容',bd), h('div',{class:'two'}, field('點了打開',lk), field('發送對象',tg)), cu, h('small',{class:'hint',text:'預覽'}), pv, h('div',{class:'row',style:'gap:10px;align-items:center'}, send, msg)), h('div',{}, h('h4',{text:'最近的推播'}), hist)));
   if(m.__bcUn) try{ m.__bcUn(); }catch(e){}
   const un=S.db.collection('broadcast').orderBy('at','desc').limit(20).onSnapshot(sn=>{ if(!hist.isConnected){ try{ un(); }catch(e){} return; }
