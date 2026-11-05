@@ -5318,7 +5318,7 @@ body.wx-on .tabbar,body.wx-on #chDock{display:none!important}
 @media (min-width:760px){.gx-hr{grid-auto-columns:46%}}@media (min-width:1100px){.gx-hr{grid-auto-columns:32%}}
 .gx-c{position:relative;display:flex;flex-direction:column;background:var(--gb);color:var(--gf);border-radius:22px;overflow:hidden;text-decoration:none;scroll-snap-align:start;border:1px solid rgba(0,0,0,.08);box-shadow:0 14px 30px -20px rgba(0,0,0,.55);transition:transform .25s,box-shadow .25s}
 .gx-c:hover{transform:translateY(-4px);box-shadow:0 20px 36px -18px rgba(0,0,0,.6)}
-.gx-cl{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:3px;padding:6px 6px 0;aspect-ratio:4/3}.gx-cl>*:first-child{grid-row:span 2}.gx-cl img,.gx-cl i{width:100%;height:100%;object-fit:cover;border-radius:14px;background:var(--gc);display:block;min-height:0}
+.gx-cl{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:3px;padding:6px 6px 0;aspect-ratio:4/3;overflow:hidden;min-width:0}.gx-cl>*:first-child{grid-row:span 2}.gx-cl img,.gx-cl i{width:100%;height:100%;object-fit:cover;border-radius:14px;background:var(--gc);display:block;min-height:0}
 .gx-c.big .gx-cl{aspect-ratio:16/10}
 .gx-sk{position:absolute;top:14px;left:16px;display:flex;gap:2px}.gx-sk span{font-size:22px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));animation:ghBob 4s ease-in-out infinite;animation-delay:calc(var(--i)*-1.2s)}
 .gx-m{display:flex;gap:10px;align-items:center;padding:10px 12px 12px;position:relative}.gx-m>div{flex:1;min-width:0}.gx-m b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gx-m small{font-size:11.5px;color:var(--gs);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gx-m p{margin:4px 0 0;font-size:12.5px;color:var(--gs);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -5329,7 +5329,7 @@ body.wx-on .tabbar,body.wx-on #chDock{display:none!important}
 .gx-ths{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px}.gx-ths::-webkit-scrollbar{display:none}.gx-ths button{flex:none;display:flex;align-items:center;gap:6px;border:1px solid #DFE3DA;background:#fff;border-radius:999px;padding:6px 12px 6px 6px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.gx-ths button:first-child{padding-left:12px}.gx-ths i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}.gx-ths button[aria-pressed="true"]{border-color:#1F5C42;background:#EAF4E2}
 .gx-so{display:flex;gap:4px}.gx-so button{border:0;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--fg2);padding:4px 8px;border-radius:999px;cursor:pointer}.gx-so button[aria-pressed="true"]{background:#111312;color:#fff}
 .gx-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}@media (min-width:760px){.gx-g{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:1100px){.gx-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media (max-width:520px){.gx-g .gx-m{padding:8px 9px 10px;gap:7px}.gx-g .gx-av{display:none}.gx-g .gx-th{display:none}.gx-g .gx-cl{grid-template-columns:1fr;grid-template-rows:1fr}.gx-g .gx-cl>*:not(:first-child){display:none}.gx-g .gx-cl{aspect-ratio:1/1}}
+@media (max-width:520px){.gx-g .gx-m{padding:8px 9px 10px;gap:7px}.gx-g .gx-av{display:none}.gx-g .gx-th{display:none}.gx-g .gx-cl{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}.gx-g .gx-cl>*:not(:first-child){display:none}.gx-g .gx-cl{aspect-ratio:1/1}}
 /* ===== 文章：主題、花紋、標題特效、元件樣式 ===== */
 .px{--pfn:"Noto Sans TC","PingFang TC",system-ui,sans-serif;background:var(--pb);color:var(--pf);margin:0 -16px;padding:10px 12px 110px;min-height:80vh;position:relative;isolation:isolate}
 @media (min-width:900px){.px{margin:0;border-radius:28px;padding:20px 20px 110px}}
@@ -5699,6 +5699,7 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 .gh-spb{height:4px;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden}.gh-spb i{display:block;height:100%;width:0;background:#D2FF00;border-radius:4px;transition:width .5s var(--ease)}
 .gh-spb i.run{animation:ghSpRun 1.4s ease-in-out infinite alternate}@keyframes ghSpRun{from{width:55%}to{width:92%}}
 .gh-sp.ok .gh-spb i{background:#7EE08A}
+.gx-m>div{min-width:0;flex:1}.gx-m small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gx-m b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 
 </head>
@@ -8648,7 +8649,7 @@ const GH_SZ=[['s','小'],['m','標準'],['l','大'],['xl','特大']], GH_SZV={s:
 const GH_HS=[['card','卡片'],['plain','透明'],['banner','大橫幅'],['center','置中'],['split','左右分開'],['minimal','只有名字']], GH_AV=[['circle','圓形'],['round','圓角'],['square','方形'],['none','不顯示']], GH_TF=[['','跟全頁一樣'],['sans','黑體'],['serif','明體'],['kai','楷書']];
 const GH_GP=[['none','不分'],['genus','依屬分區']];
 const GH_ST=['🌿','🪴','🌵','🍃','🌱','🍄','🦋','🐌','🐸','🌙','✨','💧','☀️','🪨','🌸','🐝','🫧','🌈','🏺','🕯'];
-const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'sans',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null,tpl:'',hk:'GREENHOUSE',hs:'card',hts:'m',hav:'circle',hstat:true,htf:'',fs:'m',cs:'m',bgm:null,bgd:30,bgbl:0,cvm:null});
+const GH_DEF=()=>({name:'',bio:'',th:'moss',lay:'gallery',fr:'round',bg:'leaf',ft:'sans',an:'up',st:['🌿','✨'],feat:[],hide:[],order:[],notes:{},cover:'',grp:'none',blocks:null,tpl:'',hk:'GREENHOUSE',hs:'card',hts:'m',hav:'circle',hstat:true,htf:'',fs:'m',cs:'m',bgm:null,bgd:30,bgbl:0,cvm:null,avm:null});
 const GH={doc:new Map(),edit:null,lim:30,list:null,got:new Set(),tab:'tpl',sig:'',bOpen:null,msgs:new Map()};
 // 溫室資料：第一次讀取；之後每次進來超過 20 秒就再跟伺服器要一次最新的（別人改了名稱、換了裝修才看得到）
 const GH_AT=new Map();
@@ -8764,7 +8765,7 @@ function ghEditor(c,P){ const T=['tpl','bk','look','lay','tx'].includes(GH.tab)?
       sec('招牌樣式','',h('div',{class:'gh-og c3'}, ...GH_HS.map(([k,l])=>opt('hs',k,[h('i',{class:'gh-hsi hs-'+k}, h('u'),h('em'),h('s')),h('span',{text:l})],'v')))),
       sec('名稱大小','',h('div',{class:'gh-og c4'}, ...GH_SZ.map(([k,l])=>opt('hts',k,[h('span',{text:l})])))),
       sec('名稱字體','',h('div',{class:'gh-og c4'}, ...GH_TF.map(([k,l])=>{ if(k) ghFont(k); return opt('htf',k,[h('b',{class:'gh-fp',style:'font-family:'+(k==='serif'?'"Noto Serif TC",serif':k==='kai'?'"LXGW WenKai TC",serif':'inherit'),text:'溫室'}),h('span',{text:l})],'v'); }))),
-      sec('頭像','',h('div',{class:'gh-og c4'}, ...GH_AV.map(([k,l])=>opt('hav',k,[h('span',{text:l})])))),
+      sec('頭像','可以換成一張溫室照片，不放就用帳號頭貼',ghMediaPick('avm',c), h('div',{class:'gh-og c4',style:'margin-top:8px'}, ...GH_AV.map(([k,l])=>opt('hav',k,[h('span',{text:l})])))),
       sec('數字（株數、屬）','',h('div',{class:'gh-og c3'}, opt('hstat',true,[h('span',{text:'顯示'})]), opt('hstat',false,[h('span',{text:'不顯示'})]))),
       sec('招牌背景','上傳照片或影片，或用植物照片',ghMediaPick('cvm',c), h('div',{class:'gh-og cvs',style:'margin-top:8px'}, opt('cover','',[h('i',{class:'gh-sw gh-swl',style:'background:var(--gb)'}),h('span',{text:'主題色'})],'v'), ...P.slice(0,40).map(p=>h('button',{type:'button',class:'gh-o gh-cvo'+(c.cover===p.id&&!c.cvm?' on':''),onclick:()=>{ ghUndoPush(); GH.edit.d={...GH.edit.d,cover:p.id,cvm:null}; GH.edit.dirty=true; renderGh(true); }}, h('img',{src:cover(p),alt:'',loading:'lazy'})))))]; }
   const dk=innerWidth>=980, pvB=dk?h('div',{class:'gh-pvs'}, ...[['d','🖥'],['m','📱']].map(([k,l])=>h('button',{type:'button','aria-pressed':String((GH.pv||'d')===k),title:k==='d'?'電腦版預覽':'手機版預覽',onclick:()=>{ GH.pv=k; renderGh(true); },text:l}))):null;
@@ -8791,7 +8792,7 @@ function renderGh(force){ const box=$('#ghPage'); if(!box) return; const pg=$('#
   const ft=c.ft==='mono'?'sans':c.ft; ghFont(ft); pg.setAttribute('style',ghVars(c)); ghBodyBg(ghVars(c)); pg.className='page gh-pg b-'+c.bg+' ft-'+ft+(ed?' gh-editing'+(innerWidth>=980?' gh-dock':'')+(GH.pv==='m'&&innerWidth>=980?' gh-pvm':''):''); document.body.classList.toggle('gh-dockb',ed&&innerWidth>=980); document.body.classList.toggle('gh-edm',ed&&innerWidth<980);
   const by=new Map(P.map(p=>[p.id,p])), feat=(c.feat||[]).map(i=>by.get(i)).filter(p=>p&&!hide.has(p.id)).slice(0,3);
   const genera=new Set(vis.map(p=>genusOf(p.species)).filter(Boolean)), cv=c.cover&&by.get(c.cover), cvm=c.cvm?.url?c.cvm:null;
-  const av=c.hav==='none'?null:own&&S.meInfo?.avatarUrl?h('img',{class:'gh-av',src:S.meInfo.avatarUrl,alt:''}):h('span',{class:'gh-av'}, chatAv(u,64));
+  const av=c.hav==='none'?null:c.avm?.url?h('img',{class:'gh-av',src:c.avm.type==='video'?mediaThumb(c.avm):c.avm.url,alt:''}):own&&S.meInfo?.avatarUrl?h('img',{class:'gh-av',src:S.meInfo.avatarUrl,alt:''}):h('span',{class:'gh-av'}, chatAv(u,64));
   if (c.htf) ghFont(c.htf);
   const stk=(c.st||[]).slice(0,6).map((s,i)=>h('i',{class:'gh-sk k'+i,text:s}));
   const acts=own?[ed?null:h('button',{type:'button',class:'gh-b pri',onclick:ghEdit,text:'🎨 裝修溫室'}), h('button',{type:'button',class:'gh-b',onclick:()=>openPlants('reg'),text:'＋ 登錄植物'}), h('button',{type:'button',class:'gh-b',onclick:()=>openGhShare(u),text:'↗ 分享'})]
@@ -9065,7 +9066,7 @@ function renderGhShow(box,force){ if(!GH.list||(!GH.list.done&&!GH.list.items.le
   const sy=box.firstChild?scrollY:null;
   const srch=h('input',{type:'search',placeholder:'搜尋溫室、植友',value:CM.gq||''}); srch.addEventListener('input',()=>{ clearTimeout(srch._t); srch._t=setTimeout(()=>{ CM.gq=srch.value.trim(); renderCommunityPg(true); const n=$('#communityPage .cx-s input'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } },300); });
   const card=(x,big)=>{ const c={...GH_DEF(),...x}, pv=x.pv||[]; return h('a',{class:'gx-c'+(big?' big':''),href:'#/gh/'+x.uid,style:ghVars(c)}, h('div',{class:'gx-cl'}, ...[0,1,2].map(i=>pv[i]?h('img',{src:pv[i],alt:'',loading:'lazy'}):h('i'))), h('div',{class:'gx-sk'}, ...(c.st||[]).slice(0,3).map((s,i)=>h('span',{style:'--i:'+i,text:s}))),
-    h('div',{class:'gx-m'}, h('span',{class:'gx-av'}, chatAv(x.uid,30)), h('div',{}, h('b',{text:x.name||((x.uname||'玩家')+' 的溫室')}), h('small',{text:(x.uname||'玩家')+' · '+(x.n||0)+' 株'+(x.updatedAt?' · '+ago(x.updatedAt)+'更新':'')}), big&&x.bio?h('p',{text:x.bio}):null), h('em',{class:'gx-th',text:(GH_TH[c.th]||GH_TH.moss)[0]}))); };
+    h('div',{class:'gx-m'}, h('span',{class:'gx-av'}, x.avm?.url?h('img',{class:'ch-av',src:mediaThumb(x.avm)||x.avm.url,alt:'',style:'width:30px;height:30px;object-fit:cover'}):chatAv(x.uid,30)), h('div',{}, h('b',{text:x.name||((x.uname||'玩家')+' 的溫室')}), h('small',{text:(x.uname||'玩家')+' · '+(x.n||0)+' 株'+(x.updatedAt?' · '+ago(x.updatedAt)+'更新':'')}), big&&x.bio?h('p',{text:x.bio}):null), h('em',{class:'gx-th',text:(GH_TH[c.th]||GH_TH.moss)[0]}))); };
   const feat=[...all0].sort((a,b)=>(b.n||0)-(a.n||0)).slice(0,6), mine=S.me?GH.doc.get(S.me):null;
   const kids=[cqTop('gh'), h('label',{class:'cx-s cq-s'}, svg('i-search'), srch),
     feat.length&&!q&&!th?h('section',{class:'gx-hero'}, h('div',{class:'cx-sh'}, h('b',{text:'🌟 本週焦點溫室'}), h('small',{class:'hint',text:'滑動看更多'})), h('div',{class:'gx-hr'}, ...feat.map(x=>card(x,true)))):null,
