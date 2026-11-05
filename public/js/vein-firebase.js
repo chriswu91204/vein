@@ -29,8 +29,12 @@ async function start() {
   const auth = getAuth(app);
   // 本機快取：重複造訪與換頁時直接用快取，減少資料庫讀取與流量
   let fs;
-  try { fs = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
-  catch (e) { fs = getFirestore(app); }
+  // iPhone / iPad 與 LINE、FB、IG 內建瀏覽器在行動網路下，即時連線（串流）常常卡住：寫入要等好幾分鐘、聊天收不到新訊息
+  // 這些環境改用長輪詢，比較慢一點點但穩定；其他環境讓 SDK 自動判斷
+  const ua = navigator.userAgent || '', LP = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) || /Line\/|FBAN|FBAV|Instagram/.test(ua);
+  const net = LP ? { experimentalForceLongPolling: true } : { experimentalAutoDetectLongPolling: true };
+  try { fs = initializeFirestore(app, { ...net, localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+  catch (e) { try { fs = initializeFirestore(app, net); } catch (e2) { fs = getFirestore(app); } }
   const st = getStorage(app);
 
   // 等第一次登入狀態回報
