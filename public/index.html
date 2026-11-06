@@ -7618,7 +7618,10 @@ const SFH_COMP={
     r:(c)=>{ const rc=recommend().list||[], seen=new Set(), base=[]; [...rc,...pub().filter(p=>p.status==='available'&&!p.blocked).sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt))].forEach(p=>{ if(p&&!seen.has(p.id)&&!mystery(p)){ seen.add(p.id); base.push(p); } });
       if (!base.length) return PREVIEW?scPh('為你推薦：還沒有商品'):null; const st=sfhStyle(c,'mixfeed'), ev=+c.every||0, ads=(c.ads||[]).filter(x=>x.media?.url||x.title);
       // 商店精選、置頂精選排在最前面；之後滑完一輪就換個順序再來，像蝦皮一樣一直滑得下去
-      const MK='mf'+(c.title||''), keep=S.navPop&&S.mfKeep?.[MK], first=boostOrder(base), order=keep?keep.ids.map(id=>S.plants.get(id)).filter(Boolean):[...first], flat=[]; S.mfKeep=S.mfKeep||{};
+      // 順序在這次瀏覽中固定：資料更新、重畫時卡片不會在手指底下換位置（以前點下去的瞬間剛好重排，就會打開別株）
+      const MK='mf'+(c.title||''), keep=S.mfKeep?.[MK], first=boostOrder(base), inBase=new Set(base.map(p=>p.id)); let order;
+      if (keep){ const had=new Set(keep.ids); order=[...keep.ids.map(id=>S.plants.get(id)).filter(p=>p&&inBase.has(p.id)),...first.filter(p=>!had.has(p.id))]; } else order=[...first];
+      const flat=[]; S.mfKeep=S.mfKeep||{};
       const pcard=p=>{ const pl=priceLabel(p), L2=live(p), FT=isFeat(p), PN=!FT&&isPin(p), tag=FT||PN?null:L2?['live','競標中']:p.kind==='seedling'?['','實生苗']:null;
         const el=spot(activate(h('div',{class:'hzm-i'+(FT?' bst-ft':PN?' bst-pn':'')}, h('span',{class:'hzm-im'+(st==='masonry'?' r'+(p.code||'').length%3:'')}, h('img',{src:cover(p),alt:'',loading:'lazy'}), tag?h('em',{class:tag[0],text:tag[1]}):null, ...(FT||PN?bstDeco(FT):[])),
           h('span',{class:'hzm-t'}, h('b',{text:short(p.species)+(p.cultivar?' '+p.cultivar:'')}), h('span',{class:'hzm-pr'}, h('strong',{text:pl.main}), h('small',{text:shopName(p.shop)})))),()=>openSwipe(flat.length?flat:order,p.id)),p); if(FT) el.append(h('span',{class:'bst-crown',text:'👑'})); return el; };
@@ -14133,7 +14136,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
