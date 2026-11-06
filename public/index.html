@@ -9918,7 +9918,8 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
     if (pg==='seller'&&S.sellerId){ S.wantShop=S.sellerId; ensurePlants(S.sellerId); }
     if (pg==='guide') renderGuide(arg);
     if (pg==='chats') renderChats(arg);
-    if (pg==='feed') renderFeed();
+    // 從別頁「進」滑滑看一律從第一個開始；只有按上一頁回來才接著上次的位置
+    if (pg==='feed'){ if(!S.navPop&&Date.now()-(FD.popAt||0)>1500&&FD.el){ FD.el.remove(); FD.el=null; } renderFeed(); }
     if (pg==='staff') renderStaffPage(arg);
     if (pg==='lp') renderLp(arg);
     if (pg==='batch'){ batchSig=''; S.batchKey=arg; renderBatch(arg); }
@@ -14136,7 +14137,7 @@ function admGuard(m){
       h('li',{}, h('b',{text:'擋掉機器人（App Check）：'}),'Firebase 主控台 → App Check → 註冊網頁應用程式（reCAPTCHA v3），把「網站金鑰」貼給我設定；確認正常後再按「強制執行」，不是從 VEIN 網站來的請求就會被擋。'))));
   draw();
 }
-if (location.hostname==='localhost') window.__vein={S,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -14225,9 +14226,14 @@ const FD={pool:[],i:0,el:null,io:null,sentinel:null,muted:true,mode:'for',seen:n
 function fdShuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 // 從「為你推薦」點進來：用同一串商品、從點的那株開始，上下滑看下一株（只有植物）
 // 直接帶物件：群組／合併卡也找得到，第一張一定是點的那株
-function openSwipe(list,pid){ const seen=new Set(), L=list.filter(p=>p&&!seen.has(p.id)&&seen.add(p.id)), i=Math.max(0,L.findIndex(p=>p.id===pid)); FD.seed=[...L.slice(i),...L.slice(0,i)]; FD.plantOnly=true; FD.mode='for'; FD.built=null; FD.from=location.hash; if(FD.el) FD.el.remove(); FD.el=null; location.hash='#/feed'; }
+addEventListener('popstate',()=>{ FD.popAt=Date.now(); });
+function openSwipe(list,pid){ const seen=new Set(), L=list.filter(p=>p&&p.id&&!seen.has(p.id)&&seen.add(p.id)), i=Math.max(0,L.findIndex(p=>p.id===pid)); FD.pick=L[i]||null; FD.seed=[...L.slice(i),...L.slice(0,i)]; FD.plantOnly=true; FD.mode='for'; FD.built=null; FD.from=location.hash; if(FD.el) FD.el.remove(); FD.el=null; location.hash='#/feed'; }
 function fdBuild(){ // 混合：商品、群組、競標、賣家、抽獎，追蹤的與新的優先
-  if (FD.seed){ const L0=FD.seed; FD.seed=null; const L=L0.map(x=>x.__c?(x.members?.find(m=>m.status==='available')||x.members?.[0]):x.__g?x:(S.plants.get(x.id)||x)).filter(p=>p&&p.status!=='sold'&&!p.blocked); if(L.length) return L.map(p=>({k:p.__g?'grp':'plant',p,s:0})); }
+  if (FD.seed){ const L0=FD.seed; FD.seed=null; const mp=x=>x?(x.__c?(x.members?.find(m=>m.status==='available')||x.members?.[0]):x.__g?x:(S.plants.get(x.id)||x)):null;
+    const L=L0.map(mp).filter(p=>p&&p.status!=='sold'&&!p.blocked);
+    // 點的那一株一定排第一個（就算資料剛好在更新、被篩掉，也照樣先給他看）
+    const tg=mp(FD.pick); FD.pick=null; if(tg){ const j=L.findIndex(p=>p.id===tg.id); if(j>0) L.splice(j,1); if(j!==0) L.unshift(tg); FD.pickId=tg.id; }
+    if(L.length) return L.map(p=>({k:p.__g?'grp':'plant',p,s:0})); }
   const fol=new Set(mySocial().follows||[]), favSp=new Set((S.prefs.favs||[]).map(i=>S.plants.get(i)).filter(Boolean).map(spKey)), wk=Date.now()-7*864e5;
   let ps=pub().filter(p=>p.status!=='sold'&&!p.blocked);
   if (FD.mode==='follow') ps=ps.filter(p=>fol.has(p.shop));
@@ -14281,13 +14287,13 @@ function fdRaffle(r){ const img=rImg(r);
     h('div',{class:'fd-sc'}, h('span',{class:'tr-k mono'}, h('i'), 'RAFFLE · 免費抽'), h('h3',{class:'fd-rt',text:r.title||'抽獎'}), h('img',{class:'fd-rimg',src:img,alt:''}), r.prize?h('p',{class:'fd-pz',text:'🎁 '+r.prize}):null, h('p',{text:shopName(r.shop)+' · 剩 '+fmtLeft(r.endsAtMs-Date.now())}), h('div',{class:'row',style:'gap:8px;justify-content:center'}, h('button',{class:'btn lime',type:'button',onclick:()=>{ go('#/raffle/'+encodeURIComponent(rKey(r))); },text:'立即參加 →'}), h('button',{class:'btn soft',type:'button',onclick:e=>{ e.stopPropagation(); openRaffleShare(r); },text:'↗ 轉發'}))));
 }
 function fdPlay(v){ if(!v.getAttribute('src')&&v.dataset.src) v.src=v.dataset.src; v.muted=FD.muted; const pr=v.play(); if(pr&&pr.catch) pr.catch(()=>{ v.muted=true; v.play().catch(()=>{}); }); }
-function fdMore(n=6){ if(!FD.el) return; if(FD.pool.length-FD.i<8&&!plantsAllLoaded()) plantMoreAll(); for(let k=0;k<n;k++){ if(FD.i>=FD.pool.length){ const nx=fdBuild(); if(!nx.length) break; FD.loop++; FD.pool.push(...nx); } const el=fdItem(FD.pool[FD.i++]); FD.list.insertBefore(el,FD.sentinel); FD.io.observe(el); } }
-function leaveFeed(){ if(FD.el){ FD.el.querySelectorAll('video').forEach(v=>v.pause()); } document.documentElement.classList.remove('fd-on'); removeEventListener('keydown',fdKey); }
+function fdMore(n=6){ if(!FD.el) return; if(FD.pool.length-FD.i<8&&!plantsAllLoaded()) plantMoreAll(); for(let k=0;k<n;k++){ if(FD.i>=FD.pool.length){ const nx=fdBuild(); if(!nx.length) break; FD.loop++; FD.pool.push(...nx); } const it=FD.pool[FD.i++]; let el=null; try{ el=fdItem(it); }catch(e){ console.error('fdItem',it?.p?.id,e); } if(!el) continue; if(it?.p?.id) el.dataset.pid=it.p.id; FD.list.insertBefore(el,FD.sentinel); FD.io.observe(el); } }
+function leaveFeed(){ if(FD.list&&FD.list.clientHeight) FD.lastTop=FD.list.scrollTop; if(FD.el){ FD.el.querySelectorAll('video').forEach(v=>v.pause()); } document.documentElement.classList.remove('fd-on'); removeEventListener('keydown',fdKey); }
 function fdKey(e){ if(PAGE!=='feed'||e.target.closest('input,textarea,dialog')) return; if(['ArrowDown','j','PageDown',' '].includes(e.key)){ e.preventDefault(); FD.list.scrollBy({top:FD.list.clientHeight,behavior:'smooth'}); } if(['ArrowUp','k','PageUp'].includes(e.key)){ e.preventDefault(); FD.list.scrollBy({top:-FD.list.clientHeight,behavior:'smooth'}); } if(e.key==='Escape') history.length>1?history.back():go('#/store'); }
 const feedOn=()=>!!S.site?.feedOn;
 function renderFeed(){ const box=$('#feedPage'); if(!feedOn()&&!S.admin&&!FD.plantOnly){ leaveFeed(); history.replaceState(null,'','#/store'); route(); return; } document.documentElement.classList.add('fd-on'); addEventListener('keydown',fdKey);
-  if (FD.el&&box.contains(FD.el)&&FD.built===FD.mode){ const cur=[...FD.list.children].find(x=>{ const r=x.getBoundingClientRect(); return r.top>=-10&&r.top<innerHeight/2; }); cur?.querySelectorAll('video').forEach(fdPlay); return; }
-  FD.pool=fdBuild(); FD.i=0; FD.loop=0; FD.act=0; FD.built=FD.mode;
+  if (FD.el&&box.contains(FD.el)&&FD.built===FD.mode){ if(FD.lastTop&&!FD.list.scrollTop){ const y=FD.lastTop, L=FD.list, put=()=>{ if(L.clientHeight){ L.scrollTop=y; return true; } return false; }; if(!put()){ const ro=new ResizeObserver(()=>{ if(put()) ro.disconnect(); }); ro.observe(L); setTimeout(()=>ro.disconnect(),5000); } } const cur=[...FD.list.children].find(x=>{ const r=x.getBoundingClientRect(); return r.top>=-10&&r.top<innerHeight/2; }); cur?.querySelectorAll('video').forEach(fdPlay); return; }
+  FD.pool=fdBuild(); FD.i=0; FD.loop=0; FD.act=0; FD.built=FD.mode; FD.lastTop=0;
   const list=h('div',{class:'fd-list'}), sentinel=h('div',{class:'fd-sen'}); list.append(sentinel);
   const io=new IntersectionObserver(es=>es.forEach(e=>{ const el=e.target; if(el===sentinel){ if(e.isIntersecting&&list.clientHeight>0&&list.children.length-1-(FD.act||0)<6) fdMore(4); return; }
     const vs=el.querySelectorAll('video'); if(!list.clientHeight||!el.clientHeight) return;
@@ -14301,7 +14307,8 @@ function renderFeed(){ const box=$('#feedPage'); if(!feedOn()&&!S.admin&&!FD.pla
   const top=h('div',{class:'fd-top'}, h('a',{class:'fd-x',href:'#/store','aria-label':'離開',text:'‹',onclick:e=>{ if(FD.from){ e.preventDefault(); FD.from=null; history.back(); } }}), FD.plantOnly?h('b',{class:'fd-ttl',text:'滑滑看'}):tabs, snd);
   FD.el=h('div',{class:'fd'}, top, list, h('div',{class:'fd-up','aria-hidden':'true'}, h('div',{class:'fd-up-a'}, h('i'), h('i'), h('i')), h('b',{text:'往上滑，一直看下去'})));
   FD.list=list; FD.sentinel=sentinel; FD.io&&FD.io.disconnect(); FD.io=io;
-  box.replaceChildren(FD.el); fdMore(5);
+  box.replaceChildren(FD.el); box.scrollTop=0; list.scrollTop=0; fdMore(5);
+  if (FD.pickId){ const want=FD.pickId; FD.pickId=null; const fix=()=>{ if(!list.isConnected) return; const first=list.querySelector('.fd-it'); if(first&&first.dataset.pid!==want) console.warn('swipe start mismatch',want,first.dataset.pid); if(list.scrollTop>5) list.scrollTop=0; if(box.scrollTop) box.scrollTop=0; }; requestAnimationFrame(fix); setTimeout(fix,300); setTimeout(fix,900); }
   const kick=(n=0)=>{ if(!list.isConnected||n>300) return; if(!list.clientHeight){ requestAnimationFrame(()=>kick(n+1)); return; } [...list.children].forEach(x=>{ io.unobserve(x); io.observe(x); }); }; kick();
   if (FD.pool.length===0) list.prepend(h('div',{class:'fd-it fd-card'}, h('div',{class:'fd-sc'}, h('h3',{text:FD.mode==='follow'?'追蹤的賣家還沒有上架':'目前沒有東西'}), h('p',{text:'先去商店逛逛，追蹤喜歡的賣家。'}), h('a',{class:'btn lime',href:'#/store',text:'回商店'}))));
   { const up=FD.el?.querySelector('.fd-up'), off=()=>up?.classList.add('gone'); setTimeout(off,5000); list.addEventListener('scroll',()=>{ if(list.scrollTop>60) off(); },{passive:true,once:false}); }
