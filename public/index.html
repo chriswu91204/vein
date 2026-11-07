@@ -5735,6 +5735,18 @@ body.px-on #chDock,body.px-on footer{display:none!important}
 .cmon-t{flex:1;min-width:0;display:grid;gap:2px}.cmon-t b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cmon-t small{color:var(--fg2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cmon-r time{flex:none;font-size:11.5px;color:var(--fg3,#999)}
 .cm-priv{font-size:11.5px!important;opacity:.75;max-width:30em;margin:4px auto 10px!important;text-align:center;line-height:1.5}
+.pk{-webkit-touch-callout:none}
+body.pk-mode .pk{position:relative;cursor:pointer}
+body.pk-mode .pk::after{content:'';position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;border:2.5px solid #fff;background:rgba(0,0,0,.25);box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:6;pointer-events:none}
+body.pk-mode .pk.pk-on{outline:3px solid #D2FF00;outline-offset:-3px;border-radius:14px}
+body.pk-mode .pk.pk-on::after{content:'✓';display:grid;place-items:center;color:#111;font:900 15px/1 var(--f);background:#D2FF00;border-color:#D2FF00}
+body.pk-mode .toast{bottom:calc(160px + env(safe-area-inset-bottom,0px))!important}
+.pk-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147483000;width:min(560px,calc(100vw - 20px));display:flex;align-items:center;gap:8px;padding:8px 8px 8px 10px;border-radius:18px;background:rgba(17,19,18,.95);color:#fff;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);animation:gtF .2s both}
+@media (min-width:861px){.pk-bar{bottom:24px}}
+.pk-th{display:flex;flex:none}.pk-th img{width:30px;height:30px;border-radius:8px;object-fit:cover;border:2px solid #111312}.pk-th img+img{margin-left:-10px}
+.pk-bar b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-bar button{flex:none;border:0;border-radius:999px;font:800 13px var(--f);padding:9px 13px;cursor:pointer}
+.pk-x{background:rgba(255,255,255,.12);color:#fff}.pk-go{background:#D2FF00;color:#111312}.pk-go:disabled{opacity:.4}
 </style>
 
 </head>
@@ -6884,10 +6896,29 @@ let sfTimer=0, sfSig='';
 // ===== 競標焦點與活動（管理員設定，存在 site/spot）：讓特別的品種或植物展活動的競標特別顯眼 =====
 const SPOT_FX=[['gold','👑 金框流光'],['holo','🌈 全息彩虹'],['neon','💚 螢光呼吸'],['aurora','🌌 極光邊框'],['fire','🔥 熱焰脈動'],['spark','✨ 星光閃爍'],['ink','🖤 黑金精品']];
 const SPOT_IC={gold:'👑',holo:'🌈',neon:'⚡',aurora:'🌌',fire:'🔥',spark:'✨',ink:'◆'};
+/* ===== 多選植物拼圖轉發：長按植物卡片（或在轉發選「多株拼圖」）進入多選，點其他植物加入，選好按「製作拼圖」 ===== */
+const PK={on:false,sel:new Map(),t:0,sx:0,sy:0,swallow:false,bar:null};
+function pkText(L){ const same=L.every(p=>p.shop===L[0].shop); return '🌿 '+(same?shopName(L[0].shop)+' ':'')+'精選 '+L.length+' 株'+'\n'+L.map((p,i)=>(i+1)+'. '+(short(p.species)+(p.cultivar?' '+p.cultivar:''))+'｜'+(onSale(p)?priceLabel(p).main:'私訊詢價')+(isAuc(p)&&live(p)?'（競標中）':'')+'\n   '+plantUrl(p)).join('\n')+'\n\n在 VEIN 看完整履歷與血統'; }
+function pkPaint(){ document.body.classList.toggle('pk-mode',PK.on); document.querySelectorAll('.pk').forEach(el=>el.classList.toggle('pk-on',!!el.__p&&PK.sel.has(el.__p.id)));
+  if(!PK.on){ PK.bar?.remove(); PK.bar=null; return; } if(!PK.bar){ PK.bar=h('div',{class:'pk-bar'}); document.body.append(PK.bar); }
+  const n=PK.sel.size; PK.bar.replaceChildren(h('div',{class:'pk-th'}, ...[...PK.sel.values()].slice(-5).map(p=>h('img',{src:cover(p),alt:''}))), h('b',{text:n?'已選 '+n+' 株':'點植物卡片加入'}), h('button',{type:'button',class:'pk-x',onclick:pkEnd,text:'取消'}), h('button',{type:'button',class:'pk-go',disabled:n<2,onclick:pkMake,text:'🧩 製作拼圖'})); }
+function pkStart(p){ PK.on=true; if(p&&p.id) PK.sel.set(p.id,p); pkPaint(); toast('多選模式：點其他植物加入，選好按「製作拼圖」'); }
+function pkEnd(){ PK.on=false; PK.sel.clear(); pkPaint(); }
+function pkToggle(p){ if(PK.sel.has(p.id)) PK.sel.delete(p.id); else { if(PK.sel.size>=12) return toast('最多 12 株'); PK.sel.set(p.id,S.plants.get(p.id)||p); } pkPaint(); }
+function pkMake(){ const L=[...PK.sel.values()].map(p=>S.plants.get(p.id)||p); if(L.length<2) return toast('至少選 2 株'); const same=L.every(p=>p.shop===L[0].shop);
+  const urls=[], src=new Map(), caps=new Map(); L.forEach(p=>{ let u=sdPhotos(p)[0]||cover(p); if(urls.includes(u)) u+='#pk'+urls.length; { urls.push(u); src.set(u,p); caps.set(u,[short(p.species)+(p.cultivar?' '+p.cultivar:''),onSale(p)?(isAuc(p)&&live(p)?'⚡ ':'')+priceLabel(p).main:'']); } });
+  const prices=L.filter(onSale).map(p=>+p.price||0).filter(x=>x>0), lo=Math.min(...prices), hi=Math.max(...prices);
+  const P={id:'',__multi:L,__src:src,__caps:caps,__url:same?siteUrl()+'#/seller/'+L[0].shop:siteUrl()+'#/store',__name:(same?shopName(L[0].shop)+' ':'')+'精選 '+L.length+' 株',__price:prices.length?(lo===hi?money(lo):money(lo)+' 起'):'',shop:same?L[0].shop:'',species:'',cultivar:'',code:'',status:'available',media:urls.map(u=>({type:'image',url:u})),coverThumb:urls[0]};
+  openShare(P,'mpick'); }
+document.addEventListener('pointerdown',e=>{ const el=e.target.closest?.('.pk'); if(!el||PK.on||e.button>0) return; PK.sx=e.clientX; PK.sy=e.clientY; clearTimeout(PK.t); PK.t=setTimeout(()=>{ PK.swallow=true; navigator.vibrate?.(15); pkStart(el.__p); },520); },true);
+document.addEventListener('pointermove',e=>{ if(PK.t&&Math.hypot(e.clientX-PK.sx,e.clientY-PK.sy)>10){ clearTimeout(PK.t); PK.t=0; } },true);
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{ clearTimeout(PK.t); PK.t=0; },true));
+document.addEventListener('contextmenu',e=>{ if(e.target.closest?.('.pk')&&(PK.on||PK.swallow)) e.preventDefault(); },true);
+document.addEventListener('click',e=>{ const el=e.target.closest?.('.pk'); if(PK.swallow){ PK.swallow=false; if(el){ e.preventDefault(); e.stopPropagation(); return; } } if(!PK.on||!el||!el.__p) return; e.preventDefault(); e.stopPropagation(); pkToggle(el.__p); },true);
 function spotEvents(all){ const now=Date.now(), E=S.spot?.events||{}; return Object.entries(E).map(([id,e])=>({id,...e})).filter(e=>all||(e.on!==false&&(!e.from||now>=new Date(e.from).getTime())&&(!e.to||now<=new Date(e.to).getTime()))).sort((a,b)=>(b.at||0)-(a.at||0)); }
 function spotOf(p){ if(!p||!S.spot) return null; const d=S.spot.plants?.[p.id]; if(d&&d.fx&&d.on!==false) return {fx:d.fx,label:d.label||'焦點競標'};
   const ev=spotEvents().find(e=>(e.ids||[]).includes(p.id)); return ev?{fx:ev.fx||'gold',label:ev.label||ev.name||'活動',ev}:null; }
-function spot(el,p){ const s=spotOf(p); if(!s||!el||el.classList.contains('spx')) return el; el.classList.add('spx','spx-'+s.fx);
+function spot(el,p){ if(el&&p&&p.id&&!p.__c&&!p.__g){ el.__p=p; el.classList.add('pk'); if(PK.sel.has(p.id)) el.classList.add('pk-on'); } const s=spotOf(p); if(!s||!el||el.classList.contains('spx')) return el; el.classList.add('spx','spx-'+s.fx);
   if (!el.classList.contains('cf-card')&&!el.style.position) el.style.position='relative'; /* 還沒放進頁面前讀不到計算後的樣式，直接設 */
   el.append(h('span',{class:'spx-ring','aria-hidden':'true'}), s.fx==='holo'?h('span',{class:'spx-holo','aria-hidden':'true'}):null, h('span',{class:'spx-rb'}, h('i',{text:SPOT_IC[s.fx]||'★'}), String(s.label).slice(0,14)));
   if (s.fx==='spark') el.append(h('span',{class:'spx-sp','aria-hidden':'true'}, ...[0,1,2,3,4,5].map(k=>h('i',{style:'--k:'+k}))));
@@ -10209,7 +10240,7 @@ function startChecklist(){
 
 /* ---------- 轉發：產生好看的分享圖＋文字 ---------- */
 const siteUrl=()=>location.origin+location.pathname.replace(/index\.html$/,'');
-const plantUrl=p=>siteUrl()+'#/plant/'+encodeURIComponent(p.id);
+const plantUrl=p=>p?.__url||(siteUrl()+'#/plant/'+encodeURIComponent(p.id));
 let qrP=null;
 function loadQR(){ if(window.qrcode) return Promise.resolve(window.qrcode); if(!qrP) qrP=new Promise(res=>{ const sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; sc.onload=()=>res(window.qrcode||null); sc.onerror=()=>{ qrP=null; res(null); }; document.head.append(sc); }); return qrP; }
 function loadImg(src,cors){ return new Promise(res=>{ if(!src) return res(null); const im=new Image(); if(cors) im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; setTimeout(()=>res(null),9000); }); }
@@ -10404,7 +10435,7 @@ function hiPhoto(p,want){ want=want||p?.coverThumb||p?.thumb; if(!p||!S.db||!p.i
     }catch(e){} return want; })(); HI.set(k,pr); return pr; }
 const sdImg=src=>{ if(!src) return Promise.resolve(null); if(!sdImgCache.has(src)) sdImgCache.set(src,loadImg(src,!sameOrigin(src))); return sdImgCache.get(src); };
 function sdPhotos(p){ const L=[]; (p.media||[]).forEach(m=>{ if(!m?.url) return; const u=m.type==='video'?(m.poster||''):m.url; if(u&&!L.includes(u)) L.push(u); }); [p.coverThumb,p.thumb].forEach(u=>{ if(u&&!L.includes(u)) L.push(u); }); return L.slice(0,12); }
-function sdTags(p,c){ const t=[]; if(c.showKind) t.push(kindLabel(p)); if(c.showStatus&&onSale(p)) t.push(live(p)?'競標中':'販售中'); if(c.showTags) tagsOf(p).slice(0,2).forEach(x=>t.push('#'+x)); return t; }
+function sdTags(p,c){ if(p.__multi){ const sp=[...new Set(p.__multi.map(x=>short(x.species)))]; return c.showKind?[sp.length>1?sp.length+' 個品種':sp[0]]:[]; } const t=[]; if(c.showKind) t.push(kindLabel(p)); if(c.showStatus&&onSale(p)) t.push(live(p)?'競標中':'販售中'); if(c.showTags) tagsOf(p).slice(0,2).forEach(x=>t.push('#'+x)); return t; }
 async function sdRender(cv,p,c,scale=1){
   const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080, s=u*(c.size||1), rd=c.round??1, TX=c.ink||'#fff'; cv.width=W; cv.height=H; const g=cv.getContext('2d');
   const FF={sans:'"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif',serif:'"Noto Serif TC","Songti TC",Georgia,serif',round:'"Arial Rounded MT Bold","Yuanti TC","PingFang TC",system-ui,sans-serif',mono:'"JetBrains Mono",ui-monospace,Menlo,monospace'}, F=FF[c.font]||FF.sans, MONO=FF.mono;
@@ -10423,7 +10454,7 @@ async function sdRender(cv,p,c,scale=1){
     if(!done){ let l=out[out.length-1]||''; while(g.measureText(l+'…').width>maxW&&l) l=l.slice(0,-1); out[out.length-1]=l+'…'; } return out; };
   const pills=(x,y,list,bg,fg,size,align)=>{ g.font='800 '+size+'px '+F; let X=x; const ph=size*1.75, ws=list.map(t=>g.measureText(t).width+size*1.2), total=ws.reduce((a,b)=>a+b,0)+(list.length-1)*size*.45; if(align==='right') X=x-total; if(align==='center') X=x-total/2;
     list.forEach((t,i)=>{ g.save(); g.globalAlpha=c.tagA??1; g.fillStyle=bg; g.beginPath(); g.roundRect(X,y,ws[i],ph,Math.min(ph/2,ph/2*rd)); g.fill(); g.restore(); g.fillStyle=fg; g.textBaseline='middle'; g.textAlign='left'; g.fillText(t,X+size*.6,y+ph/2+1); X+=ws[i]+size*.45; }); g.textBaseline='alphabetic'; return ph; };
-  const shop=(x,y,s,col,align)=>{ const LG=c.showShop!==false&&c.showLogo!==false, NM=c.showShop!==false&&c.showShopName!==false; if(!LG&&!NM) return 0; const nm=shopName(p.shop); g.font='800 '+Math.round(s*.46)+'px '+F; const tw=NM?g.measureText(nm).width:0, totalW=(LG?s+(NM?s*.3:0):0)+tw; let X=align==='right'?x-totalW:align==='center'?x-totalW/2:x; g.save(); g.globalAlpha=c.markA??1;
+  const shop=(x,y,s,col,align)=>{ if(p.__multi&&!p.shop) return 0; const LG=c.showShop!==false&&c.showLogo!==false, NM=c.showShop!==false&&c.showShopName!==false; if(!LG&&!NM) return 0; const nm=shopName(p.shop); g.font='800 '+Math.round(s*.46)+'px '+F; const tw=NM?g.measureText(nm).width:0, totalW=(LG?s+(NM?s*.3:0):0)+tw; let X=align==='right'?x-totalW:align==='center'?x-totalW/2:x; g.save(); g.globalAlpha=c.markA??1;
     if(!LG){ g.fillStyle=col; g.textAlign='left'; g.textBaseline='middle'; g.fillText(nm,X,y+s/2+1); g.textBaseline='alphabetic'; g.restore(); return s; }
     g.save(); g.beginPath(); g.arc(X+s/2,y+s/2,s/2,0,7); g.closePath(); if(shopImg){ g.clip(); const r=Math.max(s/shopImg.width,s/shopImg.height); g.drawImage(shopImg,X+s/2-shopImg.width*r/2,y+s/2-shopImg.height*r/2,shopImg.width*r,shopImg.height*r); } else { g.fillStyle='#1F5C42'; g.fill(); g.fillStyle='#fff'; g.font='900 '+Math.round(s*.48)+'px '+F; g.textAlign='center'; g.textBaseline='middle'; g.fillText(nm.slice(0,1),X+s/2,y+s/2+1); } g.restore();
     g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=3*u; g.beginPath(); g.arc(X+s/2,y+s/2,s/2,0,7); g.stroke();
@@ -10432,7 +10463,7 @@ async function sdRender(cv,p,c,scale=1){
     g.fillStyle='#1F5C42'; g.beginPath(); g.roundRect(X,y,s,s,s*.26); g.fill(); g.fillStyle=VOLT; g.beginPath(); g.arc(X+s/2,y+s/2,s*.15,0,7); g.fill();
     g.fillStyle=col; g.textBaseline='middle'; g.textAlign='left'; g.letterSpacing&&(g.letterSpacing=(s*.12)+'px'); g.fillText('VEIN',X+s*1.3,y+s/2+2); g.letterSpacing&&(g.letterSpacing='0px'); g.textBaseline='alphabetic'; g.restore(); };
   const qr=async(x,y,S0,bg,fg)=>{ if(!c.showQR) return false; const Q=await loadQR(); if(!Q) return false; try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=S0*.09, cell=(S0-pad*2)/n; g.fillStyle=bg; g.beginPath(); g.roundRect(x,y,S0,S0,S0*.14); g.fill(); g.fillStyle=fg; for(let r=0;r<n;r++) for(let cc=0;cc<n;cc++) if(q.isDark(r,cc)) g.fillRect(x+pad+cc*cell,y+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); return true; }catch(e){ return false; } };
-  const name=c.title||(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,ch=>ch.toUpperCase()), tags=sdTags(p,c), price=c.showPrice?(onSale(p)?priceLabel(p).main:'私訊詢價'):'', code=c.showCode?p.code:'', note=c.note||'';
+  const name=c.title||(p.__multi?p.__name:(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,ch=>ch.toUpperCase())), tags=sdTags(p,c), price=c.showPrice?(p.__multi?p.__price:onSale(p)?priceLabel(p).main:'私訊詢價'):'', code=c.showCode?p.code:'', note=c.note||'';
   const story=c.fmt==='story', mg=(c.margin??60)*u, T=story?Math.max(250*u,mg):mg, B=story?H-Math.max(300*u,mg):H-mg, L=mg, R=W-mg, top=c.pos==='top';
   const QS=(story?190:170)*s;
   if (c.shadow){ g.shadowColor='rgba(0,0,0,.5)'; g.shadowBlur=18*u; g.shadowOffsetY=4*u; }
@@ -10553,9 +10584,13 @@ async function sdRender(cv,p,c,scale=1){
     case 'multi': case 'mgrid': case 'mfilm': case 'mpola': case 'mmag': case 'mbento': case 'mfan': case 'mdot':{
       const T=story?Math.max(110*u,mg):mg, B=story?H-Math.max(120*u,mg):H-mg; // 多圖版：限動也盡量滿版
       const P0=sdPhotos(p), first=c.photo&&P0.includes(c.photo)?c.photo:P0[0], P=[first,...P0.filter(u=>u!==first)].filter(Boolean);
-      const ims=(await Promise.all(P.slice(0,6).map(async(src,i)=>i===0&&im?im:((scale>=1?await sdImg(await hiPhoto(p,src)):null)||await sdImg(src))))).filter(Boolean);
+      const raw=await Promise.all(P.slice(0,6).map(async(src,i)=>i===0&&im&&!p.__multi?im:(async(s0)=>(scale>=1?await sdImg(await hiPhoto(p.__src?.get(src)||p,s0)):null)||await sdImg(s0))(String(src).replace(/#pk\d+$/,''))));
+      const CAP=new Map(); if(p.__caps&&c.showCaps!==false) raw.forEach((img,i)=>{ if(img) CAP.set(img,p.__caps.get(P[i])); }); const ims=raw.filter(Boolean); let NOCAP=false;
       const RED='#E5484D', SQ=c.fmt==='square', FLT=()=>{ try{ g.filter=(SD_FILTER_CSS[c.filter||'none']==='none'?'':SD_FILTER_CSS[c.filter])+(c.bright&&c.bright!==1?' brightness('+c.bright+')':'')||'none'; }catch(e){} };
       const cell=(img,x,yy,w,hh2,R2,lab)=>{ g.save(); g.beginPath(); g.roundRect(x,yy,w,hh2,R2); g.clip(); g.fillStyle='#E9E8E2'; g.fillRect(x,yy,w,hh2); if(img){ const r=Math.max(w/img.width,hh2/img.height)*(c.zoom||1), dw=img.width*r, dh=img.height*r, fy={top:0,center:.5,bottom:1}[c.focus||'center']; FLT(); g.drawImage(img,x+(w-dw)/2,yy+(hh2-dh)*fy,dw,dh); try{ g.filter='none'; }catch(e){} }
+        const cp=img&&!NOCAP&&CAP.get(img); if(cp&&!lab&&w>80*u){ const fs2=Math.max(15*u,Math.min(30*s,w*.085)), bh=fs2*(cp[1]?2.7:1.7)+10*u; const gr2=g.createLinearGradient(0,yy+hh2-bh*1.6,0,yy+hh2); gr2.addColorStop(0,'rgba(0,0,0,0)'); gr2.addColorStop(1,'rgba(0,0,0,.72)'); g.fillStyle=gr2; g.fillRect(x,yy+hh2-bh*1.6,w,bh*1.6);
+          g.textAlign='left'; g.textBaseline='alphabetic'; const pad=Math.max(10*u,w*.05); let nm=cp[0]; g.font='800 '+Math.round(fs2)+'px '+F; while(g.measureText(nm).width>w-pad*2&&nm.length>1) nm=nm.slice(0,-1); if(nm!==cp[0]) nm=nm.slice(0,-1)+'…'; g.fillStyle='#fff'; g.fillText(nm,x+pad,yy+hh2-pad-(cp[1]?fs2*1.15:0));
+          if(cp[1]){ g.font='900 '+Math.round(fs2*.95)+'px '+F; g.fillStyle=A==='#111312'||A==='#FFFFFF'?VOLT:A; g.fillText(cp[1],x+pad,yy+hh2-pad); } }
         if(lab){ g.fillStyle='rgba(0,0,0,.45)'; g.fillRect(x,yy,w,hh2); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.font='800 '+Math.round(Math.min(w,hh2)*.24)+'px '+F; g.fillText(lab,x+w/2,yy+hh2/2); g.textAlign='left'; g.textBaseline='alphabetic'; } g.restore(); };
       // 依張數排版：回傳每格的位置
       const lay=(n,x,y,w,hh2,gap)=>{ const tall=hh2>w*1.25, R=[];
@@ -10657,7 +10692,7 @@ async function sdRender(cv,p,c,scale=1){
       else if (c.tpl==='mdot'){ // 圓點拼貼
         const BG='#EEF1E8'; g.fillStyle=BG; g.fillRect(0,0,W,H); logoBig0(L,T,48*s,INK); shop(R,T,52*s,INK,'right');
         const top=T+100*s, area=(story?H*.5:SQ0?H*.52:H*.56), D=Math.min(R-L,area)*.72, cx0=L+D/2, cy0=top+D/2;
-        const circ=(img,x,y,d,lab)=>{ g.save(); g.beginPath(); g.arc(x,y,d/2,0,7); g.clip(); cell(img,x-d/2,y-d/2,d,d,0,lab); g.restore(); g.strokeStyle='#fff'; g.lineWidth=8*u; g.beginPath(); g.arc(x,y,d/2,0,7); g.stroke(); };
+        const circ=(img,x,y,d,lab)=>{ NOCAP=true; g.save(); g.beginPath(); g.arc(x,y,d/2,0,7); g.clip(); cell(img,x-d/2,y-d/2,d,d,0,lab); g.restore(); g.strokeStyle='#fff'; g.lineWidth=8*u; g.beginPath(); g.arc(x,y,d/2,0,7); g.stroke(); NOCAP=false; };
         circ(ims[0],cx0,cy0,D); const sm=[[R-D*.24,top+D*.2,D*.44],[R-D*.3,top+D*.72,D*.36],[L+D*.92,top+D*1.02,D*.3],[L+D*.22,top+D*1.0,D*.22]];
         ims.slice(1,5).forEach((img,i)=>circ(img,sm[i][0],sm[i][1],sm[i][2],P0.length>5&&i===3?'+'+(P0.length-5):''));
         let y=top+D*1.2+60*s; g.fillStyle=INK; y+=drawL(name,L,y,R-L-(c.showQR?QS+20*s:0),'900',F,76*s,2)+30*s; if(sub2){ g.fillStyle='#55585A'; y+=drawL(sub2,L,y+10*s,R-L-(c.showQR?QS+20*s:0),'600',F,30*s,2)+40*s; }
@@ -10705,6 +10740,7 @@ const SD_MODES=[
   ['batch','🌱','同批實生苗','群組可挑編號',{fmt:'post',tpl:'split',showPrice:true,showStatus:false,showKind:true,note:p=>sdGroupN(p)?'同批 '+sdGroupN(p)+' 株可挑':'同批實生苗'},p=>'🌱 同一批實生苗，到 VEIN 挑你喜歡的編號\n'+saleText(p)],
   ['growth','📸','成長紀錄','第 N 天',{fmt:'story',tpl:'frame',showPrice:false,showCode:true,note:p=>'第 '+sdDays(p)+' 天 · '+(p.photoCount||0)+' 筆紀錄'},p=>'📸 第 '+sdDays(p)+' 天的樣子\n每一張照片都保留原始拍攝時間，完整履歷在 VEIN\n👉 '+plantUrl(p)],
   ['multi','🖼','多圖模式','多張照片拼貼',{fmt:'post',tpl:'multi',showPrice:true,showQR:true,showStatus:true,showKind:true,shade:1},p=>'📷 多圖看清楚｜'+saleText(p),p=>sdPhotos(p).length>1],
+  ['mpick','🧩','多株拼圖','多選植物拼一張',{fmt:'post',tpl:'mgrid',showPrice:true,showQR:true,showStatus:false,showKind:true,showCode:false,showCaps:true},p=>p.__multi?pkText(p.__multi):'',p=>true],
   ['mother','👑','母本收藏','不賣也能秀',{fmt:'square',tpl:'magazine',showPrice:false,showStatus:false,showCode:true,note:'母本收藏'},p=>'👑 溫室母本收藏\n'+short(p.species)+(p.cultivar?' '+p.cultivar:'')+'・'+p.code+'\n血統與後代都在 VEIN 👉 '+plantUrl(p)],
 ];
 const SD_KEEP=Object.keys(SD_DEF).filter(k=>!['note','title'].includes(k));
@@ -10714,7 +10750,7 @@ function sdSave(st){ st.at=Date.now(); try{ localStorage.setItem('vein.sd2',JSON
 function openShare(p,start){ lsSet('vein.didShare',true);
   const mine=p.shop===S.me, store=sdLoad(); store.m=store.m||{};
   const modeDef=k=>SD_MODES.find(m=>m[0]===k)||SD_MODES[0];
-  const MODES=SD_MODES.filter(m=>!m[6]||m[6](p)); let mode=start||store.last||(mine&&onSale(p)?'sale':'story'); if(!MODES.some(m=>m[0]===mode)) mode='story';
+  const MODES=p.__multi?SD_MODES.filter(m=>m[0]==='mpick'):SD_MODES.filter(m=>!m[6]||m[6](p)); let mode=p.__multi?'mpick':start||store.last||(mine&&onSale(p)?'sale':'story'); if(!MODES.some(m=>m[0]===mode)) mode=p.__multi?'mpick':'story'; if(mode==='mpick'&&!p.__multi) mode='story';
   const presetOf=k=>{ const pr={...modeDef(k)[4]}; if(typeof pr.note==='function') pr.note=pr.note(p); return pr; };
   const build=k=>({...SD_DEF,...presetOf(k),...(store.m[k]||{}),photo:sdPhotos(p)[0]||cover(p),title:'',note:presetOf(k).note||''});
   let c=build(mode);
@@ -10731,7 +10767,7 @@ function openShare(p,start){ lsSet('vein.didShare',true);
   const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(c[k]!==false&&!!c[k]),onclick:e=>{ c[k]=!(c[k]!==false&&!!c[k]); e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(true); }},l);
   const swatch=(key,list,thumbs)=>{ const box=h('div',{class:'dz-sw'}, ...list.map(col=>h('button',{type:'button',style:'background:'+col,'aria-label':col,'aria-pressed':String(c[key]===col),onclick:e=>{ c[key]=col; box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(thumbs); }}))); return box; };
   const tplBox=h('div',{class:'sd-tpls'});
-  const drawThumbs=()=>{ tplBox.replaceChildren(...(mode==='multi'?SD_TPL_M:SD_TPL).map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),'aria-label':l,onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); sumUpd(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
+  const drawThumbs=()=>{ tplBox.replaceChildren(...(mode==='multi'||mode==='mpick'?SD_TPL_M:SD_TPL).map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),'aria-label':l,onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); sumUpd(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
   const open=store.open||(store.open={photo:sdPhotos(p).length>1,show:true});
   const sumEls={};
   const sumUpd=()=>{ const fmtL=(SD_FMT[c.fmt]||SD_FMT.post)[2], tplL=([...SD_TPL,...SD_TPL_M].find(t=>t[0]===c.tpl)||SD_TPL[0])[1];
@@ -10746,7 +10782,7 @@ function openShare(p,start){ lsSet('vein.didShare',true);
     const d=h('details',{class:'sd-sec'}, h('summary',{class:'sd-sh'}, h('i',{text:num}), h('span',{}, h('b',{text:title}), sm), h('em',{class:'sd-chev',text:'⌄'})), h('div',{class:'sd-sb'}, ...body));
     d.open=!!open[k]; d.addEventListener('toggle',()=>{ open[k]=d.open; sdSave(store); }); return d; };
   const modesBox=h('div',{class:'sd-modes'});
-  const paintModes=()=>modesBox.replaceChildren(...MODES.map(([k,ic,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ if(k===mode) return; persist(); mode=k; c=build(k); txt.value=modeDef(k)[5](p); saved.textContent=store.m[k]?'✓ 已套用你上次的「'+l+'」設定':''; store.last=k; sdSave(store); drawPanel(); }}, h('span',{text:ic}), h('b',{text:l}), h('small',{text:sub}))));
+  const paintModes=()=>modesBox.replaceChildren(...MODES.map(([k,ic,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ if(k===mode) return; if(k==='mpick'&&!p.__multi){ try{ dlg.close(); }catch(e){} pkStart(p); return; } persist(); mode=k; c=build(k); txt.value=modeDef(k)[5](p); saved.textContent=store.m[k]?'✓ 已套用你上次的「'+l+'」設定':''; store.last=k; sdSave(store); drawPanel(); }}, h('span',{text:ic}), h('b',{text:l}), h('small',{text:sub}))));
   const panel=h('div',{class:'sd-panel'});
   const drawPanel=()=>{ paintModes();
     const ph=sdPhotos(p);
@@ -10789,7 +10825,7 @@ function openShare(p,start){ lsSet('vein.didShare',true);
       h('a',{class:'btn line sm',href:'#',target:'_blank',rel:'noopener','aria-label':'LINE',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }}, h('span',{text:'LINE'}))));
   note.textContent='手機按「分享圖片」可以直接選 IG、FB、LINE；限動尺寸會先幫你複製網址，可以用「連結」貼圖貼上。';
   const cap=h('div',{class:'sd-cap'}); sumEls.cap=cap;
-  openDialog(isAuc(p)&&live(p)?'轉發這場競標':'轉發這株', h('div',{class:'sd sd2'}, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, h('div',{class:'sd-pw'}, prev, cap), h('div',{class:'sd-act'}, btns, note)), h('div',{class:'sd-right'}, panel))), false);
+  openDialog(p.__multi?'多株拼圖轉發（'+p.__multi.length+' 株）':isAuc(p)&&live(p)?'轉發這場競標':'轉發這株', h('div',{class:'sd sd2'}, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, h('div',{class:'sd-pw'}, prev, cap), h('div',{class:'sd-act'}, btns, note)), h('div',{class:'sd-right'}, panel))), false);
   drawPanel(); setTimeout(()=>modesBox.querySelector('[aria-pressed="true"]')?.scrollIntoView({inline:'center',block:'nearest'}),50);
 }
 
