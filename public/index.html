@@ -15023,7 +15023,10 @@ const EAS=new Map();
 function encAggWatch(){ if(!S.db) return; const want=new Set(); for(const p of S.plants.values()) if(isEnc(p)&&['live','catch'].includes(encState(p))) want.add(encRid(p));
   for(const [r,u] of EAS) if(!want.has(r)){ try{ u(); }catch(e){} EAS.delete(r); }
   for(const r of want) if(!EAS.has(r)) EAS.set(r,S.db.collection('encAgg/'+r+'/s').onSnapshot(sn=>{ let n=0,u=0; sn.docs.forEach(d=>{ const v=d.data(); n+=+v.n||0; u+=+v.u||0; }); S.encAgg.set(r,{n,u}); },()=>{})); }
-function encHitsOf(pid){ const q=S.plants.get(pid); const a=q?S.encAgg.get(encRid(q)):null; return {n:a?.n||0,u:a?.u||0}; }
+const EAF=new Set();
+function encAggFetch(rid,pid){ if(!S.db||EAF.has(rid)) return; EAF.add(rid); S.db.collection('encAgg/'+rid+'/s').get().then(sn=>{ if(EAS.has(rid)) return; let n=0,u=0; sn.docs.forEach(d=>{ const v=d.data(); n+=+v.n||0; u+=+v.u||0; }); S.encAgg.set(rid,{n,u}); document.querySelectorAll('[data-hits="'+pid+'"]').forEach(el=>el.textContent='⚔ '+u+' 位訓練家 · '+n+' 次攻擊'); }).catch(()=>{ EAF.delete(rid); }); }
+// 已結束的場次不再即時監看，但數字要讀一次留著（後台、頁面都看得到參加人數與總攻擊）
+function encHitsOf(pid){ const q=S.plants.get(pid); if(!q) return {n:0,u:0}; const rid=encRid(q), a=S.encAgg.get(rid); if(!a&&!EAS.has(rid)&&isEnc(q)&&encState(q)!=='soon') encAggFetch(rid,pid); return {n:a?.n||0,u:a?.u||0}; }
 // HP = 時間剩下的比例 ×（1 − 攻擊量/20000）² ＋ 回血。HP 越低攻擊越沒力，但一定打得完
 // 攻擊量 = 全場總攻擊次數 × 人數倍率＝人數 ÷ 10（最高 ×5）：要打的總次數＝20 萬 ÷ 人數，每人＝20 萬 ÷ 人數²（1 人 20 萬下、20 人每人 500 下）
 const encCrowd=u=>Math.min(5,Math.max(0,u)/10), ENC_FULL=2500;
@@ -15167,7 +15170,7 @@ function encPanel(p,deal){
     const w=(st==='won'||st==='end')?0:c.hp*100; hpF.style.width=w+'%'; hpG.style.width=w+'%'; hpT.textContent=Math.round(w)+'%'; el.dataset.hp=w<25?'low':w<55?'mid':'hi';
     cap.disabled=st!=='live'||busy||rdy; atk.classList.toggle('off',st!=='live'||rdy);
     const H=encHitsOf(pid), tot=H.n+encPendOf(pid);
-    if(lastN!=null&&tot>lastN){ const others=tot-lastN-(V.myAdds||0); if(others>0) for(let i=0;i<Math.min(others,6);i++) setTimeout(()=>flyIn(ENC_EMO[Math.floor(Math.random()*ENC_EMO.length)]),i*90); }
+    if(lastN!=null&&tot>lastN&&st==='live'){ const others=tot-lastN-(V.myAdds||0); if(others>0) for(let i=0;i<Math.min(others,6);i++) setTimeout(()=>flyIn(ENC_EMO[Math.floor(Math.random()*ENC_EMO.length)]),i*90); }
     V.myAdds=0; lastN=tot;
     if(lastPrice!=null&&c.price<lastPrice){ dmgAcc+=lastPrice-c.price; if(!dmgT) dmgT=setTimeout(()=>{ if(dmgAcc>0&&!REDUCE) pop('-'+money(dmgAcc),'tick',62+Math.random()*10,52); dmgAcc=0; dmgT=0; },1500); }
     lastPrice=c.price;
@@ -15426,7 +15429,7 @@ function admEnc(m){ const me=S.work?.shop||S.me, ok=isVerified(me);
     body.replaceChildren(...['live','soon','won','end'].filter(k=>by(k).length).map(k=>h('section',{class:'ae-g'}, h('h4',{class:'ae-h'}, h('span',{text:ST[k][0]}), ST[k][1], h('small',{text:String(by(k).length)})),
       ...by(k).sort((a,b)=>(a.startsAtMs||a.aucStartAt||0)-(b.startsAtMs||b.aucStartAt||0)).map(p=>{ const st=encState(p), H=encHitsOf(p.id);
         return h('div',{class:'ae-r ae-'+st}, h('img',{src:cover(p),alt:''}),
-          h('div',{class:'ae-tx'}, h('b',{text:p.code+' · '+pName(p)}), h('small',{'data-live':p.id,text:aeLine(p)}), st==='live'||st==='won'?h('small',{text:'⚔ '+H.u+' 位訓練家 · '+H.n+' 次攻擊'}):null),
+          h('div',{class:'ae-tx'}, h('b',{text:p.code+' · '+pName(p)}), h('small',{'data-live':p.id,text:aeLine(p)}), st!=='soon'?h('small',{'data-hits':p.id,text:'⚔ '+H.u+' 位訓練家 · '+H.n+' 次攻擊'}):null),
           h('div',{class:'ae-act'},
             h('button',{class:'btn soft sm',type:'button',onclick:()=>editPlant(p.id,'sale'),text:st==='end'?'再開一次':'設定'}),
             st==='won'?h('button',{class:'btn lime sm',type:'button',onclick:()=>{ S.admMode='order'; S.admTab='orders'; renderAdmin(true); },text:'看訂單'}):null,
