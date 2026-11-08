@@ -66,7 +66,7 @@ async function start() {
       return { async confirm(code) {
         await c.confirm(String(code).trim());
         await auth.currentUser.reload(); await auth.currentUser.getIdToken(true);
-        await setDoc(doc(fs, 'profiles/' + auth.currentUser.uid), { name: auth.currentUser.displayName || '', avatar: auth.currentUser.photoURL || '', phoneVerified: true, updatedAt: Date.now() });
+        await setDoc(doc(fs, 'profiles/' + auth.currentUser.uid), { phoneVerified: true, updatedAt: Date.now() }, { merge: true });
       } };
     }
   };
@@ -121,16 +121,19 @@ async function start() {
 
   /* ---------- user ---------- */
   let isAdmin = false, isOwner = false;
+  let myProf = {};
   if (u) {
     isOwner = !!u.email && u.emailVerified !== false && OWNER_EMAILS.map(e => e.toLowerCase()).includes(u.email.toLowerCase());
     isAdmin = isOwner;
     try { const a = await getDoc(doc(fs, 'site/admins')); if (a.exists() && (a.data().uids || {})[u.uid]) isAdmin = true; } catch (e) {}
     // 公開的名字與頭像，讓別人看得到「誰出價、誰留言」
-    setDoc(doc(fs, 'profiles/' + u.uid), { name: u.displayName || '', avatar: u.photoURL || '', phoneVerified: !!u.phoneNumber, updatedAt: Date.now() }).catch(() => {});
+    // 自訂過顯示名稱（nameSet）就不再用登入帳號的名字蓋掉；會員 ID、隱私設定都保留（merge）
+    try { const pr = await getDoc(doc(fs, 'profiles/' + u.uid)); myProf = pr.exists() ? pr.data() : {}; } catch (e) {}
+    setDoc(doc(fs, 'profiles/' + u.uid), { ...(myProf.nameSet ? {} : { name: u.displayName || '' }), avatar: u.photoURL || '', phoneVerified: !!u.phoneNumber, updatedAt: Date.now() }, { merge: true }).catch(() => {});
   }
   const cache = new Map();
   const user = {
-    async me() { return u ? { id: u.uid, name: u.displayName || '', avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber, phone: auth.currentUser?.phoneNumber || null } : { id: null, name: '', avatarUrl: '' }; },
+    async me() { return u ? { id: u.uid, name: (myProf.nameSet && myProf.name) || u.displayName || '', handle: myProf.handle || null, priv: !!myProf.priv, nameSet: !!myProf.nameSet, avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber, phone: auth.currentUser?.phoneNumber || null } : { id: null, name: '', avatarUrl: '' }; },
     async id() { return u ? u.uid : null; },
     async isOwner() { return isOwner; },
     async canEdit() { return isAdmin; },
@@ -139,7 +142,7 @@ async function start() {
       const out = {};
       await Promise.all(ids.map(async id => {
         if (!cache.has(id)) {
-          try { const s = await getDoc(doc(fs, 'profiles/' + id)); cache.set(id, s.exists() ? { name: s.data().name || '', avatarUrl: s.data().avatar || '', phoneVerified: !!s.data().phoneVerified } : { name: '', avatarUrl: '', phoneVerified: false }); }
+          try { const s = await getDoc(doc(fs, 'profiles/' + id)); cache.set(id, s.exists() ? { name: s.data().name || '', avatarUrl: s.data().avatar || '', phoneVerified: !!s.data().phoneVerified, priv: !!s.data().priv, handle: s.data().handle || null } : { name: '', avatarUrl: '', phoneVerified: false }); }
           catch (e) { cache.set(id, { name: '', avatarUrl: '' }); }
         }
         out[id] = { id, ...cache.get(id), isMe: !!u && id === u.uid };

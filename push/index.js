@@ -48,9 +48,11 @@ async function displayName(uid) {
 // 聊天：新訊息推給對方
 exports.pushChat = onDocumentCreated({ document: 'chats/{cid}/messages/{mid}', ...HOT }, async ev => {
   const m = ev.data?.data(); if (!m || m.t === 'sys') return;
-  const to = String(ev.params.cid).split('~').find(u => u !== m.from); if (!to) return;
-  const prev = { text: m.text, img: '📷 照片', vid: '🎬 影片', prod: '🌿 商品 ' + (m.code || ''), offer: '🤝 議價 NT$ ' + Number(m.amt || 0).toLocaleString('zh-TW'), ask: '✅ ' + (m.q || '請確認'), pay: '💳 匯款資訊', ship: '📦 已出貨' }[m.t] || m.text || '新訊息';
-  await push(to, '💬 ' + await displayName(m.from), String(prev).slice(0, 120), '/#/chats/' + encodeURIComponent(ev.params.cid), 'chat-' + ev.params.cid);
+  const cid = String(ev.params.cid), prev = { text: m.text, img: '📷 照片', vid: '🎬 影片', prod: '🌿 商品 ' + (m.code || ''), offer: '🤝 議價 NT$ ' + Number(m.amt || 0).toLocaleString('zh-TW'), ask: '✅ ' + (m.q || '請確認'), pay: '💳 匯款資訊', ship: '📦 已出貨', ginv: '👥 邀請你加入群組「' + (m.name || '') + '」' }[m.t] || m.text || '新訊息';
+  let to = [], title = '💬 ' + await displayName(m.from);
+  if (cid.startsWith('g_')) { const c = await db.doc('chats/' + cid).get(); if (!c.exists) return; to = (c.data().members || []).filter(u => u !== m.from).slice(0, 60); title = '💬 ' + (c.data().name || '群組') + ' · ' + await displayName(m.from); }
+  else { const t = cid.split('~').find(u => u !== m.from); if (t) to = [t]; }
+  for (const u of to) await push(u, title, String(prev).slice(0, 120), '/#/chats/' + encodeURIComponent(cid), 'chat-' + cid);
 });
 // 議價：推給賣家
 exports.pushOffer = onDocumentCreated({ document: 'offers/{id}', ...HOT }, async ev => {
@@ -356,6 +358,14 @@ exports.pushOrderNag = onSchedule({ schedule: 'every 30 minutes', timeZone: 'Asi
 exports.pushXreq = onDocumentCreated('xreq/{id}', async ev => {
   const x = ev.data?.data(); if (!x || !x.owner || x.status !== 'open') return;
   await push(x.owner, '🤝 ' + (await displayName(x.from)) + ' 請求轉讓 ' + (x.code || ''), (x.via === 'nfc' ? '對方在現場碰了 NFC，' : '對方掃了你的轉移 QR，') + '請在 5 分鐘內打開 VEIN 確認轉移', '/#/plant/' + x.pid, 'xreq-' + ev.params.id);
+});
+
+// 好友：收到邀請、對方接受
+exports.pushFriend = onDocumentWritten('friends/{id}', async ev => {
+  const b = ev.data?.before?.exists ? ev.data.before.data() : null, a = ev.data?.after?.exists ? ev.data.after.data() : null; if (!a) return;
+  const other = (a.u || []).find(u => u !== a.from); if (!other) return;
+  if (!b && a.status === 'pending') await push(other, '👥 ' + (await displayName(a.from)) + ' 想加你好友', '打開 VEIN 按「接受」就成為好友', '/#/me', 'fr-' + ev.params.id);
+  else if (b && b.status !== 'ok' && a.status === 'ok') await push(a.from, '🎉 ' + (await displayName(other)) + ' 接受了你的好友邀請', '現在可以聊天、建群組、直接轉移或代管植物', '/#/me', 'fr-' + ev.params.id);
 });
 
 // 代管：交給別人代管 → 通知代管人；代管人申請上架／轉移 → 通知原主確認
