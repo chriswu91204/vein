@@ -251,6 +251,39 @@ service cloud.firestore {
           && (!('text' in request.resource.data) || (request.resource.data.text is string && request.resource.data.text.size() <= 2000)));
       }
     }
+    // 市集：管理員建立；賣家報名（文件 id＝植物 id），伺服器檢查名額與條件後改成 ok／pending／no
+    match /mkts/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+      match /e/{pid} {
+        allow read: if true;
+        allow create: if notBanned() && request.resource.data.shop is string && shopper(request.resource.data.shop, 'plants') && request.resource.data.pid == pid && request.resource.data.status == 'new'
+          && request.resource.data.deal is number && request.resource.data.deal > 0;
+        allow update: if isAdmin();
+        allow delete: if isAdmin() || shopper(resource.data.shop, 'plants');
+      }
+    }
+    // VEIN 拍賣會：活動與拍品；出價（liveBid）與推進（liveTick）都交給伺服器判定
+    match /lives/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+      match /lots/{pid} {
+        allow read: if true;
+        allow create: if notBanned() && request.resource.data.shop is string && shopper(request.resource.data.shop, 'plants') && request.resource.data.pid == pid && request.resource.data.status == 'new'
+          && request.resource.data.start is number && request.resource.data.start > 0;
+        allow update: if isAdmin() && !(resource.data.status in ['live', 'sold']);
+        allow delete: if (isAdmin() || shopper(resource.data.shop, 'plants')) && !(resource.data.status in ['live', 'sold', 'pass']);
+        match /bids/{bid} { allow read: if true; }
+      }
+    }
+    match /liveBid/{id} {
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+      allow create: if notBanned() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'eid', 'lid', 'amt', 'at'])
+        && request.resource.data.amt is number;
+    }
+    match /liveTick/{id} {
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['eid', 'at']);
+    }
     // 好友：id＝兩人 uid 排序後用 ~ 連起來；發出邀請的人建立，對方按接受
     match /friends/{fid} {
       allow read: if signedIn() && request.auth.uid in resource.data.u;

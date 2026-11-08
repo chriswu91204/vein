@@ -677,3 +677,164 @@ exports.adminPhoneBind = onDocumentWritten({ document: 'phoneBind/{uid}' }, asyn
     return ref.set({ st: 'ok', act: 'bind', phone: n, at: Date.now(), by: d.by });
   } catch (e) { logger.error('adminPhoneBind', e); return fail('綁定失敗：' + (e.message || e.code || '')); }
 });
+
+// ================= 市集（特賣會）＋ VEIN 拍賣會 =================
+// 市集：開始時把報名通過的植物價格換成優惠價（記住原價），結束時換回來；這樣所有原本的購買流程都直接用優惠價結帳
+const twNum = v => { const n = Number(v); return isFinite(n) ? n : 0; };
+async function mktApply(id, m, now) {
+  const es = await db.collection('mkts/' + id + '/e').where('status', '==', 'ok').get();
+  for (const d of es.docs) { const e = d.data(); const pref = db.doc(`shops/${e.shop}/plants/${e.pid}`);
+    try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data();
+      if (p.status !== 'available' || p.mode === 'auction' || (p.mkt && p.mkt.id !== id)) { tx.update(d.ref, { status: 'skip', why: '開賣時這株已售出或不在販售中' }); return; }
+      if (p.mkt && p.mkt.id === id) return;
+      const orig = twNum(p.price) || twNum(e.orig); tx.update(pref, { price: e.deal, mkt: { id, orig, deal: e.deal, end: m.endAt, title: m.title || '市集' } }); tx.update(d.ref, { applied: true, orig }); }); } catch (x) { logger.warn('mktApply', e.pid, String(x)); } }
+}
+async function mktRestore(id) {
+  const es = await db.collection('mkts/' + id + '/e').get();
+  for (const d of es.docs) { const e = d.data(); const pref = db.doc(`shops/${e.shop}/plants/${e.pid}`);
+    try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== id) return;
+      if (p.status === 'sold') tx.update(pref, { mkt: { ...p.mkt, done: true } }); else tx.update(pref, { price: p.mkt.orig || p.price, mkt: null }); }); } catch (x) { logger.warn('mktRestore', e.pid, String(x)); } }
+}
+exports.mktSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const now = Date.now(), ms = await db.collection('mkts').where('phase', 'in', ['reg', 'wait', 'on']).get();
+  for (const d of ms.docs) { const m = d.data();
+    try {
+      if (m.phase !== 'on' && m.startAt && now >= m.startAt && (!m.endAt || now < m.endAt)) { await mktApply(d.id, m, now); await d.ref.update({ phase: 'on', appliedAt: now }); await mktPush(d.id, m, 'start'); }
+      else if (m.endAt && now >= m.endAt) { await mktRestore(d.id); await d.ref.update({ phase: 'done', doneAt: now }); }
+    } catch (x) { logger.error('mktSweep', d.id, String(x)); }
+  }
+});
+async function mktPush(id, m, k) { const mk = db.doc('sysnotes/mkt-' + id + '-' + k); if ((await mk.get()).exists) return; await mk.set({ at: Date.now() });
+  try { await broadcast('🎪 ' + (m.title || '市集') + ' 開賣了！', (m.sub || '限時優惠價，手刀進場'), '/#/mkt/' + id, 'mkt-' + id); } catch (e) {} }
+// 報名把關：上限、種類、價格、折扣（設成 0／空＝不限）
+exports.mktGuard = onDocumentCreated('mkts/{id}/e/{pid}', async ev => {
+  const e = ev.data.data() || {}, ref = ev.data.ref, id = ev.params.id;
+  const no = why => ref.update({ status: 'no', why, checkedAt: Date.now() }).catch(() => {});
+  try {
+    const ms = await db.doc('mkts/' + id).get(); if (!ms.exists) return no('活動不存在'); const m = ms.data(), now = Date.now();
+    if (!m.regOpen || (m.regEnd && now > m.regEnd) || m.phase === 'done') return no('報名已截止');
+    const ps = await db.doc(`shops/${e.shop}/plants/${e.pid}`).get(); if (!ps.exists) return no('找不到這株');
+    const p = ps.data(); if (p.status !== 'available' || p.mode === 'auction' || p.listed === false || p.hidden) return no('要是上架中的直購植物');
+    const orig = twNum(p.price), deal = twNum(e.deal); if (!(deal > 0)) return no('請填優惠價');
+    if (orig && deal >= orig) return no('優惠價要低於原價');
+    const R = m.rules || {};
+    if (R.minOff && orig && (1 - deal / orig) * 100 < R.minOff - 0.01) return no('至少要打 ' + (100 - R.minOff) / 10 + ' 折');
+    if (R.kinds && R.kinds.length && !R.kinds.includes(p.kind || 'mother')) return no('這次不收這個類型');
+    const g = String(p.species || '').trim().split(/\s+/)[0].toLowerCase(); if (R.genera && R.genera.length && !R.genera.map(x => String(x).toLowerCase()).includes(g)) return no('這次不收這個屬');
+    if (R.pmin && deal < R.pmin) return no('優惠價要在 NT$ ' + R.pmin + ' 以上'); if (R.pmax && deal > R.pmax) return no('優惠價要在 NT$ ' + R.pmax + ' 以下');
+    const all = await db.collection('mkts/' + id + '/e').where('status', 'in', ['ok', 'pending']).get();
+    const mine = all.docs.filter(x => x.data().shop === e.shop && x.id !== ev.params.pid).length, tot = all.docs.filter(x => x.id !== ev.params.pid).length;
+    if (R.perShop && mine >= R.perShop) return no('每個賣場最多 ' + R.perShop + ' 株');
+    if (R.total && tot >= R.total) return no('名額已滿（共 ' + R.total + ' 株）');
+    if (R.bands && R.bands.length) { const b = R.bands.find(x => deal >= (+x.lo || 0) && deal <= (+x.hi || 1e12)); if (!b) return no('這個價格區間沒有開放');
+      if (+b.n) { const nb = all.docs.filter(x => x.id !== ev.params.pid && x.data().deal >= (+b.lo || 0) && x.data().deal <= (+b.hi || 1e12)).length; if (nb >= +b.n) return no('NT$ ' + b.lo + '–' + b.hi + ' 這一區名額已滿'); } }
+    await ref.update({ status: m.approve === 'manual' ? 'pending' : 'ok', orig, checkedAt: now, kind: p.kind || 'mother', genus: g });
+    if (m.phase === 'on' && m.approve !== 'manual') await mktApply(id, m, now);
+  } catch (x) { logger.error('mktGuard', String(x)); }
+});
+
+// ===== VEIN 拍賣會：一株接一株。出價、結標全部由伺服器用伺服器時間判定，誰的手機時間不準都不影響 =====
+const LV_GAP = 5000; // 一株結標後，停 5 秒宣布得標者再換下一株
+function lvStep(ev, amt) { if (+ev.step > 0) return +ev.step; return amt < 1000 ? 50 : amt < 3000 ? 100 : amt < 10000 ? 200 : amt < 30000 ? 500 : 1000; }
+async function lvLots(id) { const s = await db.collection('lives/' + id + '/lots').where('status', 'in', ['ok', 'wait', 'live', 'sold', 'pass']).get();
+  return s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (twNum(a.ord) - twNum(b.ord)) || (twNum(a.at) - twNum(b.at))); }
+// 推進：把該結束的那一株結標（有人出價＝成交、建立訂單），再開始下一株
+async function lvAdvance(id) {
+  const eref = db.doc('lives/' + id); let result = null;
+  const lots = await lvLots(id);
+  await db.runTransaction(async tx => {
+    const es = await tx.get(eref); if (!es.exists) return; const ev = es.data(), now = Date.now(), cur = ev.cur || null;
+    if (ev.phase === 'done') return;
+    if (!cur) { if (!ev.startAt || now < ev.startAt) return; const nx = lots.find(l => l.status === 'ok' || l.status === 'wait'); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
+      tx.update(eref, { phase: 'on', cur: lvCur(ev, nx, now, 0), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); return; }
+    if (cur.gapUntil) { if (now < cur.gapUntil) return; const done = new Set(lots.filter(l => l.status === 'sold' || l.status === 'pass').map(l => l.id)); done.add(cur.lid);
+      const nx = lots.find(l => !done.has(l.id) && (l.status === 'ok' || l.status === 'wait'));
+      if (!nx) { tx.update(eref, { phase: 'done', doneAt: now, cur: { ...cur, over: true }, now }); return; }
+      tx.update(eref, { cur: lvCur(ev, nx, now, (cur.i || 0) + 1), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); return; }
+    if (now < cur.endsAt) return;
+    // 結標：伺服器時間已超過結束時間，之後的出價都不會被接受
+    const lref = eref.collection('lots').doc(cur.lid);
+    if (cur.top) { tx.update(lref, { status: 'sold', final: cur.top.amt, winner: cur.top.uid, n: cur.n || 0, endedAt: now }); result = { sold: true, lot: cur }; }
+    else { tx.update(lref, { status: 'pass', n: 0, endedAt: now }); result = { sold: false, lot: cur }; }
+    tx.update(eref, { cur: { ...cur, gapUntil: now + LV_GAP, result: cur.top ? 'sold' : 'pass' }, now, [cur.top ? 'nSold' : 'nPass']: admin.firestore.FieldValue.increment(1), ...(cur.top ? { gmv: admin.firestore.FieldValue.increment(cur.top.amt) } : {}) });
+  });
+  if (result && result.sold) await lvOrder(id, result.lot);
+  return result;
+}
+function lvCur(ev, l, now, i) { const dur = Math.max(10, twNum(ev.dur) || 60) * 1000; return { lid: l.id, pid: l.pid, shop: l.shop, i, start: twNum(l.start) || 0, top: null, n: 0, startedAt: now, endsAt: now + dur, code: l.code || '', name: l.name || '' }; }
+async function lvOrder(id, cur) {
+  const oid = 'lv-' + id.slice(0, 8) + '-' + cur.pid, oref = db.doc(`shops/${cur.shop}/orders/${oid}`), now = Date.now();
+  try { if (!(await oref.get()).exists) { const bank = await db.doc(`data/users/${cur.shop}/bank`).get();
+      await oref.set({ buyer: cur.top.uid, items: [cur.pid], total: cur.top.amt, note: 'VEIN 拍賣會得標（自動成立）', status: 'confirmed', payMethod: 'transfer', src: 'live', at: now });
+      await db.doc(`deals/${cur.shop}_${oid}`).set({ seller: cur.shop, buyer: cur.top.uid, orderId: oid, payMethod: 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true });
+      await db.doc(`shops/${cur.shop}/plants/${cur.pid}`).update({ status: 'sold', buyer: cur.top.uid, soldPrice: cur.top.amt, liveId: null }).catch(() => {}); }
+    await push(cur.top.uid, '🏆 拍賣會得標！', (cur.name || cur.code || '植物') + ' 以 NT$ ' + Number(cur.top.amt).toLocaleString('zh-TW') + ' 得標，訂單已成立', '/#/me/orders', 'lv-' + oid);
+    await push(cur.shop, '🔨 拍賣會成交', (cur.name || cur.code || '植物') + ' 由 ' + (await displayName(cur.top.uid)) + ' 以 NT$ ' + Number(cur.top.amt).toLocaleString('zh-TW') + ' 得標', '/#orders/orders', 'lv-' + oid);
+  } catch (e) { logger.error('lvOrder', oid, String(e)); }
+}
+// 出價：只接受「目前價＋一口」（第一口＝起拍價），而且伺服器時間還沒結束；最後 N 秒有人出價就延長到 N 秒
+exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async ev => {
+  const b = ev.data.data() || {}, ref = ev.data.ref; if (!b.uid || !b.eid || !b.lid || b.res) return;
+  const done = o => ref.update({ ...o, srv: Date.now() }).catch(() => {});
+  try { const bn = await db.doc('site/bans').get(); if (bn.exists && (bn.data().uids || {})[b.uid]) return done({ res: 'ban' }); } catch (e) {}
+  const eref = db.doc('lives/' + b.eid);
+  try {
+    const out = await db.runTransaction(async tx => {
+      const es = await tx.get(eref); if (!es.exists) return { res: 'gone' }; const e = es.data(), cur = e.cur, now = Date.now();
+      if (!cur || cur.lid !== b.lid || cur.gapUntil) return { res: 'late' };
+      if (now >= cur.endsAt) return { res: 'late' };
+      if (cur.shop === b.uid) return { res: 'own' };
+      const need = cur.top ? cur.top.amt + lvStep(e, cur.top.amt) : (cur.start || lvStep(e, 0));
+      if (twNum(b.amt) !== need) return { res: 'outbid', need };
+      if (cur.top && cur.top.uid === b.uid) return { res: 'lead' };
+      const sn = Math.max(0, twNum(e.snipe) || 10) * 1000, endsAt = cur.endsAt - now < sn ? now + sn : cur.endsAt;
+      const top = { uid: b.uid, amt: need, at: now };
+      tx.update(eref, { cur: { ...cur, top, n: (cur.n || 0) + 1, endsAt, ext: endsAt !== cur.endsAt ? (cur.ext || 0) + 1 : (cur.ext || 0) }, now, bids: admin.firestore.FieldValue.increment(1) });
+      tx.set(eref.collection('lots').doc(cur.lid).collection('bids').doc(), { uid: b.uid, amt: need, at: now });
+      return { res: 'ok', amt: need, endsAt };
+    });
+    await done(out);
+  } catch (x) { logger.warn('liveBid', String(x)); await done({ res: 'err' }); }
+});
+// 結標／下一株：在競標頁的人倒數到 0 時會丟一個 tick；伺服器確認時間真的到了才處理（重複的 tick 不會重複結標）
+exports.liveTick = onDocumentCreated({ document: 'liveTick/{id}', ...HOT }, async ev => {
+  const t = ev.data.data() || {}; if (!t.eid) return; try { await lvAdvance(t.eid); } catch (x) { logger.warn('liveTick', String(x)); } try { await ev.data.ref.delete(); } catch (e) {}
+});
+// 保險：沒有人在看的時候，每分鐘也會推進一次
+exports.liveSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  const ls = await db.collection('lives').where('phase', 'in', ['reg', 'wait', 'on']).get();
+  for (const d of ls.docs) { const e = d.data(); if (!e.startAt || Date.now() < e.startAt) continue; for (let k = 0; k < 3; k++) { try { const r = await lvAdvance(d.id); if (!r) break; } catch (x) { break; } }
+    if (e.phase !== 'on') { try { await broadcast('🔴 ' + (e.title || 'VEIN 拍賣會') + ' 開拍了！', '一株接一株，手刀進場', '/#/live/' + d.id, 'live-' + d.id); } catch (x) {} } }
+});
+// 市集進行中賣家退出（或管理員移除）→ 價格立刻換回原價
+exports.mktUnreg = onDocumentDeleted('mkts/{id}/e/{pid}', async ev => {
+  const e = ev.data.data() || {}; if (!e.shop) return; const pref = db.doc(`shops/${e.shop}/plants/${ev.params.pid}`);
+  try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== ev.params.id || p.status === 'sold') return; tx.update(pref, { price: p.mkt.orig || p.price, mkt: null }); }); } catch (x) { logger.warn('mktUnreg', String(x)); }
+});
+// 管理員把報名改成「不通過」也要換回原價
+exports.mktEntryUpd = onDocumentUpdated('mkts/{id}/e/{pid}', async ev => {
+  const a = ev.data.after.data() || {}, b = ev.data.before.data() || {}; if (a.status === b.status) return;
+  const ms = await db.doc('mkts/' + ev.params.id).get(); if (!ms.exists) return; const m = ms.data();
+  if (a.status === 'ok' && m.phase === 'on') await mktApply(ev.params.id, m, Date.now());
+  if (b.status === 'ok' && a.status !== 'ok') { const pref = db.doc(`shops/${a.shop}/plants/${ev.params.pid}`);
+    try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== ev.params.id || p.status === 'sold') return; tx.update(pref, { price: p.mkt.orig || p.price, mkt: null }); }); } catch (x) {} }
+});
+// 拍賣會報名把關
+exports.liveGuard = onDocumentCreated('lives/{id}/lots/{pid}', async ev => {
+  const l = ev.data.data() || {}, ref = ev.data.ref, id = ev.params.id;
+  const no = why => ref.update({ status: 'no', why, checkedAt: Date.now() }).catch(() => {});
+  try {
+    const es = await db.doc('lives/' + id).get(); if (!es.exists) return no('活動不存在'); const e = es.data(), now = Date.now();
+    if (!e.regOpen || (e.regEnd && now > e.regEnd) || e.phase === 'done') return no('報名已截止');
+    const ps = await db.doc(`shops/${l.shop}/plants/${l.pid}`).get(); if (!ps.exists) return no('找不到這株'); const p = ps.data();
+    if (p.status === 'sold' || p.mode === 'auction' || (p.lot === true)) return no('已售出、競標中或整盤商品不能報名');
+    const st = twNum(l.start); if (!(st > 0)) return no('請填起拍價'); const R = e.rules || {};
+    if (R.kinds && R.kinds.length && !R.kinds.includes(p.kind || 'mother')) return no('這次不收這個類型');
+    const g = String(p.species || '').trim().split(/\s+/)[0].toLowerCase(); if (R.genera && R.genera.length && !R.genera.map(x => String(x).toLowerCase()).includes(g)) return no('這次不收這個屬');
+    if (R.smin && st < R.smin) return no('起拍價要在 NT$ ' + R.smin + ' 以上'); if (R.smax && st > R.smax) return no('起拍價要在 NT$ ' + R.smax + ' 以下');
+    const all = await db.collection('lives/' + id + '/lots').where('status', 'in', ['ok', 'pending', 'live', 'sold', 'pass']).get();
+    const mine = all.docs.filter(x => x.data().shop === l.shop && x.id !== ev.params.pid).length, tot = all.docs.filter(x => x.id !== ev.params.pid).length;
+    if (R.perShop && mine >= R.perShop) return no('每個賣場最多 ' + R.perShop + ' 株'); if (R.total && tot >= R.total) return no('名額已滿（共 ' + R.total + ' 株）');
+    await ref.update({ status: e.approve === 'manual' ? 'pending' : 'ok', checkedAt: now, kind: p.kind || 'mother', genus: g, ord: twNum(l.ord) || now });
+  } catch (x) { logger.error('liveGuard', String(x)); }
+});
