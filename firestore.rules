@@ -67,9 +67,14 @@ service cloud.firestore {
     function holder(uid, pid) { return signedIn() && notBanned() && (request.auth.uid == (exists(ownDoc(pid)) ? get(ownDoc(pid)).data.current : uid)
       || (staff(uid, 'plants') && (!exists(ownDoc(pid)) || get(ownDoc(pid)).data.current == uid))); }
     // 新主人只能改照顧與紀錄相關的欄位（品種、父母本、價格、上架都不能動）
+    function custFieldsOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['photoCount', 'lastPhotoAt', 'lastStage', 'thumb', 'coverThumb', 'media', 'notes', 'tags', 'leaves', 'cross', 'vid', 'updatedAt']);
+    }
+    function custOf(uid, pid) { return signedIn() && get(/databases/$(database)/documents/shops/$(uid)/plants/$(pid)).data.get('cust', '') == request.auth.uid; }
     function ownerFieldsOnly() {
       return request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['photoCount', 'lastPhotoAt', 'lastStage', 'thumb', 'coverThumb', 'media', 'notes', 'tags', 'leaves', 'cross', 'hidden', 'private', 'vid', 'updatedAt']);
+        .hasOnly(['photoCount', 'lastPhotoAt', 'lastStage', 'thumb', 'coverThumb', 'media', 'notes', 'tags', 'leaves', 'cross', 'hidden', 'private', 'vid', 'updatedAt', 'cust', 'custName', 'custAt']);
     }
     function lineageSame() {
       return !request.resource.data.diff(resource.data).affectedKeys()
@@ -158,12 +163,14 @@ service cloud.firestore {
         || (holder(uid, pid) && request.auth.uid != uid && !staff(uid, 'plants') && blockedUnchanged() && ownerFieldsOnly())
         // 只有「訂單」權限的小編：接受／取消訂單時只能改售出狀態與整盤庫存
         || (staff(uid, 'orders') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'buyer', 'soldPrice', 'stock', 'soldN', 'updatedAt']))
+        // 代管人：只能動照顧與紀錄欄位（上架、轉移要原主確認，由原主寫入）
+        || (signedIn() && notBanned() && resource.data.get('cust', '') == request.auth.uid && blockedUnchanged() && custFieldsOnly())
         || isAdmin();
       allow delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
     }
     match /shops/{uid}/plants/{pid}/photos/{photoId} {
       allow read: if true;
-      allow create: if holder(uid, pid);
+      allow create: if holder(uid, pid) || custOf(uid, pid);
       allow update: if shopper(uid, 'plants') && !locked(pid);
       allow delete: if (shopper(uid, 'plants') && !locked(pid)) || isAdmin();
     }
@@ -198,6 +205,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     // 即時聊天：對話編號是兩個人的帳號用 ~ 連起來，只有這兩個人讀寫得到
+    // 代管：set＝原主交給代管人（公開可讀，賣場頁用）；list／xfer＝代管人申請上架／轉移，原主確認
+    match /cust/{id} {
+      function cparty(d) { return signedIn() && (d.owner == request.auth.uid || d.cust == request.auth.uid); }
+      allow read: if (resource != null && resource.data.k == 'set') || cparty(resource.data) || isAdmin();
+      allow create: if notBanned() && cparty(request.resource.data) && request.resource.data.by == request.auth.uid
+        && request.resource.data.k in ['set', 'list', 'xfer'] && request.resource.data.owner != request.resource.data.cust
+        && (request.resource.data.k == 'set' ? request.resource.data.owner == request.auth.uid : (request.resource.data.cust == request.auth.uid && request.resource.data.status == 'pending'));
+      allow update: if (resource.data.k == 'set' && resource.data.owner == request.auth.uid && request.resource.data.owner == request.auth.uid && request.resource.data.k == 'set')
+        || (cparty(resource.data) && request.resource.data.owner == resource.data.owner && request.resource.data.cust == resource.data.cust && request.resource.data.k == resource.data.k
+          && (resource.data.k == 'set' || resource.data.owner == request.auth.uid));
+      allow delete: if cparty(resource.data) || isAdmin();
+    }
     match /chats/{cid} {
       function mem() { return signedIn() && request.auth.uid in cid.split('~'); }
       allow get: if mem() || isAdmin();

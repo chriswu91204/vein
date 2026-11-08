@@ -358,6 +358,13 @@ exports.pushXreq = onDocumentCreated('xreq/{id}', async ev => {
   await push(x.owner, '🤝 ' + (await displayName(x.from)) + ' 請求轉讓 ' + (x.code || ''), (x.via === 'nfc' ? '對方在現場碰了 NFC，' : '對方掃了你的轉移 QR，') + '請在 5 分鐘內打開 VEIN 確認轉移', '/#/plant/' + x.pid, 'xreq-' + ev.params.id);
 });
 
+// 代管：交給別人代管 → 通知代管人；代管人申請上架／轉移 → 通知原主確認
+exports.pushCust = onDocumentCreated('cust/{id}', async ev => {
+  const x = ev.data?.data(); if (!x || !x.owner || !x.cust) return;
+  if (x.k === 'set') await push(x.cust, '🧑‍🌾 ' + (await displayName(x.owner)) + ' 把植物交給你代管', (x.code || '') + ' ' + (x.name || '') + '，打開植物管理就能照顧與上架', '/#admin/reg', 'cust-' + ev.params.id);
+  else if (x.status === 'pending') await push(x.owner, '📨 代管申請：' + (x.k === 'list' ? '上架' : '轉移') + ' ' + (x.code || ''), (await displayName(x.cust)) + ' 申請' + (x.k === 'list' ? '上架這株' : '把這株轉給 ' + ((x.data || {}).toName || '別人')) + '，請到植物管理按確認', '/#admin/reg', 'cust-' + ev.params.id);
+});
+
 // 費用保護：Google Cloud 預算通知（Pub/Sub 主題 billing-alerts）→ 記錄目前花費；超過預算且「自動緊急模式」開著 → 開啟網站緊急模式
 exports.budgetGuard = onMessagePublished({ topic: 'billing-alerts', maxInstances: 1 }, async (ev) => {
   const d = ev.data?.message?.json || {};
