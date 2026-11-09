@@ -275,6 +275,12 @@ service cloud.firestore {
         allow delete: if (isAdmin() || shopper(resource.data.shop, 'plants')) && !(resource.data.status in ['live', 'sold', 'pass']);
         match /bids/{bid} { allow read: if true; }
       }
+      // 現在人數：每個在看的人一份報到紀錄（只存時間）
+      match /viewers/{vid} {
+        allow read: if true;
+        allow create, update: if vid.size() <= 40 && request.resource.data.keys().hasOnly(['at']) && request.resource.data.at is number;
+        allow delete: if true;
+      }
     }
     match /liveBid/{id} {
       allow read: if signedIn() && resource.data.uid == request.auth.uid;

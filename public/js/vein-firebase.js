@@ -3,7 +3,7 @@
 // window.claude.use('db' | 'user' | 'assets')。網站其他程式碼不需要知道底層是 Firebase。
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, RecaptchaVerifier, linkWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter , increment, writeBatch } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, enableNetwork, disableNetwork, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, startAfter , increment, writeBatch, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
 import config from './firebase-config.js';
 import { OWNER_EMAILS, APPCHECK_SITE_KEY } from './site-config.js';
@@ -97,6 +97,7 @@ async function start() {
       startAfter: v => Q(path, [...cons, startAfter(v)]),
       doc: id => D(id ? path + '/' + id : doc(collection(fs, path)).path),
       async get() { try { return wrapQuery(await getDocs(q())); } catch (e) { throw mapErr(e); } },
+      async count() { try { return (await getCountFromServer(q())).data().count; } catch (e) { throw mapErr(e); } },
       onSnapshot(next, err, o) { return o && o.meta ? onSnapshot(q(), { includeMetadataChanges: true }, s => next(wrapQuery(s)), e => err && err(mapErr(e))) : onSnapshot(q(), s => next(wrapQuery(s)), e => err && err(mapErr(e))); },
       async add(d) { const r = this.doc(); await r.set(d); return r; }
     };
