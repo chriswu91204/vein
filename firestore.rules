@@ -271,7 +271,8 @@ service cloud.firestore {
         allow read: if true;
         allow create: if notBanned() && request.resource.data.shop is string && shopper(request.resource.data.shop, 'plants') && request.resource.data.pid == pid && request.resource.data.status == 'new'
           && request.resource.data.start is number && request.resource.data.start > 0;
-        allow update: if isAdmin() && !(resource.data.status in ['live', 'sold']);
+        allow update: if (isAdmin() && !(resource.data.status in ['live', 'sold']))
+          || (shopper(resource.data.shop, 'plants') && !(resource.data.status in ['live', 'sold', 'pass']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['vid']));
         allow delete: if (isAdmin() || shopper(resource.data.shop, 'plants')) && !(resource.data.status in ['live', 'sold', 'pass']);
         match /bids/{bid} { allow read: if true; }
       }

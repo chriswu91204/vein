@@ -130,11 +130,11 @@ async function start() {
     // 公開的名字與頭像，讓別人看得到「誰出價、誰留言」
     // 自訂過顯示名稱（nameSet）就不再用登入帳號的名字蓋掉；會員 ID、隱私設定都保留（merge）
     try { const pr = await getDoc(doc(fs, 'profiles/' + u.uid)); myProf = pr.exists() ? pr.data() : {}; } catch (e) {}
-    setDoc(doc(fs, 'profiles/' + u.uid), { ...(myProf.nameSet ? {} : { name: u.displayName || '' }), avatar: u.photoURL || '', phoneVerified: !!u.phoneNumber, updatedAt: Date.now() }, { merge: true }).catch(() => {});
+    setDoc(doc(fs, 'profiles/' + u.uid), { ...(myProf.nameSet ? {} : { name: u.displayName || '' }), ...(myProf.avatarSet ? {} : { avatar: u.photoURL || '' }), phoneVerified: !!u.phoneNumber, updatedAt: Date.now() }, { merge: true }).catch(() => {});
   }
   const cache = new Map();
   const user = {
-    async me() { return u ? { id: u.uid, name: (myProf.nameSet && myProf.name) || u.displayName || '', handle: myProf.handle || null, priv: !!myProf.priv, nameSet: !!myProf.nameSet, avatarUrl: u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber, phone: auth.currentUser?.phoneNumber || null } : { id: null, name: '', avatarUrl: '' }; },
+    async me() { return u ? { id: u.uid, name: (myProf.nameSet && myProf.name) || u.displayName || '', handle: myProf.handle || null, priv: !!myProf.priv, nameSet: !!myProf.nameSet, avatarUrl: (myProf.avatarSet && myProf.avatar) || u.photoURL || '', email: u.email || null, phoneVerified: !!auth.currentUser?.phoneNumber, phone: auth.currentUser?.phoneNumber || null } : { id: null, name: '', avatarUrl: '' }; },
     async id() { return u ? u.uid : null; },
     async isOwner() { return isOwner; },
     async canEdit() { return isAdmin; },
@@ -142,9 +142,9 @@ async function start() {
     async profiles(ids) {
       const out = {};
       await Promise.all(ids.map(async id => {
-        if (!cache.has(id)) {
-          try { const s = await getDoc(doc(fs, 'profiles/' + id)); cache.set(id, s.exists() ? { name: s.data().name || '', avatarUrl: s.data().avatar || '', phoneVerified: !!s.data().phoneVerified, priv: !!s.data().priv, handle: s.data().handle || null } : { name: '', avatarUrl: '', phoneVerified: false }); }
-          catch (e) { cache.set(id, { name: '', avatarUrl: '' }); }
+        const c0 = cache.get(id); if (!c0 || Date.now() - (c0._t || 0) > (c0.name ? 300000 : 20000)) {
+          try { const s = await getDoc(doc(fs, 'profiles/' + id)); cache.set(id, s.exists() ? { name: s.data().name || '', avatarUrl: s.data().avatar || '', phoneVerified: !!s.data().phoneVerified, priv: !!s.data().priv, handle: s.data().handle || null, _t: Date.now() } : { name: '', avatarUrl: '', phoneVerified: false, _t: Date.now() }); }
+          catch (e) { cache.set(id, { name: '', avatarUrl: '', _t: Date.now() }); }
         }
         out[id] = { id, ...cache.get(id), isMe: !!u && id === u.uid };
       }));

@@ -801,7 +801,7 @@ exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async 
       const need = cur.top ? cur.top.amt + lvStep(e, cur.top.amt) : (cur.start || lvStep(e, 0));
       if (twNum(b.amt) !== need) return { res: 'outbid', need };
       if (cur.top && cur.top.uid === b.uid) return { res: 'lead' };
-      const sn = Math.max(0, twNum(e.snipe) || 10) * 1000, endsAt = cur.endsAt - now < sn ? now + sn : cur.endsAt;
+      const sn = Math.max(0, twNum(e.snipe) || 10) * 1000, endsAt = cur.endsAt - now < sn ? cur.endsAt + sn : cur.endsAt; // 防尾刀：最後 N 秒內有人出價 → 結束時間「加」N 秒
       const top = { uid: b.uid, amt: need, at: now };
       tx.update(eref, { cur: { ...cur, top, n: (cur.n || 0) + 1, endsAt, ext: endsAt !== cur.endsAt ? (cur.ext || 0) + 1 : (cur.ext || 0) }, now, bids: admin.firestore.FieldValue.increment(1) });
       tx.set(eref.collection('lots').doc(cur.lid).collection('bids').doc(), { uid: b.uid, amt: need, at: now });
