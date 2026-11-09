@@ -475,7 +475,8 @@ service cloud.firestore {
     match /broadcast/{id} {
       allow read: if isAdmin();
       allow create: if isAdmin() && request.resource.data.by == request.auth.uid
-        && request.resource.data.keys().hasOnly(['title', 'body', 'link', 'target', 'by', 'at'])
+        && request.resource.data.keys().hasOnly(['title', 'body', 'link', 'target', 'by', 'at', 'uids'])
+        && (!('uids' in request.resource.data) || (request.resource.data.uids is list && request.resource.data.uids.size() <= 300))
         && request.resource.data.title is string && request.resource.data.title.size() <= 40
         && request.resource.data.body is string && request.resource.data.body.size() <= 120;
     }

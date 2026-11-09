@@ -587,6 +587,9 @@ exports.encSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Tai
 // ===================== 管理員推播：送給全站（或只送賣家／買家）=====================
 exports.broadcast = onDocumentCreated({ document: 'broadcast/{id}', timeoutSeconds: 300, memory: '512MiB' }, async ev => {
   const x = ev.data.data() || {}, ref = ev.data.ref; if (!x.title || x.done) return;
+  // 指定對象（例如：邀請勾選的認證賣家）→ 只推給這些人
+  if (Array.isArray(x.uids)) { let sent = 0; for (const u of [...new Set(x.uids)].slice(0, 300)) { try { sent += await push(String(u), x.title, x.body || '', x.link || '/', 'bc-' + ev.params.id); } catch (e) {} }
+    await ref.update({ done: true, sent, users: x.uids.length, doneAt: Date.now() }).catch(() => {}); return; }
   try {
     const ad = await db.doc('site/admins').get(), A = ad.exists ? (Array.isArray(ad.data().uids) ? ad.data().uids : Object.keys(ad.data().uids || {})) : [];
     const sl = await db.doc('site/sellers').get(), house = sl.exists ? sl.data().house : null, approved = sl.exists ? (sl.data().approved || {}) : {};
@@ -681,19 +684,22 @@ exports.adminPhoneBind = onDocumentWritten({ document: 'phoneBind/{uid}' }, asyn
 // ================= 市集（特賣會）＋ VEIN 拍賣會 =================
 // 市集：開始時把報名通過的植物價格換成優惠價（記住原價），結束時換回來；這樣所有原本的購買流程都直接用優惠價結帳
 const twNum = v => { const n = Number(v); return isFinite(n) ? n : 0; };
+// 市集結束／取消報名：恢復原本的價格、上架狀態
+const mktBack = p => { const k = p.mkt || {}; const o = { price: ('wasPrice' in k) ? k.wasPrice : (k.orig || p.price), mkt: null };
+  if ('wasListed' in k) o.listed = k.wasListed; if ('wasHidden' in k) o.hidden = k.wasHidden; if (k.wasStatus) o.status = k.wasStatus; return o; };
 async function mktApply(id, m, now) {
   const es = await db.collection('mkts/' + id + '/e').where('status', '==', 'ok').get();
   for (const d of es.docs) { const e = d.data(); const pref = db.doc(`shops/${e.shop}/plants/${e.pid}`);
     try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data();
-      if (p.status !== 'available' || p.mode === 'auction' || (p.mkt && p.mkt.id !== id)) { tx.update(d.ref, { status: 'skip', why: '開賣時這株已售出或不在販售中' }); return; }
+      if (p.status === 'sold' || p.status === 'reserved' || p.mode === 'auction' || p.lot === true || (p.mkt && p.mkt.id !== id)) { tx.update(d.ref, { status: 'skip', why: '開賣時這株已售出或在別的活動' }); return; }
       if (p.mkt && p.mkt.id === id) return;
-      const orig = twNum(p.price) || twNum(e.orig); tx.update(pref, { price: e.deal, mkt: { id, orig, deal: e.deal, end: m.endAt, title: m.title || '市集' } }); tx.update(d.ref, { applied: true, orig }); }); } catch (x) { logger.warn('mktApply', e.pid, String(x)); } }
+      const orig = twNum(p.price) || twNum(e.orig); tx.update(pref, { price: e.deal, listed: true, hidden: false, status: 'available', mkt: { id, orig, deal: e.deal, end: m.endAt, title: m.title || '市集', wasPrice: p.price ?? null, wasListed: p.listed !== false, wasHidden: !!p.hidden, wasStatus: p.status || 'available' } }); tx.update(d.ref, { applied: true, orig }); }); } catch (x) { logger.warn('mktApply', e.pid, String(x)); } }
 }
 async function mktRestore(id) {
   const es = await db.collection('mkts/' + id + '/e').get();
   for (const d of es.docs) { const e = d.data(); const pref = db.doc(`shops/${e.shop}/plants/${e.pid}`);
     try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== id) return;
-      if (p.status === 'sold') tx.update(pref, { mkt: { ...p.mkt, done: true } }); else tx.update(pref, { price: p.mkt.orig || p.price, mkt: null }); }); } catch (x) { logger.warn('mktRestore', e.pid, String(x)); } }
+      if (p.status === 'sold') tx.update(pref, { mkt: { ...p.mkt, done: true } }); else tx.update(pref, mktBack(p)); }); } catch (x) { logger.warn('mktRestore', e.pid, String(x)); } }
 }
 exports.mktSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
   const now = Date.now(), ms = await db.collection('mkts').where('phase', 'in', ['reg', 'wait', 'on']).get();
@@ -714,8 +720,8 @@ exports.mktGuard = onDocumentCreated('mkts/{id}/e/{pid}', async ev => {
     const ms = await db.doc('mkts/' + id).get(); if (!ms.exists) return no('活動不存在'); const m = ms.data(), now = Date.now();
     if (!m.regOpen || (m.regEnd && now > m.regEnd) || m.phase === 'done') return no('報名已截止');
     const ps = await db.doc(`shops/${e.shop}/plants/${e.pid}`).get(); if (!ps.exists) return no('找不到這株');
-    const p = ps.data(); if (p.status !== 'available' || p.mode === 'auction' || p.listed === false || p.hidden) return no('要是上架中的直購植物');
-    const orig = twNum(p.price), deal = twNum(e.deal); if (!(deal > 0)) return no('請填優惠價');
+    const p = ps.data(); if (p.status === 'sold' || p.status === 'reserved' || p.mode === 'auction' || p.lot === true || p.blocked) return no('已售出、預訂、競標中或整盤商品不能報名');
+    const orig = twNum(p.price) || twNum(e.orig), deal = twNum(e.deal); if (!(orig > 0)) return no('請填原價'); if (!(deal > 0)) return no('請填優惠價');
     if (orig && deal >= orig) return no('優惠價要低於原價');
     const R = m.rules || {};
     if (R.minOff && orig && (1 - deal / orig) * 100 < R.minOff - 0.01) return no('至少要打 ' + (100 - R.minOff) / 10 + ' 折');
@@ -823,7 +829,7 @@ exports.liveSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Ta
 // 市集進行中賣家退出（或管理員移除）→ 價格立刻換回原價
 exports.mktUnreg = onDocumentDeleted('mkts/{id}/e/{pid}', async ev => {
   const e = ev.data.data() || {}; if (!e.shop) return; const pref = db.doc(`shops/${e.shop}/plants/${ev.params.pid}`);
-  try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== ev.params.id || p.status === 'sold') return; tx.update(pref, { price: p.mkt.orig || p.price, mkt: null }); }); } catch (x) { logger.warn('mktUnreg', String(x)); }
+  try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== ev.params.id || p.status === 'sold') return; tx.update(pref, mktBack(p)); }); } catch (x) { logger.warn('mktUnreg', String(x)); }
 });
 // 管理員把報名改成「不通過」也要換回原價
 exports.mktEntryUpd = onDocumentUpdated('mkts/{id}/e/{pid}', async ev => {
@@ -831,7 +837,7 @@ exports.mktEntryUpd = onDocumentUpdated('mkts/{id}/e/{pid}', async ev => {
   const ms = await db.doc('mkts/' + ev.params.id).get(); if (!ms.exists) return; const m = ms.data();
   if (a.status === 'ok' && m.phase === 'on') await mktApply(ev.params.id, m, Date.now());
   if (b.status === 'ok' && a.status !== 'ok') { const pref = db.doc(`shops/${a.shop}/plants/${ev.params.pid}`);
-    try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== ev.params.id || p.status === 'sold') return; tx.update(pref, { price: p.mkt.orig || p.price, mkt: null }); }); } catch (x) {} }
+    try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data(); if (!p.mkt || p.mkt.id !== ev.params.id || p.status === 'sold') return; tx.update(pref, mktBack(p)); }); } catch (x) {} }
 });
 // 拍賣會報名把關
 exports.liveGuard = onDocumentCreated('lives/{id}/lots/{pid}', async ev => {
