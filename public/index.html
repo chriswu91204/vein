@@ -5904,6 +5904,20 @@ body.pk-mode .toast{bottom:calc(160px + env(safe-area-inset-bottom,0px))!importa
 .lv-pv{position:absolute;left:50%;top:44%;z-index:4;transform:translate(-50%,-50%);display:grid;justify-items:center;gap:4px;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);border-radius:24px;padding:16px 26px;text-align:center;animation:evIn .3s}.lv-pv small{font-size:12px;opacity:.8;font-weight:700}.lv-pv b{font-size:58px;font-weight:900;line-height:1;color:#D2FF00;text-shadow:0 0 24px rgba(210,255,0,.6);font-variant-numeric:tabular-nums}.lv-pv span{font-size:13px;font-weight:700}
 .lv-pvh{margin-top:6px;border:0;border-radius:999px;background:#fff;color:#111;font:inherit;font-weight:800;font-size:13px;padding:7px 14px;cursor:pointer}
 
+.lv-act{display:flex;gap:10px;align-items:stretch}.lv-act .lv-bid{flex:1}
+.lv-panel .lv-cd{position:relative;top:auto;right:auto;flex:none;width:96px;height:auto;border-radius:18px;display:grid;place-items:center;align-content:center;gap:0;background:#111312;box-shadow:none;padding:8px 4px;overflow:visible}
+.lv-panel .lv-cd::before{display:none}.lv-panel .lv-cd b{font-size:28px;color:#D2FF00;letter-spacing:-.02em}.lv-panel .lv-cd small{font-size:10.5px;color:rgba(255,255,255,.7);font-weight:700;opacity:1}
+.lv-panel .lv-cd::after{content:"";position:absolute;left:10px;right:10px;bottom:5px;height:3px;border-radius:2px;background:linear-gradient(90deg,#D2FF00 calc(var(--p)*100%),rgba(255,255,255,.15) 0)}
+.lv-panel .lv-cd.hot{background:#3A0010;animation:none}.lv-panel .lv-cd.hot b{color:#FF5C7A}.lv-panel .lv-cd.hot::after{background:linear-gradient(90deg,#FF2D55 calc(var(--p)*100%),rgba(255,255,255,.15) 0)}.lv-panel .lv-cd.end b{font-size:22px}
+.lv-panel .lv-cd.extf{animation:lvExtF .8s ease}@keyframes lvExtF{0%{box-shadow:0 0 0 0 rgba(255,45,85,.9)}100%{box-shadow:0 0 0 18px rgba(255,45,85,0)}}
+.lv-panel .lv-ext{position:absolute;top:auto;right:auto;left:0;bottom:calc(100% + 8px);white-space:nowrap;font-size:12.5px;background:#FF2D55;color:#fff;border-radius:999px;padding:5px 12px;opacity:0;transform:translateY(6px);pointer-events:none;z-index:3}.lv-panel .lv-ext.on{animation:lvExt 2.2s ease}
+.lv-fi{animation:none!important}.lv-fi.new{animation:lvFi .35s ease both!important}
+.lv-ll{flex:1;overflow:auto;display:grid;gap:8px;padding:6px 14px 20px;align-content:start}.lv-lhint{margin:0;padding:10px 14px 4px;font-size:12px;opacity:.7}
+.lv-lr{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:16px;padding:8px 10px}.lv-lr.now{background:rgba(255,45,85,.18);box-shadow:inset 0 0 0 2px #FF2D55}.lv-lr.st-sold,.lv-lr.st-pass{opacity:.55}
+.lv-li{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);font-size:12px;font-weight:900;flex:none}.lv-lr.now .lv-li{background:#FF2D55}
+.lv-lr img{width:48px;height:48px;border-radius:12px;object-fit:cover;flex:none}.lv-ln{flex:1;min-width:0;display:grid}.lv-ln b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lv-lr.st-sold .lv-ln b{text-decoration:line-through}.lv-ln small{font-size:11px;opacity:.65}.lv-ls{opacity:1!important;font-weight:800;color:#D2FF00}.lv-lr.st-sold .lv-ls{color:#FF5C7A}.lv-lr.now .lv-ls{color:#FF8FA3}
+.lv-wb{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.lv-wb.on{background:#D2FF00;color:#111;border-color:#D2FF00}.lv-wb.go{background:#FF2D55;border-color:#FF2D55}
+
 </style>
 
 </head>
@@ -13203,23 +13217,26 @@ function renderLive(){ const box=$('#livePage'); if(!box) return; const id=S.liv
     box.replaceChildren(h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'進入拍賣會…'})));
     LV.un.push(S.db.doc('lives/'+id).onSnapshot(d=>{ if(!d.exists){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:'找不到這場拍賣會'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); return; }
       const ev={id:d.id,...d.data(),kind:'live'}; if(ev.now){ const o=ev.now-Date.now(); LV.off=LV.off==null?o:Math.max(o,LV.off-50); } LV.ev=ev; lvOnEv(ev); },()=>{}));
-    LV.un.push(S.db.collection('lives/'+id+'/lots').onSnapshot(async sn=>{ LV.lots=new Map(sn.docs.map(x=>[x.id,{id:x.id,...x.data()}])); await Promise.all([...LV.lots.values()].filter(l=>['ok','live','sold','pass'].includes(l.status)).map(l=>mkLoadPlant(l))); lvPaint(); },()=>{}));
-    LV.iv=setInterval(lvTickUi,200); }
+    LV.un.push(S.db.collection('lives/'+id+'/lots').onSnapshot(async sn=>{ LV.lots=new Map(sn.docs.map(x=>[x.id,{id:x.id,...x.data()}])); await Promise.all([...LV.lots.values()].filter(l=>['ok','live','sold','pass'].includes(l.status)).map(l=>mkLoadPlant(l))); const sk=LV.ev?.cur?.lid+'|'+(S.plants.has(LV.ev?.cur?.pid)?1:0)+'|'+LV.ev?.phase; if(!$('#livePage .lv')||LV.lotSig!==sk){ LV.lotSig=sk; lvPaint(); } else { const t=$('#livePage .lv-tt small'); if(t&&LV.ev?.cur) t.textContent='第 '+((LV.ev.cur.i||0)+1)+' / '+lvLotList().length+' 件'; } lvLotsRefresh(); },()=>{}));
+    LV.iv=setInterval(lvTickUi,100); }
   else lvPaint(); }
 function lvOnEv(ev){ const c=ev.cur;
-  if(c&&c.lid!==LV.lastLid){ LV.lastLid=c.lid; LV.photo=0; LV.feed=[]; LV.lastTop=null; LV.lastGap=false; LV.ext=c.ext||0; lvPaint(); lvSubBids(c.lid); return; }
+  if(c&&c.lid!==LV.lastLid){ if(LV.lastLid!==null&&lvWatchSet().has(c.pid)){ navigator.vibrate?.([60,40,60]); evFx('🔔 輪到你關注的了！',(c.name||c.code||'')+' · 15 秒後開拍','live'); } LV.lastLid=c.lid; LV.photo=0; LV.feed=[]; LV.lastTop=null; LV.lastGap=false; LV.ext=c.ext||0; lvPaint(); lvSubBids(c.lid); return; }
   if(c&&c.gapUntil&&!LV.lastGap){ LV.lastGap=true; lvPaint(); if(c.result==='sold'){ const p=S.plants.get(c.pid); evFx(c.top?.uid===S.me?'🏆 你得標了！':'成交！',(p?pName(p):c.code||'')+' · '+money(c.top?.amt||0),'live'); } return; }
   if(c&&c.top&&(!LV.lastTop||LV.lastTop.amt!==c.top.amt)){ const prev=LV.lastTop; LV.lastTop=c.top; lvBump(prev,c.top); }
-  if(c&&(c.ext||0)>LV.ext){ LV.ext=c.ext||0; const t=$('#livePage .lv-ext'); if(t){ t.classList.remove('on'); void t.offsetWidth; t.classList.add('on'); } }
+  if(c&&(c.ext||0)>LV.ext){ LV.ext=c.ext||0; const t=$('#livePage .lv-ext'); if(t){ t.textContent='⏱ 防尾刀！延長到 '+(ev.snipe??10)+' 秒'; t.classList.remove('on'); void t.offsetWidth; t.classList.add('on'); } const cd=$('#livePage .lv-cd'); if(cd){ cd.classList.remove('extf'); void cd.offsetWidth; cd.classList.add('extf'); } }
   if(!c||!$('#livePage .lv')) lvPaint(); else lvPanel(); }
 function lvSubBids(lid){ const k='bids'; if(LV[k]) try{ LV[k](); }catch(e){} LV[k]=S.db.collection('lives/'+LV.id+'/lots/'+lid+'/bids').orderBy('at','desc').limit(8).onSnapshot(sn=>{ LV.feed=sn.docs.map(d=>d.data()); resolveNames(LV.feed.map(b=>b.uid)); lvFeed(); },()=>{}); LV.un.push(()=>{ try{ LV[k]?.(); }catch(e){} }); }
 function lvBump(prev,top){ const el=$('#livePage .lv-price b'); if(el){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
   const st=$('#livePage .lv-stage'); if(st&&prev){ const f=h('span',{class:'lv-plus',text:'+'+money(top.amt-prev.amt)}); st.append(f); setTimeout(()=>f.remove(),1300); }
   if(prev&&prev.uid===S.me&&top.uid!==S.me){ navigator.vibrate?.([40,40,40]); const b=$('#livePage .lv-bid'); b?.classList.add('shake'); setTimeout(()=>b?.classList.remove('shake'),600); toast('😱 你被超越了！再加一口？'); } }
-function lvFeed(){ const f=$('#livePage .lv-feed'); if(!f||!LV.ev) return; const c=LV.ev.cur; f.replaceChildren(...LV.feed.slice(0,6).reverse().map(b=>h('div',{class:'lv-fi'+(b.uid===S.me?' me':'')}, h('b',{text:pubName(b.uid,c?.shop)}), ' 出價 ', h('em',{text:money(b.amt)})))); }
+function lvFeed(){ const f=$('#livePage .lv-feed'); if(!f||!LV.ev) return; const c=LV.ev.cur, want=LV.feed.slice(0,6).reverse(), keys=want.map(b=>b.at+'_'+b.uid);
+  [...f.children].forEach(el=>{ if(!keys.includes(el.dataset.k)) el.remove(); }); const have=new Set([...f.children].map(el=>el.dataset.k));
+  want.forEach((b,i)=>{ const k=keys[i]; if(have.has(k)){ const el=f.querySelector('[data-k="'+k+'"]'); const nm=el.querySelector('b'); const n2=pubName(b.uid,c?.shop); if(nm.textContent!==n2) nm.textContent=n2; return; } f.append(h('div',{class:'lv-fi new'+(b.uid===S.me?' me':''),'data-k':k}, h('b',{text:pubName(b.uid,c?.shop)}), ' 出價 ', h('em',{text:money(b.amt)}))); });
+  [...f.children].sort((a,b2)=>+a.dataset.k.split('_')[0]-+b2.dataset.k.split('_')[0]).forEach(el=>f.append(el)); }
 function lvTickUi(){ const ev=LV.ev; if(!ev||PAGE!=='live') return; const c=ev.cur, now=lvNow();
   const pv=$('#livePage .lv-pv'); if(pv){ const on=lvPrev(c); pv.hidden=!on; if(on) pv.querySelector('b').textContent=String(Math.ceil((c.previewUntil-now)/1000)); const bt=$('#livePage .lv-bid'); if(bt&&!c.gapUntil&&bt.dataset.pv!==String(on)){ bt.dataset.pv=String(on); lvPanel(); } }
-  const cd=$('#livePage .lv-cd'); if(cd&&c&&!c.gapUntil){ const left=Math.max(0,Math.min(c.endsAt-now,(Math.max(10,+ev.dur||60))*1000)), s=Math.ceil(left/1000); cd.querySelector('b').textContent=left>0?(s>=60?Math.floor(s/60)+':'+p2(s%60):String(s)):'結算中'; cd.classList.toggle('hot',left>0&&left<=(+ev.snipe||10)*1000); cd.classList.toggle('end',left<=0); const dur=Math.max(10,+ev.dur||60)*1000; cd.style.setProperty('--p',String(Math.max(0,Math.min(1,left/dur)))); }
+  const cd=$('#livePage .lv-cd'); if(cd&&c){ const dur=Math.max(10,+ev.dur||60)*1000, PV=lvPrev(c), left=c.gapUntil?0:PV?dur:Math.max(0,c.endsAt-now); const t=left>0?(left>=60000?Math.floor(left/60000)+':'+p2(Math.floor(left%60000/1000)):(left/1000).toFixed(1)):(c.gapUntil?'0.0':'0.0'); const B=cd.querySelector('b'); if(B.textContent!==t) B.textContent=t; const lab=c.gapUntil?(c.result==='sold'?'已成交':'流標'):PV?'等待開拍':left>0?'剩餘秒數':'結算中…'; const L2=cd.querySelector('small'); if(L2.textContent!==lab) L2.textContent=lab; cd.classList.toggle('hot',!PV&&!c.gapUntil&&left>0&&left<=(+ev.snipe||10)*1000); cd.classList.toggle('end',!PV&&left<=0); cd.style.setProperty('--p',String(Math.max(0,Math.min(1,left/dur)))); }
   const sc=$('#livePage .lv-start b'); if(sc&&ev.startAt) sc.textContent=fmtLeft(ev.startAt-now);
   // 時間到了：通知伺服器結標／換下一株（伺服器會再確認一次時間，重複通知也只會處理一次）
   let due=null; if(!c&&ev.startAt&&now>=ev.startAt&&ev.phase!=='done') due='start'; else if(c&&!c.gapUntil&&now>=c.endsAt+300) due='end:'+c.lid+':'+c.endsAt; else if(c&&c.gapUntil&&now>=c.gapUntil+300&&!c.over) due='gap:'+c.lid;
@@ -13236,9 +13253,16 @@ async function lvBid(){ const ev=LV.ev; if(!ev?.cur||ev.cur.gapUntil) return; if
   finally{ setTimeout(()=>{ LV.bidBusy=false; b?.classList.remove('busy'); },350); } }
 function lvHist(pid){ const ov=h('div',{class:'lv-hist'}, h('div',{class:'lv-hh'}, h('b',{text:'📜 植物履歷'}), h('button',{type:'button',class:'lv-x','aria-label':'關閉',onclick:()=>{ ov.remove(); blDone('lvh'); },text:'✕'})), h('iframe',{src:location.pathname+'?popup=1#/history/'+encodeURIComponent(pid),title:'履歷'}));
   document.body.append(ov); blPush('lvh',()=>ov.remove()); }
-function lvLotsSheet(){ const L=lvLotList(); const ov=h('div',{class:'lv-hist lv-lots'}, h('div',{class:'lv-hh'}, h('b',{text:'🗂 拍品 '+L.length+' 件'}), h('button',{type:'button',class:'lv-x',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'✕'})),
-    h('div',{class:'lv-lg'}, ...L.map((l,i)=>{ const p=S.plants.get(l.pid); return h('div',{class:'lv-lc st-'+l.status}, h('div',{class:'lv-lci'}, h('img',{src:p?cover(p):l.thumb||'m/p1.jpg',alt:''}), h('span',{class:'lv-no',text:'#'+(i+1)}), l.status==='sold'?h('span',{class:'lv-sold'}, h('b',{text:'成交'}), h('i',{text:money(l.final||0)})):l.status==='pass'?h('span',{class:'lv-sold pass'}, h('b',{text:'流標'})):l.status==='live'?h('span',{class:'lv-now',text:'● 拍賣中'}):null),
-      h('b',{text:l.name||l.code}), h('small',{text:'起拍 '+money(l.start||0)+' · '+shopName(l.shop)})); })));
+function lvWatchSet(){ try{ return new Set(JSON.parse(localStorage.getItem('vein.lvw.'+LV.id)||'[]')); }catch(e){ return new Set(); } }
+async function lvWatch(l,on){ if(needLogin()) return; const W=lvWatchSet(); on?W.add(l.pid):W.delete(l.pid); try{ localStorage.setItem('vein.lvw.'+LV.id,JSON.stringify([...W])); }catch(e){}
+  const ref=S.db.doc('liveWatch/'+LV.id+'_'+l.pid+'_'+S.me); try{ if(on) await ref.set({eid:LV.id,pid:l.pid,uid:S.me,at:Date.now()}); else await ref.delete(); }catch(e){} toast(on?'🔔 輪到這件時會通知你':'已取消提醒'); lvLotsRefresh(); }
+function lvLotsRefresh(){ const ov=document.querySelector('.lv-lots'); if(ov&&ov.__draw) ov.__draw(); }
+function lvLotsSheet(){ const ov=h('div',{class:'lv-hist lv-lots'}), list=h('div',{class:'lv-ll'});
+  const draw=()=>{ const L=lvLotList(), ev=LV.ev, c=ev?.cur, W=lvWatchSet(), ci=L.findIndex(l=>l.id===c?.lid), per=(15+(+ev?.dur||60))*1000+5000;
+    list.replaceChildren(...L.map((l,i)=>{ const p=S.plants.get(l.pid), done=l.status==='sold'||l.status==='pass', now2=l.status==='live', ahead=ci>=0?i-ci:i, eta=!done&&!now2&&ev?.phase==='on'&&ahead>0?Math.round(ahead*per/60000):null;
+      return h('div',{class:'lv-lr st-'+l.status+(now2?' now':'')}, h('span',{class:'lv-li',text:String(i+1)}), h('img',{src:p?cover(p):l.thumb||'m/p1.jpg',alt:''}), h('div',{class:'lv-ln'}, h('b',{text:l.name||l.code}), h('small',{text:'起拍 '+money(l.start||0)+' · '+shopName(l.shop)}), h('small',{class:'lv-ls',text:l.status==='sold'?'已成交 '+money(l.final||0):l.status==='pass'?'流標':now2?'● 拍賣中':eta!=null?'約 '+Math.max(1,eta)+' 分鐘後':'等待中'})),
+        done||now2?(now2?h('button',{type:'button',class:'lv-wb go',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'回競標'}):null):h('button',{type:'button',class:'lv-wb'+(W.has(l.pid)?' on':''),onclick:()=>lvWatch(l,!W.has(l.pid)),text:W.has(l.pid)?'🔔 已設提醒':'🔔 到了叫我'})); })); };
+  ov.__draw=draw; ov.append(h('div',{class:'lv-hh'}, h('b',{text:'🗂 拍賣順序'}), h('button',{type:'button',class:'lv-x',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'✕'})), h('p',{class:'lv-lhint',text:'一件接一件依序拍賣。對有興趣的植物按「到了叫我」，輪到它時會通知你。'}), list); draw();
   document.body.append(ov); blPush('lvl',()=>ov.remove()); }
 const lvLotList=()=>[...LV.lots.values()].filter(l=>['ok','live','sold','pass'].includes(l.status)).sort((a,b)=>((+a.ord||0)-(+b.ord||0))||((a.at||0)-(b.at||0)));
 function lvPanel(){ const ev=LV.ev, c=ev?.cur; const pn=$('#livePage .lv-panel'); if(!pn||!c) return; const need=lvNeed(ev), lead=c.top?.uid===S.me;
@@ -13258,11 +13282,11 @@ function lvPaint(){ const box=$('#livePage'), ev=LV.ev; if(!box||!ev) return; co
   const gap=!!c.gapUntil;
   const res=gap?h('div',{class:'lv-res '+(c.result==='sold'?'ok':'pass')}, c.result==='sold'?[h('b',{class:'lv-stampbig',text:'成交'}), h('span',{class:'lv-rs',text:(c.top?.uid===S.me?'🏆 你':pubName(c.top?.uid,c.shop))+' 以 '+money(c.top?.amt||0)+' 得標'}), h('small',{text:'下一件馬上開始…'})]:[h('b',{class:'lv-stampbig',text:'流標'}), h('small',{text:'下一件馬上開始…'})]):null;
   const pvEl=h('div',{class:'lv-pv',hidden:true}, h('small',{text:'下一件 · 先看看照片和履歷'}), h('b',{text:'15'}), h('span',{text:'秒後開拍 · 起拍 '+money(c.start||0)}), h('button',{type:'button',class:'lv-pvh',onclick:()=>lvHist(c.pid),text:'📜 看履歷'}));
-  const stage=h('div',{class:'lv-stage'}, imgs, pvEl, h('div',{class:'lv-cd',style:'--p:1'}, h('b',{text:''}), h('small',{text:'秒'})), h('span',{class:'lv-ext',text:'⏱ 延長 '+(ev.snipe??10)+' 秒'}), h('div',{class:'lv-feed'}), h('div',{class:'lv-side'},
+  const stage=h('div',{class:'lv-stage'}, imgs, pvEl,  h('div',{class:'lv-feed'}), h('div',{class:'lv-side'},
     h('button',{type:'button',onclick:()=>lvHist(c.pid)}, h('i',{text:'📜'}), h('small',{text:'履歷'})), h('button',{type:'button',onclick:lvLotsSheet}, h('i',{text:'🗂'}), h('small',{text:'拍品'})), h('button',{type:'button',onclick:()=>{ if(navigator.share) navigator.share({title:ev.title||'VEIN 拍賣會',url:siteUrl()+'#/live/'+ev.id}).catch(()=>{}); else copyText(siteUrl()+'#/live/'+ev.id); }}, h('i',{text:'↗'}), h('small',{text:'分享'}))), res);
   const panel=h('div',{class:'lv-panel'}, h('div',{class:'lv-pi'}, h('img',{src:p?cover(p):'m/p1.jpg',alt:''}), h('div',{class:'lv-pn'}, h('b',{text:p?pName(p):c.name||c.code}), h('small',{class:'mono',text:(c.code||p?.code||'')+' · '+shopName(c.shop)}), h('small',{class:'lv-nb',text:(c.n||0)+' 次出價'})),
       h('div',{class:'lv-price'}, h('small',{text:''}), h('b',{text:''}))),
-    h('button',{type:'button',class:'lv-bid',onclick:lvBid}, h('b',{text:''}), h('small',{text:''})), h('p',{class:'lv-rule',text:'每按一次加一口（自動計算）· 最後 '+(ev.snipe??10)+' 秒有人出價會延長 · 得標以伺服器時間為準'}));
+    h('div',{class:'lv-act'}, h('div',{class:'lv-cd',style:'--p:1'}, h('b',{class:'mono',text:''}), h('small',{text:''}), h('span',{class:'lv-ext'})), h('button',{type:'button',class:'lv-bid',onclick:lvBid}, h('b',{text:''}), h('small',{text:''}))), h('p',{class:'lv-rule',text:'每按一次加一口（自動計算）· 最後 '+(ev.snipe??10)+' 秒內有人出價，倒數會拉回 '+(ev.snipe??10)+' 秒（防尾刀）· 得標以伺服器時間為準'}));
   box.replaceChildren(h('div',{class:'lv'}, top, stage, panel)); lvPanel(); lvFeed(); lvTickUi(); }
 
 /* ---- 後台：市集／拍賣會管理 ---- */
