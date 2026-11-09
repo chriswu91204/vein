@@ -5958,6 +5958,10 @@ body.lv-on .toast{bottom:auto!important;top:calc(64px + env(safe-area-inset-top,
 .rgf-g{display:flex;align-items:center;gap:10px;background:#F7F7F4;border-radius:14px;padding:8px 10px;cursor:pointer}.rgf-g.has{box-shadow:inset 0 0 0 2px #B7E000;background:#F6FBE3}.rgf-gp{position:relative;width:56px;height:44px;flex:none}.rgf-gp img{position:absolute;top:0;left:calc(var(--i)*7px);width:40px;height:40px;border-radius:10px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.15)}.rgf-gn{flex:1;min-width:0;display:grid}.rgf-gn b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rgf-gn small{font-size:11px;color:var(--fg2)}.rgf-ga{border:0;border-radius:999px;background:#fff;font-weight:800;font-size:12px;padding:6px 10px;box-shadow:inset 0 0 0 1px #DDD}.rgf-ga.on{background:#111;color:#D2FF00;box-shadow:none}.rgf-gc{font-style:normal;font-size:12px;color:var(--fg2)}
 .rgf-gw{display:grid;gap:6px;grid-template-columns:minmax(0,1fr);background:#EFEFE9;border-radius:16px;padding:6px}.rgf-gw .rgf-g{background:#fff}.rgf-gb{display:grid;gap:6px;grid-template-columns:minmax(0,1fr);padding-left:8px;border-left:3px solid #D2FF00;margin-left:6px}.rgf-gb .rg2-p{background:#fff}
 
+#navMe{position:relative;overflow:visible}#navMe .me-bub{top:auto;bottom:-16px;left:50%;margin-left:0;transform:translateX(-50%);font-size:10px;padding:3px 7px;z-index:3;animation:meBub 2.4s ease-in-out infinite}@keyframes meBub{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(3px)}}#navMe .me-bub::after{content:'';position:absolute;left:50%;margin-left:-4px;top:-4px;border:4px solid transparent;border-top:0;border-bottom-color:#D2FF00}
+
+.tabbar .nav-me .me-badge{left:auto;right:calc(50% + 6px);margin-left:0;top:-4px}
+
 </style>
 
 </head>
@@ -5994,7 +5998,7 @@ body.lv-on .toast{bottom:auto!important;top:calc(64px + env(safe-area-inset-top,
     <a class="ib" href="#/chats" id="navChat" aria-label="聊天"><i class="ch-bi lg"></i><span class="badge ch-badge" hidden>0</span></a>
     <button class="ib" type="button" id="navBell" aria-label="通知"><svg class="i"><use href="#i-bell"/></svg><span class="badge" id="bellBadge" hidden>0</span></button>
     <button class="ib" type="button" id="navCart" aria-label="購物車"><svg class="i"><use href="#i-bag"/></svg><span class="badge" id="cartBadge" hidden>0</span></button>
-    <button class="ib" type="button" id="navMe" aria-label="帳號"><svg class="i"><use href="#i-user"/></svg></button>
+    <button class="ib" type="button" id="navMe" aria-label="帳號"><svg class="i"><use href="#i-user"/></svg><i class="me-badge me-bub" hidden>報名中</i></button>
   </div>
 </div></header>
 
@@ -6004,7 +6008,7 @@ body.lv-on .toast{bottom:auto!important;top:calc(64px + env(safe-area-inset-top,
   <a href="#/raffle" data-pg="raffle" class="nav-play"><svg class="i"><use href="#i-gift"/></svg>限時<i class="play-badge" hidden></i></a>
   <a href="#/community" data-pg="community"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.6.2 4.6 1.8 5.1 4.6"/></svg>社群</a>
   <a href="#/verify" data-pg="verify"><svg class="i"><use href="#i-scan"/></svg>溯源</a>
-  <a href="#/me" id="tabMe" data-pg="me" class="nav-me"><svg class="i"><use href="#i-user"/></svg>我的<i class="me-badge" hidden>開放報名中</i></a>
+  <a href="#/me" id="tabMe" data-pg="me" class="nav-me"><svg class="i"><use href="#i-user"/></svg>我的<i class="me-badge" hidden>報名中</i></a>
 </nav>
 
 <main id="top">
@@ -8790,6 +8794,8 @@ function playRender(){ const tabs=$('#playTabs'), body=$('#playBody'), rf=$('#pl
 // 活動按鈕左上角：正在進行的活動輪流顯示（競標中、戰鬥中、孵化中、開搶中、預約中、抽獎中）
 let PB_I=0;
 function playMsgs(){ const E=encAll(), DL=dropAll(), AU=pub().filter(live).length, R=pubRaffles().filter(r=>rState(r)==='open').length, out=[];
+  { const EV=[...(S.mkts?.values()||[]),...(S.lives?.values()||[])]; const on=k=>EV.some(x=>x.kind===k&&evState(x)==='on'), soon=k=>EV.some(x=>x.kind===k&&evState(x)==='soon');
+    if(on('live')) out.push(['🔴 拍賣進行中','live']); if(on('mkt')) out.push(['🎪 市集特賣中','live']); if(soon('live')) out.push(['🔨 拍賣即將開始','soon']); if(soon('mkt')) out.push(['🎪 市集即將開始','soon']); }
   if(E.some(p=>encState(p)==='live')) out.push(['⚔ 戰鬥中','live']); if(AU) out.push(['🔨 競標中 '+AU,'auc']); if(DL.some(d=>dropState(d)==='live')) out.push(['🎁 開搶中','live']); if(E.some(p=>encState(p)==='soon')) out.push(['🥚 孵化中','soon']); if(DL.some(d=>dropState(d)!=='live')) out.push(['⏰ 預約中','soon']); if(R) out.push(['🎲 抽獎中 '+R,'raf']); return out; }
 function playBadge(){ const L=playMsgs(); if(PB_I>=L.length) PB_I=0; const cur=L[PB_I];
   document.querySelectorAll('.play-badge').forEach(b=>{ b.hidden=!cur; if(!cur) return; if(b.textContent!==cur[0]){ b.classList.remove('pb-in'); void b.offsetWidth; b.textContent=cur[0]; b.classList.add('pb-in'); } b.className='play-badge pb-in k-'+cur[1]+(cur[1]==='live'?' live':''); }); }
@@ -8882,7 +8888,7 @@ $('#vcode').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefaul
 const sheet=$('#sheet');
 function renderNav(){ try{ playBadge(); }catch(e){}
   let bb=$('#banBar'); if(S.me&&banned(S.me)){ if(!bb){ bb=h('div',{id:'banBar',class:'banbar'}); document.body.append(bb); } bb.textContent='你的帳號已被停權'+(+S.bans[S.me]?.until?'（'+untilTxt(S.bans[S.me].until)+'）':'')+'：'+(S.bans[S.me]?.reason||'違反平台規範')+'。如有疑問請聯絡 '+(storeContact()||'平台管理員')+'。'; } else if(S.me&&!S.admin&&limOf(S.me).length){ if(!bb){ bb=h('div',{id:'banBar',class:'banbar'}); document.body.append(bb); } bb.textContent='部分功能暫停中：'+limOf(S.me).map(x=>x.l+'（'+untilTxt(x.until)+'）').join('、'); } else if(bb) bb.remove();
-  const b=$('#navMe'); b.replaceChildren(S.meInfo?.id&&S.meInfo.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:''}):svg('i-user'));
+  const b=$('#navMe'); b.replaceChildren(S.meInfo?.id&&S.meInfo.avatarUrl?h('img',{src:S.meInfo.avatarUrl,alt:''}):svg('i-user'), h('i',{class:'me-badge me-bub',hidden:true,text:'報名中'})); try{ evNav(); }catch(e){}
   const n=(S.prefs.favs||[]).length; $('#favBadge').hidden=!n; $('#favBadge').textContent=String(n);
   const c=cart().length; $('#cartBadge').hidden=!c; $('#cartBadge').textContent=String(c);
   const ns=$('#navSell'); if(ns) ns.hidden=isSeller();
@@ -13150,7 +13156,7 @@ function evBoot(db){ db.collection('mkts').onSnapshot(sn=>{ S.mkts=new Map(sn.do
   if(S.admin||isSeller()) db.doc('site/canned').onSnapshot(d=>{ S.canned=(d.exists&&d.data().list)||[]; },()=>{}); }
 function evRen(){ const sig=JSON.stringify([...S.mkts.values(),...S.lives.values()].map(x=>[x.id,x.phase,x.regOpen,x.regEnd,x.startAt,x.endAt,x.title,x.cover,x.nSold])); evNav(); if(sig===evSig) return; evSig=sig;
   if(PAGE==='raffle'){ playSig=''; renderRafflePage(); } if(PAGE==='me') renderMe(true); if(PAGE==='mkt') renderMkt(true); }
-function evNav(){ const n=S.me&&hasShop()&&isVerified(S.me)?regList().length:0; document.querySelectorAll('.me-badge').forEach(b=>{ b.hidden=!n; }); }
+function evNav(){ const n=S.me&&((hasShop()&&isVerified(S.me))||S.admin)?regList().length:0; document.querySelectorAll('.me-badge').forEach(b=>{ b.hidden=!n; }); }
 // 「我的」頁：開放報名中的活動（放在個人卡和我的賣場中間）
 function evInvPick(){ const L=[...S.mkts.values(),...S.lives.values()].filter(x=>evState(x)!=='done').sort((a,b)=>(a.startAt||0)-(b.startAt||0)); if(!L.length){ toast('目前沒有進行中或即將開始的活動'); return; } if(L.length===1) return evInvite(L[0]);
   rgSheet('📣 邀請認證賣家','選要邀請參加的活動',L.map(x=>[x.kind==='mkt'?'🎪':'🔴',x.title||'',evWhen(x.startAt)+' 開始'+(regOn(x)?' · 報名中':''),()=>evInvite(x)])); }
