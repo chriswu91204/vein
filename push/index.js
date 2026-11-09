@@ -758,20 +758,31 @@ async function lvAdvance(id) {
     else { tx.update(lref, { status: 'pass', n: 0, endedAt: now }); result = { sold: false, lot: cur }; }
     tx.update(eref, { cur: { ...cur, gapUntil: now + LV_GAP, result: cur.top ? 'sold' : 'pass' }, now, [cur.top ? 'nSold' : 'nPass']: admin.firestore.FieldValue.increment(1), ...(cur.top ? { gmv: admin.firestore.FieldValue.increment(cur.top.amt) } : {}) });
   });
-  if (result && result.sold) await lvOrder(id, result.lot);
+  if (result && result.sold) { try { await db.doc(`shops/${result.lot.shop}/plants/${result.lot.pid}`).update({ status: 'sold', buyer: result.lot.top.uid, soldPrice: result.lot.top.amt }); } catch (e) {} }
   return result;
 }
-function lvCur(ev, l, now, i) { const dur = Math.max(10, twNum(ev.dur) || 60) * 1000; return { lid: l.id, pid: l.pid, shop: l.shop, i, start: twNum(l.start) || 0, top: null, n: 0, startedAt: now, endsAt: now + dur, code: l.code || '', name: l.name || '' }; }
-async function lvOrder(id, cur) {
-  const oid = 'lv-' + id.slice(0, 8) + '-' + cur.pid, oref = db.doc(`shops/${cur.shop}/orders/${oid}`), now = Date.now();
-  try { if (!(await oref.get()).exists) { const bank = await db.doc(`data/users/${cur.shop}/bank`).get();
-      await oref.set({ buyer: cur.top.uid, items: [cur.pid], total: cur.top.amt, note: 'VEIN 拍賣會得標（自動成立）', status: 'confirmed', payMethod: 'transfer', src: 'live', at: now });
-      await db.doc(`deals/${cur.shop}_${oid}`).set({ seller: cur.shop, buyer: cur.top.uid, orderId: oid, payMethod: 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true });
-      await db.doc(`shops/${cur.shop}/plants/${cur.pid}`).update({ status: 'sold', buyer: cur.top.uid, soldPrice: cur.top.amt, liveId: null }).catch(() => {}); }
-    await push(cur.top.uid, '🏆 拍賣會得標！', (cur.name || cur.code || '植物') + ' 以 NT$ ' + Number(cur.top.amt).toLocaleString('zh-TW') + ' 得標，訂單已成立', '/#/me/orders', 'lv-' + oid);
-    await push(cur.shop, '🔨 拍賣會成交', (cur.name || cur.code || '植物') + ' 由 ' + (await displayName(cur.top.uid)) + ' 以 NT$ ' + Number(cur.top.amt).toLocaleString('zh-TW') + ' 得標', '/#orders/orders', 'lv-' + oid);
-  } catch (e) { logger.error('lvOrder', oid, String(e)); }
+const LV_PREVIEW = 15000; // 每一件開拍前先給大家看 15 秒照片與資訊
+function lvCur(ev, l, now, i) { const dur = Math.max(10, twNum(ev.dur) || 60) * 1000, pv = now + LV_PREVIEW; return { lid: l.id, pid: l.pid, shop: l.shop, i, start: twNum(l.start) || 0, top: null, n: 0, startedAt: now, previewUntil: pv, endsAt: pv + dur, code: l.code || '', name: l.name || '' }; }
+// 整場結束後才成立訂單：同一位買家、同一個賣家的得標品合併成一筆訂單（不同賣家就各一筆）
+async function lvFinalize(id) {
+  const eref = db.doc('lives/' + id), es = await eref.get(); if (!es.exists) return; const ev = es.data(); if (ev.finalized) return;
+  const sold = (await db.collection('lives/' + id + '/lots').where('status', '==', 'sold').get()).docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.winner && l.final);
+  const groups = new Map(); for (const l of sold) { const k = l.winner + '|' + l.shop; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(l); }
+  const now = Date.now(), byBuyer = new Map();
+  for (const [k, L] of groups) { const [buyer, shop] = k.split('|'), oid = 'lv-' + id.slice(0, 8) + '-' + buyer.slice(0, 10), oref = db.doc(`shops/${shop}/orders/${oid}`), total = L.reduce((n, l) => n + twNum(l.final), 0);
+    try { if (!(await oref.get()).exists) { const bank = await db.doc(`data/users/${shop}/bank`).get();
+        await oref.set({ buyer, items: L.map(l => l.pid), prices: Object.fromEntries(L.map(l => [l.pid, twNum(l.final)])), total, note: (ev.title || 'VEIN 拍賣會') + ' 得標 ' + L.length + ' 件（自動成立）', status: 'confirmed', payMethod: 'transfer', src: 'live', liveId: id, at: now });
+        await db.doc(`deals/${shop}_${oid}`).set({ seller: shop, buyer, orderId: oid, payMethod: 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true });
+        for (const l of L) await db.doc(`shops/${shop}/plants/${l.pid}`).update({ status: 'sold', buyer, soldPrice: twNum(l.final) }).catch(() => {});
+        await push(shop, '🔨 拍賣會成交 ' + L.length + ' 件', (await displayName(buyer)) + ' 得標，合計 NT$ ' + total.toLocaleString('zh-TW') + '，訂單已成立', '/#orders/orders', 'lvo-' + oid); }
+    } catch (e) { logger.error('lvFinalize', oid, String(e)); }
+    const b = byBuyer.get(buyer) || { n: 0, t: 0, s: 0 }; b.n += L.length; b.t += total; b.s++; byBuyer.set(buyer, b); }
+  for (const [buyer, b] of byBuyer) { try { await push(buyer, '🏆 ' + (ev.title || '拍賣會') + ' 得標 ' + b.n + ' 件', '合計 NT$ ' + b.t.toLocaleString('zh-TW') + (b.s > 1 ? '，共 ' + b.s + ' 個賣家各一筆訂單' : '，訂單已成立') + '，請到我的訂單付款', '/#/me/orders', 'lvb-' + id + buyer); } catch (e) {} }
+  await eref.update({ finalized: true, finalizedAt: now });
 }
+exports.liveDone = onDocumentUpdated('lives/{id}', async ev => {
+  const a = ev.data.after.data() || {}, b = ev.data.before.data() || {}; if (a.phase === 'done' && b.phase !== 'done' && !a.finalized) { try { await lvFinalize(ev.params.id); } catch (x) { logger.error('liveDone', String(x)); } }
+});
 // 出價：只接受「目前價＋一口」（第一口＝起拍價），而且伺服器時間還沒結束；最後 N 秒有人出價就延長到 N 秒
 exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async ev => {
   const b = ev.data.data() || {}, ref = ev.data.ref; if (!b.uid || !b.eid || !b.lid || b.res) return;
@@ -782,6 +793,7 @@ exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async 
     const out = await db.runTransaction(async tx => {
       const es = await tx.get(eref); if (!es.exists) return { res: 'gone' }; const e = es.data(), cur = e.cur, now = Date.now();
       if (!cur || cur.lid !== b.lid || cur.gapUntil) return { res: 'late' };
+      if (cur.previewUntil && now < cur.previewUntil) return { res: 'soon' };
       if (now >= cur.endsAt) return { res: 'late' };
       if (cur.shop === b.uid) return { res: 'own' };
       const need = cur.top ? cur.top.amt + lvStep(e, cur.top.amt) : (cur.start || lvStep(e, 0));
