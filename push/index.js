@@ -745,8 +745,25 @@ function lvStep(ev, amt) { if (+ev.step > 0) return +ev.step; return amt < 1000 
 async function lvLots(id) { const s = await db.collection('lives/' + id + '/lots').where('status', 'in', ['ok', 'wait', 'live', 'sold', 'pass']).get();
   return s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (twNum(a.ord) - twNum(b.ord)) || (twNum(a.at) - twNum(b.at))); }
 // 推進：把該結束的那一株結標（有人出價＝成交、建立訂單），再開始下一株
+// 報名截止後排拍賣順序：賣家希望的前段／中段／後段先滿足，滿了或沒填的亂數補位
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+async function lvArrange(id) {
+  const eref = db.doc('lives/' + id); const es = await eref.get(); if (!es.exists) return; const e = es.data(); if (e.ordered || e.phase === 'on' || e.phase === 'done') return;
+  const s = await db.collection('lives/' + id + '/lots').where('status', 'in', ['ok', 'wait', 'pending']).get(); const L = s.docs.map(d => ({ id: d.id, ref: d.ref, ...d.data() }));
+  const N = L.length, cap = { f: Math.ceil(N / 3), m: Math.ceil((N - Math.ceil(N / 3)) / 2) }; cap.b = N - cap.f - cap.m;
+  const seg = { f: [], m: [], b: [] }, pool = [];
+  for (const k of ['f', 'm', 'b']) { const want = shuffle(L.filter(l => l.pos === k)); seg[k] = want.slice(0, cap[k]); pool.push(...want.slice(cap[k])); }
+  pool.push(...L.filter(l => !['f', 'm', 'b'].includes(l.pos))); shuffle(pool);
+  for (const k of ['f', 'm', 'b']) { while (seg[k].length < cap[k] && pool.length) seg[k].push(pool.shift()); shuffle(seg[k]); }
+  const out = [...seg.f, ...seg.m, ...seg.b, ...pool]; let b = db.batch(), n = 0;
+  for (let i = 0; i < out.length; i++) { const l = out[i], got = i < cap.f ? 'f' : i < cap.f + cap.m ? 'm' : 'b'; b.update(l.ref, { ord: i + 1, slot: i + 1, posOk: !l.pos || l.pos === got }); if (++n % 400 === 0) { await b.commit(); b = db.batch(); } }
+  b.update(eref, { ordered: true, orderedAt: Date.now(), nLots: N }); await b.commit();
+  // 通知每位賣家他的植物排在第幾件
+  const by = new Map(); out.forEach((l, i) => { if (!by.has(l.shop)) by.set(l.shop, []); by.get(l.shop).push(i + 1); });
+  for (const [u, A] of by) { try { await push(u, '🔨 拍賣順序出爐：' + (e.title || 'VEIN 拍賣會'), '你的植物排在第 ' + A.sort((a, b) => a - b).join('、') + ' 件（共 ' + N + ' 件）', '/#/live/' + id, 'lvord-' + id); } catch (x) {} } }
 async function lvAdvance(id) {
   const eref = db.doc('lives/' + id); let result = null, started = null;
+  try { const e0 = (await eref.get()).data(); if (e0 && !e0.ordered && e0.startAt && Date.now() >= e0.startAt) await lvArrange(id); } catch (x) { logger.warn('lvArrange', String(x)); }
   const lots = await lvLots(id);
   await db.runTransaction(async tx => {
     const es = await tx.get(eref); if (!es.exists) return; const ev = es.data(), now = Date.now(), cur = ev.cur || null;
@@ -823,7 +840,9 @@ exports.liveTick = onDocumentCreated({ document: 'liveTick/{id}', ...HOT }, asyn
 // 保險：沒有人在看的時候，每分鐘也會推進一次
 exports.liveSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
   const ls = await db.collection('lives').where('phase', 'in', ['reg', 'wait', 'on']).get();
-  for (const d of ls.docs) { const e = d.data(); if (!e.startAt || Date.now() < e.startAt) continue; for (let k = 0; k < 3; k++) { try { const r = await lvAdvance(d.id); if (!r) break; } catch (x) { break; } }
+  for (const d of ls.docs) { const e = d.data();
+    if (!e.ordered && ((e.regEnd && Date.now() > e.regEnd) || (e.startAt && Date.now() >= e.startAt - 5 * 60000))) { try { await lvArrange(d.id); } catch (x) { logger.warn('lvArrange', String(x)); } }
+    if (!e.startAt || Date.now() < e.startAt) continue; for (let k = 0; k < 3; k++) { try { const r = await lvAdvance(d.id); if (!r) break; } catch (x) { break; } }
     if (e.phase !== 'on') { try { await broadcast('🔴 ' + (e.title || 'VEIN 拍賣會') + ' 開拍了！', '一株接一株，手刀進場', '/#/live/' + d.id, 'live-' + d.id); } catch (x) {} } }
 });
 // 市集進行中賣家退出（或管理員移除）→ 價格立刻換回原價
@@ -855,6 +874,6 @@ exports.liveGuard = onDocumentCreated('lives/{id}/lots/{pid}', async ev => {
     const all = await db.collection('lives/' + id + '/lots').where('status', 'in', ['ok', 'pending', 'live', 'sold', 'pass']).get();
     const mine = all.docs.filter(x => x.data().shop === l.shop && x.id !== ev.params.pid).length, tot = all.docs.filter(x => x.id !== ev.params.pid).length;
     if (R.perShop && mine >= R.perShop) return no('每個賣場最多 ' + R.perShop + ' 株'); if (R.total && tot >= R.total) return no('名額已滿（共 ' + R.total + ' 株）');
-    await ref.update({ status: e.approve === 'manual' ? 'pending' : 'ok', checkedAt: now, kind: p.kind || 'mother', genus: g, ord: twNum(l.ord) || now });
+    await ref.update({ status: e.approve === 'manual' ? 'pending' : 'ok', checkedAt: now, kind: p.kind || 'mother', genus: g, ord: twNum(l.ord) || now, pos: ['f', 'm', 'b'].includes(l.pos) ? l.pos : '' });
   } catch (x) { logger.error('liveGuard', String(x)); }
 });
