@@ -137,10 +137,10 @@ async function strips({ title, items, more, foot, url, story }) {
   // 左上 VEIN 標誌
   svg += '<rect x="56" y="' + (story ? 120 : 52) + '" width="34" height="34" rx="9" fill="#1F6B3A"/><circle cx="73" cy="' + (story ? 137 : 69) + '" r="7" fill="' + V + '"/>' + txt(f, 'VEIN', 102, (story ? 148 : 80), 30, '#fff');
   svg += txt(f, title, 56, top - (story ? 50 : 40), story ? 92 : 78, '#fff', WW - 112);
-  items.slice(0, n).forEach((it, i) => { const x = i * sw + 14, mw = sw - 26, fs = n <= 3 ? 30 : n <= 4 ? 25 : 21; svg += txt(f, it.name, x, top + sh - 22 - fs * 1.25, fs, '#fff', mw) + txt(f, it.price, x, top + sh - 20, fs, V, mw); });
-  if (more > 0) svg += txt(f, '+' + more, WW - 92, top + sh / 2 + 20, 50, '#fff');
+  items.slice(0, n).forEach((it, i) => { const x = i * sw + 14, mw = sw - 26, fs = n <= 3 ? 30 : n <= 4 ? 25 : 21; let a = String(it.name || ''), b = ''; if (f && f.getAdvanceWidth(a, fs) > mw) { let k = a.length; while (k > 1 && f.getAdvanceWidth(a.slice(0, k), fs) > mw) k--; const sp = a.lastIndexOf(' ', k); const c = sp > 2 ? sp : k; b = a.slice(c).trim(); a = a.slice(0, c).trim(); } const y0 = top + sh - 20; svg += (b ? txt(f, a, x, y0 - fs * 2.5, fs, '#fff', mw) + txt(f, b, x, y0 - fs * 1.25, fs, '#fff', mw) : txt(f, a, x, y0 - fs * 1.25, fs, '#fff', mw)) + txt(f, it.price, x, y0, fs, V, mw); });
+  if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 46) : 80; svg += '<rect x="' + (WW - mw2 - 52) + '" y="' + (top + 24) + '" width="' + (mw2 + 32) + '" height="64" rx="32" fill="rgba(0,0,0,.6)"/>' + txt(f, mt, WW - mw2 - 36, top + 72, 46, '#fff'); }
   const qr = story ? 230 : 180, fy = top + sh + 8 + (bot - 8) / 2;
-  svg += txt(f, foot, 56, fy + (story ? 34 : 30), story ? 92 : 80, V, WW - 112 - qr - 30);
+  const fs2 = f ? Math.min(story ? 92 : 80, Math.floor(80 * (WW - 112 - qr - 30) / Math.max(1, f.getAdvanceWidth(foot, 80)))) : 80; svg += txt(f, foot, 56, fy + fs2 * 0.36, fs2, V);
   if (story) svg += txt(f, url.replace(/^https:\/\//, ''), 56, HH - 60, 26, 'rgba(255,255,255,.55)', WW - 112);
   svg += '</svg>';
   const comp = [...tiles.filter(Boolean), { input: Buffer.from(svg), left: 0, top: 0 }]; const q = await qrSvg(url, qr - 24);
@@ -151,7 +151,7 @@ const hhmm = t => { const d = new Date(t + 8 * 3600e3); return (d.getUTCMonth() 
 async function eventCard(kind, id, story) {
   const d = await db().doc((kind === 'mkt' ? 'mkts/' : 'lives/') + id).get(); const x = d.exists ? d.data() : {}; const isM = kind === 'mkt';
   const L = await eventLots(kind, id); const U = await Promise.all(L.slice(0, 6).map(lotPhoto));
-  const items = L.slice(0, 6).map((e, i) => ({ url: U[i], name: e.name || e.code || '', price: isM ? money(e.deal) : '起拍 ' + money(e.start) })).filter(i => i.url);
+  const items = L.slice(0, 6).map((e, i) => ({ url: U[i], name: shortSp(e.name || e.code || '').replace(/^Anthurium\s+/i, ''), price: isM ? money(e.deal) : '起拍 ' + money(e.start) })).filter(i => i.url);
   if (!items.length) return null;
   return strips({ title: x.title || (isM ? 'VEIN 市集' : 'VEIN 拍賣會'), items, more: Math.max(0, L.length - items.length), foot: (x.startAt ? hhmm(x.startAt) : '') + (isM ? ' 開賣' : ' 開拍'), url: SITE + '/s/e/' + kind + '/' + id, story });
 }
