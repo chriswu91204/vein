@@ -10,7 +10,7 @@
 
 ## 2. 什麼時候發什麼
 - **活動（market／live-auction）新的 id**：立刻發。
-  - IG：`type: POST` 輪播，images 前 5 張（第一張是拼圖），文案用 caption.instagram 為底，最後寫「🔗 連結在限動／個人檔案」。
+  - IG：`type: POST` 輪播，images 前 5 張（第一張是拼圖），文案用 caption.instagram 為底，最後寫「🔗 連結在個人檔案」。
   - Threads：另一則貼文，images 前 3 張，文案用 caption.threads（含可點連結）。
   - IG 限動：**只發圖**。images[0]，`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
 - **新上架 plant／auction（publishedAt 在上次檢查之後、id 沒發過）**：額外發。
