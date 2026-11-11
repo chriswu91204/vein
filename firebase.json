@@ -112,6 +112,13 @@
     ],
     "rewrites": [
       {
+        "source": "/time",
+        "function": {
+          "functionId": "feed",
+          "region": "asia-east1"
+        }
+      },
+      {
         "source": "/feed.json",
         "function": {
           "functionId": "feed",

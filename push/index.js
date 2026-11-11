@@ -769,17 +769,17 @@ async function lvAdvance(id) {
     const es = await tx.get(eref); if (!es.exists) return; const ev = es.data(), now = Date.now(), cur = ev.cur || null;
     if (ev.phase === 'done') return;
     if (!cur) { if (!ev.startAt || now < ev.startAt) return; const nx = lots.find(l => l.status === 'ok' || l.status === 'wait'); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
-      tx.update(eref, { phase: 'on', cur: lvCur(ev, nx, now, 0), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
+      tx.update(eref, { phase: 'on', cur: lvCur(ev, nx, now, 0, ev.startAt), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
     if (cur.gapUntil) { if (now < cur.gapUntil) return; const done = new Set(lots.filter(l => l.status === 'sold' || l.status === 'pass').map(l => l.id)); done.add(cur.lid);
       const nx = lots.find(l => !done.has(l.id) && (l.status === 'ok' || l.status === 'wait'));
       if (!nx) { tx.update(eref, { phase: 'done', doneAt: now, cur: { ...cur, over: true }, now }); return; }
-      tx.update(eref, { cur: lvCur(ev, nx, now, (cur.i || 0) + 1), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
+      tx.update(eref, { cur: lvCur(ev, nx, now, (cur.i || 0) + 1, cur.gapUntil), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
     if (now < cur.endsAt) return;
     // 結標：伺服器時間已超過結束時間，之後的出價都不會被接受
     const lref = eref.collection('lots').doc(cur.lid);
     if (cur.top) { tx.update(lref, { status: 'sold', final: cur.top.amt, winner: cur.top.uid, n: cur.n || 0, endedAt: now }); result = { sold: true, lot: cur }; }
     else { tx.update(lref, { status: 'pass', n: 0, endedAt: now }); result = { sold: false, lot: cur }; }
-    tx.update(eref, { cur: { ...cur, gapUntil: now + LV_GAP, result: cur.top ? 'sold' : 'pass' }, now, [cur.top ? 'nSold' : 'nPass']: admin.firestore.FieldValue.increment(1), ...(cur.top ? { gmv: admin.firestore.FieldValue.increment(cur.top.amt) } : {}) });
+    tx.update(eref, { cur: { ...cur, gapUntil: Math.max(cur.endsAt + LV_GAP, now + 2000), result: cur.top ? 'sold' : 'pass' }, now, [cur.top ? 'nSold' : 'nPass']: admin.firestore.FieldValue.increment(1), ...(cur.top ? { gmv: admin.firestore.FieldValue.increment(cur.top.amt) } : {}) });
   });
   if (started) { try { const ws = await db.collection('liveWatch').where('eid', '==', id).where('pid', '==', started.lot.pid).get();
     for (const w of ws.docs) { await push(w.data().uid, '🔔 輪到你關注的植物了！', (started.lot.name || started.lot.code || '植物') + ' 15 秒後開拍，起拍 NT$ ' + Number(started.lot.start || 0).toLocaleString('zh-TW'), '/#/live/' + id, 'lvw-' + id + started.lot.pid); await w.ref.delete().catch(() => {}); } } catch (e) { logger.warn('liveWatch', String(e)); } }
@@ -787,7 +787,9 @@ async function lvAdvance(id) {
   return result;
 }
 const LV_PREVIEW = 15000; // 每一件開拍前先給大家看 15 秒照片與資訊
-function lvCur(ev, l, now, i) { const dur = Math.max(10, twNum(ev.dur) || 60) * 1000, pv = now + LV_PREVIEW; return { lid: l.id, pid: l.pid, shop: l.shop, i, start: twNum(l.start) || 0, top: null, n: 0, startedAt: now, previewUntil: pv, endsAt: pv + dur, code: l.code || '', name: l.name || '' }; }
+// 時間一律依「預定時間」排，不依誰先來通知：base＝這一件該開始預覽的時間（開場時間或上一件的公布結束時間）
+// 這樣就算通知晚到幾秒，也不會把延遲一路累積到後面的拍品；真的晚太多時至少留 3 秒預覽
+function lvCur(ev, l, now, i, base) { const dur = Math.max(10, twNum(ev.dur) || 60) * 1000, pv = Math.max((base || now) + LV_PREVIEW, now + 3000); return { lid: l.id, pid: l.pid, shop: l.shop, i, start: twNum(l.start) || 0, top: null, n: 0, startedAt: now, previewUntil: pv, endsAt: pv + dur, code: l.code || '', name: l.name || '' }; }
 // 整場結束後才成立訂單：同一位買家、同一個賣家的得標品合併成一筆訂單（不同賣家就各一筆）
 async function lvFinalize(id) {
   const eref = db.doc('lives/' + id), es = await eref.get(); if (!es.exists) return; const ev = es.data(); if (ev.finalized) return;

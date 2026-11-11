@@ -193,6 +193,8 @@ function sharePage(o) {
 module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, invoker: 'public' }, async (req, res) => {
   const path = (req.path || '/').replace(/\/+$/, '') || '/';
   try {
+    // 校時：回傳伺服器現在時間（毫秒），拍賣會頁面每 10 秒校正一次倒數
+    if (path === '/time') { res.set('Cache-Control', 'no-store, max-age=0'); res.json({ now: Date.now() }); return; }
     if (path === '/feed.json' || path === '/feed' || path === '/') { const F = await buildFeed(req); res.set('Cache-Control', 'public, max-age=300, s-maxage=300'); res.json(F); return; }
     if (path === '/feed.xml' || path === '/rss') { const F = await buildFeed(req); res.set('Cache-Control', 'public, max-age=300, s-maxage=300'); res.type('application/rss+xml; charset=utf-8').send(rss(F)); return; }
     let m;

@@ -13325,10 +13325,20 @@ function evFx(big,small,tpl){ if(REDUCE){ toast(big); return; } const el=h('div'
 /* ---- VEIN 拍賣會：競標頁 ---- */
 const LV={id:null,un:[],ev:null,lots:new Map(),off:null,tk:{},photo:0,pt:0,iv:0,bidBusy:false,lastTop:null,lastLid:null,lastGap:false,feed:[],ext:0};
 const lvNow=()=>Date.now()+(LV.off||0);
-// 校時：收到的伺服器時間都比實際晚一點（網路延遲），取最大值；每次最多調 40 毫秒，倒數才不會跳
-function lvOff(o){ if(LV.off==null){ LV.off=o; return; } if(o>LV.off) LV.off=Math.min(o,LV.off+40); else if(o<LV.off-3000) LV.off=Math.max(o,LV.off-40); }
+// 校時：直接問伺服器現在幾點（/time），取來回最快的那次估算誤差；一進頁面測 3 次，之後每 10 秒校正一次
+// 拍賣紀錄上的 now 只是「上次更新的時間」，可能是很久以前，只拿來當下限，不能直接當現在時間
+// 平常每一幀最多調 60 毫秒（倒數不跳）；換新拍品、開拍那一刻直接對齊
+function lvOff(o){ if(LV.tgt==null){ LV.tgt=o; if(LV.off==null) LV.off=o; return; } if(o>LV.tgt+(LV.synced?300:0)) LV.tgt=o; }
+async function lvSync1(){ const t0=Date.now(); try{ const r=await fetch('/time?_='+t0,{cache:'no-store'}); const j=await r.json(); const t1=Date.now(), rtt=t1-t0; if(!(j&&+j.now>0)) return null; return {o:+j.now-(t0+t1)/2,rtt,at:t1}; }catch(e){ return null; } }
+async function lvSync(n){ const S2=[]; for(let i=0;i<(n||1);i++){ const x=await lvSync1(); if(x) S2.push(x); }
+  LV.samples=[...(LV.samples||[]),...S2].filter(x=>Date.now()-x.at<90000).sort((a,b)=>a.rtt-b.rtt).slice(0,6);
+  const best=LV.samples[0]; if(!best) return; const first=!LV.synced; LV.synced=true; LV.tgt=best.o; LV.rtt=best.rtt; if(first||LV.off==null||Math.abs(LV.off-LV.tgt)>5000) LV.off=LV.tgt; }
+function lvSnap(){ if(LV.tgt!=null) LV.off=LV.tgt; }
+function lvStep(){ if(LV.tgt==null) return; if(LV.off==null){ LV.off=LV.tgt; return; } const d=LV.tgt-LV.off; if(Math.abs(d)<2) return; LV.off+=Math.max(-60,Math.min(60,d)); }
 const lvStepC=(ev,amt)=>{ if(+ev.step>0) return +ev.step; return amt<1000?50:amt<3000?100:amt<10000?200:amt<30000?500:1000; };
 const lvPrev=c=>!!c&&!c.gapUntil&&c.previewUntil&&lvNow()<c.previewUntil;
+// 剛進頁面、還沒對好時間（最多 2.5 秒）：先不顯示秒數，免得閃一下錯的數字
+const lvWait=()=>!LV.synced&&Date.now()-(LV.enter||0)<2500;
 const lvNeed=ev=>{ const c=ev.cur; if(!c) return 0; return c.top?c.top.amt+lvStepC(ev,c.top.amt):(c.start||lvStepC(ev,0)); };
 function lvVid(){ if(S.me) return S.me; let v=''; try{ v=sessionStorage.getItem('vein.vid')||''; if(!v){ v='g'+Math.random().toString(36).slice(2,12); sessionStorage.setItem('vein.vid',v); } }catch(e){ v='g'+Math.random().toString(36).slice(2,12); } return v; }
 // 現在人數：每個在看的人每 25 秒報到一次；每 15 秒數一次「1 分鐘內報到過的人」（伺服器計數，很省流量）
@@ -13337,15 +13347,15 @@ function lvPresence(id){ const ref=S.db.doc('lives/'+id+'/viewers/'+lvVid()); co
   LV.un.push(()=>{ clearInterval(t1); clearInterval(t2); document.removeEventListener('visibilitychange',vis); ref.delete().catch(()=>{}); }); }
 function leaveLive(){ try{ cancelAnimationFrame(LV.raf); }catch(e){} LV.un.forEach(f=>{ try{ f(); }catch(e){} }); LV.un=[]; clearInterval(LV.iv); LV.iv=0; clearInterval(LV.pt); LV.pt=0; LV.id=null; document.body.classList.remove('lv-on'); }
 function renderLive(){ const box=$('#livePage'); if(!box) return; const id=S.liveId; document.body.classList.add('lv-on'); if(lvNoPhone()) setTimeout(()=>{ if(PAGE==='live'&&lvNoPhone()) evPhoneNag('live'); },900);
-  if(LV.id!==id){ leaveLive(); document.body.classList.add('lv-on'); LV.id=id; LV.ev=null; LV.lots=new Map(); LV.tk={}; LV.feed=[]; LV.lastTop=null; LV.lastLid=null; LV.off=null;
+  if(LV.id!==id){ leaveLive(); document.body.classList.add('lv-on'); LV.id=id; LV.ev=null; LV.lots=new Map(); LV.tk={}; LV.feed=[]; LV.lastTop=null; LV.lastLid=null; LV.off=null; LV.tgt=null; LV.synced=false; LV.samples=[]; LV.enter=Date.now(); lvSync(3); LV.sy=setInterval(()=>{ if(!document.hidden) lvSync(1); },10000); const vs=()=>{ if(!document.hidden){ lvSync(2).then(lvSnap); } }; document.addEventListener('visibilitychange',vs); LV.un.push(()=>{ clearInterval(LV.sy); document.removeEventListener('visibilitychange',vs); });
     box.replaceChildren(h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'進入拍賣會…'})));
     LV.un.push(S.db.doc('lives/'+id).onSnapshot(d=>{ if(!d.exists){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:'找不到這場拍賣會'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); return; }
       const ev={id:d.id,...d.data(),kind:'live'}; if(ev.now) lvOff(ev.now-Date.now()); LV.ev=ev; lvOnEv(ev); },()=>{}));
     LV.un.push(S.db.collection('lives/'+id+'/lots').onSnapshot(async sn=>{ LV.lots=new Map(sn.docs.map(x=>[x.id,{id:x.id,...x.data()}])); await Promise.all([...LV.lots.values()].filter(l=>['ok','live','sold','pass'].includes(l.status)).map(l=>mkLoadPlant(l))); const sk=LV.ev?.cur?.lid+'|'+(S.plants.has(LV.ev?.cur?.pid)?1:0)+'|'+LV.ev?.phase; if(!$('#livePage .lv')||LV.lotSig!==sk){ LV.lotSig=sk; lvPaint(); } else { const t=$('#livePage .lv-tt small'); if(t&&LV.ev?.cur) t.textContent='第 '+((LV.ev.cur.i||0)+1)+' / '+lvLotList().length+' 件'; } lvLotsRefresh(); },()=>{}));
-    LV.iv=setInterval(lvTickUi,250); const raf=()=>{ if(LV.id!==id) return; lvClock(); LV.raf=requestAnimationFrame(raf); }; LV.raf=requestAnimationFrame(raf); try{ lvPresence(id); }catch(e){} }
+    LV.iv=setInterval(lvTickUi,250); const raf=()=>{ if(LV.id!==id) return; lvStep(); lvClock(); LV.raf=requestAnimationFrame(raf); }; LV.raf=requestAnimationFrame(raf); try{ lvPresence(id); }catch(e){} }
   else lvPaint(); }
 function lvOnEv(ev){ const c=ev.cur;
-  if(c&&c.lid!==LV.lastLid){ if(LV.lastLid!==null&&lvWatchSet().has(c.pid)){ navigator.vibrate?.([60,40,60]); evFx('🔔 輪到你關注的了！',(c.name||c.code||'')+' · 15 秒後開拍','live'); } LV.lastLid=c.lid; LV.photo=0; LV.feed=[]; LV.lastTop=null; LV.lastGap=false; LV.ext=c.ext||0; lvPaint(); lvSubBids(c.lid); return; }
+  if(c&&c.lid!==LV.lastLid){ lvSnap(); if(LV.lastLid!==null&&lvWatchSet().has(c.pid)){ navigator.vibrate?.([60,40,60]); evFx('🔔 輪到你關注的了！',(c.name||c.code||'')+' · 15 秒後開拍','live'); } LV.lastLid=c.lid; LV.photo=0; LV.feed=[]; LV.lastTop=null; LV.lastGap=false; LV.ext=c.ext||0; lvPaint(); lvSubBids(c.lid); return; }
   if(c&&c.gapUntil&&!LV.lastGap){ LV.lastGap=true; lvPaint(); if(c.result==='sold'){ const p=S.plants.get(c.pid); evFx(c.top?.uid===S.me?'🏆 你得標了！':'成交！',(p?pName(p):c.code||'')+' · '+money(c.top?.amt||0),'live'); } return; }
   if(c&&c.top&&(!LV.lastTop||LV.lastTop.amt!==c.top.amt)){ const prev=LV.lastTop; LV.lastTop=c.top; resolveNames([c.top.uid]); lvBump(prev,c.top); }
   lvFeed();
@@ -13362,9 +13372,9 @@ function lvFeed(){ const box=$('#livePage .lv-lead2'); if(!box||!LV.ev) return; 
   want.forEach((b,i)=>{ const k=keys[i]; if(have.has(k)){ const el=f.querySelector('[data-k="'+k+'"]'); const nm=el.querySelector('b'); const n2=pubName(b.uid,c?.shop); if(nm.textContent!==n2) nm.textContent=n2; return; } f.append(h('div',{class:'lv-fi new'+(b.uid===S.me?' me':''),'data-k':k}, h('b',{text:pubName(b.uid,c?.shop)}), ' 出價 ', h('em',{text:money(b.amt)}))); });
   [...f.children].sort((a,b2)=>+a.dataset.k.split('_')[0]-+b2.dataset.k.split('_')[0]).forEach(el=>f.append(el)); }
 function lvTickUi(){ const ev=LV.ev; if(!ev||PAGE!=='live') return; const c=ev.cur, now=lvNow(); lvFeed();
-  const pv=$('#livePage .lv-pv'); if(pv){ const on=lvPrev(c); pv.hidden=!on; if(on) pv.querySelector('b').textContent=String(Math.ceil((c.previewUntil-now)/1000)); const bt=$('#livePage .lv-bid'); if(bt&&!c.gapUntil&&bt.dataset.pv!==String(on)){ bt.dataset.pv=String(on); lvPanel(); } }
+  const pv=$('#livePage .lv-pv'); if(pv){ const on=lvPrev(c); pv.hidden=!on; if(on) pv.querySelector('b').textContent=lvWait()?'…':String(Math.ceil((c.previewUntil-now)/1000)); const bt=$('#livePage .lv-bid'); if(bt&&!c.gapUntil&&bt.dataset.pv!==String(on)){ bt.dataset.pv=String(on); if(!on) lvSnap(); lvPanel(); } }
   } function lvClock(){ const ev=LV.ev; if(!ev||PAGE!=='live') return; const c=ev.cur, now=lvNow();
-  const cd=$('#livePage .lv-cd'); if(cd&&c){ const dur=Math.max(10,+ev.dur||60)*1000, PV=lvPrev(c), left=c.gapUntil?0:PV?dur:Math.max(0,c.endsAt-now); const t=left>0?(left>=60000?Math.floor(left/60000)+':'+p2(Math.floor(left%60000/1000)):(left/1000).toFixed(1)):(c.gapUntil?'0.0':'0.0'); const B=cd.querySelector('b'); if(B.textContent!==t) B.textContent=t; const lab=c.gapUntil?(c.result==='sold'?'已成交':'流標'):PV?'等待開拍':left>0?'剩餘秒數':'結算中…'; const L2=cd.querySelector('small'); if(L2.textContent!==lab) L2.textContent=lab; cd.classList.toggle('hot',!PV&&!c.gapUntil&&left>0&&left<=(+ev.snipe||10)*1000); cd.classList.toggle('end',!PV&&left<=0); cd.style.setProperty('--p',String(Math.max(0,Math.min(1,left/dur)))); }
+  const cd=$('#livePage .lv-cd'); if(cd&&c){ const dur=Math.max(10,+ev.dur||60)*1000, PV=lvPrev(c), left=c.gapUntil?0:PV?dur:Math.max(0,c.endsAt-now); const t=left>0?(left>=60000?Math.floor(left/60000)+':'+p2(Math.floor(left%60000/1000)):(left/1000).toFixed(1)):(c.gapUntil?'0.0':'0.0'); const W=lvWait(); const B=cd.querySelector('b'); const t2=W&&!c.gapUntil?'…':t; if(B.textContent!==t2) B.textContent=t2; const lab=W&&!c.gapUntil?'校時中':c.gapUntil?(c.result==='sold'?'已成交':'流標'):PV?'等待開拍':left>0?'剩餘秒數':'結算中…'; const L2=cd.querySelector('small'); if(L2.textContent!==lab) L2.textContent=lab; cd.classList.toggle('hot',!PV&&!c.gapUntil&&left>0&&left<=(+ev.snipe||10)*1000); cd.classList.toggle('end',!PV&&left<=0); cd.style.setProperty('--p',String(Math.max(0,Math.min(1,left/dur)))); }
   const sc=$('#livePage .lv-start b'); if(sc&&ev.startAt) sc.textContent=fmtLeft(ev.startAt-now);
   // 時間到了：通知伺服器結標／換下一株（伺服器會再確認一次時間，重複通知也只會處理一次）
   let due=null; if(!c&&ev.startAt&&now>=ev.startAt&&ev.phase!=='done') due='start'; else if(c&&!c.gapUntil&&now>=c.endsAt+300) due='end:'+c.lid+':'+c.endsAt; else if(c&&c.gapUntil&&now>=c.gapUntil+300&&!c.over) due='gap:'+c.lid;
