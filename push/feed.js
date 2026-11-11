@@ -46,7 +46,7 @@ function plantItem(p, shop, base) {
   const priceLine = auc ? '🔨 競標中・起標 ' + money(p.startPrice || p.price) + (end ? '・' + tw(end) + ' 結標' : '') : p.mkt ? '🎪 市集特價 ' + money(p.price) + '（原價 ' + money(p.mkt.orig) + '）' : (+p.price > 0 ? '💰 ' + money(p.price) : '');
   const link = base + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop.id);
   const head = (auc ? '🔨 競標開始｜' : '🌿 新上架｜') + nm;
-  const body = [head, cross ? '🧬 ' + cross : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
+  const body = [head, cross ? (/[×xX]/.test(cross) ? '🧬 ' : '📝 ') + cross : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
   const T = tags(p).join(' ');
   const imgs = photos(p).slice(0, 10).map((u, i) => base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg' + (i ? '?i=' + i : ''));
   const at = ms(p.listedAt) || ms(p.createdAt) || ms(p.updatedAt);
