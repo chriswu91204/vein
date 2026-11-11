@@ -53,7 +53,7 @@ function plantItem(p, shop, base) {
   return {
     id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
     shop: shop.name || '', shopId: shop.id, link, story: pi + '?fmt=story', compilationKey: shop.id + ':' + p.id, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
-    caption: { instagram: body + '\n\n📜 植物履歷（成長紀錄、親本血統）👉 ' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n' + T.split(' ').slice(0, 4).join(' ') },
+    caption: { instagram: body + '\n\n📜 植物履歷（成長紀錄、親本血統）👉 ' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n#觀葉植物' },
   };
 }
 
@@ -86,7 +86,7 @@ async function eventItems(base, now) {
       const imgs = [img, ...LP.filter(Boolean).map((u, i) => base + '/img/e/' + kind + '/' + x.id + '.jpg?lot=' + i)];
       const at = ph === 'reg' ? (ms(x.createdAt) || x.startAt - 7 * 864e5) : ph === 'soon' ? x.startAt - 24 * 3600e3 : x.startAt;
       out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, link, story, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
-        caption: { instagram: lines + '\n\n👉 活動網址：' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n' + T.split(' ').slice(0, 3).join(' ') } });
+        caption: { instagram: lines + '\n\n👉 活動網址：' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n#觀葉植物' } });
     }
   }
   return out;
@@ -141,7 +141,7 @@ async function strips({ title, items, more, foot, url, story, sub }) {
   if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 46) : 80; svg += '<rect x="' + (WW - mw2 - 52) + '" y="' + (top + 24) + '" width="' + (mw2 + 32) + '" height="64" rx="32" fill="rgba(0,0,0,.6)"/>' + txt(f, mt, WW - mw2 - 36, top + 72, 46, '#fff'); }
   const qr = story ? 230 : 180, fy = top + sh + 8 + (bot - 8) / 2;
   const fs2 = f ? Math.min(story ? 92 : 80, Math.floor(80 * (WW - 112 - qr - 30) / Math.max(1, f.getAdvanceWidth(foot, 80)))) : 80; svg += txt(f, foot, 56, fy + fs2 * 0.36, fs2, V);
-  if (story) svg += txt(f, url.replace(/^https:\/\//, ''), 56, HH - 60, 26, 'rgba(255,255,255,.55)', WW - 112);
+  if (story) svg += txt(f, url.replace(/^https:\/\//, '').replace(/\?.*$/, ''), 56, HH - 60, 26, 'rgba(255,255,255,.55)', WW - 112 - qr - 30);
   svg += '</svg>';
   const comp = [...tiles.filter(Boolean), { input: Buffer.from(svg), left: 0, top: 0 }]; const q = await qrSvg(url, qr - 24);
   if (q) comp.push({ input: await sharp()({ create: { width: qr, height: qr, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer(), left: WW - 56 - qr, top: Math.round(fy - qr / 2) });

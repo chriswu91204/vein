@@ -23,6 +23,7 @@
   - 紀錄 id 用 `share-{原id}-{YYYYMMDD}`，同一株 14 天內不要重複分享。
 
 ## 3. 發文規則
+- **Threads 只放一個 hashtag：`#觀葉植物`**（放在最後；Threads 會把它變成「>觀葉植物」主題標籤，多放其他 hashtag 會搶掉主題）。IG 才放 5～8 個 hashtag。
 - **所有貼文的第一張圖和所有限動都要帶 QR**：
   - 單株：images[0] 就是含 QR 的卡片（大圖＋名稱＋價格＋QR），限動用 item.story。
   - 活動：images[0] 是含 QR 的多圖直條模板，限動用 item.story。
@@ -32,7 +33,7 @@
 - 用 Metricool `createScheduledPost`，blogId 8022799，`publicationDate.timezone` = Asia/Taipei，時間設現在 +5 分鐘（活動）或當天 19:30～20:30（每日分享）。
 - IG 一定要有圖；Threads 文案要有 link；限動只發圖、`autoPublish:true`、不放文字。
 - 不要發：已售出、價格是 0 的直購植物（auction 例外）、標題含「測試」的活動只有站長說要發才發。
-- 語氣：台灣繁體中文、簡短、有重點、2～4 個 emoji，hashtag 5～8 個（#VEIN #植物履歷 #花燭 #anthurium #觀葉植物 #天南星 #rareplants 等）。
+- 語氣：台灣繁體中文、簡短、有重點、2～4 個 emoji，IG hashtag 5～8 個（#VEIN #植物履歷 #花燭 #anthurium #觀葉植物 #天南星 #rareplants 等）。
 - 發完把 id、時間、Metricool post id 寫進 `social/posted.json`，commit 並 push 到 main（commit 訊息：「小編：發文 …」）。
 
 ## 4. 回報
