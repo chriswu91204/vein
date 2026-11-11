@@ -154,8 +154,8 @@ async function plantCard(p, shop, story, i) {
   const f = font(), WW = 1080, HH = story ? 1920 : 1350, bot = story ? 420 : 300, V = '#D2FF00', L = photos(p); if (!L.length) return null;
   const ph = await sharp()(await getImg(L[Math.max(0, Math.min(L.length - 1, i || 0))])).rotate().resize(WW, HH - bot, { fit: 'cover', position: 'attention' }).jpeg().toBuffer();
   const url = SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), qr = story ? 250 : 200, auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
-  const name = pName(p).replace(/^Anthurium\s+/i, ''), sub = [KIND[p.kind || 'mother'] || '', p.code || ''].filter(Boolean).join('・');
-  const price = auc ? '起標 ' + money(p.startPrice || p.price) + (end ? '・' + hhmm(end) + ' 結標' : '') : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : '');
+  const name = pName(p).replace(/^Anthurium\s+/i, ''), sub = [KIND[p.kind || 'mother'] || '', p.code || '', auc && end ? hhmm(ms(p.endsAt) || +p.endsAtMs) + ' 結標' : ''].filter(Boolean).join('・');
+  const price = auc ? '起標 ' + money(p.startPrice || p.price) : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : '');
   const tw0 = WW - 112 - qr - 30, y0 = HH - bot; let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '">';
   svg += '<rect x="0" y="' + (y0 - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/>';
   svg += '<rect x="40" y="' + (story ? 110 : 40) + '" width="170" height="58" rx="29" fill="rgba(0,0,0,.6)"/><circle cx="76" cy="' + (story ? 139 : 69) + '" r="9" fill="' + V + '"/>' + txt(f, 'VEIN', 96, (story ? 152 : 82), 34, '#fff');
