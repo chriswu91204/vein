@@ -10,7 +10,7 @@
 
 ## 2. 什麼時候發什麼
 - **活動（market／live-auction）新的 id**：立刻發。
-  - IG：`type: POST` 輪播，images 前 5 張（第一張是拼圖），文案用 caption.instagram 為底，最後寫「🔗 連結在個人檔案」。
+  - IG：`type: POST` 輪播，images 前 5 張（第一張是拼圖），文案用 caption.instagram 為底（已含網址）。
   - Threads：另一則貼文，images 前 3 張，文案用 caption.threads（含可點連結）。
   - IG 限動：**只發圖**。images[0]，`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
 - **新上架 plant／auction（publishedAt 在上次檢查之後、id 沒發過）**：額外發。
@@ -23,6 +23,8 @@
   - 紀錄 id 用 `share-{原id}-{YYYYMMDD}`，同一株 14 天內不要重複分享。
 
 ## 3. 發文規則
+- **每一則貼文（IG 和 Threads）都一定要有網址**：IG 寫不含 https:// 的網址（例：`👉 拍賣會網址：vein-48ec8.web.app/s/e/live/…`），Threads 寫完整 https 網址。
+- 文案只寫各平台看得到的內容，**不要寫「往右滑看更多」「連結在限動／個人檔案」這類引導句**；要提數量就寫「（共 20 株）」。
 - 用 Metricool `createScheduledPost`，blogId 8022799，`publicationDate.timezone` = Asia/Taipei，時間設現在 +5 分鐘（活動）或當天 19:30～20:30（每日分享）。
 - IG 一定要有圖；Threads 文案要有 link；限動只發圖、`autoPublish:true`、不放文字。
 - 不要發：已售出、價格是 0 的直購植物（auction 例外）、標題含「測試」的活動只有站長說要發才發。

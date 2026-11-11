@@ -53,7 +53,7 @@ function plantItem(p, shop, base) {
   return {
     id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
     shop: shop.name || '', link, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
-    caption: { instagram: body + '\n\n📜 完整植物履歷（成長紀錄、親本血統）請點個人檔案連結，或私訊「' + (p.code || nm) + '」\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n' + T.split(' ').slice(0, 4).join(' ') },
+    caption: { instagram: body + '\n\n📜 植物履歷（成長紀錄、親本血統）👉 ' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n' + T.split(' ').slice(0, 4).join(' ') },
   };
 }
 
@@ -81,12 +81,12 @@ async function eventItems(base, now) {
       const link = base + '/s/e/' + kind + '/' + x.id, img = base + '/img/e/' + kind + '/' + x.id + '.jpg';
       const top = L.slice(0, 5).map((e, i) => (i + 1) + '. ' + (e.name || e.code || '植物') + '　' + (isM ? (e.orig ? money(e.orig) + ' → ' : '') + money(e.deal) : '起拍 ' + money(e.start)));
       const H = { reg: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」認證賣家開放報名', soon: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」即將開始', on: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」' + (isM ? '特賣中' : '現在開拍') }[ph];
-      const lines = [H, x.sub || '', '🗓 ' + tw(x.startAt) + (isM ? ' 開賣' : ' 開拍') + (isM && x.endAt ? '～' + tw(x.endAt) : ''), !isM ? '⏱ 每件 ' + (x.dur || 60) + ' 秒・最後 ' + (x.snipe || 10) + ' 秒有人出價再加 ' + (x.snipe || 10) + ' 秒' : '', L.length ? (isM ? '🌿 精選特價：' : '🌿 精選拍品：') + '\n' + top.join('\n') + (L.length > 5 ? '\n…共 ' + L.length + ' 株' : '') : ''].filter(Boolean).join('\n');
+      const lines = [H, x.sub || '', '🗓 ' + tw(x.startAt) + (isM ? ' 開賣' : ' 開拍') + (isM && x.endAt ? '～' + tw(x.endAt) : ''), !isM ? '⏱ 每件 ' + (x.dur || 60) + ' 秒・最後 ' + (x.snipe || 10) + ' 秒有人出價再加 ' + (x.snipe || 10) + ' 秒' : '', L.length ? (isM ? '🌿 精選特價：' : '🌿 精選拍品：') + '\n' + top.join('\n') + (L.length > 5 ? '\n（共 ' + L.length + ' 株）' : '') : ''].filter(Boolean).join('\n');
       const T = ['#VEIN', isM ? '#植物市集' : '#植物拍賣', '#觀葉植物', '#天南星', '#rareplants'].join(' ');
       const imgs = [img, ...LP.filter(Boolean).map((u, i) => base + '/img/e/' + kind + '/' + x.id + '.jpg?lot=' + i)];
       const at = ph === 'reg' ? (ms(x.createdAt) || x.startAt - 7 * 864e5) : ph === 'soon' ? x.startAt - 24 * 3600e3 : x.startAt;
       out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, link, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
-        caption: { instagram: lines + '\n\n👉 活動連結在個人檔案\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n' + T.split(' ').slice(0, 3).join(' ') } });
+        caption: { instagram: lines + '\n\n👉 活動網址：' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n' + T.split(' ').slice(0, 3).join(' ') } });
     }
   }
   return out;
