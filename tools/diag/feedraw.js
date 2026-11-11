@@ -3,4 +3,4 @@
 (async()=>{ const q=process.env.FEED_Q||'days=14&limit=60';
   const r=await fetch('https://vein-48ec8.web.app/feed.json?'+q); const t=await r.text();
   console.log('===FEED64==='); const b=Buffer.from(t).toString('base64'); for(let i=0;i<b.length;i+=4000) console.log(b.slice(i,i+4000)); console.log('===END===');
-})().catch(e=>console.log('ERR',e.message)).finally(()=>process.exit(0));
+})().catch(e=>console.log('ERR',e.message)).finally(()=>{ process.exitCode=0; });
