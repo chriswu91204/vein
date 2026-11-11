@@ -40,18 +40,25 @@ async function resolveShop(q) {
   return [];
 }
 
+// 親本：先在同一個賣場找（大部分親本都是自己的植株），找不到就用登錄時填的編號
+async function parentsOf(p, sid) {
+  const one = async (id, code) => { if (!id && !code) return null; let nm = '', cd = code || ''; if (id) { try { const d = await db().doc('shops/' + sid + '/plants/' + id).get(); if (d.exists) { const q = d.data(); nm = pName(q); cd = cd || q.code || ''; } } catch (e) {} } return (nm || cd) ? { name: nm, code: cd } : null; };
+  const mom = await one(p.momId || p.parentId || null, p.momCode || p.parentCode || ''), dad = await one(p.dadId || null, p.dadCode || '');
+  return { mom, dad };
+}
+const parLabel = x => x ? (x.name ? x.name.replace(/^Anthurium\s+/i, '') + (x.code ? '（' + x.code + '）' : '') : x.code) : '';
 function plantItem(p, shop, base) {
-  const nm = pName(p), kind = KIND[p.kind || 'mother'] || '', cross = String(p.cross || '').trim();
+  const nm = pName(p), kind = KIND[p.kind || 'mother'] || '', memo = String(p.cross || '').trim(), par = p._par || {}, lineage = par.mom || par.dad ? '♀ ' + (parLabel(par.mom) || '未知') + ' × ♂ ' + (parLabel(par.dad) || '未知') : (/[×xX]/.test(memo) ? memo : ''), cross = lineage;
   const auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
   const priceLine = auc ? '🔨 競標中・起標 ' + money(p.startPrice || p.price) + (end ? '・' + tw(end) + ' 結標' : '') : p.mkt ? '🎪 市集特價 ' + money(p.price) + '（原價 ' + money(p.mkt.orig) + '）' : (+p.price > 0 ? '💰 ' + money(p.price) : '');
   const link = base + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop.id);
   const head = (auc ? '🔨 競標開始｜' : '🌿 新上架｜') + nm;
-  const body = [head, cross ? (/[×xX]/.test(cross) ? '🧬 ' : '📝 ') + cross : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
+  const body = [head, lineage ? '🧬 ' + lineage : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
   const T = tags(p).join(' ');
   const pi = base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg'; const imgs = [pi, ...photos(p).slice(1, 10).map((u, i) => pi + '?raw=1&i=' + (i + 1))];
   const at = ms(p.listedAt) || ms(p.createdAt) || ms(p.updatedAt);
   return {
-    id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
+    id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross: lineage, lineage, mother: par.mom || null, father: par.dad || null, memo, photoCount: photos(p).length, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
     shop: shop.name || '', shopId: shop.id, link, story: pi + '?fmt=story', compilationKey: shop.id + ':' + p.id, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
     caption: { instagram: body + '\n\n📜 植物履歷（成長紀錄、親本血統）👉 ' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n#觀葉植物' },
   };
@@ -100,7 +107,7 @@ async function buildFeed(req) {
   for (const sid of shopIds) {
     const sd = await db().doc('shops/' + sid).get(); const shop = { id: sid, ...(sd.exists ? sd.data() : {}) };
     const ps = await db().collection('shops/' + sid + '/plants').where('status', '==', 'available').get();
-    ps.docs.forEach(d => { const p = { id: d.id, ...d.data() }; if (!pub(p) || !photos(p).length) return; const it = plantItem(p, shop, base); if (it.publishedAt && now - Date.parse(it.publishedAt) > days * 864e5 && q.all !== '1') return; items.push(it); });
+    for (const d of ps.docs) { const p = { id: d.id, ...d.data() }; if (!pub(p) || !photos(p).length) continue; const it0 = plantItem(p, shop, base); if (it0.publishedAt && now - Date.parse(it0.publishedAt) > days * 864e5 && q.all !== '1') continue; try { p._par = await parentsOf(p, sid); } catch (e) {} items.push(plantItem(p, shop, base)); }
   }
   if (q.events !== '0') { try { items.push(...await eventItems(base, now)); } catch (x) { logger.warn('feed events', String(x)); } }
   items.sort((a, b) => Date.parse(b.publishedAt || 0) - Date.parse(a.publishedAt || 0));

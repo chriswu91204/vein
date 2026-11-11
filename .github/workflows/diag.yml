@@ -20,3 +20,11 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           export GCLOUD_PROJECT=vein-48ec8
           cd tools/diag && npm init -y >/dev/null && npm i firebase-admin@12 --no-audit --no-fund >/dev/null && node ${{ inputs.script || 'chats.js' }}
+      - name: Upload output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diag-out
+          path: tools/diag/out/
+          if-no-files-found: ignore
+          retention-days: 1
