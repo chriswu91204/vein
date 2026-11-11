@@ -12,10 +12,10 @@
 - **活動（market／live-auction）新的 id**：立刻發。
   - IG：`type: POST` 輪播，images 前 5 張（第一張是多圖直條模板：標題＋各株照片與價格＋日期＋QR），文案用 caption.instagram 為底（已含網址）。
   - Threads：另一則貼文，images 前 3 張，文案用 caption.threads（含可點連結）。
-  - IG 限動：**只發圖**。活動用 `story`（9:16 直條模板），沒有 story 欄位就用 images[0]，`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
+  - IG 限動：**只發圖**。用 item.story（9:16、含 QR），`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
 - **新上架 plant／auction（publishedAt 在上次檢查之後、id 沒發過）**：額外發。
   - 同一次檢查有 1～2 株：每株各一則（IG＋Threads＋限動圖）。
-  - 3 株以上：合成一則「新上架合輯」輪播（每株第一張圖，最多 10 張），文案列出每株名稱與價格，Threads 附第一株的 link；把這些 id 全部記成已發。
+  - 3 株以上：合成一則「新上架合輯」輪播（第一張是合輯圖，接著每株的 images[0]，最多 10 張），文案列出每株名稱與價格，Threads 附第一株的 link；把這些 id 全部記成已發。
   - auction 文案要寫起標價與結標時間。
 - **每日植物分享（每天 1 篇）**：從 feed 挑一株（`?days=90&all=1` 可以拿較舊的；可在 getfeed 前設 `FEED_Q='days=90&all=1&events=0&limit=100'`）。
   - 優先：照片多（images 多）、有親本（cross 含 ×）、價格高、最近 14 天沒分享過的。
@@ -23,6 +23,10 @@
   - 紀錄 id 用 `share-{原id}-{YYYYMMDD}`，同一株 14 天內不要重複分享。
 
 ## 3. 發文規則
+- **所有貼文的第一張圖和所有限動都要帶 QR**：
+  - 單株：images[0] 就是含 QR 的卡片（大圖＋名稱＋價格＋QR），限動用 item.story。
+  - 活動：images[0] 是含 QR 的多圖直條模板，限動用 item.story。
+  - 多株合輯：第一張用 `https://vein-48ec8.web.app/img/c.jpg?ids={各株 compilationKey 用逗號連接}&t=新上架&foot={日期} 新上架`（限動加 `&fmt=story`），後面再接各株的 images[0]。
 - **每一則貼文（IG 和 Threads）都一定要有網址**：IG 寫不含 https:// 的網址（例：`👉 拍賣會網址：vein-48ec8.web.app/s/e/live/…`），Threads 寫完整 https 網址。
 - 文案只寫各平台看得到的內容，**不要寫「往右滑看更多」「連結在限動／個人檔案」這類引導句**；要提數量就寫「（共 20 株）」。
 - 用 Metricool `createScheduledPost`，blogId 8022799，`publicationDate.timezone` = Asia/Taipei，時間設現在 +5 分鐘（活動）或當天 19:30～20:30（每日分享）。

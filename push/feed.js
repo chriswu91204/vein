@@ -48,11 +48,11 @@ function plantItem(p, shop, base) {
   const head = (auc ? '🔨 競標開始｜' : '🌿 新上架｜') + nm;
   const body = [head, cross ? (/[×xX]/.test(cross) ? '🧬 ' : '📝 ') + cross : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
   const T = tags(p).join(' ');
-  const imgs = photos(p).slice(0, 10).map((u, i) => base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg' + (i ? '?i=' + i : ''));
+  const pi = base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg'; const imgs = [pi, ...photos(p).slice(1, 10).map((u, i) => pi + '?raw=1&i=' + (i + 1))];
   const at = ms(p.listedAt) || ms(p.createdAt) || ms(p.updatedAt);
   return {
     id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
-    shop: shop.name || '', link, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
+    shop: shop.name || '', shopId: shop.id, link, story: pi + '?fmt=story', compilationKey: shop.id + ':' + p.id, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
     caption: { instagram: body + '\n\n📜 植物履歷（成長紀錄、親本血統）👉 ' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n' + T.split(' ').slice(0, 4).join(' ') },
   };
 }
@@ -107,7 +107,7 @@ async function buildFeed(req) {
   return { updatedAt: new Date(now).toISOString(), site: SITE, shop: shops && shops.length === 1 ? shops[0] : (shops ? shops : 'all'), count: Math.min(lim, items.length), items: items.slice(0, lim),
     howToUse: {
       zh: '每一筆 items 都是一則可以直接發的貼文：caption.instagram / caption.threads 是文案，images 是 IG 規格的 JPG（1080×1350，第一張當封面，最多 10 張可做輪播），link 是分享連結（點了會開植物履歷或活動頁，社群會顯示預覽圖）。用 id 判斷有沒有發過；publishedAt 是上架或活動階段開始時間。活動同一場會依階段（reg 開放報名 → soon 24 小時內開始 → on 進行中）各出現一次，id 不同。',
-      params: '?shop=SlowLeaf（賣場名、會員 ID 或 uid；預設是站長賣場；all = 全站） &days=30 &limit=40 &events=0（不要活動） &all=1（不限天數）',
+      compilation: SITE + '/img/c.jpg?ids={compilationKey},{compilationKey}&t=新上架&foot=11/11 新上架（多株合輯圖，加 &fmt=story 是限動版；QR 連到賣場）', params: '?shop=SlowLeaf（賣場名、會員 ID 或 uid；預設是站長賣場；all = 全站） &days=30 &limit=40 &events=0（不要活動） &all=1（不限天數）',
       rss: SITE + '/feed.xml', json: SITE + '/feed.json',
     } };
 }
@@ -148,6 +148,37 @@ async function strips({ title, items, more, foot, url, story }) {
   return sharp()({ create: { width: WW, height: HH, channels: 3, background: '#07080A' } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
 }
 const hhmm = t => { const d = new Date(t + 8 * 3600e3); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+
+// ---- 單株卡片：大圖＋名稱、類型編號、價格、QR（貼文 4:5／限動 9:16）----
+async function plantCard(p, shop, story, i) {
+  const f = font(), WW = 1080, HH = story ? 1920 : 1350, bot = story ? 420 : 300, V = '#D2FF00', L = photos(p); if (!L.length) return null;
+  const ph = await sharp()(await getImg(L[Math.max(0, Math.min(L.length - 1, i || 0))])).rotate().resize(WW, HH - bot, { fit: 'cover', position: 'attention' }).jpeg().toBuffer();
+  const url = SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), qr = story ? 250 : 200, auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
+  const name = pName(p).replace(/^Anthurium\s+/i, ''), sub = [KIND[p.kind || 'mother'] || '', p.code || ''].filter(Boolean).join('・');
+  const price = auc ? '起標 ' + money(p.startPrice || p.price) + (end ? '・' + hhmm(end) + ' 結標' : '') : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : '');
+  const tw0 = WW - 112 - qr - 30, y0 = HH - bot; let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '">';
+  svg += '<rect x="0" y="' + (y0 - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/>';
+  svg += '<rect x="40" y="' + (story ? 110 : 40) + '" width="170" height="58" rx="29" fill="rgba(0,0,0,.6)"/><circle cx="76" cy="' + (story ? 139 : 69) + '" r="9" fill="' + V + '"/>' + txt(f, 'VEIN', 96, (story ? 152 : 82), 34, '#fff');
+  if (auc) svg += '<rect x="' + (WW - 250) + '" y="' + (story ? 110 : 40) + '" width="210" height="58" rx="29" fill="#FF2D55"/>' + txt(f, '競標中', WW - 214, (story ? 152 : 82), 34, '#fff');
+  // 名稱最多兩行
+  let a = name, b = ''; const nfs = story ? 64 : 56; if (f && f.getAdvanceWidth(a, nfs) > tw0) { let k = a.length; while (k > 1 && f.getAdvanceWidth(a.slice(0, k), nfs) > tw0) k--; const sp = a.lastIndexOf(' ', k); const c = sp > 2 ? sp : k; b = a.slice(c).trim(); a = a.slice(0, c).trim(); }
+  let y = y0 + (story ? 90 : 78); svg += txt(f, a, 56, y, nfs, '#fff', tw0); if (b) { y += nfs * 1.15; svg += txt(f, b, 56, y, nfs, '#fff', tw0); }
+  y += story ? 62 : 52; svg += txt(f, sub, 56, y, story ? 34 : 30, 'rgba(255,255,255,.6)', tw0);
+  if (price) { y += story ? 80 : 66; svg += txt(f, price, 56, y, story ? 64 : 54, V, tw0); }
+  if (story) svg += txt(f, url.replace(/^https:\/\//, '').replace(/\?.*$/, ''), 56, HH - 44, 26, 'rgba(255,255,255,.5)', WW - 112);
+  svg += '</svg>';
+  const comp = [{ input: ph, left: 0, top: 0 }, { input: Buffer.from(svg), left: 0, top: 0 }]; const q = await qrSvg(url, qr - 24);
+  if (q) comp.push({ input: await sharp()({ create: { width: qr, height: qr, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer(), left: WW - 56 - qr, top: Math.round(y0 + (bot - qr) / 2) });
+  return sharp()({ create: { width: WW, height: HH, channels: 3, background: '#07080A' } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+}
+// 多株合輯（新上架合輯用）：/img/c.jpg?ids=shop:pid,shop:pid&t=標題&foot=底部文字
+async function multiCard(ids, title, foot, story) {
+  const P = []; for (const id of ids.slice(0, 12)) { const [sid, pid] = id.split(':'); try { const d = await db().doc('shops/' + sid + '/plants/' + pid).get(); const p = d.exists ? { id: pid, shop: sid, ...d.data() } : null; if (pub(p) && photos(p).length) P.push(p); } catch (e) {} }
+  if (!P.length) return null; const shop = P[0].shop;
+  const items = P.slice(0, 6).map(p => ({ url: photos(p)[0], name: pName(p).replace(/^Anthurium\s+/i, ''), price: p.mode === 'auction' ? '起標 ' + money(p.startPrice || p.price) : money(p.price) }));
+  const url = P.length === 1 ? SITE + '/s/p/' + encodeURIComponent(P[0].id) + '?s=' + encodeURIComponent(shop) : SITE + '/s/shop/' + encodeURIComponent(shop);
+  return strips({ title: title || '新上架', items, more: Math.max(0, P.length - items.length), foot: foot || 'VEIN 植物履歷', url, story });
+}
 async function eventCard(kind, id, story) {
   const d = await db().doc((kind === 'mkt' ? 'mkts/' : 'lives/') + id).get(); const x = d.exists ? d.data() : {}; const isM = kind === 'mkt';
   const L = await eventLots(kind, id); const U = await Promise.all(L.slice(0, 6).map(lotPhoto));
@@ -180,7 +211,9 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
     let m;
     if ((m = path.match(/^\/img\/p\/([^/]+)\/([^/]+?)(?:\.jpg)?$/))) {
       const d = await db().doc('shops/' + decodeURIComponent(m[1]) + '/plants/' + decodeURIComponent(m[2])).get(); const p = d.exists ? d.data() : null; if (!pub(p)) { res.status(404).send('not found'); return; }
-      const L = photos(p), i = Math.max(0, Math.min(L.length - 1, +req.query.i || 0)); const out = await igJpg(await getImg(L[i]));
+      const L = photos(p), i = Math.max(0, Math.min(L.length - 1, +req.query.i || 0)); let out = null;
+      if (req.query.raw !== '1' && font()) { try { out = await plantCard({ id: decodeURIComponent(m[2]), ...p }, decodeURIComponent(m[1]), req.query.fmt === 'story', i); } catch (e) { logger.warn('plantCard', String(e)); } }
+      if (!out) out = await igJpg(await getImg(L[i]));
       res.set('Cache-Control', 'public, max-age=86400, s-maxage=86400').type('image/jpeg').send(out); return;
     }
     if ((m = path.match(/^\/img\/e\/(mkt|live)\/([^/]+?)(?:\.jpg)?$/))) {
@@ -188,6 +221,14 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
       let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))]));
       else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story'); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
       res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
+    }
+    if (path === '/img/c.jpg' || path === '/img/c') {
+      const ids = String(req.query.ids || '').split(',').filter(Boolean); const out = (font() && ids.length) ? await multiCard(ids, String(req.query.t || ''), String(req.query.foot || ''), req.query.fmt === 'story') : null;
+      if (!out) { res.status(404).send('not found'); return; } res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
+    }
+    if ((m = path.match(/^\/s\/shop\/([^/]+)$/))) {
+      const sid = decodeURIComponent(m[1]); const d = await db().doc('shops/' + sid).get(); const sh = d.exists ? d.data() : {};
+      res.set('Cache-Control', 'public, max-age=600'); res.type('html').send(sharePage({ title: (sh.name || 'VEIN 賣場') + '｜VEIN', desc: '看 ' + (sh.name || '這個賣場') + ' 的植物與植物履歷', img: SITE + '/og.png', url: SITE + req.originalUrl, to: SITE + '/#/seller/' + encodeURIComponent(sid) })); return;
     }
     if ((m = path.match(/^\/s\/p\/([^/]+)$/))) {
       const pid = decodeURIComponent(m[1]), sid = String(req.query.s || ''); let p = null;
