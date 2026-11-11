@@ -1,2 +1,2 @@
-// 下載公開的轉發圖並以 base64 印出（檢查圖片樣子用）。IMG_PATHS 以逗號分隔
-(async()=>{ for (const p of (process.env.IMG_PATHS||'').split(',').filter(Boolean)) { const r=await fetch('https://vein-48ec8.web.app'+p); const b=Buffer.from(await r.arrayBuffer()); console.log('===IMG '+p+' '+r.status+' '+b.length+'==='); const s=b.toString('base64'); for(let i=0;i<s.length;i+=4000) console.log(s.slice(i,i+4000)); console.log('===END==='); } })();
+// 下載公開的轉發圖並以 base64 印出（檢查圖片樣子用）。IMG_PATHS 以 | 分隔
+(async()=>{ for (const p of (process.env.IMG_PATHS||'').split('|').filter(Boolean)) { const r=await fetch('https://vein-48ec8.web.app'+p); const b=Buffer.from(await r.arrayBuffer()); console.log('===IMG '+p+' '+r.status+' '+b.length+'==='); const s=b.toString('base64'); for(let i=0;i<s.length;i+=4000) console.log(s.slice(i,i+4000)); console.log('===END==='); } })();
