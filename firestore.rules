@@ -285,7 +285,8 @@ service cloud.firestore {
     }
     match /liveBid/{id} {
       allow read: if signedIn() && resource.data.uid == request.auth.uid;
-      allow create: if notBanned() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'eid', 'lid', 'amt', 'at'])
+      // 拍賣會出價：一定要驗證過手機
+      allow create: if notBanned() && hasPhone() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'eid', 'lid', 'amt', 'at'])
         && request.resource.data.amt is number;
     }
     match /liveWatch/{id} {
