@@ -1,0 +1,2 @@
+// 檢查校時網址：連打 5 次，印出來回時間與伺服器和這台機器的時間差
+(async()=>{ for(let i=0;i<5;i++){ const t0=Date.now(); try{ const r=await fetch('https://vein-48ec8.web.app/time?_='+t0,{cache:'no-store'}); const j=await r.json(); const t1=Date.now(); console.log('TIME', r.status, r.headers.get('cache-control'), 'rtt', t1-t0, 'ms', 'diff', Math.round(j.now-(t0+t1)/2), 'ms'); }catch(e){ console.log('ERR',e.message); } } })().finally(()=>{ process.exitCode=0; });
