@@ -13474,7 +13474,7 @@ async function evShare(x){ const isM=x.kind==='mkt', col=(isM?'mkts/':'lives/')+
   let E=[]; try{ E=(await S.db.collection(col).get()).docs.map(d=>({pid:d.id,...d.data()})); }catch(e){}
   const okSt=isM?['ok']:['ok','live','sold','pass','wait']; const all=E.filter(e=>okSt.includes(e.status)).sort((a,b)=>((+a.ord||0)-(+b.ord||0))||((a.at||0)-(b.at||0)));
   const mine=E.filter(e=>e.shop===S.me&&!['no','skip'].includes(e.status));
-  const go=(L,onlyMine)=>{ if(!L.length) return toast(onlyMine?'你在這個活動還沒有報名植物':'這個活動還沒有拍品'); L=L.slice(0,12);
+  const go=(L,onlyMine)=>{ if(!L.length) return toast(onlyMine?'你在這個活動還沒有報名植物':'這個活動還沒有拍品'); const val=e=>+(isM?e.deal:(e.final||e.start))||0; L=[...L].sort((a,b)=>val(b)-val(a)).slice(0,12);
     const url=siteUrl()+'#/'+(isM?'mkt':'live')+'/'+x.id, src=new Map(), caps=new Map(), urls=[];
     const pl=L.map(e=>{ const p=S.plants.get(e.pid); const nm=e.name||(p?short(p.species)+(p.cultivar?' '+p.cultivar:''):e.code||'植物'); const th=(p&&(sdPhotos(p)[0]||cover(p)))||e.thumb||'m/p1.jpg';
       return p||{id:e.pid,shop:e.shop,species:nm,cultivar:'',code:e.code||'',status:'available',media:[{type:'image',url:th}],coverThumb:th}; });
