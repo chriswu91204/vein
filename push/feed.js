@@ -151,25 +151,12 @@ const hhmm = t => { const d = new Date(t + 8 * 3600e3); return (d.getUTCMonth() 
 
 // ---- 單株卡片：大圖＋名稱、類型編號、價格、QR（貼文 4:5／限動 9:16）----
 async function plantCard(p, shop, story, i) {
-  const f = font(), WW = 1080, HH = story ? 1920 : 1350, bot = story ? 420 : 300, V = '#D2FF00', L = photos(p); if (!L.length) return null;
-  const ph = await sharp()(await getImg(L[Math.max(0, Math.min(L.length - 1, i || 0))])).rotate().resize(WW, HH - bot, { fit: 'cover', position: 'attention' }).jpeg().toBuffer();
-  const url = SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), qr = story ? 250 : 200, auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
-  const name = pName(p).replace(/^Anthurium\s+/i, ''), sub = [KIND[p.kind || 'mother'] || '', p.code || '', auc && end ? hhmm(ms(p.endsAt) || +p.endsAtMs) + ' 結標' : ''].filter(Boolean).join('・');
-  const price = auc ? '起標 ' + money(p.startPrice || p.price) : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : '');
-  const tw0 = WW - 112 - qr - 30, y0 = HH - bot; let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '">';
-  svg += '<rect x="0" y="' + (y0 - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/>';
-  svg += '<rect x="40" y="' + (story ? 110 : 40) + '" width="170" height="58" rx="29" fill="rgba(0,0,0,.6)"/><circle cx="76" cy="' + (story ? 139 : 69) + '" r="9" fill="' + V + '"/>' + txt(f, 'VEIN', 96, (story ? 152 : 82), 34, '#fff');
-  if (auc) svg += '<rect x="' + (WW - 250) + '" y="' + (story ? 110 : 40) + '" width="210" height="58" rx="29" fill="#FF2D55"/>' + txt(f, '競標中', WW - 214, (story ? 152 : 82), 34, '#fff');
-  // 名稱最多兩行
-  let a = name, b = ''; const nfs = story ? 64 : 56; if (f && f.getAdvanceWidth(a, nfs) > tw0) { let k = a.length; while (k > 1 && f.getAdvanceWidth(a.slice(0, k), nfs) > tw0) k--; const sp = a.lastIndexOf(' ', k); const c = sp > 2 ? sp : k; b = a.slice(c).trim(); a = a.slice(0, c).trim(); }
-  let y = y0 + (story ? 90 : 78); svg += txt(f, a, 56, y, nfs, '#fff', tw0); if (b) { y += nfs * 1.15; svg += txt(f, b, 56, y, nfs, '#fff', tw0); }
-  y += story ? 62 : 52; svg += txt(f, sub, 56, y, story ? 34 : 30, 'rgba(255,255,255,.6)', tw0);
-  if (price) { y += story ? 80 : 66; svg += txt(f, price, 56, y, story ? 64 : 54, V, tw0); }
-  if (story) svg += txt(f, url.replace(/^https:\/\//, '').replace(/\?.*$/, ''), 56, HH - 44, 26, 'rgba(255,255,255,.5)', WW - 112);
-  svg += '</svg>';
-  const comp = [{ input: ph, left: 0, top: 0 }, { input: Buffer.from(svg), left: 0, top: 0 }]; const q = await qrSvg(url, qr - 24);
-  if (q) comp.push({ input: await sharp()({ create: { width: qr, height: qr, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer(), left: WW - 56 - qr, top: Math.round(y0 + (bot - qr) / 2) });
-  return sharp()({ create: { width: WW, height: HH, channels: 3, background: '#07080A' } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+  // 站長預設模板：和活動同一個多圖直條模板（標題＝植物名、各張照片直條、底部價格＋QR）
+  const L = photos(p); if (!L.length) return null; const auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
+  const sub = [KIND[p.kind || 'mother'] || '', p.code || ''].filter(Boolean).join('・');
+  const items = L.slice(0, 6).map((u, k) => ({ url: u, name: k === 0 ? sub : '', price: k === 0 && auc && end ? hhmm(end) + ' 結標' : '' }));
+  const price = auc ? '起標 ' + money(p.startPrice || p.price) : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : 'VEIN 植物履歷');
+  return strips({ title: pName(p).replace(/^Anthurium\s+/i, ''), items, more: Math.max(0, L.length - items.length), foot: price, url: SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), story });
 }
 // 多株合輯（新上架合輯用）：/img/c.jpg?ids=shop:pid,shop:pid&t=標題&foot=底部文字
 async function multiCard(ids, title, foot, story) {
