@@ -877,3 +877,6 @@ exports.liveGuard = onDocumentCreated('lives/{id}/lots/{pid}', async ev => {
     await ref.update({ status: e.approve === 'manual' ? 'pending' : 'ok', checkedAt: now, kind: p.kind || 'mother', genus: g, ord: twNum(l.ord) || now, pos: ['f', 'm', 'b'].includes(l.pos) ? l.pos : '' });
   } catch (x) { logger.error('liveGuard', String(x)); }
 });
+
+// 公開轉發資料（feed.json／feed.xml／IG 圖／分享頁）
+exports.feed = require('./feed');

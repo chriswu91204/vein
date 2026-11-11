@@ -1,0 +1,171 @@
+// 公開的轉發資料：給社群小編 AI／Metricool 用
+//   /feed.json        新上架植物＋活動，附可直接發的文案、IG 用圖片、連結
+//   /feed.xml         同樣內容的 RSS（Metricool「RSS 自動發文」可直接吃）
+//   /img/p/{shop}/{pid}.jpg        植物照片轉成 IG 規格（1080×1350 JPG）
+//   /img/e/{mkt|live}/{id}.jpg     活動拼圖（最貴的植物排前面）
+//   /s/p/{pid}、/s/e/{kind}/{id}   分享頁：社群預覽圖＋自動轉到網站
+// 只輸出已公開上架的內容（不含隱藏、私藏、未上架、已售出），不含任何會員個資。
+const { onRequest } = require('firebase-functions/v2/https');
+const logger = require('firebase-functions/logger');
+const admin = require('firebase-admin');
+
+const SITE = 'https://vein-48ec8.web.app';
+const OWNER_EMAILS = ['chriswu91204@gmail.com'];
+const KIND = { mother: '母株', pup: '側芽', seedling: '實生苗' };
+const db = () => admin.firestore();
+const ms = v => (v && typeof v.toMillis === 'function') ? v.toMillis() : (+v || 0);
+const money = n => 'NT$ ' + Math.round(+n || 0).toLocaleString('en-US');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const normSp = s => String(s || '').trim().replace(/\s+/g, ' ');
+const shortSp = s => { const n = normSp(s); return n.startsWith('Anthurium ') ? n.slice(10) : n; };
+const pName = p => (normSp(p.species) + (p.cultivar ? " '" + p.cultivar + "'" : '')).replace(/^./, c => c.toUpperCase()) || p.code || '植物';
+const genus = p => normSp(p.species).split(' ')[0] || '';
+const tw = t => { const d = new Date(t + 8 * 3600e3); const w = '日一二三四五六'[d.getUTCDay()]; return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '（' + w + '）' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+const photos = p => { const L = []; (p.media || []).forEach(m => { if (!m || !m.url) return; const u = m.type === 'video' ? (m.poster || '') : m.url; if (u && !L.includes(u)) L.push(u); }); [p.coverThumb, p.thumb].forEach(u => { if (u && !L.includes(u)) L.push(u); }); return L.filter(u => /^https:\/\//.test(u)); };
+const pub = p => p && p.listed !== false && !p.hidden && !p.private && !p.blocked && !p.purgeAt && (p.status || 'available') === 'available';
+const tags = p => { const g = genus(p).toLowerCase(); return ['#VEIN', '#植物履歷', g ? '#' + g : '', '#觀葉植物', '#天南星', '#rareplants', '#plantsofinstagram'].filter(Boolean); };
+
+let ownerCache = null;
+async function ownerShops() {
+  if (ownerCache && Date.now() - ownerCache.at < 3600e3) return ownerCache.L;
+  const L = []; for (const e of OWNER_EMAILS) { try { const u = await admin.auth().getUserByEmail(e); L.push(u.uid); } catch (x) {} }
+  ownerCache = { at: Date.now(), L }; return L;
+}
+async function resolveShop(q) {
+  if (!q) return ownerShops();
+  if (q === 'all') return null;
+  const s = String(q).trim(); const d = await db().doc('shops/' + s).get(); if (d.exists) return [s];
+  const h = await db().doc('handles/' + s.toLowerCase()).get(); if (h.exists && h.data().uid) return [h.data().uid];
+  const n = await db().collection('shops').where('name', '==', s).limit(1).get(); if (!n.empty) return [n.docs[0].id];
+  return [];
+}
+
+function plantItem(p, shop, base) {
+  const nm = pName(p), kind = KIND[p.kind || 'mother'] || '', cross = String(p.cross || '').trim();
+  const auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
+  const priceLine = auc ? '🔨 競標中・起標 ' + money(p.startPrice || p.price) + (end ? '・' + tw(end) + ' 結標' : '') : p.mkt ? '🎪 市集特價 ' + money(p.price) + '（原價 ' + money(p.mkt.orig) + '）' : (+p.price > 0 ? '💰 ' + money(p.price) : '');
+  const link = base + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop.id);
+  const head = (auc ? '🔨 競標開始｜' : '🌿 新上架｜') + nm;
+  const body = [head, cross ? '🧬 ' + cross : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
+  const T = tags(p).join(' ');
+  const imgs = photos(p).slice(0, 10).map((u, i) => base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg' + (i ? '?i=' + i : ''));
+  const at = ms(p.listedAt) || ms(p.createdAt) || ms(p.updatedAt);
+  return {
+    id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
+    shop: shop.name || '', link, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
+    caption: { instagram: body + '\n\n📜 完整植物履歷（成長紀錄、親本血統）請點個人檔案連結，或私訊「' + (p.code || nm) + '」\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n' + T.split(' ').slice(0, 4).join(' ') },
+  };
+}
+
+async function eventLots(kind, id) {
+  const col = kind === 'mkt' ? 'mkts/' + id + '/e' : 'lives/' + id + '/lots';
+  const s = await db().collection(col).get();
+  const L = s.docs.map(d => ({ pid: d.id, ...d.data() })).filter(e => (kind === 'mkt' ? ['ok'] : ['ok', 'wait', 'live', 'sold']).includes(e.status));
+  const val = e => +(kind === 'mkt' ? e.deal : (e.final || e.start)) || 0;
+  L.sort((a, b) => val(b) - val(a));
+  return L;
+}
+async function lotPhoto(e) {
+  if (e.thumb && /^https:/.test(e.thumb) && e.name) return e.thumb;
+  try { const d = await db().doc('shops/' + e.shop + '/plants/' + e.pid).get(); if (d.exists) { const p = d.data(); if (!e.name) e.name = pName(p); return photos(p)[0] || e.thumb || null; } } catch (x) {}
+  return e.thumb || null;
+}
+function evPhase(x, now) { if (x.phase === 'done' || (x.kind === 'mkt' && x.endAt && now > x.endAt)) return 'done'; if (x.phase === 'on' || (x.startAt && now >= x.startAt)) return 'on'; if (x.startAt && x.startAt - now < 24 * 3600e3) return 'soon'; return x.regOpen ? 'reg' : 'later'; }
+async function eventItems(base, now) {
+  const out = [];
+  for (const kind of ['mkt', 'live']) {
+    const s = await db().collection(kind === 'mkt' ? 'mkts' : 'lives').orderBy('startAt', 'desc').limit(12).get();
+    for (const d of s.docs) {
+      const x = { id: d.id, kind, ...d.data() }; if (x.draft || x.hidden) continue; const ph = evPhase(x, now); if (ph === 'done' || ph === 'later') continue;
+      const L = await eventLots(kind, x.id), isM = kind === 'mkt', name = isM ? 'VEIN 市集' : 'VEIN 拍賣會'; const LP = await Promise.all(L.slice(0, 9).map(lotPhoto));
+      const link = base + '/s/e/' + kind + '/' + x.id, img = base + '/img/e/' + kind + '/' + x.id + '.jpg';
+      const top = L.slice(0, 5).map((e, i) => (i + 1) + '. ' + (e.name || e.code || '植物') + '　' + (isM ? (e.orig ? money(e.orig) + ' → ' : '') + money(e.deal) : '起拍 ' + money(e.start)));
+      const H = { reg: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」認證賣家開放報名', soon: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」即將開始', on: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」' + (isM ? '特賣中' : '現在開拍') }[ph];
+      const lines = [H, x.sub || '', '🗓 ' + tw(x.startAt) + (isM ? ' 開賣' : ' 開拍') + (isM && x.endAt ? '～' + tw(x.endAt) : ''), !isM ? '⏱ 每件 ' + (x.dur || 60) + ' 秒・最後 ' + (x.snipe || 10) + ' 秒有人出價再加 ' + (x.snipe || 10) + ' 秒' : '', L.length ? (isM ? '🌿 精選特價：' : '🌿 精選拍品：') + '\n' + top.join('\n') + (L.length > 5 ? '\n…共 ' + L.length + ' 株' : '') : ''].filter(Boolean).join('\n');
+      const T = ['#VEIN', isM ? '#植物市集' : '#植物拍賣', '#觀葉植物', '#天南星', '#rareplants'].join(' ');
+      const imgs = [img, ...LP.filter(Boolean).map((u, i) => base + '/img/e/' + kind + '/' + x.id + '.jpg?lot=' + i)];
+      const at = ph === 'reg' ? (ms(x.createdAt) || x.startAt - 7 * 864e5) : ph === 'soon' ? x.startAt - 24 * 3600e3 : x.startAt;
+      out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, link, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
+        caption: { instagram: lines + '\n\n👉 活動連結在個人檔案\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n' + T.split(' ').slice(0, 3).join(' ') } });
+    }
+  }
+  return out;
+}
+
+async function buildFeed(req) {
+  const base = SITE, now = Date.now(), q = req.query || {};
+  const shops = await resolveShop(q.shop), days = Math.min(90, +q.days || 30), lim = Math.min(100, +q.limit || 40);
+  const items = [];
+  const shopIds = shops || (await db().collection('shops').limit(50).get()).docs.map(d => d.id);
+  for (const sid of shopIds) {
+    const sd = await db().doc('shops/' + sid).get(); const shop = { id: sid, ...(sd.exists ? sd.data() : {}) };
+    const ps = await db().collection('shops/' + sid + '/plants').where('status', '==', 'available').get();
+    ps.docs.forEach(d => { const p = { id: d.id, ...d.data() }; if (!pub(p) || !photos(p).length) return; const it = plantItem(p, shop, base); if (it.publishedAt && now - Date.parse(it.publishedAt) > days * 864e5 && q.all !== '1') return; items.push(it); });
+  }
+  if (q.events !== '0') { try { items.push(...await eventItems(base, now)); } catch (x) { logger.warn('feed events', String(x)); } }
+  items.sort((a, b) => Date.parse(b.publishedAt || 0) - Date.parse(a.publishedAt || 0));
+  return { updatedAt: new Date(now).toISOString(), site: SITE, shop: shops && shops.length === 1 ? shops[0] : (shops ? shops : 'all'), count: Math.min(lim, items.length), items: items.slice(0, lim),
+    howToUse: {
+      zh: '每一筆 items 都是一則可以直接發的貼文：caption.instagram / caption.threads 是文案，images 是 IG 規格的 JPG（1080×1350，第一張當封面，最多 10 張可做輪播），link 是分享連結（點了會開植物履歷或活動頁，社群會顯示預覽圖）。用 id 判斷有沒有發過；publishedAt 是上架或活動階段開始時間。活動同一場會依階段（reg 開放報名 → soon 24 小時內開始 → on 進行中）各出現一次，id 不同。',
+      params: '?shop=SlowLeaf（賣場名、會員 ID 或 uid；預設是站長賣場；all = 全站） &days=30 &limit=40 &events=0（不要活動） &all=1（不限天數）',
+      rss: SITE + '/feed.xml', json: SITE + '/feed.json',
+    } };
+}
+
+function rss(F) {
+  const it = F.items.map(x => '<item><title>' + esc(x.title) + '</title><link>' + esc(x.link) + '</link><guid isPermaLink="false">' + esc(x.id) + '</guid>' + (x.publishedAt ? '<pubDate>' + new Date(x.publishedAt).toUTCString() + '</pubDate>' : '') +
+    '<description>' + esc(x.caption.threads) + '</description>' + (x.image ? '<enclosure url="' + esc(x.image) + '" type="image/jpeg" length="0"/><media:content url="' + esc(x.image) + '" medium="image" type="image/jpeg"/>' : '') + '</item>').join('');
+  return '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>VEIN 植物新上架與活動</title><link>' + SITE + '</link><description>VEIN 新上架植物、市集與拍賣會</description><language>zh-TW</language><lastBuildDate>' + new Date(F.updatedAt).toUTCString() + '</lastBuildDate>' + it + '</channel></rss>';
+}
+
+let sharpMod = null; const sharp = () => (sharpMod = sharpMod || require('sharp'));
+async function getImg(u) { const r = await fetch(u); if (!r.ok) throw new Error('img ' + r.status); return Buffer.from(await r.arrayBuffer()); }
+const W = 1080, H = 1350;
+async function igJpg(buf) { return sharp()(buf).rotate().resize(W, H, { fit: 'cover', position: 'attention' }).jpeg({ quality: 86, mozjpeg: true }).toBuffer(); }
+async function collage(urls) {
+  const U = urls.slice(0, 6), n = U.length; if (!n) throw new Error('no photos');
+  if (n === 1) return igJpg(await getImg(U[0]));
+  // 第一張（最貴）放大，其餘排右邊／下面
+  const cells = n === 2 ? [[0, 0, W, 675], [0, 675, W, 675]] : n === 3 ? [[0, 0, W, 810], [0, 810, 540, 540], [540, 810, 540, 540]] : n === 4 ? [[0, 0, W, 810], [0, 810, 360, 540], [360, 810, 360, 540], [720, 810, 360, 540]]
+    : n === 5 ? [[0, 0, 720, 900], [720, 0, 360, 450], [720, 450, 360, 450], [0, 900, 540, 450], [540, 900, 540, 450]] : [[0, 0, 720, 900], [720, 0, 360, 450], [720, 450, 360, 450], [0, 900, 360, 450], [360, 900, 360, 450], [720, 900, 360, 450]];
+  const G = 6, parts = await Promise.all(U.map(async (u, i) => { const [x, y, w, h] = cells[i]; try { const b = await sharp()(await getImg(u)).rotate().resize(w - G, h - G, { fit: 'cover', position: 'attention' }).jpeg().toBuffer(); return { input: b, left: x + G / 2, top: y + G / 2 }; } catch (e) { return null; } }));
+  const frame = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '"><rect x="6" y="6" width="' + (W - 12) + '" height="' + (H - 12) + '" fill="none" stroke="#D2FF00" stroke-width="12" rx="10"/><circle cx="60" cy="60" r="16" fill="#D2FF00"/><circle cx="60" cy="60" r="7" fill="#07080A"/></svg>');
+  return sharp()({ create: { width: W, height: H, channels: 3, background: '#07080A' } }).composite([...parts.filter(Boolean), { input: frame, left: 0, top: 0 }]).jpeg({ quality: 86, mozjpeg: true }).toBuffer();
+}
+
+function sharePage(o) {
+  return '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(o.title) + '</title>' +
+    '<meta property="og:type" content="website"><meta property="og:site_name" content="VEIN"><meta property="og:title" content="' + esc(o.title) + '"><meta property="og:description" content="' + esc(o.desc) + '"><meta property="og:url" content="' + esc(o.url) + '">' + (o.img ? '<meta property="og:image" content="' + esc(o.img) + '"><meta property="og:image:width" content="1080"><meta property="og:image:height" content="1350"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="' + esc(o.img) + '">' : '') +
+    '<meta name="description" content="' + esc(o.desc) + '"><link rel="canonical" href="' + esc(o.to) + '"><script>location.replace(' + JSON.stringify(o.to) + ')</script></head><body style="background:#07080A;color:#fff;font-family:system-ui;padding:24px"><p><a style="color:#D2FF00" href="' + esc(o.to) + '">' + esc(o.title) + '</a></p><p>' + esc(o.desc).replace(/\n/g, '<br>') + '</p></body></html>';
+}
+
+module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, invoker: 'public' }, async (req, res) => {
+  const path = (req.path || '/').replace(/\/+$/, '') || '/';
+  try {
+    if (path === '/feed.json' || path === '/feed' || path === '/') { const F = await buildFeed(req); res.set('Cache-Control', 'public, max-age=300, s-maxage=300'); res.json(F); return; }
+    if (path === '/feed.xml' || path === '/rss') { const F = await buildFeed(req); res.set('Cache-Control', 'public, max-age=300, s-maxage=300'); res.type('application/rss+xml; charset=utf-8').send(rss(F)); return; }
+    let m;
+    if ((m = path.match(/^\/img\/p\/([^/]+)\/([^/]+?)(?:\.jpg)?$/))) {
+      const d = await db().doc('shops/' + decodeURIComponent(m[1]) + '/plants/' + decodeURIComponent(m[2])).get(); const p = d.exists ? d.data() : null; if (!pub(p)) { res.status(404).send('not found'); return; }
+      const L = photos(p), i = Math.max(0, Math.min(L.length - 1, +req.query.i || 0)); const out = await igJpg(await getImg(L[i]));
+      res.set('Cache-Control', 'public, max-age=86400, s-maxage=86400').type('image/jpeg').send(out); return;
+    }
+    if ((m = path.match(/^\/img\/e\/(mkt|live)\/([^/]+?)(?:\.jpg)?$/))) {
+      const L = await eventLots(m[1], decodeURIComponent(m[2])); const U = (await Promise.all(L.slice(0, 9).map(lotPhoto))).filter(Boolean);
+      let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))])); else out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png'));
+      res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
+    }
+    if ((m = path.match(/^\/s\/p\/([^/]+)$/))) {
+      const pid = decodeURIComponent(m[1]), sid = String(req.query.s || ''); let p = null;
+      if (sid) { const d = await db().doc('shops/' + sid + '/plants/' + pid).get(); p = d.exists ? d.data() : null; }
+      const to = SITE + '/#/plant/' + encodeURIComponent(pid);
+      res.set('Cache-Control', 'public, max-age=600'); res.type('html').send(sharePage(pub(p) ? { title: pName(p) + (p.code ? '｜' + p.code : '') + '｜VEIN 植物履歷', desc: [String(p.cross || ''), KIND[p.kind || 'mother'] || '', +p.price > 0 ? money(p.price) : ''].filter(Boolean).join('・'), img: SITE + '/img/p/' + encodeURIComponent(sid) + '/' + encodeURIComponent(pid) + '.jpg', url: SITE + req.originalUrl, to } : { title: 'VEIN 植物履歷', desc: '看這株植物的成長紀錄與血統', img: SITE + '/og.png', url: SITE + req.originalUrl, to })); return;
+    }
+    if ((m = path.match(/^\/s\/e\/(mkt|live)\/([^/]+)$/))) {
+      const kind = m[1], id = decodeURIComponent(m[2]); const d = await db().doc((kind === 'mkt' ? 'mkts/' : 'lives/') + id).get(); const x = d.exists ? d.data() : {};
+      const to = SITE + '/#/' + kind + '/' + encodeURIComponent(id);
+      res.set('Cache-Control', 'public, max-age=600'); res.type('html').send(sharePage({ title: (kind === 'mkt' ? 'VEIN 市集｜' : 'VEIN 拍賣會｜') + (x.title || ''), desc: (x.startAt ? tw(x.startAt) + (kind === 'mkt' ? ' 開賣' : ' 開拍') : '') + (x.sub ? '・' + x.sub : ''), img: SITE + '/img/e/' + kind + '/' + encodeURIComponent(id) + '.jpg', url: SITE + req.originalUrl, to })); return;
+    }
+    res.status(404).send('not found');
+  } catch (e) { logger.error('feed', String(e && e.stack || e)); res.status(500).json({ error: 'feed error' }); }
+});
