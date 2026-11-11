@@ -5982,6 +5982,8 @@ body.lv-on .toast{bottom:auto!important;top:calc(64px + env(safe-area-inset-top,
 
 .rg2-mine .rg2-r{flex-wrap:wrap}.rg2-mine .rg2-r .lvpos{flex-basis:100%;margin:2px 0 0 52px}
 
+.phn{display:grid;gap:12px;text-align:center;justify-items:center;padding:4px 0 8px}.phn-ic{font-size:54px;width:96px;height:96px;border-radius:30px;display:grid;place-items:center;background:#111;box-shadow:0 0 0 6px rgba(210,255,0,.35);animation:phnB 1.6s ease-in-out infinite}@keyframes phnB{50%{transform:translateY(-4px) rotate(-6deg)}}.phn b{font-size:17px}.phn p{margin:0;color:var(--fg2);font-size:14px;line-height:1.6}
+
 </style>
 
 </head>
@@ -13203,7 +13205,7 @@ function openRegTut(x,onGo){ const g=EV_GUIDE[x.kind==='mkt'?'mkt':'live'], ck=h
   const box=h('div',{class:'evtut'}, guideBody(g,false), h('div',{class:'evtut-rules'}, h('b',{text:'📋 這一場的規則'}), h('div',{class:'rg2-rules'}, ...evRules(x).map(t=>h('span',{text:t})))),
     h('label',{class:'evtut-ck'}, ck, h('span',{text:'我已了解規則，下次直接進入報名'})), h('button',{class:'btn lime lg',type:'button',style:'width:100%',text:'我了解了，開始報名 →',onclick:()=>{ if(ck.checked) lsSet('vein.evtut.'+x.kind,1); dlg.close(); setTimeout(onGo,60); }}));
   openDialog(g.t,box,true); }
-function openReg(x,skipTut){ if(needLogin()) return; if(!hasShop()){ toast('要先開賣場才能報名'); openApply(); return; } if(!regOn(x)){ toast('這個活動目前沒有開放報名'); return; }
+function openReg(x,skipTut){ if(needLogin()) return; if(lvNoPhone()){ evPhoneNag(x.kind,true); return; } if(!hasShop()){ toast('要先開賣場才能報名'); openApply(); return; } if(!regOn(x)){ toast('這個活動目前沒有開放報名'); return; }
   if(!isVerified(S.me)){ openDialog('只限認證賣家',h('div',{class:'evtut'}, h('div',{class:'empty',style:'padding:10px 0'}, h('b',{style:'font-size:44px',text:'👑'}), h('h3',{text:(x.kind==='mkt'?'市集':'拍賣會')+'只開放認證賣家報名'}), h('p',{text:'成為認證賣家後就能報名市集與 VEIN 拍賣會，還有置頂、商店精選等功能。'})), h('button',{class:'btn lime lg',type:'button',style:'width:100%',onclick:()=>{ dlg.close(); go('#/verify'); },text:'了解認證賣家 →'})),true); return; }
   if(!skipTut&&!lsGet('vein.evtut.'+x.kind,0)) return openRegTut(x,()=>openReg(x,true));
   const isM=x.kind==='mkt', col=(isM?'mkts/':'lives/')+x.id+(isM?'/e':'/lots'), R=x.rules||{};
@@ -13287,7 +13289,7 @@ function evListBody(kind){ const L=[...(kind==='mkt'?S.mkts:S.lives).values()].f
 const MK={id:null,un:null,es:new Map(),f:{q:'',sort:'off',kind:'',open:false},loading:new Set()};
 function leaveMkt(){ try{ MK.un?.(); }catch(e){} MK.un=null; MK.id=null; }
 async function mkLoadPlant(e){ if(S.plants.has(e.pid)||MK.loading.has(e.pid)) return; MK.loading.add(e.pid); try{ const d=await S.db.doc('shops/'+e.shop+'/plants/'+e.pid).get(); if(d.exists) S.plants.set(d.id,{id:d.id,...d.data(),shop:e.shop}); }catch(x){} MK.loading.delete(e.pid); }
-function renderMkt(force){ const box=$('#mktPage'); if(!box) return; const id=S.mktId, m=S.mkts.get(id);
+function renderMkt(force){ const box=$('#mktPage'); if(!box) return; const id=S.mktId, m=S.mkts.get(id); if(lvNoPhone()) setTimeout(()=>{ if(PAGE==='mkt'&&lvNoPhone()) evPhoneNag('mkt'); },900);
   if(!m){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:S.ready?'找不到這個市集':'載入中…'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); return; }
   if(MK.id!==id){ leaveMkt(); MK.id=id; MK.es=new Map(); MK.un=S.db.collection('mkts/'+id+'/e').where('status','==','ok').onSnapshot(async sn=>{ MK.es=new Map(sn.docs.map(d=>[d.id,{pid:d.id,...d.data()}])); await Promise.all([...MK.es.values()].map(mkLoadPlant)); if(PAGE==='mkt'&&MK.id===id) mkPaint(); },()=>{}); }
   document.body.dataset.mtpl=m.tpl||'flash'; mkPaint(); }
@@ -13312,7 +13314,7 @@ function mkPaint(){ const box=$('#mktPage'), m=S.mkts.get(MK.id); if(!box||!m) r
       h('div',{class:'mk-cb'}, h('b',{class:'mk-cn',text:pName(p)}), h('small',{class:'mono',text:p.code+' · '+shopName(p.shop)}),
         h('div',{class:'mk-pr'}, h('span',{class:'mk-now'}, h('i',{text:'NT$'}), Number(d).toLocaleString('zh-TW')), o>d?h('s',{text:money(o)}):null),
         o>d?h('div',{class:'mk-save',text:'省 '+money(o-d)}):null,
-        h('button',{type:'button',class:'mk-buy',disabled:S2||st!=='on',onclick:e=>{ e.stopPropagation(); if(st!=='on'){ toast(st==='soon'?'還沒開賣喔，'+evWhen(m.startAt)+' 開始':'市集已結束'); return; } if(cartIds().includes(p.id)){ openCart(); return; } addCart(p.id); evFx('甜甜價入手！',pName(p)+' '+money(d),m.tpl); setTimeout(()=>mkPaint(),400); }, text:S2?'已售出':st==='soon'?'開賣後可買':cartIds().includes(p.id)?'已在購物車 · 去結帳':'⚡ 搶購'}))); };
+        h('button',{type:'button',class:'mk-buy',disabled:S2||st!=='on',onclick:e=>{ e.stopPropagation(); if(st!=='on'){ toast(st==='soon'?'還沒開賣喔，'+evWhen(m.startAt)+' 開始':'市集已結束'); return; } if(cartIds().includes(p.id)){ openCart(); return; } if(needLogin()) return; if(lvNoPhone()){ evPhoneNag('mkt',true); return; } addCart(p.id); evFx('甜甜價入手！',pName(p)+' '+money(d),m.tpl); setTimeout(()=>mkPaint(),400); }, text:S2?'已售出':st==='soon'?'開賣後可買':cartIds().includes(p.id)?'已在購物車 · 去結帳':'⚡ 搶購'}))); };
   const grid=L.length?h('div',{class:'mk-g'}, ...L.map(card)):h('div',{class:'play-empty'}, h('b',{text:'🔍'}), h('h3',{text:items.length?'沒有符合的植物':'商品準備中'}), h('p',{text:items.length?'換個關鍵字或清除篩選':'賣家正在報名，開賣前會陸續上架'}));
   box.replaceChildren(h('div',{class:'mk tp-'+(m.tpl||'flash')}, hero, lpBox, bar, grid)); }
 // 搶到／得標的大字特效（像限時動態的發光字）
@@ -13334,7 +13336,7 @@ function lvPresence(id){ const ref=S.db.doc('lives/'+id+'/viewers/'+lvVid()); co
   beat(); setTimeout(cnt,1500); const t1=setInterval(beat,25000), t2=setInterval(cnt,15000); const vis=()=>{ if(!document.hidden){ beat(); cnt(); } }; document.addEventListener('visibilitychange',vis);
   LV.un.push(()=>{ clearInterval(t1); clearInterval(t2); document.removeEventListener('visibilitychange',vis); ref.delete().catch(()=>{}); }); }
 function leaveLive(){ try{ cancelAnimationFrame(LV.raf); }catch(e){} LV.un.forEach(f=>{ try{ f(); }catch(e){} }); LV.un=[]; clearInterval(LV.iv); LV.iv=0; clearInterval(LV.pt); LV.pt=0; LV.id=null; document.body.classList.remove('lv-on'); }
-function renderLive(){ const box=$('#livePage'); if(!box) return; const id=S.liveId; document.body.classList.add('lv-on');
+function renderLive(){ const box=$('#livePage'); if(!box) return; const id=S.liveId; document.body.classList.add('lv-on'); if(lvNoPhone()) setTimeout(()=>{ if(PAGE==='live'&&lvNoPhone()) evPhoneNag('live'); },900);
   if(LV.id!==id){ leaveLive(); document.body.classList.add('lv-on'); LV.id=id; LV.ev=null; LV.lots=new Map(); LV.tk={}; LV.feed=[]; LV.lastTop=null; LV.lastLid=null; LV.off=null;
     box.replaceChildren(h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'進入拍賣會…'})));
     LV.un.push(S.db.doc('lives/'+id).onSnapshot(d=>{ if(!d.exists){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:'找不到這場拍賣會'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); return; }
@@ -13367,8 +13369,13 @@ function lvTickUi(){ const ev=LV.ev; if(!ev||PAGE!=='live') return; const c=ev.c
   // 時間到了：通知伺服器結標／換下一株（伺服器會再確認一次時間，重複通知也只會處理一次）
   let due=null; if(!c&&ev.startAt&&now>=ev.startAt&&ev.phase!=='done') due='start'; else if(c&&!c.gapUntil&&now>=c.endsAt+300) due='end:'+c.lid+':'+c.endsAt; else if(c&&c.gapUntil&&now>=c.gapUntil+300&&!c.over) due='gap:'+c.lid;
   if(due&&S.me&&(!LV.tk[due]||Date.now()-LV.tk[due]>3500)){ LV.tk[due]=Date.now(); setTimeout(()=>{ S.db.collection('liveTick').doc().set({eid:ev.id,at:Date.now()}).catch(()=>{}); },Math.random()*600); } }
+/* 市集／拍賣會：限已驗證手機的會員。進頁面沒驗證就跳提醒（每場活動提醒一次），按出價／搶購時一定跳 */
+function evPhoneNag(kind,force){ const k='vein.phnag.'+kind+'.'+(kind==='mkt'?S.mktId:S.liveId); if(!force){ try{ if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1'); }catch(e){} }
+  const isM=kind==='mkt', nm=isM?'市集':'拍賣會';
+  openDialog('📱 先驗證手機', h('div',{class:'phn'}, h('div',{class:'phn-ic',text:'📱'}), h('b',{text:nm+'限「已驗證手機」的會員參加'}), h('p',{text:'驗證只要 1 分鐘，收一封簡訊就好。驗證完就能'+(isM?'搶購特價植物':'一口一口出價')+'，開'+(isM?'賣':'拍')+'前先完成，才不會錯過！'}),
+    h('button',{type:'button',class:'btn lime',style:'width:100%',text:'立即驗證手機',onclick:()=>{ dlg.close(); openPhone(); }}), h('button',{type:'button',class:'btn soft',style:'width:100%',text:'先逛逛',onclick:()=>dlg.close()})),true); }
 const lvNoPhone=()=>!!(S.user&&window.__veinAuth&&!S.meInfo?.phoneVerified);
-async function lvBid(){ const ev=LV.ev; if(!ev?.cur||ev.cur.gapUntil) return; if(needLogin()) return; if(lvNoPhone()){ toast('拍賣會要先驗證手機才能出價'); openPhone(); return; } if(LV.bidBusy) return;
+async function lvBid(){ const ev=LV.ev; if(!ev?.cur||ev.cur.gapUntil) return; if(needLogin()) return; if(lvNoPhone()){ evPhoneNag('live',true); return; } if(LV.bidBusy) return;
   const c=ev.cur, need=lvNeed(ev); if(lvPrev(c)){ toast('還在預覽時間，'+Math.ceil((c.previewUntil-lvNow())/1000)+' 秒後開拍'); return; } if(c.shop===S.me){ toast('不能對自己的植物出價'); return; } if(c.top?.uid===S.me){ toast('你目前領先中 👑'); return; } if(lvNow()>=c.endsAt){ toast('這件已經結標了'); return; }
   LV.bidBusy=true; const b=$('#livePage .lv-bid'); b?.classList.add('busy');
   try{ const ref=S.db.collection('liveBid').doc(); await ref.set({uid:S.me,eid:ev.id,lid:c.lid,amt:need,at:Date.now()});
