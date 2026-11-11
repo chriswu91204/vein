@@ -12,9 +12,9 @@
 - **活動（market／live-auction）新的 id**：立刻發。
   - IG：`type: POST` 輪播，images 前 5 張（第一張是拼圖），文案用 caption.instagram 為底，最後寫「🔗 連結在限動／個人檔案」。
   - Threads：另一則貼文，images 前 3 張，文案用 caption.threads（含可點連結）。
-  - IG 限動：images[0]，`instagramData.type: STORY`、`autoPublish: false`（Instagram 不允許工具自動加連結貼紙，所以送到站長手機的 Metricool App，由站長貼上連結貼紙後發出）。text 寫「限動連結貼紙（複製這個網址）：{link}」。
+  - IG 限動：**只發圖**。images[0]，`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
 - **新上架 plant／auction（publishedAt 在上次檢查之後、id 沒發過）**：額外發。
-  - 同一次檢查有 1～2 株：每株各一則（IG＋Threads＋限動）。
+  - 同一次檢查有 1～2 株：每株各一則（IG＋Threads＋限動圖）。
   - 3 株以上：合成一則「新上架合輯」輪播（每株第一張圖，最多 10 張），文案列出每株名稱與價格，Threads 附第一株的 link；把這些 id 全部記成已發。
   - auction 文案要寫起標價與結標時間。
 - **每日植物分享（每天 1 篇）**：從 feed 挑一株（`?days=90&all=1` 可以拿較舊的；可在 getfeed 前設 `FEED_Q='days=90&all=1&events=0&limit=100'`）。
@@ -24,10 +24,10 @@
 
 ## 3. 發文規則
 - 用 Metricool `createScheduledPost`，blogId 8022799，`publicationDate.timezone` = Asia/Taipei，時間設現在 +5 分鐘（活動）或當天 19:30～20:30（每日分享）。
-- IG 一定要有圖；Threads 文案要有 link；限動 `autoPublish:false`。
+- IG 一定要有圖；Threads 文案要有 link；限動只發圖、`autoPublish:true`、不放文字。
 - 不要發：已售出、價格是 0 的直購植物（auction 例外）、標題含「測試」的活動只有站長說要發才發。
 - 語氣：台灣繁體中文、簡短、有重點、2～4 個 emoji，hashtag 5～8 個（#VEIN #植物履歷 #花燭 #anthurium #觀葉植物 #天南星 #rareplants 等）。
 - 發完把 id、時間、Metricool post id 寫進 `social/posted.json`，commit 並 push 到 main（commit 訊息：「小編：發文 …」）。
 
 ## 4. 回報
-用 SendUserMessage 簡短回報這次發了什麼（標題＋發佈時間）；如果有限動等站長手動加連結，提醒站長打開 Metricool App。沒有新東西就不用回報。
+用 SendUserMessage 簡短回報這次發了什麼（標題＋發佈時間）。沒有新東西就不用回報。
