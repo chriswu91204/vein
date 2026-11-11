@@ -1,0 +1,6 @@
+// 檢查公開轉發資料（只印狀態與公開內容摘要）
+(async()=>{ const B='https://vein-48ec8.web.app';
+  for (const p of ['/robots.txt','/feed.json','/feed.xml']) { const r=await fetch(B+p); const t=await r.text(); console.log(p, r.status, r.headers.get('content-type'), t.length+'B'); if(p==='/feed.json'){ try{ const F=JSON.parse(t); console.log('count',F.count,'shop?',!!F.shop); for(const x of F.items.slice(0,6)) console.log('-',x.type,x.phase||'',x.title,'| imgs',x.images.length,'|',x.publishedAt); global.F=F; }catch(e){ console.log(t.slice(0,300)); } } }
+  const F=global.F; if(F&&F.items.length){ const x=F.items[0]; for(const u of [x.image,x.link]){ const r=await fetch(u,{redirect:'manual'}); const b=Buffer.from(await r.arrayBuffer()); console.log('GET',u.replace(B,''),r.status,r.headers.get('content-type'),b.length+'B'); if(/image/.test(r.headers.get('content-type')||'')){ /* jpeg size */ let i=2; while(i<b.length){ if(b[i]!==0xFF){break;} const m=b[i+1], L=b.readUInt16BE(i+2); if(m>=0xC0&&m<=0xC3){ console.log('jpeg',b.readUInt16BE(i+7),'x',b.readUInt16BE(i+5)); break; } i+=2+L; } } }
+    const e=F.items.find(i=>i.type!=='plant'&&i.type!=='auction'); if(e){ const r=await fetch(e.image); console.log('event img',r.status,r.headers.get('content-type'),(await r.arrayBuffer()).byteLength+'B'); } }
+})().catch(e=>console.log('ERR',e.message));
