@@ -88,6 +88,8 @@ jobs:
           echo "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           npm --prefix push install --no-audit --no-fund
+          # 轉發圖用的中文字型（只在部署時下載，不放進 repo）
+          mkdir -p push/fonts && [ -s push/fonts/NotoSansTC-Black.otf ] || curl -fsSL -o push/fonts/NotoSansTC-Black.otf https://github.com/notofonts/noto-cjk/raw/main/Sans/SubsetOTF/TC/NotoSansTC-Black.otf || true
           # 第一次部署需要的 Google API（部署帳號有「服務使用情形管理員」權限就能自己開）
           gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" --quiet
           if ! gcloud services list --enabled --project vein-48ec8 --format="value(config.name)" | grep -q cloudbilling.googleapis.com; then

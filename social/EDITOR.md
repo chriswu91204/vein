@@ -10,9 +10,9 @@
 
 ## 2. 什麼時候發什麼
 - **活動（market／live-auction）新的 id**：立刻發。
-  - IG：`type: POST` 輪播，images 前 5 張（第一張是拼圖），文案用 caption.instagram 為底（已含網址）。
+  - IG：`type: POST` 輪播，images 前 5 張（第一張是多圖直條模板：標題＋各株照片與價格＋日期＋QR），文案用 caption.instagram 為底（已含網址）。
   - Threads：另一則貼文，images 前 3 張，文案用 caption.threads（含可點連結）。
-  - IG 限動：**只發圖**。images[0]，`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
+  - IG 限動：**只發圖**。活動用 `story`（9:16 直條模板），沒有 story 欄位就用 images[0]，`instagramData.type: STORY`、`autoPublish: true`，**不要放 text**（站長決定：限動直接自動發圖，不帶連結）。
 - **新上架 plant／auction（publishedAt 在上次檢查之後、id 沒發過）**：額外發。
   - 同一次檢查有 1～2 株：每株各一則（IG＋Threads＋限動圖）。
   - 3 株以上：合成一則「新上架合輯」輪播（每株第一張圖，最多 10 張），文案列出每株名稱與價格，Threads 附第一株的 link；把這些 id 全部記成已發。

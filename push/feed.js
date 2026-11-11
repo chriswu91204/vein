@@ -78,14 +78,14 @@ async function eventItems(base, now) {
     for (const d of s.docs) {
       const x = { id: d.id, kind, ...d.data() }; if (x.draft || x.hidden) continue; const ph = evPhase(x, now); if (ph === 'done' || ph === 'later') continue;
       const L = await eventLots(kind, x.id), isM = kind === 'mkt', name = isM ? 'VEIN 市集' : 'VEIN 拍賣會'; const LP = await Promise.all(L.slice(0, 9).map(lotPhoto));
-      const link = base + '/s/e/' + kind + '/' + x.id, img = base + '/img/e/' + kind + '/' + x.id + '.jpg';
+      const link = base + '/s/e/' + kind + '/' + x.id, img = base + '/img/e/' + kind + '/' + x.id + '.jpg', story = img + '?fmt=story';
       const top = L.slice(0, 5).map((e, i) => (i + 1) + '. ' + (e.name || e.code || '植物') + '　' + (isM ? (e.orig ? money(e.orig) + ' → ' : '') + money(e.deal) : '起拍 ' + money(e.start)));
       const H = { reg: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」認證賣家開放報名', soon: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」即將開始', on: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」' + (isM ? '特賣中' : '現在開拍') }[ph];
       const lines = [H, x.sub || '', '🗓 ' + tw(x.startAt) + (isM ? ' 開賣' : ' 開拍') + (isM && x.endAt ? '～' + tw(x.endAt) : ''), !isM ? '⏱ 每件 ' + (x.dur || 60) + ' 秒・最後 ' + (x.snipe || 10) + ' 秒有人出價再加 ' + (x.snipe || 10) + ' 秒' : '', L.length ? (isM ? '🌿 精選特價：' : '🌿 精選拍品：') + '\n' + top.join('\n') + (L.length > 5 ? '\n（共 ' + L.length + ' 株）' : '') : ''].filter(Boolean).join('\n');
       const T = ['#VEIN', isM ? '#植物市集' : '#植物拍賣', '#觀葉植物', '#天南星', '#rareplants'].join(' ');
       const imgs = [img, ...LP.filter(Boolean).map((u, i) => base + '/img/e/' + kind + '/' + x.id + '.jpg?lot=' + i)];
       const at = ph === 'reg' ? (ms(x.createdAt) || x.startAt - 7 * 864e5) : ph === 'soon' ? x.startAt - 24 * 3600e3 : x.startAt;
-      out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, link, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
+      out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, link, story, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
         caption: { instagram: lines + '\n\n👉 活動網址：' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n' + T.split(' ').slice(0, 3).join(' ') } });
     }
   }
@@ -122,6 +122,39 @@ let sharpMod = null; const sharp = () => (sharpMod = sharpMod || require('sharp'
 async function getImg(u) { const r = await fetch(u); if (!r.ok) throw new Error('img ' + r.status); return Buffer.from(await r.arrayBuffer()); }
 const W = 1080, H = 1350;
 async function igJpg(buf) { return sharp()(buf).rotate().resize(W, H, { fit: 'cover', position: 'attention' }).jpeg({ quality: 86, mozjpeg: true }).toBuffer(); }
+// ---- 多圖直條模板（和網站「多株拼圖」同風格）：標題 → 直條照片（名稱＋價格）→ 日期＋QR ----
+let FONT = null; function font() { if (FONT !== null) return FONT; try { const ot = require('opentype.js'); FONT = ot.loadSync(require('path').join(__dirname, 'fonts', 'NotoSansTC-Black.otf')); } catch (e) { logger.warn('font', String(e)); FONT = false; } return FONT; }
+function fit(f, t, size, maxW) { t = String(t || ''); if (f.getAdvanceWidth(t, size) <= maxW) return t; while (t.length > 1 && f.getAdvanceWidth(t + '…', size) > maxW) t = t.slice(0, -1); return t + '…'; }
+function txt(f, t, x, y, size, fill, maxW) { if (!f || !t) return ''; const s = maxW ? fit(f, t, size, maxW) : String(t); const p = f.getPath(s, x, y, size); return '<path d="' + p.toPathData(1) + '" fill="' + fill + '"/>'; }
+async function qrSvg(url, px) { try { const QR = require('qrcode'); const svg = await QR.toString(url, { type: 'svg', margin: 1, color: { dark: '#07080A', light: '#FFFFFF' } }); return sharp()(Buffer.from(svg)).resize(px, px).png().toBuffer(); } catch (e) { return null; } }
+async function strips({ title, items, more, foot, url, story }) {
+  const f = font(), WW = 1080, HH = story ? 1920 : 1350, top = story ? 300 : 200, bot = story ? 330 : 250, n = Math.max(1, Math.min(6, items.length));
+  const sh = HH - top - bot, sw = Math.floor(WW / n), V = '#D2FF00';
+  const tiles = await Promise.all(items.slice(0, n).map(async (it, i) => { try { const w = i === n - 1 ? WW - sw * (n - 1) : sw; const b = await sharp()(await getImg(it.url)).rotate().resize(w - 6, sh, { fit: 'cover', position: 'attention' }).jpeg().toBuffer(); return { input: b, left: i * sw + 3, top }; } catch (e) { return null; } }));
+  let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></linearGradient></defs>';
+  svg += '<rect x="0" y="' + (top - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/><rect x="0" y="' + (top + sh) + '" width="' + WW + '" height="8" fill="' + V + '"/>';
+  svg += '<rect x="0" y="' + (top + sh - 170) + '" width="' + WW + '" height="170" fill="url(#g)"/>';
+  // 左上 VEIN 標誌
+  svg += '<rect x="56" y="' + (story ? 120 : 52) + '" width="34" height="34" rx="9" fill="#1F6B3A"/><circle cx="73" cy="' + (story ? 137 : 69) + '" r="7" fill="' + V + '"/>' + txt(f, 'VEIN', 102, (story ? 148 : 80), 30, '#fff');
+  svg += txt(f, title, 56, top - (story ? 50 : 40), story ? 92 : 78, '#fff', WW - 112);
+  items.slice(0, n).forEach((it, i) => { const x = i * sw + 14, mw = sw - 26, fs = n <= 3 ? 30 : n <= 4 ? 25 : 21; svg += txt(f, it.name, x, top + sh - 22 - fs * 1.25, fs, '#fff', mw) + txt(f, it.price, x, top + sh - 20, fs, V, mw); });
+  if (more > 0) svg += txt(f, '+' + more, WW - 92, top + sh / 2 + 20, 50, '#fff');
+  const qr = story ? 230 : 180, fy = top + sh + 8 + (bot - 8) / 2;
+  svg += txt(f, foot, 56, fy + (story ? 34 : 30), story ? 92 : 80, V, WW - 112 - qr - 30);
+  if (story) svg += txt(f, url.replace(/^https:\/\//, ''), 56, HH - 60, 26, 'rgba(255,255,255,.55)', WW - 112);
+  svg += '</svg>';
+  const comp = [...tiles.filter(Boolean), { input: Buffer.from(svg), left: 0, top: 0 }]; const q = await qrSvg(url, qr - 24);
+  if (q) comp.push({ input: await sharp()({ create: { width: qr, height: qr, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer(), left: WW - 56 - qr, top: Math.round(fy - qr / 2) });
+  return sharp()({ create: { width: WW, height: HH, channels: 3, background: '#07080A' } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+}
+const hhmm = t => { const d = new Date(t + 8 * 3600e3); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+async function eventCard(kind, id, story) {
+  const d = await db().doc((kind === 'mkt' ? 'mkts/' : 'lives/') + id).get(); const x = d.exists ? d.data() : {}; const isM = kind === 'mkt';
+  const L = await eventLots(kind, id); const U = await Promise.all(L.slice(0, 6).map(lotPhoto));
+  const items = L.slice(0, 6).map((e, i) => ({ url: U[i], name: e.name || e.code || '', price: isM ? money(e.deal) : '起拍 ' + money(e.start) })).filter(i => i.url);
+  if (!items.length) return null;
+  return strips({ title: x.title || (isM ? 'VEIN 市集' : 'VEIN 拍賣會'), items, more: Math.max(0, L.length - items.length), foot: (x.startAt ? hhmm(x.startAt) : '') + (isM ? ' 開賣' : ' 開拍'), url: SITE + '/s/e/' + kind + '/' + id, story });
+}
 async function collage(urls) {
   const U = urls.slice(0, 6), n = U.length; if (!n) throw new Error('no photos');
   if (n === 1) return igJpg(await getImg(U[0]));
@@ -152,7 +185,8 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
     }
     if ((m = path.match(/^\/img\/e\/(mkt|live)\/([^/]+?)(?:\.jpg)?$/))) {
       const L = await eventLots(m[1], decodeURIComponent(m[2])); const U = (await Promise.all(L.slice(0, 9).map(lotPhoto))).filter(Boolean);
-      let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))])); else out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png'));
+      let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))]));
+      else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story'); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
       res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
     }
     if ((m = path.match(/^\/s\/p\/([^/]+)$/))) {
