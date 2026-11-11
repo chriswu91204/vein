@@ -127,7 +127,7 @@ let FONT = null; function font() { if (FONT !== null) return FONT; try { const o
 function fit(f, t, size, maxW) { t = String(t || ''); if (f.getAdvanceWidth(t, size) <= maxW) return t; while (t.length > 1 && f.getAdvanceWidth(t + '…', size) > maxW) t = t.slice(0, -1); return t + '…'; }
 function txt(f, t, x, y, size, fill, maxW) { if (!f || !t) return ''; const s = maxW ? fit(f, t, size, maxW) : String(t); const p = f.getPath(s, x, y, size); return '<path d="' + p.toPathData(1) + '" fill="' + fill + '"/>'; }
 async function qrSvg(url, px) { try { const QR = require('qrcode'); const svg = await QR.toString(url, { type: 'svg', margin: 1, color: { dark: '#07080A', light: '#FFFFFF' } }); return sharp()(Buffer.from(svg)).resize(px, px).png().toBuffer(); } catch (e) { return null; } }
-async function strips({ title, items, more, foot, url, story }) {
+async function strips({ title, items, more, foot, url, story, sub }) {
   const f = font(), WW = 1080, HH = story ? 1920 : 1350, top = story ? 300 : 200, bot = story ? 330 : 250, n = Math.max(1, Math.min(6, items.length));
   const sh = HH - top - bot, sw = Math.floor(WW / n), V = '#D2FF00';
   const tiles = await Promise.all(items.slice(0, n).map(async (it, i) => { try { const w = i === n - 1 ? WW - sw * (n - 1) : sw; const b = await sharp()(await getImg(it.url)).rotate().resize(w - 6, sh, { fit: 'cover', position: 'attention' }).jpeg().toBuffer(); return { input: b, left: i * sw + 3, top }; } catch (e) { return null; } }));
@@ -135,7 +135,7 @@ async function strips({ title, items, more, foot, url, story }) {
   svg += '<rect x="0" y="' + (top - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/><rect x="0" y="' + (top + sh) + '" width="' + WW + '" height="8" fill="' + V + '"/>';
   svg += '<rect x="0" y="' + (top + sh - 170) + '" width="' + WW + '" height="170" fill="url(#g)"/>';
   // 左上 VEIN 標誌
-  svg += '<rect x="56" y="' + (story ? 120 : 52) + '" width="34" height="34" rx="9" fill="#1F6B3A"/><circle cx="73" cy="' + (story ? 137 : 69) + '" r="7" fill="' + V + '"/>' + txt(f, 'VEIN', 102, (story ? 148 : 80), 30, '#fff');
+  svg += '<rect x="56" y="' + (story ? 120 : 52) + '" width="34" height="34" rx="9" fill="#1F6B3A"/><circle cx="73" cy="' + (story ? 137 : 69) + '" r="7" fill="' + V + '"/>' + txt(f, 'VEIN', 102, (story ? 148 : 80), 30, '#fff') + (sub ? txt(f, '・' + sub, 182, (story ? 148 : 80), 30, 'rgba(255,255,255,.65)', WW - 240) : '');
   svg += txt(f, title, 56, top - (story ? 50 : 40), story ? 92 : 78, '#fff', WW - 112);
   items.slice(0, n).forEach((it, i) => { const x = i * sw + 14, mw = sw - 26, fs = n <= 3 ? 30 : n <= 4 ? 25 : 21; let a = String(it.name || ''), b = ''; if (f && f.getAdvanceWidth(a, fs) > mw) { let k = a.length; while (k > 1 && f.getAdvanceWidth(a.slice(0, k), fs) > mw) k--; const sp = a.lastIndexOf(' ', k); const c = sp > 2 ? sp : k; b = a.slice(c).trim(); a = a.slice(0, c).trim(); } const y0 = top + sh - 20; svg += (b ? txt(f, a, x, y0 - fs * 2.5, fs, '#fff', mw) + txt(f, b, x, y0 - fs * 1.25, fs, '#fff', mw) : txt(f, a, x, y0 - fs * 1.25, fs, '#fff', mw)) + txt(f, it.price, x, y0, fs, V, mw); });
   if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 46) : 80; svg += '<rect x="' + (WW - mw2 - 52) + '" y="' + (top + 24) + '" width="' + (mw2 + 32) + '" height="64" rx="32" fill="rgba(0,0,0,.6)"/>' + txt(f, mt, WW - mw2 - 36, top + 72, 46, '#fff'); }
@@ -154,9 +154,9 @@ async function plantCard(p, shop, story, i) {
   // 站長預設模板：和活動同一個多圖直條模板（標題＝植物名、各張照片直條、底部價格＋QR）
   const L = photos(p); if (!L.length) return null; const auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
   const sub = [KIND[p.kind || 'mother'] || '', p.code || ''].filter(Boolean).join('・');
-  const items = L.slice(0, 6).map((u, k) => ({ url: u, name: k === 0 ? sub : '', price: k === 0 && auc && end ? hhmm(end) + ' 結標' : '' }));
+  const items = L.slice(0, 6).map(u => ({ url: u, name: '', price: '' })); const sub2 = [sub, auc && end ? hhmm(end) + ' 結標' : ''].filter(Boolean).join('・');
   const price = auc ? '起標 ' + money(p.startPrice || p.price) : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : 'VEIN 植物履歷');
-  return strips({ title: pName(p).replace(/^Anthurium\s+/i, ''), items, more: Math.max(0, L.length - items.length), foot: price, url: SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), story });
+  return strips({ title: pName(p).replace(/^Anthurium\s+/i, ''), items, more: Math.max(0, L.length - items.length), foot: price, url: SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), story, sub: sub2 });
 }
 // 多株合輯（新上架合輯用）：/img/c.jpg?ids=shop:pid,shop:pid&t=標題&foot=底部文字
 async function multiCard(ids, title, foot, story) {
