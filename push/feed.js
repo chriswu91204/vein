@@ -85,7 +85,7 @@ async function eventItems(base, now) {
       const T = ['#VEIN', isM ? '#植物市集' : '#植物拍賣', '#觀葉植物', '#天南星', '#rareplants'].join(' ');
       const imgs = [img, ...LP.filter(Boolean).map((u, i) => base + '/img/e/' + kind + '/' + x.id + '.jpg?lot=' + i)];
       const at = ph === 'reg' ? (ms(x.createdAt) || x.startAt - 7 * 864e5) : ph === 'soon' ? x.startAt - 24 * 3600e3 : x.startAt;
-      out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, link, story, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
+      out.push({ id: 'e-' + kind + '-' + x.id + '-' + ph, type: isM ? 'market' : 'live-auction', phase: ph, title: H, eventTitle: x.title || '', startAt: new Date(x.startAt).toISOString(), endAt: x.endAt ? new Date(x.endAt).toISOString() : null, lots: L.length, lotList: L.map(e => ({ pid: e.pid, shopId: e.shop, name: e.name || e.code || '', price: +(isM ? e.deal : e.start) || 0, orig: isM ? (+e.orig || 0) : undefined })), link, story, eventUrl: SITE + '/#/' + (isM ? 'mkt' : 'live') + '/' + x.id, image: img, images: imgs, publishedAt: new Date(Math.min(at, now)).toISOString(),
         caption: { instagram: lines + '\n\n👉 活動網址：' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n#觀葉植物' } });
     }
   }
@@ -166,9 +166,9 @@ async function multiCard(ids, title, foot, story) {
   const url = P.length === 1 ? SITE + '/s/p/' + encodeURIComponent(P[0].id) + '?s=' + encodeURIComponent(shop) : SITE + '/s/shop/' + encodeURIComponent(shop);
   return strips({ title: title || '新上架', items, more: Math.max(0, P.length - items.length), foot: foot || 'VEIN 植物履歷', url, story });
 }
-async function eventCard(kind, id, story) {
+async function eventCard(kind, id, story, shop) {
   const d = await db().doc((kind === 'mkt' ? 'mkts/' : 'lives/') + id).get(); const x = d.exists ? d.data() : {}; const isM = kind === 'mkt';
-  const L = await eventLots(kind, id); const U = await Promise.all(L.slice(0, 6).map(lotPhoto));
+  let L = await eventLots(kind, id); if (shop) L = L.filter(e => e.shop === shop); const U = await Promise.all(L.slice(0, 6).map(lotPhoto));
   const items = L.slice(0, 6).map((e, i) => ({ url: U[i], name: shortSp(e.name || e.code || '').replace(/^Anthurium\s+/i, ''), price: isM ? money(e.deal) : '起拍 ' + money(e.start) })).filter(i => i.url);
   if (!items.length) return null;
   return strips({ title: x.title || (isM ? 'VEIN 市集' : 'VEIN 拍賣會'), items, more: Math.max(0, L.length - items.length), foot: (x.startAt ? hhmm(x.startAt) : '') + (isM ? ' 開賣' : ' 開拍'), url: SITE + '/s/e/' + kind + '/' + id, story });
@@ -206,7 +206,7 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
     if ((m = path.match(/^\/img\/e\/(mkt|live)\/([^/]+?)(?:\.jpg)?$/))) {
       const L = await eventLots(m[1], decodeURIComponent(m[2])); const U = (await Promise.all(L.slice(0, 9).map(lotPhoto))).filter(Boolean);
       let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))]));
-      else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story'); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
+      else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story', req.query.shop ? String(req.query.shop) : null); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
       res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
     }
     if (path === '/img/c.jpg' || path === '/img/c') {
