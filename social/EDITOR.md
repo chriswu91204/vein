@@ -4,8 +4,10 @@
 站長已同意：**直接自動發，不用先確認**。
 
 ## 1. 取得資料
-在 repo 根目錄執行：`bash social/getfeed.sh /tmp/feed.json`（透過 GitHub Actions 讀 https://vein-48ec8.web.app/feed.json，網站本身從雲端環境連不到）。
-每筆 item：`id`、`type`（plant／auction／market／live-auction）、`phase`（活動：reg／soon／on）、`title`、`caption.instagram`、`caption.threads`、`images`（1080×1350 JPG，Metricool 可直接用）、`link`（分享連結，有預覽圖）、`publishedAt`、`price`、`cross`、`code`。
+在 repo 根目錄執行：`bash social/getfeed.sh /tmp/feed.json`（透過 GitHub Actions 讀 https://vein-48ec8.web.app/feed.json，網站本身從雲端環境連不到；只用 GitHub REST，不用 GraphQL）。要更多植物時加 `FEED_Q='days=90&all=1&events=0&limit=100'`。
+取得 repo 一律用 `git clone https://github.com/chriswu91204/vein.git`（`gh repo clone` 會因 GraphQL 被擋而失敗）。
+每筆 item：`id`、`type`（plant／auction／market／live-auction）、`phase`（活動：reg／soon／on）、`title`、`caption.instagram`、`caption.threads`、`images`（1080×1350 JPG，Metricool 可直接用）、`link`（分享連結，有預覽圖）、`publishedAt`、`price`、`code`、`lineage`（「♀ 母本 × ♂ 父本」，含名稱與編號）、`mother`／`father`（{name, code}）、`memo`（賣家備註，不是血統）、`photoCount`。
+寫血統只用 `lineage`／`mother`／`father`；`memo` 只是備註（例如「帶活性保持花牌」），不要當成血統。
 已發過的 id 在 `social/posted.json`，**絕對不要重複發同一個 id**。
 
 ## 2. 什麼時候發什麼
