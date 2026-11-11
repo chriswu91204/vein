@@ -112,6 +112,41 @@
     ],
     "rewrites": [
       {
+        "source": "/feed.json",
+        "function": {
+          "functionId": "feed",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/feed.xml",
+        "function": {
+          "functionId": "feed",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/rss",
+        "function": {
+          "functionId": "feed",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/img/**",
+        "function": {
+          "functionId": "feed",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/s/**",
+        "function": {
+          "functionId": "feed",
+          "region": "asia-east1"
+        }
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
