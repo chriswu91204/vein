@@ -185,23 +185,44 @@ function autoFs(f, t, maxFs, maxW) { return f ? Math.max(30, Math.min(maxFs, Mat
 async function qrTile(url, size, frame) { const q = await qrSvg(url, size - 24); if (!q) return null; return sharp()({ create: { width: size, height: size, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer().then(b => frame ? sharp()(b).extend({ top: 6, bottom: 6, left: 6, right: 6, background: frame }).png().toBuffer() : b); }
 const shortUrl = u => u.replace(/^https:\/\//, '').replace(/\?.*$/, '');
 
+// 只有一張照片：無邊框滿版（比例接近就直接鋪滿，差太多就用同張照片模糊當底、整張照片置中，不切到植物）
+async function fullBleed({ o, title, more, foot, url, story, sub, f, WW, HH, PAD }) {
+  const r0 = o.w / o.h, rC = WW / HH, cut = 1 - Math.min(r0, rC) / Math.max(r0, rC), comp = [];
+  if (cut <= .1) comp.push({ input: await sharp()(o.b).resize(WW, HH, { fit: 'cover', position: 'centre' }).toBuffer(), left: 0, top: 0 });
+  else { comp.push({ input: await sharp()(o.b).resize(Math.round(WW / 4), Math.round(HH / 4), { fit: 'cover' }).blur(6).modulate({ brightness: .45 }).resize(WW, HH).toBuffer(), left: 0, top: 0 });
+    const b = await sharp()(o.b).resize(WW, HH, { fit: 'inside' }).toBuffer({ resolveWithObject: true }); comp.push({ input: b.data, left: Math.round((WW - b.info.width) / 2), top: Math.round((HH - b.info.height) / 2) }); }
+  const th = story ? 420 : 290, bh = story ? 560 : 430, it = o.it, ts = story ? 92 : 80, tl = fit(f, title, ts, WW - PAD * 2 - 20);
+  let s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".85"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".45" stop-color="#000" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity=".92"/></linearGradient></defs>';
+  s += '<rect width="' + WW + '" height="' + th + '" fill="url(#t)"/><rect y="' + (HH - bh) + '" width="' + WW + '" height="' + bh + '" fill="url(#b)"/>';
+  const ly = story ? 150 : 72; s += logo(f, PAD + 16, ly, sub, false, WW - PAD * 2) + txt(f, tl, PAD + 16, ly + ts + 22, ts, '#fff') + '<rect x="' + (PAD + 16) + '" y="' + (ly + ts + 46) + '" width="120" height="8" rx="4" fill="' + V + '"/>';
+  const qr = story ? 220 : 170, qy = HH - (story ? 160 : 52) - qr, mw = WW - PAD * 2 - 32 - qr - 30, lab = !!(it.name || it.price);
+  const fs = autoFs(f, foot, lab ? (story ? 72 : 64) : (story ? 92 : 80), mw), fyB = lab ? qy + qr - 6 : qy + qr / 2 + fs * .36; s += txt(f, foot, PAD + 16, fyB, fs, V);
+  if (lab) { const nl = wrap(f, it.name, 38, mw, 2); let y = fyB - fs - 20; if (it.price) { s += txt(f, it.price, PAD + 16, y, 38, V, mw); y -= 48; } for (let i = nl.length - 1; i >= 0; i--) { s += txt(f, nl[i], PAD + 16, y, 38, '#fff'); y -= 48; } }
+  if (story) s += txt(f, shortUrl(url), PAD + 16, HH - 92, 26, 'rgba(255,255,255,.6)', WW - PAD * 2);
+  if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; s += '<rect x="' + (WW - PAD - mw2 - 32) + '" y="' + (ly - 40) + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, WW - PAD - mw2 - 16, ly + 5, 42, '#fff'); }
+  comp.push({ input: Buffer.from(s + '</svg>'), left: 0, top: 0 });
+  const q = await qrTile(url, qr); if (q) comp.push({ input: q, left: WW - PAD - 16 - qr, top: qy });
+  return sharp()({ create: { width: WW, height: HH, channels: 3, background: BG } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+}
 async function strips({ title, items, more, foot, url, story, sub, tpl }) {
   tpl = tpl == null ? tplToday() : tpl;
   const f = font(), WW = 1080, HH = story ? 1920 : 1350, PAD = 40;
   const ok = await loadPhotos(items, tpl === 6 && items.some(i => i.name) ? 5 : 6);
   const labeled = ok.some(o => o.it.name || o.it.price);
+  const TOP = story ? 280 : 165, BOT = story ? 300 : 195;
+  if (ok.length === 1) return fullBleed({ o: ok[0], title, more, foot, url, story, sub, f, WW, HH, PAD });
   const comp = [], P = []; let bg = BG, svg = '', svgTop = '';
   const put = (bx, rr) => P.push({ bx, rr: rr == null ? Math.round(Math.min(bx.pw, bx.ph) * .04) : rr });
   const moreBadge = (x, y) => { if (!(more > 0)) return ''; const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; return '<rect x="' + (x - mw2 - 32) + '" y="' + y + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, x - mw2 - 16, y + 45, 42, '#fff'); };
   // 標準頁首、頁尾（多數版型共用）
-  const head = (top, center) => { const ty = top - (story ? 56 : 44), ts = story ? 92 : 80; const tl = fit(f, title, ts, WW - PAD * 2); const tw2 = f ? f.getAdvanceWidth(tl, ts) : 0;
-    return logo(f, center ? Math.round((WW - 126 - (sub && f ? f.getAdvanceWidth('・' + sub, 30) : 0)) / 2) : PAD + 16, story ? 150 : 82, sub, false, WW - PAD * 2) + txt(f, tl, center ? Math.round((WW - tw2) / 2) : PAD + 16, ty, ts, '#fff'); };
-  const footer = async (y0, h, opt = {}) => { const qr = Math.min(story ? 230 : 180, h - 30), fy = y0 + h / 2, mw = WW - PAD * 2 - 32 - qr - 30, fs = autoFs(f, foot, story ? 92 : 80, mw);
+  const head = (top, center) => { const ty = top - (story ? 50 : 30), ts = story ? 92 : 76; const tl = fit(f, title, ts, WW - PAD * 2); const tw2 = f ? f.getAdvanceWidth(tl, ts) : 0;
+    return logo(f, center ? Math.round((WW - 126 - (sub && f ? f.getAdvanceWidth('・' + sub, 30) : 0)) / 2) : PAD + 16, story ? 150 : 56, sub, false, WW - PAD * 2) + txt(f, tl, center ? Math.round((WW - tw2) / 2) : PAD + 16, ty, ts, '#fff'); };
+  const footer = async (y0, h, opt = {}) => { const qr = Math.min(story ? 220 : 160, h - 24), fy = y0 + h / 2, mw = WW - PAD * 2 - 32 - qr - 30, fs = autoFs(f, foot, story ? 92 : 80, mw);
     let s = txt(f, foot, PAD + 16, fy + fs * .36 - (story ? 18 : 0), fs, opt.color || V); if (story) s += txt(f, shortUrl(url), PAD + 16, fy + fs * .36 + 46, 26, opt.dim || 'rgba(255,255,255,.55)', mw);
     const q = await qrTile(url, qr, opt.qrFrame); if (q) comp.push({ input: q, left: WW - PAD - 16 - qr - (opt.qrFrame ? 6 : 0), top: Math.round(fy - qr / 2) }); return s; };
 
   if (tpl === 1) { // 主圖：第一張大圖，其餘小圖排一列
-    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 10, w: WW - PAD * 2, h: HH - top - bot - 20 };
+    const top = TOP, bot = BOT, A = { x: 28, y: top + 6, w: WW - 56, h: HH - top - bot - 12 };
     if (ok.length <= 1) { ok.forEach(o => put(contain(o, A))); }
     else { const hh = Math.round(A.h * (ok.length > 3 ? .64 : .7)); put(contain(ok[0], { x: A.x, y: A.y, w: A.w, h: hh })); gridIn(ok.slice(1), { x: A.x, y: A.y + hh + 16, w: A.w, h: A.h - hh - 16 }, 12).forEach(b => put(b)); }
     svg += head(top) + '<rect x="' + PAD + '" y="' + (top - 6) + '" width="160" height="8" rx="4" fill="' + V + '"/>' + await footer(HH - bot, bot);
@@ -219,28 +240,28 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     const q = await qrTile(url, qr); if (q) comp.push({ input: q, left: PAD, top: qy });
     svgTop += moreBadge(WW - PAD - 12, PAD + 16);
   } else if (tpl === 3) { // 螢光海報：螢光綠底、黑字、黑框照片
-    bg = V; const top = story ? 330 : 220, bot = story ? 330 : 230, A = { x: PAD + 6, y: top + 6, w: WW - PAD * 2 - 12, h: HH - top - bot - 12 };
+    bg = V; const top = TOP + 20, bot = BOT + 10, A = { x: PAD + 6, y: top + 6, w: WW - PAD * 2 - 12, h: HH - top - bot - 12 };
     gridIn(ok, A, 18).forEach(b => put(b, 6));
     const ts = story ? 104 : 92, tl = fit(f, title, ts, WW - PAD * 2 - 20);
-    svg += logo(f, PAD + 8, story ? 150 : 76, sub, true, WW - PAD * 2) + txt(f, tl, PAD + 8, top - (story ? 52 : 38), ts, BG);
+    svg += logo(f, PAD + 8, story ? 150 : 62, sub, true, WW - PAD * 2) + txt(f, tl, PAD + 8, top - (story ? 52 : 32), ts, BG);
     P.forEach(({ bx }) => { svg += '<rect x="' + (bx.px - 6) + '" y="' + (bx.py - 6) + '" width="' + (bx.pw + 12) + '" height="' + (bx.ph + 12) + '" rx="10" fill="' + BG + '"/>'; });
     svg += '<rect x="0" y="' + (HH - bot + 20) + '" width="' + WW + '" height="' + (bot - 20) + '" fill="' + BG + '"/>' + await footer(HH - bot + 20, bot - 20);
     svgTop += moreBadge(WW - PAD - 12, top + 20);
-  } else if (tpl === 4) { // 底片：照片排在帶齒孔的底片條上
-    const top = story ? 320 : 210, bot = story ? 330 : 240, A = { x: 0, y: top, w: WW, h: HH - top - bot };
-    const n = ok.length, R = n <= 3 ? [ok] : [ok.slice(0, Math.ceil(n / 2)), ok.slice(Math.ceil(n / 2))], HB = 34, G = 14;
-    const bandMax = (A.h - 24 * (R.length - 1)) / R.length - HB * 2 - 16;
-    const hs = R.map(r => Math.min(bandMax, (WW - PAD * 2 - G * (r.length - 1)) / r.reduce((s, o) => s + o.w / o.h, 0)));
-    let y = A.y + (A.h - (hs.reduce((a, b) => a + b, 0) + (HB * 2 + 16) * R.length + 24 * (R.length - 1))) / 2;
-    R.forEach((r, ri) => { const h = Math.floor(hs[ri]), bh = h + HB * 2 + 16; svg += '<rect x="0" y="' + y + '" width="' + WW + '" height="' + bh + '" fill="#16181C"/>';
-      for (let x = 14; x < WW; x += 44) svg += '<rect x="' + x + '" y="' + (y + 9) + '" width="22" height="16" rx="4" fill="' + V + '" opacity=".9"/><rect x="' + x + '" y="' + (y + bh - 25) + '" width="22" height="16" rx="4" fill="' + V + '" opacity=".9"/>';
+  } else if (tpl === 4) { // 底片：照片排在帶齒孔的底片條上（自動挑 1~3 條，照片盡量撐滿）
+    const top = TOP, bot = BOT, A = { x: 0, y: top, w: WW, h: HH - top - bot }, n = ok.length, HB = 24, IP = 6, G = 10, BG2 = 14, SW = WW - 32;
+    let best = null; for (let nr = 1; nr <= Math.min(3, n); nr++) { const per = Math.ceil(n / nr), R = []; for (let i = 0; i < n; i += per) R.push(ok.slice(i, i + per));
+      const bandMax = (A.h - BG2 * (R.length - 1)) / R.length - HB * 2 - IP * 2; if (bandMax < 80) continue;
+      const hs = R.map(r => Math.min(bandMax, (SW - G * (r.length - 1)) / r.reduce((q, o) => q + o.w / o.h, 0))), area = R.reduce((q, r, i) => q + r.reduce((z, o) => z + o.w / o.h * hs[i] * hs[i], 0), 0);
+      if (!best || area > best.area) best = { R, hs, area }; }
+    const { R, hs } = best; let y = A.y + (A.h - (hs.reduce((a, b) => a + Math.floor(b), 0) + (HB * 2 + IP * 2) * R.length + BG2 * (R.length - 1))) / 2;
+    R.forEach((r, ri) => { const h = Math.floor(hs[ri]), bh = h + HB * 2 + IP * 2; svg += '<rect x="0" y="' + y + '" width="' + WW + '" height="' + bh + '" fill="#16181C"/>';
+      for (let x = 12; x < WW; x += 38) svg += '<rect x="' + x + '" y="' + (y + 6) + '" width="20" height="12" rx="3" fill="' + V + '" opacity=".9"/><rect x="' + x + '" y="' + (y + bh - 18) + '" width="20" height="12" rx="3" fill="' + V + '" opacity=".9"/>';
       const ws = r.map(o => Math.floor(o.w / o.h * h)), tw = ws.reduce((a, b) => a + b, 0) + G * (r.length - 1); let x = Math.round((WW - tw) / 2);
-      r.forEach((o, i) => { put({ o, pw: ws[i], ph: h, px: x, py: Math.round(y + HB + 8) }, 4); x += ws[i] + G; });
-      svg += txt(f, 'VEIN ' + String(ri * 3 + 1).padStart(2, '0') + 'A', WW - 150, y + bh + 22, 18, 'rgba(210,255,0,.6)'); y += bh + 24; });
-    svg += head(top - 10, true) + await footer(HH - bot, bot);
-    svgTop += moreBadge(WW - PAD, top - 4);
+      r.forEach((o, i) => { put({ o, pw: ws[i], ph: h, px: x, py: Math.round(y + HB + IP) }, 4); x += ws[i] + G; }); y += bh + BG2; });
+    svg += head(top, true) + await footer(HH - bot, bot);
+    svgTop += moreBadge(WW - PAD, top + HB + 14);
   } else if (tpl === 5) { // 拍立得：深色相框、微微傾斜散放
-    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 20, w: WW - PAD * 2, h: HH - top - bot - 40 };
+    const top = TOP, bot = BOT, A = { x: 24, y: top + 14, w: WW - 48, h: HH - top - bot - 28 };
     const capR = labeled ? .26 : .12, cells = gridIn(ok.map(o => ({ ...o, w: o.w * 1.08, h: o.h + o.w * (.04 + capR) })), A, 22), ang = [-3.5, 2.5, -2, 3, -2.5, 2];
     for (let k = 0; k < cells.length; k++) { const c = cells[k], o = ok[k], s = .93, fw = Math.round(c.pw * s), fh = Math.round(c.ph * s), m = Math.round(fw * .04), cap = Math.round(fw * capR), pw = fw - m * 2, ph = fh - m - cap;
       try { const fs = Math.max(15, Math.min(30, Math.round(cap / 2.7))), nl = o.it.name ? fit(f, o.it.name, fs, fw - m * 2 - 8) : '', pr = o.it.price || '';
@@ -253,7 +274,7 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     svg += head(top) + '<rect x="0" y="' + (HH - bot) + '" width="' + WW + '" height="3" fill="' + V + '" opacity=".6"/>' + await footer(HH - bot, bot);
     svgTop += moreBadge(WW - PAD - 12, top + 10);
   } else if (tpl === 6 && labeled) { // 清單：每株一列，縮圖＋大字名稱價格
-    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 18, w: WW - PAD * 2, h: HH - top - bot - 36 }, n = ok.length, G = 16, rh = Math.min(story ? 300 : 250, (A.h - G * (n - 1)) / n), y0 = A.y + (A.h - (rh * n + G * (n - 1))) / 2, tw = Math.round(rh * 1.05);
+    const top = TOP, bot = BOT, A = { x: PAD, y: top + 14, w: WW - PAD * 2, h: HH - top - bot - 28 }, n = ok.length, G = 16, rh = Math.min(story ? 320 : 270, (A.h - G * (n - 1)) / n), y0 = A.y + (A.h - (rh * n + G * (n - 1))) / 2, tw = Math.round(rh * 1.05);
     ok.forEach((o, k) => { const y = y0 + k * (rh + G); put(contain(o, { x: A.x, y, w: tw, h: rh }, 0, .5), 10);
       if (k) svg += '<rect x="' + A.x + '" y="' + (y - G / 2 - 1) + '" width="' + A.w + '" height="2" fill="rgba(210,255,0,.25)"/>';
       const tx = A.x + tw + 30, mw = A.w - tw - 30, fs = Math.min(48, Math.max(28, Math.round(rh / 5))), nl = wrap(f, o.it.name, fs, mw, 2), ty = y + rh / 2 - (nl.length * fs * 1.2 + fs * 1.3) / 2 + fs;
@@ -261,12 +282,12 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     svg += head(top) + '<rect x="0" y="' + (top - 4) + '" width="' + WW + '" height="6" fill="' + V + '"/><rect x="0" y="' + (HH - bot) + '" width="' + WW + '" height="6" fill="' + V + '"/>' + await footer(HH - bot, bot);
     svgTop += moreBadge(WW - PAD, HH - bot - 70);
   } else if (tpl === 6) { // 拼貼（植物單株用）：左邊大圖、右邊直排小圖
-    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 16, w: WW - PAD * 2, h: HH - top - bot - 32 };
+    const top = TOP, bot = BOT, A = { x: 28, y: top + 12, w: WW - 56, h: HH - top - bot - 24 };
     if (ok.length <= 1) ok.forEach(o => put(contain(o, A))); else { const lw = Math.round(A.w * .6); put(contain(ok[0], { x: A.x, y: A.y, w: lw, h: A.h }, 1, .5)); gridIn(ok.slice(1, 5), { x: A.x + lw + 14, y: A.y, w: A.w - lw - 14, h: A.h }, 12).forEach(b => put(b)); }
     svg += head(top) + '<rect x="' + PAD + '" y="' + (top) + '" width="' + (WW - PAD * 2) + '" height="2" fill="' + V + '"/><rect x="' + PAD + '" y="' + (HH - bot - 2) + '" width="' + (WW - PAD * 2) + '" height="2" fill="' + V + '"/>' + await footer(HH - bot, bot);
     svgTop += moreBadge(WW - PAD - 12, top + 30);
   } else { // 0 格狀（原本的多圖模板）
-    const top = story ? 300 : 200, bot = story ? 330 : 250, A = { x: 28, y: top, w: WW - 56, h: HH - top - bot };
+    const top = TOP, bot = BOT + 10, A = { x: 20, y: top, w: WW - 40, h: HH - top - bot };
     gridIn(ok, A, 14).forEach(b => put(b));
     svg += '<rect x="0" y="' + (top - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/><rect x="0" y="' + (top + A.h + 8) + '" width="' + WW + '" height="8" fill="' + V + '"/>' + head(top) + await footer(top + A.h + 16, bot - 16);
     svgTop += moreBadge(WW - 40, top + 16);
