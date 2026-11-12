@@ -29,7 +29,8 @@
 - **所有貼文的第一張圖和所有限動都要帶 QR**：
   - 單株：images[0] 就是含 QR 的卡片（大圖＋名稱＋價格＋QR），限動用 item.story。
   - 活動：images[0] 是含 QR 的多圖直條模板，限動用 item.story。
-  - 多株合輯：第一張用 `https://vein-48ec8.web.app/img/c.jpg?ids={各株 compilationKey 用逗號連接}&t=新上架&foot={日期} 新上架`（限動加 `&fmt=story`），後面再接各株的 images[0]。
+  - 多株合輯：第一張用 `https://vein-48ec8.web.app/img/c.jpg?ids={各株 compilationKey 用逗號連接}&t=新上架&foot={日期} 新上架&tpl={今天星期幾 0~6，週日=0}`（限動加 `&fmt=story`），後面再接各株的 images[0]。
+- **版型一週輪替 7 種，不要自己改**：0 格狀、1 主圖、2 雜誌、3 螢光海報、4 底片、5 拍立得、6 清單（單株是拼貼）。feed 給的 image／story 網址已經帶好今天的 `tpl=`，直接用；照片一律整張顯示、不裁切。
 - **每一則貼文（IG 和 Threads）都一定要有網址**：IG 寫不含 https:// 的網址（例：`👉 拍賣會網址：vein-48ec8.web.app/s/e/live/…`），Threads 寫完整 https 網址。
 - 文案只寫各平台看得到的內容，**不要寫「往右滑看更多」「連結在限動／個人檔案」這類引導句**；要提數量就寫「（共 20 株）」。
 - 用 Metricool `createScheduledPost`，blogId 8022799，`publicationDate.timezone` = Asia/Taipei，時間設現在 +5 分鐘（活動）或當天 19:30～20:30（每日分享）。

@@ -55,11 +55,11 @@ function plantItem(p, shop, base) {
   const head = (auc ? '🔨 競標開始｜' : '🌿 新上架｜') + nm;
   const body = [head, lineage ? '🧬 ' + lineage : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
   const T = tags(p).join(' ');
-  const pi = base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg'; const imgs = [pi, ...photos(p).slice(1, 10).map((u, i) => pi + '?raw=1&i=' + (i + 1))];
+  const pi = base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg'; const T7 = 'tpl=' + tplToday(); const imgs = [pi + '?' + T7, ...photos(p).slice(1, 10).map((u, i) => pi + '?raw=1&i=' + (i + 1))];
   const at = ms(p.listedAt) || ms(p.createdAt) || ms(p.updatedAt);
   return {
     id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross: lineage, lineage, mother: par.mom || null, father: par.dad || null, memo, photoCount: photos(p).length, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
-    shop: shop.name || '', shopId: shop.id, link, story: pi + '?fmt=story', compilationKey: shop.id + ':' + p.id, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
+    shop: shop.name || '', shopId: shop.id, link, story: pi + '?fmt=story&' + T7, compilationKey: shop.id + ':' + p.id, plantUrl: SITE + '/#/plant/' + encodeURIComponent(p.id), image: imgs[0] || null, images: imgs, publishedAt: at ? new Date(at).toISOString() : null,
     caption: { instagram: body + '\n\n📜 植物履歷（成長紀錄、親本血統）👉 ' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: body + '\n\n📜 植物履歷 👉 ' + link + '\n\n#觀葉植物' },
   };
 }
@@ -85,7 +85,7 @@ async function eventItems(base, now) {
     for (const d of s.docs) {
       const x = { id: d.id, kind, ...d.data() }; if (x.draft || x.hidden) continue; const ph = evPhase(x, now); if (ph === 'done' || ph === 'later') continue;
       const L = await eventLots(kind, x.id), isM = kind === 'mkt', name = isM ? 'VEIN 市集' : 'VEIN 拍賣會'; const LP = await Promise.all(L.slice(0, 9).map(lotPhoto));
-      const link = base + '/s/e/' + kind + '/' + x.id, img = base + '/img/e/' + kind + '/' + x.id + '.jpg', story = img + '?fmt=story';
+      const link = base + '/s/e/' + kind + '/' + x.id, img0 = base + '/img/e/' + kind + '/' + x.id + '.jpg', img = img0 + '?tpl=' + tplToday(), story = img + '&fmt=story';
       const top = L.slice(0, 5).map((e, i) => (i + 1) + '. ' + (e.name || e.code || '植物') + '　' + (isM ? (e.orig ? money(e.orig) + ' → ' : '') + money(e.deal) : '起拍 ' + money(e.start)));
       const H = { reg: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」認證賣家開放報名', soon: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」即將開始', on: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」' + (isM ? '特賣中' : '現在開拍') }[ph];
       const lines = [H, x.sub || '', '🗓 ' + tw(x.startAt) + (isM ? ' 開賣' : ' 開拍') + (isM && x.endAt ? '～' + tw(x.endAt) : ''), !isM ? '⏱ 每件 ' + (x.dur || 60) + ' 秒・最後 ' + (x.snipe || 10) + ' 秒有人出價再加 ' + (x.snipe || 10) + ' 秒' : '', L.length ? (isM ? '🌿 精選特價：' : '🌿 精選拍品：') + '\n' + top.join('\n') + (L.length > 5 ? '\n（共 ' + L.length + ' 株）' : '') : ''].filter(Boolean).join('\n');
@@ -134,67 +134,178 @@ let FONT = null; function font() { if (FONT !== null) return FONT; try { const o
 function fit(f, t, size, maxW) { t = String(t || ''); if (f.getAdvanceWidth(t, size) <= maxW) return t; while (t.length > 1 && f.getAdvanceWidth(t + '…', size) > maxW) t = t.slice(0, -1); return t + '…'; }
 function txt(f, t, x, y, size, fill, maxW) { if (!f || !t) return ''; const s = maxW ? fit(f, t, size, maxW) : String(t); const p = f.getPath(s, x, y, size); return '<path d="' + p.toPathData(1) + '" fill="' + fill + '"/>'; }
 async function qrSvg(url, px) { try { const QR = require('qrcode'); const svg = await QR.toString(url, { type: 'svg', margin: 1, color: { dark: '#07080A', light: '#FFFFFF' } }); return sharp()(Buffer.from(svg)).resize(px, px).png().toBuffer(); } catch (e) { return null; } }
-async function strips({ title, items, more, foot, url, story, sub }) {
-  const f = font(), WW = 1080, HH = story ? 1920 : 1350, top = story ? 300 : 200, bot = story ? 330 : 250, n = Math.max(1, Math.min(6, items.length));
-  const sh = HH - top - bot, V = '#D2FF00', G = 14, PAD = 28;
-  // 照片整張顯示（不裁切）：先讀每張照片的長寬，再挑「每張照片最大」的排法（幾欄幾列）
-  const bufs = await Promise.all(items.slice(0, n).map(async it => { try { const b = await sharp()(await getImg(it.url)).rotate().toBuffer(); const m = await sharp()(b).metadata(); return { b, w: m.width || 3, h: m.height || 4 }; } catch (e) { return null; } }));
-  const ok = bufs.map((b, i) => b ? { ...b, it: items[i] } : null).filter(Boolean); const m2 = Math.max(1, ok.length);
-  let best = null; for (let cols = 1; cols <= m2; cols++) { const rows = Math.ceil(m2 / cols), cw = (WW - PAD * 2 - G * (cols - 1)) / cols, ch = (sh - G * (rows - 1)) / rows; let area = 0; ok.forEach(o => { const sc = Math.min(cw / o.w, ch / o.h); area += Math.min(o.w * sc * o.h * sc, cw * ch); }); const sm = Math.min(...ok.map(o => Math.min(cw / o.w, ch / o.h) * o.h)); const score = area * (0.6 + 0.4 * sm / ch); if (!best || score > best.score) best = { cols, rows, cw, ch, score }; }
-  const { cols, rows, cw, ch } = best || { cols: 1, rows: 1, cw: WW - PAD * 2, ch: sh };
-  const boxes = [], tiles = [];
-  // 每一列照片緊貼排好、整列置中（照片比格子窄時不留大空隙）
+// ---- 轉發圖模板（黑＋螢光綠，照片一律整張顯示不裁切）----
+// 7 種版型，依台灣時間星期幾輪替（週日 0 … 週六 6），一週不重複；網址可加 ?tpl=0~6 指定
+const TPL_NAMES = ['格狀', '主圖', '雜誌', '螢光海報', '底片', '拍立得', '清單'];
+const tplToday = () => new Date(Date.now() + 8 * 3600e3).getUTCDay();
+const tplOf = q => { const n = parseInt(q && q.tpl, 10); return n >= 0 && n <= 6 ? n : tplToday(); };
+const V = '#D2FF00', BG = '#07080A';
+async function loadPhotos(items, n) {
+  const bufs = await Promise.all(items.slice(0, n).map(async it => { try { const b = await sharp()(await getImg(it.url)).rotate().toBuffer(); const m = await sharp()(b).metadata(); return { b, w: m.width || 3, h: m.height || 4, it }; } catch (e) { return null; } }));
+  return bufs.filter(Boolean);
+}
+async function tileBuf(o, pw, ph, rr) {
+  const mask = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + pw + '" height="' + ph + '"><rect width="' + pw + '" height="' + ph + '" rx="' + rr + '"/></svg>');
+  return sharp()(o.b).resize(pw, ph, { fit: 'fill' }).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer();
+}
+// 照片等比縮進格子裡（整張可見）
+function contain(o, c, ax = .5, ay = .5) { const sc = Math.min(c.w / o.w, c.h / o.h), pw = Math.max(1, Math.floor(o.w * sc)), ph = Math.max(1, Math.floor(o.h * sc)); return { o, pw, ph, px: Math.round(c.x + (c.w - pw) * ax), py: Math.round(c.y + (c.h - ph) * ay) }; }
+// 在一塊區域內挑最好的幾欄幾列，每列緊貼置中
+function gridIn(ok, A, G) {
+  const m = Math.max(1, ok.length); let best = null;
+  for (let cols = 1; cols <= m; cols++) { const rows = Math.ceil(m / cols), cw = (A.w - G * (cols - 1)) / cols, ch = (A.h - G * (rows - 1)) / rows; if (cw < 60 || ch < 60) continue; let area = 0; ok.forEach(o => { const sc = Math.min(cw / o.w, ch / o.h); area += o.w * sc * o.h * sc; }); const sm = Math.min(...ok.map(o => Math.min(cw / o.w, ch / o.h) * o.h)); const score = area * (0.6 + 0.4 * sm / ch); if (!best || score > best.score) best = { cols, rows, cw, ch, score }; }
+  const { cols, rows, cw, ch } = best || { cols: 1, rows: 1, cw: A.w, ch: A.h };
   const SZ = ok.map(o => { const sc = Math.min(cw / o.w, ch / o.h); return { pw: Math.max(1, Math.floor(o.w * sc)), ph: Math.max(1, Math.floor(o.h * sc)) }; });
   const rowH = r => Math.max(...SZ.slice(r * cols, r * cols + cols).map(z => z.ph)), totH = [...Array(rows)].reduce((n, _, r) => n + rowH(r), 0) + G * (rows - 1);
-  for (let k = 0; k < ok.length; k++) { const o = ok[k], r = Math.floor(k / cols), RS = SZ.slice(r * cols, r * cols + cols), rowW = RS.reduce((n, z) => n + z.pw, 0) + G * (RS.length - 1);
-    let yr = top + (sh - totH) / 2; for (let q = 0; q < r; q++) yr += rowH(q) + G;
-    const { pw, ph } = SZ[k], px = Math.round((WW - rowW) / 2 + RS.slice(0, k % cols).reduce((n, z) => n + z.pw + G, 0)), py = Math.round(yr + (rowH(r) - ph) / 2);
-    try { const rr = Math.round(Math.min(pw, ph) * 0.04); const mask = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + pw + '" height="' + ph + '"><rect width="' + pw + '" height="' + ph + '" rx="' + rr + '"/></svg>');
-      const b = await sharp()(o.b).resize(pw, ph, { fit: 'fill' }).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer(); tiles.push({ input: b, left: px, top: py }); boxes.push({ x: px, y: py, w: pw, h: ph, it: o.it }); } catch (e) {} }
-  let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".88"/></linearGradient></defs>';
-  svg += '<rect x="0" y="' + (top - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/><rect x="0" y="' + (top + sh + 8) + '" width="' + WW + '" height="8" fill="' + V + '"/>';
-  // 每張照片：螢光細框＋底部名稱價格（壓在照片下緣漸層上）
-  boxes.forEach(bx => { svg += '<rect x="' + (bx.x - 1.5) + '" y="' + (bx.y - 1.5) + '" width="' + (bx.w + 3) + '" height="' + (bx.h + 3) + '" rx="' + Math.round(Math.min(bx.w, bx.h) * 0.04 + 1.5) + '" fill="none" stroke="rgba(210,255,0,.55)" stroke-width="3"/>';
-    if (bx.it.name || bx.it.price) { const fs = Math.max(20, Math.min(32, Math.round(bx.w / 11))), gh = Math.min(bx.h * .45, fs * 4.2); svg += '<rect x="' + bx.x + '" y="' + (bx.y + bx.h - gh) + '" width="' + bx.w + '" height="' + gh + '" fill="url(#g)"/>';
-      const mw = bx.w - 28, y0 = bx.y + bx.h - 16; let a = String(bx.it.name || ''), b = ''; if (f && f.getAdvanceWidth(a, fs) > mw) { let k = a.length; while (k > 1 && f.getAdvanceWidth(a.slice(0, k), fs) > mw) k--; const sp = a.lastIndexOf(' ', k); const c = sp > 2 ? sp : k; b = a.slice(c).trim(); a = a.slice(0, c).trim(); }
-      svg += (b ? txt(f, a, bx.x + 14, y0 - fs * 2.5, fs, '#fff', mw) + txt(f, b, bx.x + 14, y0 - fs * 1.25, fs, '#fff', mw) : txt(f, a, bx.x + 14, y0 - fs * 1.25, fs, '#fff', mw)) + txt(f, bx.it.price, bx.x + 14, y0, fs, V, mw); } });
-  // 左上 VEIN 標誌
-  svg += '<rect x="56" y="' + (story ? 120 : 52) + '" width="34" height="34" rx="9" fill="#1F6B3A"/><circle cx="73" cy="' + (story ? 137 : 69) + '" r="7" fill="' + V + '"/>' + txt(f, 'VEIN', 102, (story ? 148 : 80), 30, '#fff') + (sub ? txt(f, '・' + sub, 182, (story ? 148 : 80), 30, 'rgba(255,255,255,.65)', WW - 240) : '');
-  svg += txt(f, title, 56, top - (story ? 50 : 40), story ? 92 : 78, '#fff', WW - 112);
-  if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 46) : 80; svg += '<rect x="' + (WW - mw2 - 52) + '" y="' + (top + 16) + '" width="' + (mw2 + 32) + '" height="64" rx="32" fill="rgba(0,0,0,.6)"/>' + txt(f, mt, WW - mw2 - 36, top + 72, 46, '#fff'); }
-  const qr = story ? 230 : 180, fy = top + sh + 8 + (bot - 8) / 2;
-  const fs2 = f ? Math.min(story ? 92 : 80, Math.floor(80 * (WW - 112 - qr - 30) / Math.max(1, f.getAdvanceWidth(foot, 80)))) : 80; svg += txt(f, foot, 56, fy + fs2 * 0.36, fs2, V);
-  if (story) svg += txt(f, url.replace(/^https:\/\//, '').replace(/\?.*$/, ''), 56, HH - 60, 26, 'rgba(255,255,255,.55)', WW - 112 - qr - 30);
-  svg += '</svg>';
-  const comp = [...tiles.filter(Boolean), { input: Buffer.from(svg), left: 0, top: 0 }]; const q = await qrSvg(url, qr - 24);
-  if (q) comp.push({ input: await sharp()({ create: { width: qr, height: qr, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer(), left: WW - 56 - qr, top: Math.round(fy - qr / 2) });
-  return sharp()({ create: { width: WW, height: HH, channels: 3, background: '#07080A' } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+  const out = []; for (let k = 0; k < ok.length; k++) { const r = Math.floor(k / cols), RS = SZ.slice(r * cols, r * cols + cols), rowW = RS.reduce((n, z) => n + z.pw, 0) + G * (RS.length - 1);
+    let yr = A.y + (A.h - totH) / 2; for (let q = 0; q < r; q++) yr += rowH(q) + G;
+    const { pw, ph } = SZ[k]; out.push({ o: ok[k], pw, ph, px: Math.round(A.x + (A.w - rowW) / 2 + RS.slice(0, k % cols).reduce((n, z) => n + z.pw + G, 0)), py: Math.round(yr + (rowH(r) - ph) / 2) }); }
+  return out;
 }
+// 文字換行（英文以空白斷、中文逐字）
+function wrap(f, t, size, maxW, maxLines) {
+  t = String(t || '').trim(); if (!f || !t) return t ? [t] : []; const lines = []; let cur = '';
+  const toks = t.match(/[A-Za-z0-9'’\-.$×,():/]+\s*|\s+|./g) || [t];
+  for (const tk of toks) { if (f.getAdvanceWidth((cur + tk).trimEnd(), size) <= maxW) { cur += tk; continue; } if (cur.trim()) lines.push(cur.trim()); cur = tk.trimStart(); while (f.getAdvanceWidth(cur, size) > maxW && cur.length > 1) { let k = cur.length; while (k > 1 && f.getAdvanceWidth(cur.slice(0, k), size) > maxW) k--; lines.push(cur.slice(0, k)); cur = cur.slice(k); } }
+  if (cur.trim()) lines.push(cur.trim());
+  if (maxLines && lines.length > maxLines) { const L = lines.slice(0, maxLines); L[maxLines - 1] = fit(f, L[maxLines - 1] + ' ' + lines.slice(maxLines).join(' '), size, maxW); return L; }
+  return lines;
+}
+// 照片底部名稱＋價格（漸層上）
+function onPhotoLabel(f, bx, small) {
+  const it = bx.o.it; if (!it.name && !it.price) return '';
+  const fs = Math.max(18, Math.min(small ? 26 : 32, Math.round(bx.pw / 11))), mw = bx.pw - 28, nl = wrap(f, it.name, fs, mw, 2), gh = Math.min(bx.ph * .5, fs * (1.6 + 1.25 * (nl.length + 1)));
+  let s = '<rect x="' + bx.px + '" y="' + (bx.py + bx.ph - gh) + '" width="' + bx.pw + '" height="' + gh + '" fill="url(#g)"/>';
+  const y0 = bx.py + bx.ph - 16; nl.forEach((l, i) => { s += txt(f, l, bx.px + 14, y0 - fs * 1.25 * (nl.length - i), fs, '#fff', mw); });
+  return s + txt(f, it.price, bx.px + 14, y0, fs, V, mw);
+}
+const DEFS = '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".88"/></linearGradient></defs>';
+function logo(f, x, y, sub, dark, maxW) { return '<rect x="' + x + '" y="' + (y - 28) + '" width="34" height="34" rx="9" fill="' + (dark ? BG : '#1F6B3A') + '"/><circle cx="' + (x + 17) + '" cy="' + (y - 11) + '" r="7" fill="' + V + '"/>' + txt(f, 'VEIN', x + 46, y, 30, dark ? BG : '#fff') + (sub ? txt(f, '・' + sub, x + 126, y, 30, dark ? 'rgba(7,8,10,.65)' : 'rgba(255,255,255,.65)', (maxW || 1000) - 126) : ''); }
+function autoFs(f, t, maxFs, maxW) { return f ? Math.max(30, Math.min(maxFs, Math.floor(maxFs * maxW / Math.max(1, f.getAdvanceWidth(t, maxFs))))) : maxFs; }
+async function qrTile(url, size, frame) { const q = await qrSvg(url, size - 24); if (!q) return null; return sharp()({ create: { width: size, height: size, channels: 4, background: '#FFFFFF' } }).composite([{ input: q, left: 12, top: 12 }]).png().toBuffer().then(b => frame ? sharp()(b).extend({ top: 6, bottom: 6, left: 6, right: 6, background: frame }).png().toBuffer() : b); }
+const shortUrl = u => u.replace(/^https:\/\//, '').replace(/\?.*$/, '');
+
+async function strips({ title, items, more, foot, url, story, sub, tpl }) {
+  tpl = tpl == null ? tplToday() : tpl;
+  const f = font(), WW = 1080, HH = story ? 1920 : 1350, PAD = 40;
+  const ok = await loadPhotos(items, tpl === 6 && items.some(i => i.name) ? 5 : 6);
+  const labeled = ok.some(o => o.it.name || o.it.price);
+  const comp = [], P = []; let bg = BG, svg = '', svgTop = '';
+  const put = (bx, rr) => P.push({ bx, rr: rr == null ? Math.round(Math.min(bx.pw, bx.ph) * .04) : rr });
+  const moreBadge = (x, y) => { if (!(more > 0)) return ''; const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; return '<rect x="' + (x - mw2 - 32) + '" y="' + y + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, x - mw2 - 16, y + 45, 42, '#fff'); };
+  // 標準頁首、頁尾（多數版型共用）
+  const head = (top, center) => { const ty = top - (story ? 56 : 44), ts = story ? 92 : 80; const tl = fit(f, title, ts, WW - PAD * 2); const tw2 = f ? f.getAdvanceWidth(tl, ts) : 0;
+    return logo(f, center ? Math.round((WW - 126 - (sub && f ? f.getAdvanceWidth('・' + sub, 30) : 0)) / 2) : PAD + 16, story ? 150 : 82, sub, false, WW - PAD * 2) + txt(f, tl, center ? Math.round((WW - tw2) / 2) : PAD + 16, ty, ts, '#fff'); };
+  const footer = async (y0, h, opt = {}) => { const qr = Math.min(story ? 230 : 180, h - 30), fy = y0 + h / 2, mw = WW - PAD * 2 - 32 - qr - 30, fs = autoFs(f, foot, story ? 92 : 80, mw);
+    let s = txt(f, foot, PAD + 16, fy + fs * .36 - (story ? 18 : 0), fs, opt.color || V); if (story) s += txt(f, shortUrl(url), PAD + 16, fy + fs * .36 + 46, 26, opt.dim || 'rgba(255,255,255,.55)', mw);
+    const q = await qrTile(url, qr, opt.qrFrame); if (q) comp.push({ input: q, left: WW - PAD - 16 - qr - (opt.qrFrame ? 6 : 0), top: Math.round(fy - qr / 2) }); return s; };
+
+  if (tpl === 1) { // 主圖：第一張大圖，其餘小圖排一列
+    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 10, w: WW - PAD * 2, h: HH - top - bot - 20 };
+    if (ok.length <= 1) { ok.forEach(o => put(contain(o, A))); }
+    else { const hh = Math.round(A.h * (ok.length > 3 ? .64 : .7)); put(contain(ok[0], { x: A.x, y: A.y, w: A.w, h: hh })); gridIn(ok.slice(1), { x: A.x, y: A.y + hh + 16, w: A.w, h: A.h - hh - 16 }, 12).forEach(b => put(b)); }
+    svg += head(top) + '<rect x="' + PAD + '" y="' + (top - 6) + '" width="160" height="8" rx="4" fill="' + V + '"/>' + await footer(HH - bot, bot);
+    svgTop += moreBadge(WW - PAD - 12, top + 26);
+  } else if (tpl === 2) { // 雜誌：左側大字標題欄，右側照片
+    const LW = 400, A = { x: LW + 20, y: PAD, w: WW - LW - 20 - PAD, h: HH - PAD * 2 };
+    gridIn(ok, A, 12).forEach(b => put(b));
+    svg += '<rect x="0" y="0" width="' + (LW - 10) + '" height="' + HH + '" fill="#0F1114"/><rect x="' + (LW - 10) + '" y="0" width="6" height="' + HH + '" fill="' + V + '"/>';
+    svg += logo(f, PAD, PAD + 50, '', false);
+    const ts = story ? 74 : 64, tl = wrap(f, title, ts, LW - PAD * 2 - 10, story ? 6 : 5); let y = PAD + 150 + ts; tl.forEach(l => { svg += txt(f, l, PAD, y, ts, '#fff'); y += ts * 1.18; });
+    if (sub) { y += 10; wrap(f, sub, 28, LW - PAD * 2 - 10, 3).forEach(l => { svg += txt(f, l, PAD, y, 28, 'rgba(255,255,255,.6)'); y += 38; }); }
+    const qr = 200, qy = HH - PAD - qr - (story ? 50 : 0); const fl = wrap(f, foot, 56, LW - PAD * 2 - 10, 3); let fy = qy - 40 - (fl.length - 1) * 66;
+    svg += '<rect x="' + PAD + '" y="' + (fy - 86) + '" width="70" height="6" fill="' + V + '"/>'; fl.forEach(l => { svg += txt(f, l, PAD, fy, 56, V); fy += 66; });
+    if (story) svg += txt(f, shortUrl(url), PAD, HH - PAD - 10, 20, 'rgba(255,255,255,.5)', LW - PAD * 2);
+    const q = await qrTile(url, qr); if (q) comp.push({ input: q, left: PAD, top: qy });
+    svgTop += moreBadge(WW - PAD - 12, PAD + 16);
+  } else if (tpl === 3) { // 螢光海報：螢光綠底、黑字、黑框照片
+    bg = V; const top = story ? 330 : 220, bot = story ? 330 : 230, A = { x: PAD + 6, y: top + 6, w: WW - PAD * 2 - 12, h: HH - top - bot - 12 };
+    gridIn(ok, A, 18).forEach(b => put(b, 6));
+    const ts = story ? 104 : 92, tl = fit(f, title, ts, WW - PAD * 2 - 20);
+    svg += logo(f, PAD + 8, story ? 150 : 76, sub, true, WW - PAD * 2) + txt(f, tl, PAD + 8, top - (story ? 52 : 38), ts, BG);
+    P.forEach(({ bx }) => { svg += '<rect x="' + (bx.px - 6) + '" y="' + (bx.py - 6) + '" width="' + (bx.pw + 12) + '" height="' + (bx.ph + 12) + '" rx="10" fill="' + BG + '"/>'; });
+    svg += '<rect x="0" y="' + (HH - bot + 20) + '" width="' + WW + '" height="' + (bot - 20) + '" fill="' + BG + '"/>' + await footer(HH - bot + 20, bot - 20);
+    svgTop += moreBadge(WW - PAD - 12, top + 20);
+  } else if (tpl === 4) { // 底片：照片排在帶齒孔的底片條上
+    const top = story ? 320 : 210, bot = story ? 330 : 240, A = { x: 0, y: top, w: WW, h: HH - top - bot };
+    const n = ok.length, R = n <= 3 ? [ok] : [ok.slice(0, Math.ceil(n / 2)), ok.slice(Math.ceil(n / 2))], HB = 34, G = 14;
+    const bandMax = (A.h - 24 * (R.length - 1)) / R.length - HB * 2 - 16;
+    const hs = R.map(r => Math.min(bandMax, (WW - PAD * 2 - G * (r.length - 1)) / r.reduce((s, o) => s + o.w / o.h, 0)));
+    let y = A.y + (A.h - (hs.reduce((a, b) => a + b, 0) + (HB * 2 + 16) * R.length + 24 * (R.length - 1))) / 2;
+    R.forEach((r, ri) => { const h = Math.floor(hs[ri]), bh = h + HB * 2 + 16; svg += '<rect x="0" y="' + y + '" width="' + WW + '" height="' + bh + '" fill="#16181C"/>';
+      for (let x = 14; x < WW; x += 44) svg += '<rect x="' + x + '" y="' + (y + 9) + '" width="22" height="16" rx="4" fill="' + V + '" opacity=".9"/><rect x="' + x + '" y="' + (y + bh - 25) + '" width="22" height="16" rx="4" fill="' + V + '" opacity=".9"/>';
+      const ws = r.map(o => Math.floor(o.w / o.h * h)), tw = ws.reduce((a, b) => a + b, 0) + G * (r.length - 1); let x = Math.round((WW - tw) / 2);
+      r.forEach((o, i) => { put({ o, pw: ws[i], ph: h, px: x, py: Math.round(y + HB + 8) }, 4); x += ws[i] + G; });
+      svg += txt(f, 'VEIN ' + String(ri * 3 + 1).padStart(2, '0') + 'A', WW - 150, y + bh + 22, 18, 'rgba(210,255,0,.6)'); y += bh + 24; });
+    svg += head(top - 10, true) + await footer(HH - bot, bot);
+    svgTop += moreBadge(WW - PAD, top - 4);
+  } else if (tpl === 5) { // 拍立得：深色相框、微微傾斜散放
+    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 20, w: WW - PAD * 2, h: HH - top - bot - 40 };
+    const capR = labeled ? .26 : .12, cells = gridIn(ok.map(o => ({ ...o, w: o.w * 1.08, h: o.h + o.w * (.04 + capR) })), A, 22), ang = [-3.5, 2.5, -2, 3, -2.5, 2];
+    for (let k = 0; k < cells.length; k++) { const c = cells[k], o = ok[k], s = .93, fw = Math.round(c.pw * s), fh = Math.round(c.ph * s), m = Math.round(fw * .04), cap = Math.round(fw * capR), pw = fw - m * 2, ph = fh - m - cap;
+      try { const fs = Math.max(15, Math.min(30, Math.round(cap / 2.7))), nl = o.it.name ? fit(f, o.it.name, fs, fw - m * 2 - 8) : '', pr = o.it.price || '';
+        let fr = '<svg xmlns="http://www.w3.org/2000/svg" width="' + fw + '" height="' + fh + '"><rect width="' + fw + '" height="' + fh + '" rx="6" fill="#1B1D21" stroke="' + V + '" stroke-opacity=".7" stroke-width="3"/>';
+        if (nl || pr) fr += txt(f, nl, m + 4, ph + m + cap / 2 - fs * .05, fs, '#fff') + txt(f, pr, m + 4, ph + m + cap / 2 + fs * 1.2, fs, V); else fr += '<circle cx="' + (fw / 2) + '" cy="' + (ph + m + cap / 2) + '" r="' + Math.max(5, cap * .12) + '" fill="' + V + '"/>';
+        fr += '</svg>'; const ph2 = await sharp()(o.b).resize(pw, ph, { fit: 'inside' }).toBuffer({ resolveWithObject: true });
+        const card = await sharp()(Buffer.from(fr)).composite([{ input: ph2.data, left: m + Math.round((pw - ph2.info.width) / 2), top: m + Math.round((ph - ph2.info.height) / 2) }]).png().toBuffer();
+        const rot = await sharp()(card).rotate(ang[k % 6], { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer({ resolveWithObject: true });
+        comp.push({ input: rot.data, left: Math.max(0, Math.round(c.px + c.pw / 2 - rot.info.width / 2)), top: Math.max(0, Math.round(c.py + c.ph / 2 - rot.info.height / 2)) }); } catch (e) {} }
+    svg += head(top) + '<rect x="0" y="' + (HH - bot) + '" width="' + WW + '" height="3" fill="' + V + '" opacity=".6"/>' + await footer(HH - bot, bot);
+    svgTop += moreBadge(WW - PAD - 12, top + 10);
+  } else if (tpl === 6 && labeled) { // 清單：每株一列，縮圖＋大字名稱價格
+    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 18, w: WW - PAD * 2, h: HH - top - bot - 36 }, n = ok.length, G = 16, rh = Math.min(story ? 300 : 250, (A.h - G * (n - 1)) / n), y0 = A.y + (A.h - (rh * n + G * (n - 1))) / 2, tw = Math.round(rh * 1.05);
+    ok.forEach((o, k) => { const y = y0 + k * (rh + G); put(contain(o, { x: A.x, y, w: tw, h: rh }, 0, .5), 10);
+      if (k) svg += '<rect x="' + A.x + '" y="' + (y - G / 2 - 1) + '" width="' + A.w + '" height="2" fill="rgba(210,255,0,.25)"/>';
+      const tx = A.x + tw + 30, mw = A.w - tw - 30, fs = Math.min(48, Math.max(28, Math.round(rh / 5))), nl = wrap(f, o.it.name, fs, mw, 2), ty = y + rh / 2 - (nl.length * fs * 1.2 + fs * 1.3) / 2 + fs;
+      svg += txt(f, String(k + 1).padStart(2, '0'), tx, ty - fs * 1.05, 22, V); nl.forEach((l, i) => { svg += txt(f, l, tx, ty + i * fs * 1.2, fs, '#fff'); }); svg += txt(f, o.it.price, tx, ty + nl.length * fs * 1.2 + fs * .15, Math.round(fs * 1.05), V, mw); });
+    svg += head(top) + '<rect x="0" y="' + (top - 4) + '" width="' + WW + '" height="6" fill="' + V + '"/><rect x="0" y="' + (HH - bot) + '" width="' + WW + '" height="6" fill="' + V + '"/>' + await footer(HH - bot, bot);
+    svgTop += moreBadge(WW - PAD, HH - bot - 70);
+  } else if (tpl === 6) { // 拼貼（植物單株用）：左邊大圖、右邊直排小圖
+    const top = story ? 300 : 200, bot = story ? 330 : 240, A = { x: PAD, y: top + 16, w: WW - PAD * 2, h: HH - top - bot - 32 };
+    if (ok.length <= 1) ok.forEach(o => put(contain(o, A))); else { const lw = Math.round(A.w * .6); put(contain(ok[0], { x: A.x, y: A.y, w: lw, h: A.h }, 1, .5)); gridIn(ok.slice(1, 5), { x: A.x + lw + 14, y: A.y, w: A.w - lw - 14, h: A.h }, 12).forEach(b => put(b)); }
+    svg += head(top) + '<rect x="' + PAD + '" y="' + (top) + '" width="' + (WW - PAD * 2) + '" height="2" fill="' + V + '"/><rect x="' + PAD + '" y="' + (HH - bot - 2) + '" width="' + (WW - PAD * 2) + '" height="2" fill="' + V + '"/>' + await footer(HH - bot, bot);
+    svgTop += moreBadge(WW - PAD - 12, top + 30);
+  } else { // 0 格狀（原本的多圖模板）
+    const top = story ? 300 : 200, bot = story ? 330 : 250, A = { x: 28, y: top, w: WW - 56, h: HH - top - bot };
+    gridIn(ok, A, 14).forEach(b => put(b));
+    svg += '<rect x="0" y="' + (top - 8) + '" width="' + WW + '" height="8" fill="' + V + '"/><rect x="0" y="' + (top + A.h + 8) + '" width="' + WW + '" height="8" fill="' + V + '"/>' + head(top) + await footer(top + A.h + 16, bot - 16);
+    svgTop += moreBadge(WW - 40, top + 16);
+  }
+  // 照片（圓角）＋螢光細框＋名稱價格
+  const tiles = [];
+  for (const { bx, rr } of P) { try { tiles.push({ input: await tileBuf(bx.o, bx.pw, bx.ph, rr), left: bx.px, top: bx.py }); } catch (e) {}
+    if (tpl !== 3) svgTop += '<rect x="' + (bx.px - 1.5) + '" y="' + (bx.py - 1.5) + '" width="' + (bx.pw + 3) + '" height="' + (bx.ph + 3) + '" rx="' + (rr + 1.5) + '" fill="none" stroke="rgba(210,255,0,.55)" stroke-width="3"/>';
+    if (!(tpl === 6 && labeled)) svgTop += onPhotoLabel(f, bx, tpl === 4); }
+  const W0 = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '">' + DEFS;
+  const layers = [{ input: Buffer.from(W0 + svg + '</svg>'), left: 0, top: 0 }, ...tiles, ...comp, { input: Buffer.from(W0 + svgTop + '</svg>'), left: 0, top: 0 }];
+  return sharp()({ create: { width: WW, height: HH, channels: 3, background: bg } }).composite(layers).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+}
+
 const hhmm = t => { const d = new Date(t + 8 * 3600e3); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
 
 // ---- 單株卡片：大圖＋名稱、類型編號、價格、QR（貼文 4:5／限動 9:16）----
-async function plantCard(p, shop, story, i) {
+async function plantCard(p, shop, story, i, tpl) {
   // 站長預設模板：和活動同一個多圖直條模板（標題＝植物名、各張照片直條、底部價格＋QR）
   const L = photos(p); if (!L.length) return null; const auc = p.mode === 'auction', end = ms(p.endsAt) || +p.endsAtMs || 0;
   const sub = [KIND[p.kind || 'mother'] || '', p.code || ''].filter(Boolean).join('・');
   const items = L.slice(0, 6).map(u => ({ url: u, name: '', price: '' })); const sub2 = [sub, auc && end ? hhmm(end) + ' 結標' : ''].filter(Boolean).join('・');
   const price = auc ? '起標 ' + money(p.startPrice || p.price) : p.mkt ? '特價 ' + money(p.price) : (+p.price > 0 ? money(p.price) : 'VEIN 植物履歷');
-  return strips({ title: pName(p).replace(/^Anthurium\s+/i, ''), items, more: Math.max(0, L.length - items.length), foot: price, url: SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), story, sub: sub2 });
+  return strips({ title: pName(p).replace(/^Anthurium\s+/i, ''), items, more: Math.max(0, L.length - items.length), foot: price, url: SITE + '/s/p/' + encodeURIComponent(p.id) + '?s=' + encodeURIComponent(shop), story, sub: sub2, tpl });
 }
 // 多株合輯（新上架合輯用）：/img/c.jpg?ids=shop:pid,shop:pid&t=標題&foot=底部文字
-async function multiCard(ids, title, foot, story) {
+async function multiCard(ids, title, foot, story, tpl) {
   const P = []; for (const id of ids.slice(0, 12)) { const [sid, pid] = id.split(':'); try { const d = await db().doc('shops/' + sid + '/plants/' + pid).get(); const p = d.exists ? { id: pid, shop: sid, ...d.data() } : null; if (pub(p) && photos(p).length) P.push(p); } catch (e) {} }
   if (!P.length) return null; const shop = P[0].shop;
   const items = P.slice(0, 6).map(p => ({ url: photos(p)[0], name: pName(p).replace(/^Anthurium\s+/i, ''), price: p.mode === 'auction' ? '起標 ' + money(p.startPrice || p.price) : money(p.price) }));
   const url = P.length === 1 ? SITE + '/s/p/' + encodeURIComponent(P[0].id) + '?s=' + encodeURIComponent(shop) : SITE + '/s/shop/' + encodeURIComponent(shop);
-  return strips({ title: title || '新上架', items, more: Math.max(0, P.length - items.length), foot: foot || 'VEIN 植物履歷', url, story });
+  return strips({ title: title || '新上架', items, more: Math.max(0, P.length - items.length), foot: foot || 'VEIN 植物履歷', url, story, tpl });
 }
-async function eventCard(kind, id, story, shop) {
+async function eventCard(kind, id, story, shop, tpl) {
   const d = await db().doc((kind === 'mkt' ? 'mkts/' : 'lives/') + id).get(); const x = d.exists ? d.data() : {}; const isM = kind === 'mkt';
   let L = await eventLots(kind, id); if (shop) L = L.filter(e => e.shop === shop); const U = await Promise.all(L.slice(0, 6).map(lotPhoto));
   const items = L.slice(0, 6).map((e, i) => ({ url: U[i], name: shortSp(e.name || e.code || '').replace(/^Anthurium\s+/i, ''), price: isM ? money(e.deal) : '起拍 ' + money(e.start) })).filter(i => i.url);
   if (!items.length) return null;
-  return strips({ title: x.title || (isM ? 'VEIN 市集' : 'VEIN 拍賣會'), items, more: Math.max(0, L.length - items.length), foot: (x.startAt ? hhmm(x.startAt) : '') + (isM ? ' 開賣' : ' 開拍'), url: SITE + '/s/e/' + kind + '/' + id, story });
+  return strips({ title: x.title || (isM ? 'VEIN 市集' : 'VEIN 拍賣會'), items, more: Math.max(0, L.length - items.length), foot: (x.startAt ? hhmm(x.startAt) : '') + (isM ? ' 開賣' : ' 開拍'), url: SITE + '/s/e/' + kind + '/' + id, story, tpl });
 }
 async function collage(urls) {
   const U = urls.slice(0, 6), n = U.length; if (!n) throw new Error('no photos');
@@ -224,18 +335,18 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
     if ((m = path.match(/^\/img\/p\/([^/]+)\/([^/]+?)(?:\.jpg)?$/))) {
       const d = await db().doc('shops/' + decodeURIComponent(m[1]) + '/plants/' + decodeURIComponent(m[2])).get(); const p = d.exists ? d.data() : null; if (!pub(p)) { res.status(404).send('not found'); return; }
       const L = photos(p), i = Math.max(0, Math.min(L.length - 1, +req.query.i || 0)); let out = null;
-      if (req.query.raw !== '1' && font()) { try { out = await plantCard({ id: decodeURIComponent(m[2]), ...p }, decodeURIComponent(m[1]), req.query.fmt === 'story', i); } catch (e) { logger.warn('plantCard', String(e)); } }
+      if (req.query.raw !== '1' && font()) { try { out = await plantCard({ id: decodeURIComponent(m[2]), ...p }, decodeURIComponent(m[1]), req.query.fmt === 'story', i, tplOf(req.query)); } catch (e) { logger.warn('plantCard', String(e)); } }
       if (!out) out = await igJpg(await getImg(L[i]));
       res.set('Cache-Control', 'public, max-age=86400, s-maxage=86400').type('image/jpeg').send(out); return;
     }
     if ((m = path.match(/^\/img\/e\/(mkt|live)\/([^/]+?)(?:\.jpg)?$/))) {
       const L = await eventLots(m[1], decodeURIComponent(m[2])); const U = (await Promise.all(L.slice(0, 9).map(lotPhoto))).filter(Boolean);
       let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))]));
-      else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story', req.query.shop ? String(req.query.shop) : null); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
+      else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story', req.query.shop ? String(req.query.shop) : null, tplOf(req.query)); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
       res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
     }
     if (path === '/img/c.jpg' || path === '/img/c') {
-      const ids = String(req.query.ids || '').split(',').filter(Boolean); const out = (font() && ids.length) ? await multiCard(ids, String(req.query.t || ''), String(req.query.foot || ''), req.query.fmt === 'story') : null;
+      const ids = String(req.query.ids || '').split(',').filter(Boolean); const out = (font() && ids.length) ? await multiCard(ids, String(req.query.t || ''), String(req.query.foot || ''), req.query.fmt === 'story', tplOf(req.query)) : null;
       if (!out) { res.status(404).send('not found'); return; } res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
     }
     if ((m = path.match(/^\/s\/shop\/([^/]+)$/))) {
