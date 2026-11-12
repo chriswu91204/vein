@@ -143,8 +143,12 @@ async function strips({ title, items, more, foot, url, story, sub }) {
   let best = null; for (let cols = 1; cols <= m2; cols++) { const rows = Math.ceil(m2 / cols), cw = (WW - PAD * 2 - G * (cols - 1)) / cols, ch = (sh - G * (rows - 1)) / rows; let area = 0; ok.forEach(o => { const sc = Math.min(cw / o.w, ch / o.h); area += Math.min(o.w * sc * o.h * sc, cw * ch); }); const sm = Math.min(...ok.map(o => Math.min(cw / o.w, ch / o.h) * o.h)); const score = area * (0.6 + 0.4 * sm / ch); if (!best || score > best.score) best = { cols, rows, cw, ch, score }; }
   const { cols, rows, cw, ch } = best || { cols: 1, rows: 1, cw: WW - PAD * 2, ch: sh };
   const boxes = [], tiles = [];
-  for (let k = 0; k < ok.length; k++) { const o = ok[k], r = Math.floor(k / cols), inRow = Math.min(cols, ok.length - r * cols), rowW = inRow * cw + (inRow - 1) * G, x0 = (WW - rowW) / 2 + (k % cols) * (cw + G), y0 = top + r * (ch + G) + (sh - (rows * ch + (rows - 1) * G)) / 2;
-    const sc = Math.min(cw / o.w, ch / o.h), pw = Math.max(1, Math.floor(o.w * sc)), ph = Math.max(1, Math.floor(o.h * sc)), px = Math.round(x0 + (cw - pw) / 2), py = Math.round(y0 + (ch - ph) / 2);
+  // 每一列照片緊貼排好、整列置中（照片比格子窄時不留大空隙）
+  const SZ = ok.map(o => { const sc = Math.min(cw / o.w, ch / o.h); return { pw: Math.max(1, Math.floor(o.w * sc)), ph: Math.max(1, Math.floor(o.h * sc)) }; });
+  const rowH = r => Math.max(...SZ.slice(r * cols, r * cols + cols).map(z => z.ph)), totH = [...Array(rows)].reduce((n, _, r) => n + rowH(r), 0) + G * (rows - 1);
+  for (let k = 0; k < ok.length; k++) { const o = ok[k], r = Math.floor(k / cols), RS = SZ.slice(r * cols, r * cols + cols), rowW = RS.reduce((n, z) => n + z.pw, 0) + G * (RS.length - 1);
+    let yr = top + (sh - totH) / 2; for (let q = 0; q < r; q++) yr += rowH(q) + G;
+    const { pw, ph } = SZ[k], px = Math.round((WW - rowW) / 2 + RS.slice(0, k % cols).reduce((n, z) => n + z.pw + G, 0)), py = Math.round(yr + (rowH(r) - ph) / 2);
     try { const rr = Math.round(Math.min(pw, ph) * 0.04); const mask = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + pw + '" height="' + ph + '"><rect width="' + pw + '" height="' + ph + '" rx="' + rr + '"/></svg>');
       const b = await sharp()(o.b).resize(pw, ph, { fit: 'fill' }).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer(); tiles.push({ input: b, left: px, top: py }); boxes.push({ x: px, y: py, w: pw, h: ph, it: o.it }); } catch (e) {} }
   let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".88"/></linearGradient></defs>';
