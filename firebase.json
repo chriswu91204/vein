@@ -112,6 +112,13 @@
     ],
     "rewrites": [
       {
+        "source": "/xapi",
+        "function": {
+          "functionId": "expo",
+          "region": "asia-east1"
+        }
+      },
+      {
         "source": "/time",
         "function": {
           "functionId": "feed",

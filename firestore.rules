@@ -557,6 +557,17 @@ service cloud.firestore {
       allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
     }
     // 面對面轉移的 QR 代碼（5 分鐘有效）
+    // 展會工作人員：賣場主人建立「網址＋密碼」；只有主人能看、能改。工作人員的動作都經過伺服器函式 expo（不用登入）
+    match /expos/{eid} {
+      allow read: if signedIn() && resource.data.shop == request.auth.uid;
+      allow create: if seller(request.auth.uid) && request.resource.data.shop == request.auth.uid
+        && request.resource.data.keys().hasOnly(['shop', 'name', 'pw', 'on', 'until', 'at'])
+        && request.resource.data.pw is string && request.resource.data.pw.size() >= 6;
+      allow update: if signedIn() && resource.data.shop == request.auth.uid && request.resource.data.shop == resource.data.shop
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'pw', 'on', 'until']);
+      allow delete: if signedIn() && resource.data.shop == request.auth.uid;
+      match /log/{id} { allow read: if signedIn() && get(/databases/$(database)/documents/expos/$(eid)).data.shop == request.auth.uid; }
+    }
     match /xqr/{tok} {
       allow get: if true;
       allow create: if signedIn() && notBanned() && tok.size() >= 16

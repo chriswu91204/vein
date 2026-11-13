@@ -357,6 +357,7 @@ exports.pushOrderNag = onSchedule({ schedule: 'every 30 minutes', timeZone: 'Asi
 // 現場轉讓請求 → 目前主人（5 分鐘內要確認）
 exports.pushXreq = onDocumentCreated('xreq/{id}', async ev => {
   const x = ev.data?.data(); if (!x || !x.owner || x.status !== 'open') return;
+  if (/^ex/.test(x.tok || '')) return; // 展會工作人員的 QR：由工作人員的畫面確認，不通知賣場主人
   await push(x.owner, '🤝 ' + (await displayName(x.from)) + ' 請求轉讓 ' + (x.code || ''), (x.via === 'nfc' ? '對方在現場碰了 NFC，' : '對方掃了你的轉移 QR，') + '請在 5 分鐘內打開 VEIN 確認轉移', '/#/plant/' + x.pid, 'xreq-' + ev.params.id);
 });
 
@@ -882,3 +883,6 @@ exports.liveGuard = onDocumentCreated('lives/{id}/lots/{pid}', async ev => {
 
 // 公開轉發資料（feed.json／feed.xml／IG 圖／分享頁）
 exports.feed = require('./feed');
+
+// 展會工作人員（網址＋密碼，不用登入）
+exports.expo = require('./expo');
