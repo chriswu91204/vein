@@ -6393,11 +6393,13 @@ if (STANDALONE){ document.documentElement.classList.add('pwa');
   ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false})); }
 const NAV=(()=>{ const ps=history.pushState.bind(history), rs=history.replaceState.bind(history); let cur=history.state?.vi??0;
   if (history.state?.vi==null) try{ rs({...(history.state||{}),vi:0},''); }catch(e){}
-  history.pushState=(st,t,u)=>{ let ghost=false; try{ ghost=!!window.__BL&&(history.state?.bl||0)>window.__BL.length&&!(st&&st.bl); }catch(e){} if(ghost){ rs({...(st||{}),vi:cur},t,u); return; } cur++; ps({...(st||{}),vi:cur},t,u); };
+  // fresh：這次 popstate 是「新開一頁」（改網址 #… 瀏覽器也會發 popstate），不是按上一頁／下一頁
+  let fresh=false; const onNew=v=>{ try{ window.__navNew&&window.__navNew(v); }catch(e){} };
+  history.pushState=(st,t,u)=>{ let ghost=false; try{ ghost=!!window.__BL&&(history.state?.bl||0)>window.__BL.length&&!(st&&st.bl); }catch(e){} if(ghost){ rs({...(st||{}),vi:cur},t,u); return; } cur++; ps({...(st||{}),vi:cur},t,u); onNew(cur); };
   history.replaceState=(st,t,u)=>{ rs({...(st||{}),vi:cur},t,u); };
-  const stamp=()=>{ if(history.state?.vi==null){ cur++; try{ rs({...(history.state||{}),vi:cur},''); }catch(e){} } else cur=history.state.vi; };
+  const stamp=e=>{ if(history.state?.vi==null){ cur++; try{ rs({...(history.state||{}),vi:cur},''); }catch(er){} fresh=true; onNew(cur); } else { cur=history.state.vi; if(e.type==='popstate') fresh=false; } };
   addEventListener('popstate',stamp); addEventListener('hashchange',stamp);
-  return {idx:()=>cur}; })();
+  return {idx:()=>cur,fresh:()=>fresh}; })();
 for (const m of ['replaceChildren','append']){ const o=Element.prototype[m]; Element.prototype[m]=function(...a){ return o.apply(this, a.filter(x=>x!=null&&x!==false)); }; }
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const PREVIEW=new URLSearchParams(location.search).has('pv'), PV_HASH=location.hash;
@@ -8175,9 +8177,9 @@ const afNew=p=>Date.now()-toMs(p.createdAt)<AF_WK;
 // 倒數：一個計時器更新畫面上所有競標倒數
 let afCdT=0; function afCdTick(){ if(afCdT) return; afCdT=setInterval(()=>{ const L=document.querySelectorAll('.af-cd[data-end]'); if(!L.length){ clearInterval(afCdT); afCdT=0; return; } const now=Date.now(); L.forEach(e=>{ const ms=+e.dataset.end-now; e.textContent=ms>0?'⏱ '+fmtLeft(ms):'已結標'; }); },1000); }
 // 小卡（橫向滑動用）
-function afMini(p,o={}){ const pl=priceLabel(p), L=live(p);
+function afMini(p,o={}){ const pl=priceLabel(p), L=live(p), list=o.list;
   return activate(h('div',{class:'af-mi'}, h('span',{class:'af-mim'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), L?h('em',{class:'af-bd live af-cd','data-end':p.endsAtMs,text:'⏱ '+fmtLeft(p.endsAtMs-Date.now())}):o.isNew&&afNew(p)?h('em',{class:'af-bd new',text:'NEW'}):null, o.shop?h('span',{class:'af-mav'}, avatar(p.shop,22)):null),
-    h('b',{class:'af-mn',text:afName(p)}), h('strong',{class:'af-mp',text:pl.main}), h('small',{class:'af-ms',text:shopName(p.shop)})),()=>go(p.__g&&p.gkey?'#/group/'+encodeURIComponent(p.gkey):'#/plant/'+encodeURIComponent(p.id))); }
+    h('b',{class:'af-mn',text:afName(p)}), h('strong',{class:'af-mp',text:pl.main}), h('small',{class:'af-ms',text:shopName(p.shop)})),()=>p.__g&&p.gkey?go('#/group/'+encodeURIComponent(p.gkey)):list?openSwipe(list.filter(x=>!x.__g),p.id):go('#/plant/'+encodeURIComponent(p.id))); }
 function afRail(items,more){ const r=h('div',{class:'af-rail'}, ...items.map(x=>x), more?h('a',{class:'af-mi af-more',...(typeof more==='string'?{href:more}:{href:'#/store',onclick:e=>{ e.preventDefault(); more(); }})}, h('span',{class:'af-mim'}, h('i',{text:'→'})), h('b',{text:'看全部'})):null); return r; }
 function afHead(title,sub,link){ return h('div',{class:'af-h'}, h('div',{}, h('h3',{text:title}), sub?h('small',{text:sub}):null), link?h('a',{class:'af-ha',...(typeof link==='string'?{href:link}:{href:'#/store',onclick:e=>{ e.preventDefault(); link(); }})}, '全部', h('i',{text:'›'})):null); }
 // 跳到下面「全部植物」並套用排序／篩選
@@ -8202,13 +8204,13 @@ function afRank(L){ const rc=recommend().list||[], ix=new Map(rc.map((p,i)=>[p.i
 Object.assign(SFH_COMP,{
   newrail:{n:'本週新品',ic:'✨',g:'hub',d:'橫向滑動：7 天內新上架的植物（不夠時補最新上架）',styles:[],def:()=>({title:'本週新品'}),f:[['text','title','標題']],
     r:(c)=>{ const A=afAvail().filter(p=>afOk(p)).sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt)), wk=A.filter(afNew), L=(wk.length>=4?wk:A).slice(0,14); if(afState().wk||!L.length) return PREVIEW?scPh('本週新品：還沒有商品'):null;
-      return h('section',{class:'af-sec af-dark'}, afHead(c.title||'本週新品','',()=>afJump({sort:'new',wk:wk.length>0,mode:'',kind:'',g:'',pr:'',pmin:'',pmax:''})), afRail(L.map(p=>afMini(p,{isNew:true})),()=>afJump({sort:'new',wk:wk.length>0,mode:'',kind:'',g:'',pr:'',pmin:'',pmax:''}))); } },
+      return h('section',{class:'af-sec af-dark'}, afHead(c.title||'本週新品','',()=>afJump({sort:'new',wk:wk.length>0,mode:'',kind:'',g:'',pr:'',pmin:'',pmax:''})), afRail(L.map(p=>afMini(p,{isNew:true,list:L})),()=>afJump({sort:'new',wk:wk.length>0,mode:'',kind:'',g:'',pr:'',pmin:'',pmax:''}))); } },
   followrail:{n:'追蹤店家的植物',ic:'💚',g:'hub',d:'你追蹤的賣場最新上架；還沒追蹤就推薦賣場給你追蹤',styles:[],def:()=>({title:'追蹤店家的植物'}),f:[['text','title','標題']],
     r:(c)=>{ const F=(S.me?(mySocial().follows||[]):[]).filter(u=>shopOf(u));
       if (F.length){ const fs=new Set(F), L=afAvail().filter(p=>fs.has(p.shop)&&afOk(p)).sort((a,b)=>toMs(b.createdAt)-toMs(a.createdAt)).slice(0,16);
         const avs=h('span',{class:'af-avs'}, ...F.slice(0,5).map(u=>h('a',{href:'#/seller/'+u,title:shopName(u)}, avatar(u,26))));
         return h('section',{class:'af-sec af-lime'}, h('div',{class:'af-h'}, h('div',{}, h('h3',{text:c.title||'追蹤店家的植物'})), avs),
-          L.length?afRail(L.map(p=>afMini(p,{shop:true})),F.length===1?'#/seller/'+F[0]:null):afNAct()?null:h('p',{class:'af-empty',text:'還沒有新上架'})); }
+          L.length?afRail(L.map(p=>afMini(p,{shop:true,list:L})),F.length===1?'#/seller/'+F[0]:null):afNAct()?null:h('p',{class:'af-empty',text:'還沒有新上架'})); }
       // 還沒追蹤：推薦賣場（像 Etsy／蝦皮的「推薦商家」），一鍵追蹤
       if (afNAct()) return null;
       const R=shopList().filter(u=>u!==S.me).map(u=>[u,afAvail().filter(p=>p.shop===u)]).filter(([,L])=>L.length).sort((a,b)=>b[1].length-a[1].length).slice(0,10); if(!R.length) return null;
@@ -8238,7 +8240,6 @@ function afTopBar(){ const F=afState(), all=afAvail(), set=afSet;
   const chip=(on,l,fn)=>h('button',{type:'button',class:'af-ch'+(on?' on':''),'aria-pressed':String(on),onclick:fn},l);
   const chips=h('div',{class:'af-chips'}, chip(!nAct,'全部',()=>set({wk:false,mode:'',kind:'',g:'',pr:'',pmin:'',pmax:''})),
     all.some(afNew)?chip(!!F.wk,'✨ 本週新品',()=>set({wk:!F.wk,sort:!F.wk?'new':F.sort})):null,
-    all.some(live)?chip(F.mode==='auc','⚡ 競標中',()=>set({mode:F.mode==='auc'?'':'auc'})):null, chip(F.mode==='buy','🛒 直購',()=>set({mode:F.mode==='buy'?'':'buy'})),
     chip(F.pr==='u3','NT$3,000 以下',()=>set({pr:F.pr==='u3'?'':'u3'})),
     ...[['seedling','實生苗'],['mother','母株'],['pup','側芽']].map(([k,l])=>chip(F.kind===k,l,()=>set({kind:F.kind===k?'':k}))),
     ...(G.length>1?G.map(([g])=>chip(F.g===g,genusZh(g)||(TAX_BY.get(g)?.sci||g),()=>set({g:F.g===g?'':g}))):[]));
@@ -8253,7 +8254,7 @@ function afFeed(c){ const F=afState(), all=afAvail(), now=Date.now();
     const badge=Lv?h('em',{class:'af-bd live af-cd','data-end':p.endsAtMs,text:'⏱ '+fmtLeft(p.endsAtMs-now)}):isEnc(p)?h('em',{class:'af-bd live',text:'⚔ 遭遇戰'}):afNew(p)?h('em',{class:'af-bd new',text:'NEW'}):p.kind==='seedling'?h('em',{class:'af-bd',text:'實生苗'}):p.kind==='pup'?h('em',{class:'af-bd',text:'側芽'}):null;
     const el=activate(h('div',{class:'af-c'+(FT?' bst-ft':PN?' bst-pn':'')}, h('span',{class:'af-im'}, h('img',{src:cover(p),alt:'',loading:'lazy'}), badge, p.__g?h('em',{class:'af-gn',text:p.avail+' 株'}):favBtn(p.id), (FT||PN)?h('i',{class:'af-ad',text:FT?'精選':'置頂'}):null),
       h('span',{class:'af-t'}, h('b',{class:'af-n',text:afName(p)}), h('span',{class:'af-pr'}, Lv?h('small',{text:'目前'}):null, h('strong',{text:pl.main}), Lv&&nb?h('small',{class:'af-nb',text:nb+' 次出價'}):null),
-        h('span',{class:'af-sh'}, avatar(p.shop,18), h('small',{text:shopName(p.shop)}), p.code?h('small',{class:'mono af-code',text:p.code.slice(-5)}):null))),()=>go(p.__g&&p.gkey?'#/group/'+encodeURIComponent(p.gkey):'#/plant/'+encodeURIComponent(p.id)));
+        h('span',{class:'af-sh'}, avatar(p.shop,18), h('small',{text:shopName(p.shop)}), p.code?h('small',{class:'mono af-code',text:p.code.slice(-5)}):null))),()=>p.__g&&p.gkey?go('#/group/'+encodeURIComponent(p.gkey)):openSwipe(L.filter(x=>!x.__g),p.id));
     return spot(el,p); };
   const grid=h('div',{class:'af-g'}), sen=h('div',{class:'af-sen'});
   const paint=()=>{ grid.replaceChildren(...L.slice(0,F.shown).map(card)); sen.replaceChildren(L.length>F.shown?h('i',{class:'lb-spin',style:'position:static'}):L.length?h('small',{class:'hint',text:'— 到底了 —'}):h('div',{class:'af-none'}, h('b',{text:'沒有符合的植物'}), h('button',{type:'button',class:'btn soft sm',onclick:()=>set({wk:false,mode:'',kind:'',g:'',pr:'',pmin:'',pmax:''}),text:'清除篩選'}))); };
@@ -9999,7 +10000,7 @@ function renderWrite(){ const box=$('#writePage'); if(!box) return; if(!S.me){ b
     h('div',{class:'wq-fp'}, pv())):null; CMW.fmIn=false;
   if (CMW.ms){ body.addEventListener('click',e=>{ const x=e.target.closest('.wq-x'); if(!x) return; e.preventDefault(); e.stopPropagation(); const id=x.dataset.bid, k=CMW.ms.indexOf(id); if(k>=0) CMW.ms.splice(k,1); else CMW.ms.push(id); renderWrite(); },true); [...body.children].forEach(x=>x.classList.toggle('msel',CMW.ms.includes(x.dataset.bid))); }
   box.replaceChildren(h('div',{class:'wq'+(CMW.ms?' wq-msm':'')},
-    h('div',{class:'wq-top'}, h('button',{type:'button',class:'wq-bk',onclick:()=>history.length>1?history.back():go('#/community'),'aria-label':'返回',text:'‹'}), h('div',{}, h('b',{text:CMW.edit?'編輯文章':'寫長文'}), h('small',{text:CMW.edit?'':'自動儲存草稿'})),
+    h('div',{class:'wq-top'}, h('button',{type:'button',class:'wq-bk',onclick:e=>pageBack(e,'#/community'),'aria-label':'返回',text:'‹'}), h('div',{}, h('b',{text:CMW.edit?'編輯文章':'寫長文'}), h('small',{text:CMW.edit?'':'自動儲存草稿'})),
       h('button',{type:'button',class:'wq-fmtb',onclick:wqFmt,text:'預覽'}), h('button',{type:'button',class:'wq-pub',onclick:e=>cmPublish(e.currentTarget),text:CMW.edit?'更新':'發佈'})),
     wqGal(D), title, h('div',{class:'wq-hr'}), body,
     h('section',{class:'wq-meta'},
@@ -10410,14 +10411,22 @@ function updBack(){ const b=document.getElementById('navBack'); if(!b) return; c
 // 上一頁：有開著的視窗先關視窗；否則回上一頁（沒有上一頁就回首頁）
 function backOne(){ if(window.__BL?.length){ history.back(); return; } if(NAV.idx()>0){ BACKING={from:location.hash,n:0,at:Date.now()}; history.back(); } else location.hash='#/'; }
 document.getElementById('navBack')?.addEventListener('click',backOne); window.__veinBack=backOne;
+// 頁面裡的「‹」：跟左上角返回鍵一樣回上一頁；只有直接打開這一頁（沒有上一頁）時才去 fallback
+function pageBack(e,fallback){ e?.preventDefault?.(); e?.stopPropagation?.(); if(window.__BL?.length||NAV.idx()>0) backOne(); else go(fallback||'#/'); }
 addEventListener('hashchange',updBack);
 /* ===== 上一頁回到原本的位置（不是回到頁首）＋手機由左往右滑回上一頁 ===== */
 try{ history.scrollRestoration='manual'; }catch(e){}
 // 每一筆瀏覽紀錄（history.state.vi）記自己的捲動位置；只有真的按上一頁／下一頁換了網址才還原，其他情況一律從頁首開始
-const SCRM=new Map(); let SCR_ON=true, POPV=null;
+const SCRM=new Map(); let SCR_ON=true, POPV=null; if(location.hostname==='localhost') window.__SCRM=SCRM;
 addEventListener('scroll',()=>{ if(!SCR_ON||document.documentElement.classList.contains('modal-lock')||document.documentElement.classList.contains('fd-on')) return; const k=history.state?.vi; if(k!=null) SCRM.set(k,scrollY); },{passive:true});
-addEventListener('popstate',()=>{ POPV={vi:history.state?.vi,hash:location.hash,at:Date.now()}; });
-function scrPopFor(){ const x=POPV; POPV=null; if(!x||Date.now()-x.at>1500||x.vi==null||x.vi!==history.state?.vi||x.hash!==location.hash) return null; return SCRM.has(x.vi)?SCRM.get(x.vi):0; }
+addEventListener('popstate',()=>{ if(NAV.fresh()){ POPV=null; return; } POPV={vi:history.state?.vi,hash:location.hash,at:Date.now()}; });
+// 開新的一頁：這一筆和之後（被丟掉的「下一頁」）留下的捲動位置都作廢，新頁一定從頁首開始
+window.__navNew=v=>{ for(const k of [...SCRM.keys()]) if(k>=v) SCRM.delete(k); };
+function scrPopFor(){ const x=POPV; POPV=null; if(!x||Date.now()-x.at>1500||x.vi==null||x.vi!==history.state?.vi||x.hash!==location.hash) return null; return SCRM.has(x.vi)?SCRM.get(x.vi):null; } // 沒記到位置就不動（不要硬拉回頁首）
+// 底部分頁：換到別的分頁再點回來，停在原本看到的位置（像 App 一樣）；已經在這個分頁再點一次就捲回最上面
+const TABY=new Map(), TAB_ROOT=x=>['#/','#/store','#/raffle','#/community','#/verify','#/me'].includes(x)?x:null;
+addEventListener('scroll',()=>{ if(!SCR_ON||document.documentElement.classList.contains('modal-lock')) return; const k=TAB_ROOT(location.hash||'#/'); if(k) TABY.set(k,scrollY); },{passive:true});
+document.addEventListener('click',e=>{ const a=e.target.closest?.('.tabbar a[href^="#/"]'); if(!a) return; const hh=a.getAttribute('href'); if((location.hash||'#/')===hh){ e.preventDefault(); scrollTo({top:0,behavior:REDUCE?'auto':'smooth'}); return; } S.tabJump=hh; },true);
 function scrRestore(y){ SCR_ON=false; let n=0; const f=()=>{ const max=Math.max(0,document.documentElement.scrollHeight-innerHeight); if(max>=y-4||n++>60){ scrollTo(0,Math.min(y,max)); setTimeout(()=>{ if(Math.abs(scrollY-y)>40&&document.documentElement.scrollHeight-innerHeight>=y) scrollTo(0,y); SCR_ON=true; },120); } else { scrollTo(0,max); requestAnimationFrame(f); } }; requestAnimationFrame(f); }
 (()=>{ const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), SA=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
   if(IOS&&!SA) return; // iPhone 的 Safari 本身就能從左邊滑回上一頁，不重複做
@@ -10428,7 +10437,7 @@ function scrRestore(y){ SCR_ON=false; let n=0; const f=()=>{ const max=Math.max(
   let lastB=0; addEventListener('touchend',e=>{ if(!on) return; on=false; const go2=arr?.classList.contains('go'); arr?.remove(); arr=null; if(go2&&Date.now()-lastB>900){ lastB=Date.now(); document.getElementById('navBack')?.hidden===false||NAV.idx()>0?backOne():go('#/'); } },{passive:true});
   addEventListener('touchcancel',()=>{ on=false; arr?.remove(); arr=null; },{passive:true}); })();
 var EX={}; // 展會工作人員畫面的狀態（route 開站時就會用到，所以放在這裡）
-function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack();
+function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(); if(S.tabJump&&S.tabJump!==(location.hash||'#/')) S.tabJump=null;
   { const ex=(location.hash||'').match(/^#\/expo\/([A-Za-z0-9_-]{6,40})/); if(ex){ openExpo(ex[1]); return; } if(EX.el) closeExpo(); }
   { const am0=(location.hash||'').match(/^#\/add\/(.+)$/); if(am0){ const id=decodeURIComponent(am0[1]); history.replaceState(null,'','#/me'); setTimeout(()=>{ if(!S.me){ openLogin(); return; } openFriends(id); },S.booted?50:1500); } }
   if (PREVIEW&&!/^#\/seller\//.test(location.hash||'')) history.replaceState(null,'',PV_HASH);
@@ -10494,10 +10503,12 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
     if (el) requestAnimationFrame(()=>el.scrollIntoView({behavior:changed||REDUCE?'auto':'smooth'}));
     else if (pg==='seller'&&S.sfTabNav){ S.sfTabNav=false; const jump=()=>{ const a=document.querySelector('.sf-tabs-a'); if(!a) return; const y=a.getBoundingClientRect().top+scrollY-(innerWidth>860?72:62); scrollTo({top:Math.max(0,y),behavior:'auto'}); }; /* 黏在上方的分頁列不能拿來 scrollIntoView（位置會亂跳），改用它前面的錨點算位置，切換後直接停在分頁列下方 */ requestAnimationFrame(()=>requestAnimationFrame(jump)); setTimeout(jump,250); }
     else if (POP){ scrRestore(POPY); }
+    else if (S.tabJump&&S.tabJump===hs&&TABY.has(hs)){ S.tabJump=null; scrRestore(TABY.get(hs)); }
     else if (changed&&!(pg==='raffle'&&arg)){ scrollTo(0,0); SCR_ON=true; }
     $('#nav').classList.remove('hide'); window.__frame&&__frame();
   };
-  if (pg!==PAGE&&document.startViewTransition&&!REDUCE) document.startViewTransition(apply); else apply();
+  // 換頁一律同步完成：以前用 View Transition 包起來，換頁會延後執行，快速點擊或按上一頁時頁面狀態會慢一步（跳錯頁、捲動位置錯）
+  apply();
 }
 addEventListener('hashchange', route);
 // 上一頁一定是「上一動」：
@@ -10511,7 +10522,9 @@ addEventListener('popstate', e=>{ const vi=e.state?.vi??0, dir=vi<NAVVI?-1:1; NA
   if((e.state?.bl||0)>BL.length){ dir<0?history.back():history.forward(); return; }
   if(BACKING&&location.hash===BACKING.from&&BACKING.n<6&&Date.now()-BACKING.at<4000){ BACKING.n++; if(NAV.idx()>0){ history.back(); return; } location.hash='#/'; BACKING=null; return; }
   BACKING=null;
-  if(/^#(admin|plants|orders)/.test(location.hash)||adm.open) route(); });
+  if(/^#(admin|plants|orders)/.test(location.hash)||adm.open){ route(); return; }
+  // 網址沒變的上一頁（跳過剛關掉的視窗留下的紀錄）不會觸發換頁，這裡自己把捲動位置還原
+  if(location.hash===S.curHash||(!location.hash&&S.curHash==='#/')){ const y=scrPopFor(); if(y!=null&&!document.querySelector('dialog[open]')) scrRestore(y); } });
 
 /* ---------- dialogs ---------- */
 const dlg=$('#dlg');
@@ -12195,6 +12208,11 @@ const BL=window.__BL=[]; let blSkip=0;
 function blPush(id,close){ if(PREVIEW||POPUP||BL.some(l=>l.id===id)) return; if(id==='dlg'&&/^#\/raffle\//.test(location.hash)) return;
   BL.push({id,close}); if(history.state?.blId===id&&(history.state?.bl||0)===BL.length) return; // 剛關掉又馬上打開：沿用同一筆紀錄
   history.pushState({...(history.state||{}),bl:BL.length,blId:id},'',location.href); }
+// 自己畫的全螢幕浮層（底部選單、篩選面板、確認視窗、圖片預覽…）也跟對話框一樣：按上一頁／左上角返回，先關掉浮層，不會直接離開這一頁
+(()=>{ const OVC=/(^|\s)(af-ov|dw-ov|ex-ov|gt-ov|rs-ov|sfh-ov|sv-ov)(\s|$)/; let n=0;
+  const closeOf=el=>()=>{ if(!el.isConnected) return; const b=el.querySelector('.rs-x,.af-x,.ex-x,.gt-x,.sv-x,[data-close],button[aria-label="關閉"]'); if(b) b.click(); else el.dispatchEvent(new MouseEvent('click',{bubbles:true})); setTimeout(()=>{ if(el.isConnected) el.remove(); },60); };
+  const watch=root=>new MutationObserver(ms=>{ for(const m of ms){ m.addedNodes.forEach(el=>{ if(el.nodeType!==1||el.__bl||!OVC.test(el.className||'')) return; el.__bl='ov'+(++n); blPush(el.__bl,closeOf(el)); }); m.removedNodes.forEach(el=>{ if(el.nodeType===1&&el.__bl&&!el.isConnected) blDone(el.__bl); }); } }).observe(root,{childList:true});
+  watch(document.body); watch(document.documentElement); try{ watch(document.getElementById('admin')); }catch(e){} })();
 function blDone(id){ const i=BL.findIndex(l=>l.id===id); if(i<0) return; BL.splice(i,1);
   setTimeout(()=>{ if(BL.some(l=>l.id===id)) return; if(history.state?.blId===id){ blSkip++; history.back(); } },0); }
 function blPop(e){ if(blSkip){ blSkip--; return true; } const d=e.state?.bl||0; if(BL.length>d){ while(BL.length>d){ const l=BL.pop(); try{ l.close(); }catch(x){} } return true; } return false; }
@@ -13844,7 +13862,7 @@ function lvPanel(){ const ev=LV.ev, c=ev?.cur; const pn=$('#livePage .lv-panel')
   const bt=pn.querySelector('.lv-bid'); if(bt){ const PV=lvPrev(c); bt.querySelector('b').textContent=c.gapUntil?'結算中':PV?'⏳ 預覽中，即將開拍':lead?'👑 領先中':'出價 '+money(need); bt.querySelector('small').textContent=c.gapUntil?'':lead?'等別人出價':c.top?'每口 +'+money(lvStepC(ev,c.top.amt)):'第一口＝起拍價'; bt.disabled=!!c.gapUntil||PV; bt.classList.toggle('lead',lead); if(lvNoPhone()&&!c.gapUntil&&!PV){ bt.querySelector('b').textContent='📱 驗證手機後出價'; bt.querySelector('small').textContent='拍賣會限已驗證手機的會員'; } }
   const nb=$('#livePage .lv-nb'); if(nb) nb.textContent=(c.n||0)+' 次出價'; }
 function lvPaint(){ const box=$('#livePage'), ev=LV.ev; if(!box||!ev) return; const c=ev.cur, L=lvLotList(), st=ev.phase==='done'?'done':c?'on':'soon';
-  const top=h('div',{class:'lv-top'}, h('a',{class:'lv-back',href:'#/raffle',onclick:e=>{ if(S.prevHash){ e.preventDefault(); history.back(); } },text:'‹'}), h('div',{class:'lv-tt'}, h('b',{text:ev.title||'VEIN 拍賣會'}), h('small',{text:st==='on'?'第 '+((c.i||0)+1)+' / '+L.length+' 件':st==='soon'?L.length+' 件拍品':'已結束'})), h('span',{class:'lv-vw',text:'👀 '+(LV.viewers||1)+' 人在看'}), st==='on'?h('em',{class:'lv-live',text:'● LIVE'}):null, evShareBtn(ev,'lv-inv lv-shr','↗'), st!=='done'&&S.admin?h('button',{type:'button',class:'lv-inv',onclick:()=>evInvite(ev),text:'📣 邀請'}):null, st!=='done'&&S.admin?h('button',{type:'button',class:'lv-inv',onclick:()=>evPushAll(ev),text:'🔔 推播'}):null);
+  const top=h('div',{class:'lv-top'}, h('a',{class:'lv-back',href:'#/raffle',onclick:e=>pageBack(e,'#/raffle'),text:'‹'}), h('div',{class:'lv-tt'}, h('b',{text:ev.title||'VEIN 拍賣會'}), h('small',{text:st==='on'?'第 '+((c.i||0)+1)+' / '+L.length+' 件':st==='soon'?L.length+' 件拍品':'已結束'})), h('span',{class:'lv-vw',text:'👀 '+(LV.viewers||1)+' 人在看'}), st==='on'?h('em',{class:'lv-live',text:'● LIVE'}):null, evShareBtn(ev,'lv-inv lv-shr','↗'), st!=='done'&&S.admin?h('button',{type:'button',class:'lv-inv',onclick:()=>evInvite(ev),text:'📣 邀請'}):null, st!=='done'&&S.admin?h('button',{type:'button',class:'lv-inv',onclick:()=>evPushAll(ev),text:'🔔 推播'}):null);
   if(st!=='on'){ const sold=L.filter(l=>l.status==='sold');
     box.replaceChildren(h('div',{class:'lv lv-idle'}, top, h('div',{class:'lv-idlein'}, ev.html?h('div',{class:'lv-cust'}, evHtml(ev)):ev.cover?h('img',{class:'lv-cov',src:ev.cover,alt:''}):h('div',{class:'lv-cov ph',text:'🔴'}),
       st==='soon'?h('div',{class:'lv-start'}, h('small',{text:'距離開拍'}), h('b',{class:'mono',text:fmtLeft((ev.startAt||0)-lvNow())}), h('span',{text:evWhen(ev.startAt)+' 開始 · 每件 '+(ev.dur||60)+' 秒'})):h('div',{class:'lv-start'}, h('small',{text:'本場結束'}), h('b',{text:sold.length+' 件成交'}), h('span',{text:'總成交 '+money(sold.reduce((n,l)=>n+(+l.final||0),0))})),
@@ -15421,7 +15439,7 @@ function renderChats(arg){ const box=$('#chatsPage'); if(!S.me){ box.replaceChil
   const left=h('aside',{class:'cp-l'}, h('div',{class:'cp-h'}, h('h2',{text:'聊天'}), !POPUP&&innerWidth>=900?h('button',{type:'button',class:'ch-ib',title:'另開視窗',onclick:()=>chatPopout(cid||''),text:'↗'}):null), chatList(id=>go('#/chats/'+encodeURIComponent(id)),()=>cid));
   let right;
   if (cid){ const u=chatOther(cid); resolveNames([u]); chatPageConv=chatConv(cid,{page:true,noFocus:!isDesk()});
-    right=h('section',{class:'cp-r'}, h('div',{class:'cp-ch'}, h('a',{class:'cp-back',href:'#/chats','aria-label':'上一頁',onclick:e=>{ if(S.prevHash==='#/chats'){ e.preventDefault(); history.back(); } },text:'‹'}), chatAv(u,38), h('span',{class:'cw-n'}, h('b',{text:chatName(u)}), h('small',{text:isGrp(u)?(S.chats.get(u)?.members||[]).length+' 位成員':shopOf(u)?'賣家':'會員'})), isGrp(u)?h('button',{type:'button',class:'btn soft sm',onclick:()=>grpMenu(u),text:'⋯ 群組'}):null, isGrp(u)?null:shopOf(u)?h('a',{class:'btn soft sm',href:'#/seller/'+u,text:'看賣場'}):h('a',{class:'btn soft sm',href:'#/gh/'+u,text:'🏡 看溫室'})), chatPageConv); }
+    right=h('section',{class:'cp-r'}, h('div',{class:'cp-ch'}, h('a',{class:'cp-back',href:'#/chats','aria-label':'上一頁',onclick:e=>pageBack(e,'#/chats'),text:'‹'}), chatAv(u,38), h('span',{class:'cw-n'}, h('b',{text:chatName(u)}), h('small',{text:isGrp(u)?(S.chats.get(u)?.members||[]).length+' 位成員':shopOf(u)?'賣家':'會員'})), isGrp(u)?h('button',{type:'button',class:'btn soft sm',onclick:()=>grpMenu(u),text:'⋯ 群組'}):null, isGrp(u)?null:shopOf(u)?h('a',{class:'btn soft sm',href:'#/seller/'+u,text:'看賣場'}):h('a',{class:'btn soft sm',href:'#/gh/'+u,text:'🏡 看溫室'})), chatPageConv); }
   else right=h('section',{class:'cp-r none'}, h('div',{class:'chl-empty'}, h('div',{class:'chl-ei',text:'💬'}), h('b',{text:'選一個對話'}), h('p',{text:'訊息會即時同步，電腦和手機都看得到。'})));
   box.replaceChildren(h('div',{class:'cp'+(cid?' has':'')}, left, right)); }
 
@@ -15795,7 +15813,7 @@ function renderFeed(){ const box=$('#feedPage'); if(!feedOn()&&!S.admin&&!FD.pla
   io.observe(sentinel);
   const tabs=h('div',{class:'fd-tabs'}, ...[['for','為你推薦'],['follow','追蹤中'],['live','競標'],['new','新上架']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(FD.mode===k),onclick:()=>{ if(k==='follow'&&!S.me){ openLogin(); return; } FD.mode=k; renderFeed(); },text:l})));
   const snd=h('button',{type:'button',class:'fd-snd','aria-label':'聲音',onclick:()=>{ FD.muted=!FD.muted; snd.textContent=FD.muted?'🔇':'🔊'; list.querySelectorAll('.fd-it.act video').forEach(v=>{ v.muted=FD.muted; }); },text:FD.muted?'🔇':'🔊'});
-  const top=h('div',{class:'fd-top'}, h('a',{class:'fd-x',href:'#/store','aria-label':'離開',text:'‹',onclick:e=>{ if(FD.from){ e.preventDefault(); FD.from=null; history.back(); } }}), FD.plantOnly?h('b',{class:'fd-ttl',text:'滑滑看'}):tabs, snd);
+  const top=h('div',{class:'fd-top'}, h('a',{class:'fd-x',href:'#/store','aria-label':'離開',text:'‹',onclick:e=>{ FD.from=null; pageBack(e,'#/store'); }}), FD.plantOnly?h('b',{class:'fd-ttl',text:'滑滑看'}):tabs, snd);
   FD.el=h('div',{class:'fd'}, top, list, h('div',{class:'fd-up','aria-hidden':'true'}, h('div',{class:'fd-up-a'}, h('i'), h('i'), h('i')), h('b',{text:'往上滑，一直看下去'})));
   FD.list=list; FD.sentinel=sentinel; FD.io&&FD.io.disconnect(); FD.io=io;
   box.replaceChildren(FD.el); box.scrollTop=0; list.scrollTop=0; fdMore(5);
