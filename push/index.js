@@ -886,3 +886,12 @@ exports.feed = require('./feed');
 
 // 展會工作人員（網址＋密碼，不用登入）
 exports.expo = require('./expo');
+
+// 植物轉給別人（直接轉移、轉移連結、面對面、NFC、展會）：原賣場上架中的就自動下架，避免已經不是自己的植物還被買走
+exports.xferDelist = onDocumentWritten('owners/{pid}', async ev => {
+  const a = ev.data?.after?.data(); if (!a || !a.shop || !a.current || a.current === a.shop) return;
+  const ref = db.doc('shops/' + a.shop + '/plants/' + ev.params.pid), d = await ref.get(); if (!d.exists) return; const p = d.data();
+  if (p.listed === false || p.status === 'sold') return;
+  await ref.update({ listed: false, delistedAt: Date.now(), delistedWhy: 'xfer' });
+  logger.info('xferDelist', { pid: ev.params.pid });
+});

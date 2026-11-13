@@ -7053,7 +7053,7 @@ const onSaleOf=u=>pub().filter(p=>p.shop===u&&p.status!=='sold');
 // 賣家等級：一般賣家／認證賣家（只有擁有者能在後台授予，存在 site/verified）
 const isVerified=u=>{ if(!u) return false; if(u===house()||S.adminUids?.[u]) return true; const v=S.verified?.[u]; if(!v) return false; return !(typeof v==='object'&&v.until&&v.until<Date.now()); };
 const vBadge=u=>isVerified(u)?h('span',{class:'vbadge',title:'VEIN 認證賣家',text:'認證'}):null;
-const onSale=p=>listed(p)&&!p.hidden&&!p.private&&!p.blocked&&approved(p.shop)&&p.status!=='sold';
+const onSale=p=>listed(p)&&!p.hidden&&!p.private&&!p.blocked&&approved(p.shop)&&p.status!=='sold'&&(S.owners.get(p.id)?.current||p.shop)===p.shop;
 const newestOf=u=>onSaleOf(u).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
 function seenMap(){ try{ return JSON.parse(localStorage.getItem('vein.seen')||'{}'); }catch(e){ return {}; } }
 function markSeen(u){ const n=newestOf(u)[0]; if(!n) return; const m=seenMap(); m[u]=n.createdAt||''; try{ localStorage.setItem('vein.seen',JSON.stringify(m)); }catch(e){} }
@@ -8686,6 +8686,8 @@ const ownerOf=p=>S.owners.get(p?.id)?.current||p?.shop;
 function ownerLog(p){ const d=S.owners.get(p.id); return [{to:p.shop,at:toMs(p.createdAt),via:'register'},...(d?.log||[])]; }
 async function transferOwner(p,to,via,note,claim){
   const d=S.owners.get(p.id), from=ownerOf(p);
+  // 原賣場轉給別人時，上架中的先下架（轉出去之後原賣場就不能再改這株）
+  if (from===S.me&&p.shop===S.me&&listed(p)&&p.status!=='sold'){ try{ await S.db.doc(pPath(p)).update({listed:false,delistedAt:Date.now(),delistedWhy:'xfer'}); p.listed=false; const c=S.plants.get(p.id); if(c) c.listed=false; }catch(e){ console.warn('[VEIN] 轉移前下架失敗',e); } }
   const log=[...(d?.log||[]),{from,to,at:Date.now(),via,note:note||'',ref:claim?claim.oid:null}];
   const doc={shop:p.shop,pid:p.id,code:p.code,current:to,log}; if(claim) doc.claim=claim;
   await S.db.doc('owners/'+p.id).set(doc); S.owners.set(p.id,doc);

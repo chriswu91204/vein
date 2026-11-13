@@ -113,6 +113,7 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
         const L = [...((o.exists && o.data().log) || []), { from: shop, to: open.from, at: Date.now(), via: 'f2f', note: '展會：' + (x.name || '') + (by ? '（' + by + '）' : ''), ref: null }];
         t.set(db().doc('owners/' + pid), { shop, pid, code: p.code || '', current: open.from, log: L });
         t.update(open.ref, { status: 'done', doneAt: Date.now() });
+        if (p.listed !== false && p.status !== 'sold') t.update(db().doc('shops/' + shop + '/plants/' + pid), { listed: false, delistedAt: Date.now(), delistedWhy: 'xfer' });
       });
       db().doc('xqr/' + tok).delete().catch(() => {});
       log(ref, 'xfer', { by, pid, code: p.code || '', to: open.from, toName: await who(open.from) });
