@@ -37,15 +37,23 @@ async function heldPlant(shop, pid) {
 const log = (ref, a, o) => ref.collection('log').add({ a, at: Date.now(), ...o }).catch(() => {});
 
 async function list(shop) {
-  const snap = await db().collection('shops/' + shop + '/plants').get();
-  const P = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.blocked && p.status !== 'sold');
+  const [snap, sd] = await Promise.all([db().collection('shops/' + shop + '/plants').get(), db().doc('shops/' + shop).get()]);
+  const groups = (sd.exists && sd.data().groups) || {};
+  const ALL = new Map(snap.docs.map(d => [d.id, { id: d.id, ...d.data() }]));
+  const P = [...ALL.values()].filter(p => !p.blocked && p.status !== 'sold');
   const refs = P.map(p => db().doc('owners/' + p.id)), cur = new Map();
   for (let i = 0; i < refs.length; i += 200) { const S = await db().getAll(...refs.slice(i, i + 200)); S.forEach(s => { if (s.exists) cur.set(s.id, s.data().current); }); }
-  const now = Date.now();
+  const now = Date.now(), ms = v => v && v.toMillis ? v.toMillis() : +v || (typeof v === 'string' ? Date.parse(v) || 0 : 0);
+  // 父母本：同一個賣場的就用對方的編號，外部親本用名稱
+  const par = (p, w) => { const id = w === 'm' ? (p.momId || p.parentId) : p.dadId, x = id && ALL.get(id), e = w === 'm' ? p.momExt : p.dadExt; return x ? (x.code || '') : e ? (e.name || e.code || '') : String((w === 'm' ? (p.momCode || p.parentCode) : p.dadCode) || ''); };
   return P.filter(p => (cur.get(p.id) || shop) === shop).map(p => ({
-    id: p.id, code: p.code || '', name: pName(p), kind: p.kind || 'mother', img: p.coverThumb || p.thumb || ((p.media || []).find(m => m.type !== 'video') || {}).url || '',
-    price: p.price ?? null, mode: p.mode || 'fixed', listed: p.listed !== false, hidden: !!p.hidden, priv: !!p.private,
-    live: (p.mode === 'auction' && (+p.endsAtMs || 0) > now) || (p.mode === 'encounter' && p.listed !== false), n: +p.photoCount || 0, grp: p.grp || '', batch: p.batch || '', at: +p.listedAt || 0
+    id: p.id, code: p.code || '', name: pName(p), species: p.species || '', cultivar: p.cultivar || '', kind: p.kind || 'mother',
+    img: p.coverThumb || p.thumb || ((p.media || []).find(m => m.type !== 'video') || {}).url || '',
+    price: p.price ?? null, mode: p.mode || 'fixed', listed: p.listed !== false, hidden: !!p.hidden, priv: !!p.private, keep: p.status === 'keep',
+    live: (p.mode === 'auction' && (+p.endsAtMs || 0) > now) || (p.mode === 'encounter' && p.listed !== false), n: +p.photoCount || 0,
+    grp: p.grp || '', grpName: (p.grp && groups[p.grp] && groups[p.grp].name) || '', batch: p.batch || '', stack: p.stack || '',
+    mom: par(p, 'm'), dad: par(p, 'd'), tags: Array.isArray(p.tags) ? p.tags.slice(0, 12) : [], cross: String(p.cross || '').slice(0, 120),
+    at: ms(p.createdAt), rec: String(p.lastPhotoAt || '')
   })).sort((a, b) => String(a.code).localeCompare(String(b.code), undefined, { numeric: true }));
 }
 

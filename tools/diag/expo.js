@@ -7,7 +7,7 @@ const api = async b => { const r = await fetch('https://vein-48ec8.web.app/xapi'
   let r = await api({ a: 'info' }); console.log('INFO', r.s, r.j.ok, r.j.name, r.j.shop ? 'shop-ok' : 'no-shop');
   r = await api({ a: 'login', pw: 'WRONG123' }); console.log('BADPW', r.s, r.j.err);
   r = await api({ a: 'login', pw: PW, by: 'diag' }); console.log('LOGIN', r.s, r.j.ok);
-  r = await api({ a: 'list', pw: PW }); const L = r.j.plants || []; console.log('LIST', r.s, 'plants', L.length, 'listed', L.filter(p => p.listed).length, 'live', L.filter(p => p.live).length, 'withImg', L.filter(p => p.img).length);
+  r = await api({ a: 'list', pw: PW }); const L = r.j.plants || []; console.log('LIST', r.s, 'plants', L.length, 'grp', L.filter(p => p.grp).length, 'grpName', L.filter(p => p.grpName).length, 'mom', L.filter(p => p.mom).length, 'kinds', [...new Set(L.map(p => p.kind))].join('/'), 'listed', L.filter(p => p.listed).length, 'live', L.filter(p => p.live).length, 'withImg', L.filter(p => p.img).length);
   if (L[0]) { r = await api({ a: 'qr', pw: PW, pid: L[0].id }); console.log('QR', r.s, r.j.ok, /^ex[0-9a-f]{24}$/.test(r.j.tok || '') ? 'tok-ok' : 'tok-bad');
     const tok = r.j.tok; r = await api({ a: 'poll', pw: PW, pid: L[0].id, tok }); console.log('POLL', r.s, r.j.ok, 'req', r.j.req);
     r = await api({ a: 'price', pw: PW, pid: L[0].id, price: -5 }); console.log('PRICE-BAD', r.s, r.j.err);
