@@ -10738,7 +10738,54 @@ function hiPhoto(p,want){ want=want||p?.coverThumb||p?.thumb; if(!p||!S.db||!p.i
 const sdImg=src=>{ if(!src) return Promise.resolve(null); if(!sdImgCache.has(src)) sdImgCache.set(src,loadImg(src,!sameOrigin(src))); return sdImgCache.get(src); };
 function sdPhotos(p){ const L=[]; (p.media||[]).forEach(m=>{ if(!m?.url) return; const u=m.type==='video'?(m.poster||''):m.url; if(u&&!L.includes(u)) L.push(u); }); [p.coverThumb,p.thumb].forEach(u=>{ if(u&&!L.includes(u)) L.push(u); }); return L.slice(0,12); }
 function sdTags(p,c){ if(p.__multi){ const sp=[...new Set(p.__multi.map(x=>short(x.species)))]; return c.showKind?[sp.length>1?sp.length+' 個品種':sp[0]]:[]; } const t=[]; if(c.showKind) t.push(kindLabel(p)); if(c.showStatus&&onSale(p)) t.push(live(p)?'競標中':'販售中'); if(c.showTags) tagsOf(p).slice(0,2).forEach(x=>t.push('#'+x)); return t; }
+/* 父母本模式：母本 × 父本 → 這株（照片整張顯示、名稱完整換行不截斷） */
+const sdParOf=(p,w)=>{ const id=w==='m'?momId(p):dadId(p), X=w==='m'?momExt(p):dadExt(p), P=id?S.plants.get(id):null, code=P?.code||X?.code||(w==='m'?momCode(p):dadCode(p))||''; const name=P?pName(P):(X?.name||''); return (P||name||code)?{P,name,code,photo:P?(sdPhotos(P)[0]||cover(P)):null}:null; };
+const sdHasPar=p=>!!(sdParOf(p,'m')||sdParOf(p,'d'));
+function sdParText(p){ const m=sdParOf(p,'m'), d=sdParOf(p,'d'), L=x=>x?[x.name,x.code].filter(Boolean).join(' '):'未知', pl=onSale(p)?priceLabel(p):null;
+  return ['🧬 '+pName(p)+(p.code?'（'+p.code+'）':''),'♀ 母本：'+L(m),p.kind==='pup'?'':'♂ 父本：'+L(d),pl?pl.sub+' '+pl.main:'','父母本照片與完整履歷都在 VEIN 👉 '+plantUrl(p)].filter(Boolean).join('\n'); }
+async function sdParents(cv,p,c,scale=1){
+  const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080; cv.width=W; cv.height=H; const g=cv.getContext('2d');
+  const F='"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,Menlo,monospace', A=VOLT, BG='#07080A', story=c.fmt==='story', sq=c.fmt==='square';
+  const m=sdParOf(p,'m'), d=p.kind==='pup'?null:sdParOf(p,'d'), pup=p.kind==='pup';
+  const [im,mi,di]=await Promise.all([sdImg(c.photo||sdPhotos(p)[0]||cover(p)),sdImg(m?.photo),sdImg(d?.photo)]);
+  g.fillStyle=BG; g.fillRect(0,0,W,H);
+  // 換行：不出現「…」，放不下就縮字，再放不下就多換幾行
+  const lines=(t,maxW,wt,size)=>{ g.font=wt+' '+size+'px '+F; const out=[]; let line=''; for(const ch of String(t||'')){ if(g.measureText(line+ch).width>maxW&&line){ let carry=''; const cut=line.lastIndexOf(' '); if(ch!==' '&&cut>0&&!/[　-鿿＀-￯]/.test(ch)){ carry=line.slice(cut+1); line=line.slice(0,cut); } out.push(line.trimEnd()); line=carry+(ch===' '?'':ch); } else line+=ch; } if(line.trim()) out.push(line.trim()); return out; };
+  const fitWrap=(t,maxW,wt,size,want,min)=>{ let sz=size, L=lines(t,maxW,wt,sz); while(L.length>want&&sz>min){ sz=Math.max(min,sz*.92); L=lines(t,maxW,wt,sz); } return {L,sz}; };
+  const text=(r,x,y,col,wt,align,lh=1.18)=>{ g.fillStyle=col; g.font=wt+' '+Math.round(r.sz)+'px '+F; g.textAlign=align||'left'; r.L.forEach((l,i)=>g.fillText(l,x,y+i*r.sz*lh)); g.textAlign='left'; return r.L.length*r.sz*lh; };
+  const box=(img,x,y,w,h,label)=>{ g.save(); g.fillStyle='#14161A'; g.beginPath(); g.roundRect(x,y,w,h,18*u); g.fill(); g.clip();
+    if(img){ const r=Math.min(w/img.width,h/img.height), dw=img.width*r, dh=img.height*r; g.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh); } else { g.fillStyle='rgba(210,255,0,.18)'; g.font='900 '+Math.round(Math.min(w,h)*.32)+'px '+F; g.textAlign='center'; g.textBaseline='middle'; g.fillText('🌿',x+w/2,y+h/2); g.textBaseline='alphabetic'; g.textAlign='left'; }
+    g.restore(); g.strokeStyle='rgba(210,255,0,.6)'; g.lineWidth=3*u; g.beginPath(); g.roundRect(x,y,w,h,18*u); g.stroke();
+    if(label){ g.font='900 '+Math.round(28*u)+'px '+F; const tw=g.measureText(label).width+30*u; g.fillStyle=A; g.beginPath(); g.roundRect(x+14*u,y+14*u,tw,48*u,24*u); g.fill(); g.fillStyle=BG; g.textBaseline='middle'; g.fillText(label,x+29*u,y+39*u); g.textBaseline='alphabetic'; } };
+  const M=48*u, top=(story?150:44)*u;
+  // 頁首
+  g.fillStyle='#1F5C42'; g.beginPath(); g.roundRect(M,top,40*u,40*u,11*u); g.fill(); g.fillStyle=A; g.beginPath(); g.arc(M+20*u,top+20*u,7*u,0,7); g.fill();
+  g.fillStyle='#fff'; g.font='900 '+Math.round(32*u)+'px '+F; g.textBaseline='middle'; g.fillText('VEIN',M+54*u,top+21*u); g.fillStyle='rgba(255,255,255,.6)'; g.font='800 '+Math.round(28*u)+'px '+F; g.fillText('・'+shopName(p.shop),M+140*u,top+21*u);
+  g.font='900 '+Math.round(28*u)+'px '+F; const lb='🧬 父母本'; const lw=g.measureText(lb).width+34*u; g.strokeStyle=A; g.lineWidth=2.5*u; g.beginPath(); g.roundRect(W-M-lw,top-2*u,lw,46*u,23*u); g.stroke(); g.fillStyle=A; g.fillText(lb,W-M-lw+17*u,top+21*u); g.textBaseline='alphabetic';
+  // 上排：母本 × 父本
+  const two=!pup, cw=two?(W-M*2-70*u)/2:Math.min(560*u,W-M*2), ph=(story?470:sq?250:330)*u, py=top+(story?90:72)*u, xs=two?[M,W-M-cw]:[(W-cw)/2];
+  const PAR=two?[[m,mi,'♀ 母本'],[d,di,'♂ 父本']]:[[m,mi,'♀ 分株自']];
+  let nameBottom=py+ph;
+  PAR.forEach(([x,img,lab],i)=>{ box(img,xs[i],py,cw,ph,lab); let y=py+ph+44*u;
+    const nm=x?(x.name||x.code||'未知'):'未知'; y+=text(fitWrap(nm,cw-8*u,'900',38*u,2,26*u),xs[i]+4*u,y,'#fff','900');
+    if(x?.code&&x.name){ g.fillStyle='rgba(210,255,0,.8)'; g.font='700 '+Math.round(26*u)+'px '+MONO; g.fillText(x.code,xs[i]+4*u,y+4*u); y+=34*u; }
+    nameBottom=Math.max(nameBottom,y); });
+  if(two){ const cx=W/2, cy=py+ph/2; g.fillStyle=A; g.beginPath(); g.arc(cx,cy,34*u,0,7); g.fill(); g.fillStyle=BG; g.font='900 '+Math.round(44*u)+'px '+F; g.textAlign='center'; g.textBaseline='middle'; g.fillText('×',cx,cy+2*u); g.textAlign='left'; g.textBaseline='alphabetic'; }
+  // 連接線 → 這株
+  const ly=nameBottom+8*u, cy0=ly+(story?70:50)*u; g.strokeStyle=A; g.lineWidth=4*u; g.beginPath(); if(two){ g.moveTo(xs[0]+cw/2,ly); g.lineTo(xs[0]+cw/2,ly+18*u); g.lineTo(xs[1]+cw/2,ly+18*u); g.lineTo(xs[1]+cw/2,ly); } g.moveTo(W/2,two?ly+18*u:ly); g.lineTo(W/2,cy0-14*u); g.stroke();
+  g.fillStyle=A; g.beginPath(); g.moveTo(W/2-16*u,cy0-20*u); g.lineTo(W/2+16*u,cy0-20*u); g.lineTo(W/2,cy0); g.closePath(); g.fill();
+  // 下排：這株照片（左）＋名稱價格 QR（右）
+  const by=cy0+16*u, bh=H-by-M-(story?90*u:0), pw=Math.round((W-M*2)*.56), rx=M+pw+30*u, rw=W-M-rx;
+  box(im,M,by,pw,bh,p.kind==='pup'?'這株分株':'這株');
+  let y=by+56*u; const nr=fitWrap(pName(p),rw,'900',(story?60:52)*u,4,30*u); y+=text(nr,rx,y,'#fff','900')+4*u;
+  if(p.code){ g.fillStyle='rgba(255,255,255,.65)'; g.font='700 '+Math.round(28*u)+'px '+MONO; g.fillText(p.code+'・'+kindLabel(p),rx,y); y+=50*u; }
+  const pl=c.showPrice!==false&&onSale(p)?priceLabel(p):null; if(pl){ g.fillStyle='rgba(255,255,255,.7)'; g.font='800 '+Math.round(26*u)+'px '+F; g.fillText(pl.sub||'',rx,y); y+=12*u; const pr=fitWrap(pl.main,rw,'italic 900',58*u,2,34*u); y+=pr.sz*.9; text(pr,rx,y,A,'italic 900'); y+=pr.L.length*pr.sz*1.18; }
+  if(c.showQR!==false){ const QS=Math.min(rw,(story?220:180)*u), qx=rx, qy=by+bh-QS; if(qy>y){ const Q=await loadQR(); if(Q){ try{ const q=Q(0,'M'); q.addData(plantUrl(p)); q.make(); const n=q.getModuleCount(), pad=QS*.08, cell=(QS-pad*2)/n; g.fillStyle='#fff'; g.beginPath(); g.roundRect(qx,qy,QS,QS,QS*.1); g.fill(); g.fillStyle=BG; for(let r=0;r<n;r++) for(let k=0;k<n;k++) if(q.isDark(r,k)) g.fillRect(qx+pad+k*cell,qy+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); }catch(e){} } } }
+  if(story){ g.fillStyle='rgba(255,255,255,.55)'; g.font='700 '+Math.round(26*u)+'px '+F; g.fillText(plantUrl(p).replace(/^https?:\/\//,''),M,H-M-20*u,W-M*2); }
+  return !!im;
+}
 async function sdRender(cv,p,c,scale=1){
+  if (c.tpl==='parents') return sdParents(cv,p,c,scale);
   const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080, s=u*(c.size||1), rd=c.round??1, TX=c.ink||'#fff'; cv.width=W; cv.height=H; const g=cv.getContext('2d');
   const FF={sans:'"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif',serif:'"Noto Serif TC","Songti TC",Georgia,serif',round:'"Arial Rounded MT Bold","Yuanti TC","PingFang TC",system-ui,sans-serif',mono:'"JetBrains Mono",ui-monospace,Menlo,monospace'}, F=FF[c.font]||FF.sans, MONO=FF.mono;
   const A=c.color||VOLT, INK='#050605', dark=A==='#111312', onA=['#FFFFFF','#D2FF00','#FFB4C8','#8CF5C0','#7FD4FF','#FF8A3D'].includes(A)?INK:'#fff';
@@ -11130,6 +11177,7 @@ const SD_MODES=[
   ['growth','📸','成長紀錄','第 N 天',{fmt:'story',tpl:'frame',showPrice:false,showCode:true,note:p=>'第 '+sdDays(p)+' 天 · '+(p.photoCount||0)+' 筆紀錄'},p=>'📸 第 '+sdDays(p)+' 天的樣子\n每一張照片都保留原始拍攝時間，完整履歷在 VEIN\n👉 '+plantUrl(p)],
   ['multi','🖼','多圖模式','多張照片拼貼',{fmt:'post',tpl:'multi',showPrice:true,showQR:true,showStatus:true,showKind:true,shade:1},p=>'📷 多圖看清楚｜'+saleText(p),p=>sdPhotos(p).length>1],
   ['mpick','🧩','多株拼圖','多選植物拼一張',{fmt:'post',tpl:'mgrid',showPrice:true,showQR:true,showStatus:false,showKind:true,showCode:false,showCaps:true},p=>p.__multi?(p.__text||pkText(p.__multi)):'',p=>true],
+  ['parents','🧬','父母本','母本 × 父本',{fmt:'post',tpl:'parents',showPrice:true,showQR:true},p=>sdParText(p),p=>!p.__multi&&sdHasPar(p)],
   ['mother','👑','母本收藏','不賣也能秀',{fmt:'square',tpl:'magazine',showPrice:false,showStatus:false,showCode:true,note:'母本收藏'},p=>'👑 溫室母本收藏\n'+short(p.species)+(p.cultivar?' '+p.cultivar:'')+'・'+p.code+'\n血統與後代都在 VEIN 👉 '+plantUrl(p)],
 ];
 const SD_KEEP=Object.keys(SD_DEF).filter(k=>!['note','title'].includes(k));
@@ -11156,10 +11204,10 @@ function openShare(p,start){ lsSet('vein.didShare',true);
   const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(c[k]!==false&&!!c[k]),onclick:e=>{ c[k]=!(c[k]!==false&&!!c[k]); e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(true); }},l);
   const swatch=(key,list,thumbs)=>{ const box=h('div',{class:'dz-sw'}, ...list.map(col=>h('button',{type:'button',style:'background:'+col,'aria-label':col,'aria-pressed':String(c[key]===col),onclick:e=>{ c[key]=col; box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(thumbs); }}))); return box; };
   const tplBox=h('div',{class:'sd-tpls'});
-  const drawThumbs=()=>{ tplBox.replaceChildren(...(mode==='multi'||mode==='mpick'?SD_TPL_M:SD_TPL).map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),'aria-label':l,onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); sumUpd(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
+  const drawThumbs=()=>{ tplBox.replaceChildren(...(mode==='parents'?[['parents','父母本']]:mode==='multi'||mode==='mpick'?SD_TPL_M:SD_TPL).map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),'aria-label':l,onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); sumUpd(); }}, tc, h('small',{text:l})); sdRender(tc,p,{...c,tpl:k,showQR:false},0.16); return b; })); };
   const open=store.open||(store.open={photo:sdPhotos(p).length>1,show:true});
   const sumEls={};
-  const sumUpd=()=>{ const fmtL=(SD_FMT[c.fmt]||SD_FMT.post)[2], tplL=([...SD_TPL,...SD_TPL_M].find(t=>t[0]===c.tpl)||SD_TPL[0])[1];
+  const sumUpd=()=>{ const fmtL=(SD_FMT[c.fmt]||SD_FMT.post)[2], tplL=([...SD_TPL,...SD_TPL_M,['parents','父母本']].find(t=>t[0]===c.tpl)||SD_TPL[0])[1];
     if(sumEls.cap) sumEls.cap.textContent=modeDef(mode)[2]+' · '+fmtL+' · '+tplL;
     if(sumEls.photo) sumEls.photo.textContent=(sdPhotos(p).length>1?'第 '+(sdPhotos(p).indexOf(c.photo)+1)+' / '+sdPhotos(p).length+' 張':'1 張')+' · '+((SD_FILTERS.find(f=>f[0]===c.filter)||SD_FILTERS[0])[1])+(c.zoom>1.01?' · 放大 '+(+c.zoom).toFixed(1)+'×':'');
     if(sumEls.show){ const on=[['showPrice','價格'],['showQR','QR'],['showCode','編號'],['showKind','類型'],['showStatus','狀態'],['showTags','標籤'],['showShopName','溫室名'],['showVein','VEIN']].filter(([k])=>c[k]!==false&&!!c[k]).map(x=>x[1]); sumEls.show.textContent=(on.length?on.join('、'):'只放照片')+(c.note?' ·「'+c.note+'」':''); }

@@ -171,10 +171,13 @@ function wrap(f, t, size, maxW, maxLines) {
   if (maxLines && lines.length > maxLines) { const L = lines.slice(0, maxLines); L[maxLines - 1] = fit(f, L[maxLines - 1] + ' ' + lines.slice(maxLines).join(' '), size, maxW); return L; }
   return lines;
 }
+// 名稱一律完整顯示：放不下先縮字，再不行就多換幾行（不出現 …）
+function wrapFit(f, t, size, maxW, want, min) { let sz = size, L = wrap(f, t, sz, maxW); while (L.length > want && sz > min) { sz = Math.max(min, Math.floor(sz * .92)); L = wrap(f, t, sz, maxW); } return { L, sz }; }
+const tSize = (f, t, ts, maxW) => f ? Math.max(40, Math.min(ts, Math.floor(ts * maxW / Math.max(1, f.getAdvanceWidth(String(t || ''), ts))))) : ts;
 // 照片底部名稱＋價格（漸層上）
 function onPhotoLabel(f, bx, small) {
   const it = bx.o.it; if (!it.name && !it.price) return '';
-  const fs = Math.max(18, Math.min(small ? 26 : 32, Math.round(bx.pw / 11))), mw = bx.pw - 28, nl = wrap(f, it.name, fs, mw, 2), gh = Math.min(bx.ph * .5, fs * (1.6 + 1.25 * (nl.length + 1)));
+  const fs0 = Math.max(18, Math.min(small ? 26 : 32, Math.round(bx.pw / 11))), mw = bx.pw - 28, W2 = wrapFit(f, it.name, fs0, mw, 3, 14), nl = W2.L, fs = W2.sz, gh = Math.min(bx.ph * .62, fs * (1.6 + 1.25 * (nl.length + 1)));
   let s = '<rect x="' + bx.px + '" y="' + (bx.py + bx.ph - gh) + '" width="' + bx.pw + '" height="' + gh + '" fill="url(#g)"/>';
   const y0 = bx.py + bx.ph - 16; nl.forEach((l, i) => { s += txt(f, l, bx.px + 14, y0 - fs * 1.25 * (nl.length - i), fs, '#fff', mw); });
   return s + txt(f, it.price, bx.px + 14, y0, fs, V, mw);
@@ -191,13 +194,13 @@ async function fullBleed({ o, title, more, foot, url, story, sub, f, WW, HH, PAD
   if (cut <= .1) comp.push({ input: await sharp()(o.b).resize(WW, HH, { fit: 'cover', position: 'centre' }).toBuffer(), left: 0, top: 0 });
   else { comp.push({ input: await sharp()(o.b).resize(Math.round(WW / 4), Math.round(HH / 4), { fit: 'cover' }).blur(6).modulate({ brightness: .45 }).resize(WW, HH).toBuffer(), left: 0, top: 0 });
     const b = await sharp()(o.b).resize(WW, HH, { fit: 'inside' }).toBuffer({ resolveWithObject: true }); comp.push({ input: b.data, left: Math.round((WW - b.info.width) / 2), top: Math.round((HH - b.info.height) / 2) }); }
-  const th = story ? 420 : 290, bh = story ? 560 : 430, it = o.it, ts = story ? 92 : 80, tl = fit(f, title, ts, WW - PAD * 2 - 20);
+  const th = story ? 420 : 290, bh = story ? 560 : 430, it = o.it, ts = tSize(f, title, story ? 92 : 80, WW - PAD * 2 - 20), tl = fit(f, title, ts, WW - PAD * 2 - 20);
   let s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".85"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".45" stop-color="#000" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity=".92"/></linearGradient></defs>';
   s += '<rect width="' + WW + '" height="' + th + '" fill="url(#t)"/><rect y="' + (HH - bh) + '" width="' + WW + '" height="' + bh + '" fill="url(#b)"/>';
   const ly = story ? 150 : 72; s += logo(f, PAD + 16, ly, sub, false, WW - PAD * 2) + txt(f, tl, PAD + 16, ly + ts + 22, ts, '#fff') + '<rect x="' + (PAD + 16) + '" y="' + (ly + ts + 46) + '" width="120" height="8" rx="4" fill="' + V + '"/>';
   const qr = story ? 220 : 170, qy = HH - (story ? 160 : 52) - qr, mw = WW - PAD * 2 - 32 - qr - 30, lab = !!(it.name || it.price);
   const fs = autoFs(f, foot, lab ? (story ? 72 : 64) : (story ? 92 : 80), mw), fyB = lab ? qy + qr - 6 : qy + qr / 2 + fs * .36; s += txt(f, foot, PAD + 16, fyB, fs, V);
-  if (lab) { const nl = wrap(f, it.name, 38, mw, 2); let y = fyB - fs - 20; if (it.price) { s += txt(f, it.price, PAD + 16, y, 38, V, mw); y -= 48; } for (let i = nl.length - 1; i >= 0; i--) { s += txt(f, nl[i], PAD + 16, y, 38, '#fff'); y -= 48; } }
+  if (lab) { const W2 = wrapFit(f, it.name, 38, mw, 3, 24), nl = W2.L, ns = W2.sz; let y = fyB - fs - 20; if (it.price) { s += txt(f, it.price, PAD + 16, y, 38, V, mw); y -= 48; } for (let i = nl.length - 1; i >= 0; i--) { s += txt(f, nl[i], PAD + 16, y, ns, '#fff'); y -= ns * 1.25; } }
   if (story) s += txt(f, shortUrl(url), PAD + 16, HH - 92, 26, 'rgba(255,255,255,.6)', WW - PAD * 2);
   if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; s += '<rect x="' + (WW - PAD - mw2 - 32) + '" y="' + (ly - 40) + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, WW - PAD - mw2 - 16, ly + 5, 42, '#fff'); }
   comp.push({ input: Buffer.from(s + '</svg>'), left: 0, top: 0 });
@@ -215,7 +218,7 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
   const put = (bx, rr) => P.push({ bx, rr: rr == null ? Math.round(Math.min(bx.pw, bx.ph) * .04) : rr });
   const moreBadge = (x, y) => { if (!(more > 0)) return ''; const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; return '<rect x="' + (x - mw2 - 32) + '" y="' + y + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, x - mw2 - 16, y + 45, 42, '#fff'); };
   // 標準頁首、頁尾（多數版型共用）
-  const head = (top, center) => { const ty = top - (story ? 50 : 30), ts = story ? 92 : 76; const tl = fit(f, title, ts, WW - PAD * 2); const tw2 = f ? f.getAdvanceWidth(tl, ts) : 0;
+  const head = (top, center) => { const ty = top - (story ? 50 : 30), ts = tSize(f, title, story ? 92 : 76, WW - PAD * 2); const tl = fit(f, title, ts, WW - PAD * 2); const tw2 = f ? f.getAdvanceWidth(tl, ts) : 0;
     return logo(f, center ? Math.round((WW - 126 - (sub && f ? f.getAdvanceWidth('・' + sub, 30) : 0)) / 2) : PAD + 16, story ? 150 : 56, sub, false, WW - PAD * 2) + txt(f, tl, center ? Math.round((WW - tw2) / 2) : PAD + 16, ty, ts, '#fff'); };
   const footer = async (y0, h, opt = {}) => { const qr = Math.min(story ? 220 : 160, h - 24), fy = y0 + h / 2, mw = WW - PAD * 2 - 32 - qr - 30, fs = autoFs(f, foot, story ? 92 : 80, mw);
     let s = txt(f, foot, PAD + 16, fy + fs * .36 - (story ? 18 : 0), fs, opt.color || V); if (story) s += txt(f, shortUrl(url), PAD + 16, fy + fs * .36 + 46, 26, opt.dim || 'rgba(255,255,255,.55)', mw);
@@ -232,7 +235,7 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     gridIn(ok, A, 12).forEach(b => put(b));
     svg += '<rect x="0" y="0" width="' + (LW - 10) + '" height="' + HH + '" fill="#0F1114"/><rect x="' + (LW - 10) + '" y="0" width="6" height="' + HH + '" fill="' + V + '"/>';
     svg += logo(f, PAD, PAD + 50, '', false);
-    const ts = story ? 74 : 64, tl = wrap(f, title, ts, LW - PAD * 2 - 10, story ? 6 : 5); let y = PAD + 150 + ts; tl.forEach(l => { svg += txt(f, l, PAD, y, ts, '#fff'); y += ts * 1.18; });
+    const ts = story ? 74 : 64, tl = wrap(f, title, ts, LW - PAD * 2 - 10); let y = PAD + 150 + ts; tl.forEach(l => { svg += txt(f, l, PAD, y, ts, '#fff'); y += ts * 1.18; });
     if (sub) { y += 10; wrap(f, sub, 28, LW - PAD * 2 - 10, 3).forEach(l => { svg += txt(f, l, PAD, y, 28, 'rgba(255,255,255,.6)'); y += 38; }); }
     const qr = 200, qy = HH - PAD - qr - (story ? 50 : 0); const fl = wrap(f, foot, 56, LW - PAD * 2 - 10, 3); let fy = qy - 40 - (fl.length - 1) * 66;
     svg += '<rect x="' + PAD + '" y="' + (fy - 86) + '" width="70" height="6" fill="' + V + '"/>'; fl.forEach(l => { svg += txt(f, l, PAD, fy, 56, V); fy += 66; });
@@ -242,7 +245,7 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
   } else if (tpl === 3) { // 螢光海報：螢光綠底、黑字、黑框照片
     bg = V; const top = TOP + 20, bot = BOT + 10, A = { x: PAD + 6, y: top + 6, w: WW - PAD * 2 - 12, h: HH - top - bot - 12 };
     gridIn(ok, A, 18).forEach(b => put(b, 6));
-    const ts = story ? 104 : 92, tl = fit(f, title, ts, WW - PAD * 2 - 20);
+    const ts = tSize(f, title, story ? 104 : 92, WW - PAD * 2 - 20), tl = fit(f, title, ts, WW - PAD * 2 - 20);
     svg += logo(f, PAD + 8, story ? 150 : 62, sub, true, WW - PAD * 2) + txt(f, tl, PAD + 8, top - (story ? 52 : 32), ts, BG);
     P.forEach(({ bx }) => { svg += '<rect x="' + (bx.px - 6) + '" y="' + (bx.py - 6) + '" width="' + (bx.pw + 12) + '" height="' + (bx.ph + 12) + '" rx="10" fill="' + BG + '"/>'; });
     svg += '<rect x="0" y="' + (HH - bot + 20) + '" width="' + WW + '" height="' + (bot - 20) + '" fill="' + BG + '"/>' + await footer(HH - bot + 20, bot - 20);
@@ -264,9 +267,9 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     const top = TOP, bot = BOT, A = { x: 24, y: top + 14, w: WW - 48, h: HH - top - bot - 28 };
     const capR = labeled ? .26 : .12, cells = gridIn(ok.map(o => ({ ...o, w: o.w * 1.08, h: o.h + o.w * (.04 + capR) })), A, 22), ang = [-3.5, 2.5, -2, 3, -2.5, 2];
     for (let k = 0; k < cells.length; k++) { const c = cells[k], o = ok[k], s = .93, fw = Math.round(c.pw * s), fh = Math.round(c.ph * s), m = Math.round(fw * .04), cap = Math.round(fw * capR), pw = fw - m * 2, ph = fh - m - cap;
-      try { const fs = Math.max(15, Math.min(30, Math.round(cap / 2.7))), nl = o.it.name ? fit(f, o.it.name, fs, fw - m * 2 - 8) : '', pr = o.it.price || '';
+      try { const fs0 = Math.max(15, Math.min(30, Math.round(cap / 2.7))), W1 = wrapFit(f, o.it.name, fs0, fw - m * 2 - 8, 2, 11), z2 = Math.min(W1.sz, Math.floor((cap - 8) / ((W1.L.length + (o.it.price ? 1 : 0)) * 1.18 || 1))), W2 = z2 < W1.sz ? { L: wrap(f, o.it.name, z2, fw - m * 2 - 8), sz: z2 } : W1, NL = W2.L, fs = W2.sz, nl = NL.length, pr = o.it.price || '';
         let fr = '<svg xmlns="http://www.w3.org/2000/svg" width="' + fw + '" height="' + fh + '"><rect width="' + fw + '" height="' + fh + '" rx="6" fill="#1B1D21" stroke="' + V + '" stroke-opacity=".7" stroke-width="3"/>';
-        if (nl || pr) fr += txt(f, nl, m + 4, ph + m + cap / 2 - fs * .05, fs, '#fff') + txt(f, pr, m + 4, ph + m + cap / 2 + fs * 1.2, fs, V); else fr += '<circle cx="' + (fw / 2) + '" cy="' + (ph + m + cap / 2) + '" r="' + Math.max(5, cap * .12) + '" fill="' + V + '"/>';
+        if (nl || pr) { const y0 = ph + m + (cap - (nl + (pr ? 1 : 0)) * fs * 1.18) / 2 + fs * .95; NL.forEach((l, i) => { fr += txt(f, l, m + 4, y0 + i * fs * 1.18, fs, '#fff'); }); fr += txt(f, pr, m + 4, y0 + nl * fs * 1.18, Math.max(fs, 14), V); } else fr += '<circle cx="' + (fw / 2) + '" cy="' + (ph + m + cap / 2) + '" r="' + Math.max(5, cap * .12) + '" fill="' + V + '"/>';
         fr += '</svg>'; const ph2 = await sharp()(o.b).resize(pw, ph, { fit: 'inside' }).toBuffer({ resolveWithObject: true });
         const card = await sharp()(Buffer.from(fr)).composite([{ input: ph2.data, left: m + Math.round((pw - ph2.info.width) / 2), top: m + Math.round((ph - ph2.info.height) / 2) }]).png().toBuffer();
         const rot = await sharp()(card).rotate(ang[k % 6], { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer({ resolveWithObject: true });
@@ -277,7 +280,7 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     const top = TOP, bot = BOT, A = { x: PAD, y: top + 14, w: WW - PAD * 2, h: HH - top - bot - 28 }, n = ok.length, G = 16, rh = Math.min(story ? 320 : 270, (A.h - G * (n - 1)) / n), y0 = A.y + (A.h - (rh * n + G * (n - 1))) / 2, tw = Math.round(rh * 1.05);
     ok.forEach((o, k) => { const y = y0 + k * (rh + G); put(contain(o, { x: A.x, y, w: tw, h: rh }, 0, .5), 10);
       if (k) svg += '<rect x="' + A.x + '" y="' + (y - G / 2 - 1) + '" width="' + A.w + '" height="2" fill="rgba(210,255,0,.25)"/>';
-      const tx = A.x + tw + 30, mw = A.w - tw - 30, fs = Math.min(48, Math.max(28, Math.round(rh / 5))), nl = wrap(f, o.it.name, fs, mw, 2), ty = y + rh / 2 - (nl.length * fs * 1.2 + fs * 1.3) / 2 + fs;
+      const tx = A.x + tw + 30, mw = A.w - tw - 30, W2 = wrapFit(f, o.it.name, Math.min(48, Math.max(28, Math.round(rh / 5))), mw, 3, 22), fs = W2.sz, nl = W2.L, ty = y + rh / 2 - (nl.length * fs * 1.2 + fs * 1.3) / 2 + fs;
       svg += txt(f, String(k + 1).padStart(2, '0'), tx, ty - fs * 1.05, 22, V); nl.forEach((l, i) => { svg += txt(f, l, tx, ty + i * fs * 1.2, fs, '#fff'); }); svg += txt(f, o.it.price, tx, ty + nl.length * fs * 1.2 + fs * .15, Math.round(fs * 1.05), V, mw); });
     svg += head(top) + '<rect x="0" y="' + (top - 4) + '" width="' + WW + '" height="6" fill="' + V + '"/><rect x="0" y="' + (HH - bot) + '" width="' + WW + '" height="6" fill="' + V + '"/>' + await footer(HH - bot, bot);
     svgTop += moreBadge(WW - PAD, HH - bot - 70);
