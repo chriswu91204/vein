@@ -8247,7 +8247,12 @@ function afTopBar(){ const F=afState(), all=afAvail(), set=afSet;
 function afFeed(c){ const F=afState(), all=afAvail(), now=Date.now();
   const pv=p=>isEnc(p)?(+encCalc(p).price||0):isAuc(p)?(+(topBid(p.id)?.amt||p.startPrice)||0):(+p.price||0); // 跟卡片上顯示的價格一致
   const SO={rec:null,new:(a,b)=>toMs(b.createdAt)-toMs(a.createdAt),asc:(a,b)=>(pv(a)||9e9)-(pv(b)||9e9),desc:(a,b)=>pv(b)-pv(a),end:(a,b)=>(live(a)?a.endsAtMs:9e15)-(live(b)?b.endsAtMs:9e15)};
-  let L=all.filter(p=>afOk(p)); if(SO[F.sort]) L.sort(SO[F.sort]); else L=afRank(L);
+  let L=all.filter(p=>afOk(p)); if(SO[F.sort]) L.sort(SO[F.sort]); else {
+    // 綜合：這次瀏覽排好的順序固定下來；點進植物再回來（看過的植物會讓推薦分數變動）也不會整個重排，可以接著往下看
+    const key=JSON.stringify(['rec',F.wk,F.mode,F.kind,F.g,F.pr,F.pmin,F.pmax]), K=S.afKeep||(S.afKeep={}), keep=K[key];
+    if(keep){ const by=new Map(L.map(p=>[p.id,p])), had=new Set(keep); L=[...keep.map(id=>by.get(id)).filter(Boolean),...afRank(L.filter(p=>!had.has(p.id)))]; }
+    else L=afRank(L);
+    K[key]=L.map(p=>p.id); }
   const set=afSet;
   // 商品卡：整齊兩欄、價格大字、賣場、收藏、競標倒數
   const card=p=>{ const pl=priceLabel(p), Lv=live(p), FT=isFeat(p), PN=!FT&&isPin(p), nb=+p.bidCount||+p.bids||0;
