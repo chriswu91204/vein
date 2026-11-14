@@ -14284,7 +14284,7 @@ function plantQuick(p,openE){ const mineShop=p.shop===S.me&&!S.work, cd=custd(p)
   return {grid:[['✏️','管理',()=>openE(p),'pri'],['↗','轉發',()=>shareAny(p)],
     canList?['🏷',cd?'申請上架':'上架',()=>openQuickList(p)]:listed(p)&&!live(p)&&p.status!=='sold'&&mineShop?['⏸','下架',()=>{ if(confirm('下架 '+p.code+'？履歷會保留')) unlistPlant(p); }]:['🌐','商品頁',()=>{ adm.close(); openPlant(p.id); }],
     ['📜','履歷',()=>openHistory(p.id)]]}; }
-function plantMore(p){ const own=ownerOf(p)===S.me&&!S.work, mineShop=p.shop===S.me&&!S.work, cd=custd(p), C='compact';
+function plantMoreBtns(p){ const own=ownerOf(p)===S.me&&!S.work, mineShop=p.shop===S.me&&!S.work, cd=custd(p), C='compact';
   return ['更多',
     ['🔗','複製連結','',()=>copyText(plantUrl(p)),C],
     ['📶','寫入 NFC 貼紙','',()=>writeNfc(p),C],
@@ -14397,7 +14397,7 @@ function admReg(m){
       ks.length?['🌿','看後代（'+ks.length+' 株）','',()=>drillTo(p),'compact']:null,
       ['☑️',sel.has(p.id)?'取消選取':'選取這株（一起上架、印標籤、移區）','',()=>{ sel.has(p.id)?sel.delete(p.id):sel.add(p.id); S.rgPick=true; renderAdmin(true); },'compact'],
       ks.length?['👪','選取全家','',()=>selAll(famOf(p),true),'compact']:null,
-      ...plantMore(p)]); };
+      ...plantMoreBtns(p)]); };
   const stackMenu=(L,title)=>rgSheet(title, L.length+' 株 · '+L[0].code+' → '+L[L.length-1].code, [
       ['📄','打開這疊的頁面','整疊一起看：每一株的照片、編號、履歷',()=>openBatchPage(L)],
       ['✏️','批量修改這疊','名稱打錯、父母本新增或刪除、標籤…一次改好',()=>openBulkEdit(L,title+' · '+L.length+' 株')],
@@ -15768,7 +15768,7 @@ function admGuard(m){
   draw();
 }
 if (location.hostname==='localhost') window.__lvDbg=()=>{ const e=LV.ev; if(!e) return null; if(e.phase==='done') return {done:true}; const c=e.cur; if(!c) return null; return {lid:c.lid,i:c.i||0,left:c.endsAt-lvNow(),pv:!!lvPrev(c),gap:!!c.gapUntil,top:c.top?.uid||null,me:S.me}; };
-if (location.hostname==='localhost') window.__vein={S,openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMore(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -16431,7 +16431,7 @@ function admEditor(m, id){
       h('button',{class:'btn lime',type:'button',onclick:()=>shareAny(p),text:'↗ 轉發'}),
       h('button',{class:'btn soft',type:'button',onclick:()=>{ adm.close(); openPlant(p.id); },text:'🌐 商品頁'}),
       h('button',{class:'btn soft',type:'button',onclick:()=>openHistory(p.id),text:'📜 履歷'}),
-      h('button',{class:'btn soft',type:'button',onclick:()=>rgSheet(nm||p.code,p.code,plantMore(p).slice(1)),text:'⋯ 更多'})));
+      h('button',{class:'btn soft',type:'button',onclick:()=>rgSheet(nm||p.code,p.code,plantMoreBtns(p).slice(1)),text:'⋯ 更多'})));
   // 摘要卡
   const pl=priceLabel(p), on=onSale(p);
   const sumSale=h('div',{class:'pe-card sale'+(on?' on':'')}, h('small',{text:'販售'}),
