@@ -264,6 +264,11 @@ service cloud.firestore {
       }
     }
     // VEIN 拍賣會：活動與拍品；出價（liveBid）與推進（liveTick）都交給伺服器判定
+    // 防串通：正在競標這一件、而且已經出過價的人，結標前不能在聊天室發言
+    function lvMuted(id) {
+      let c = get(/databases/$(database)/documents/lives/$(id)).data.get('cur', null);
+      return c != null && c.get('gapUntil', null) == null && request.auth.uid in c.get('bu', {});
+    }
     match /lives/{id} {
       allow read: if true;
       allow write: if isAdmin();
@@ -281,8 +286,10 @@ service cloud.firestore {
         allow read: if true;
         allow create: if signedIn() && notBanned() && request.resource.data.keys().hasOnly(['uid', 'n', 't', 'at'])
           && request.resource.data.uid == request.auth.uid && request.resource.data.t is string && request.resource.data.t.size() > 0 && request.resource.data.t.size() <= 120
-          && request.resource.data.n is string && request.resource.data.n.size() <= 24 && request.resource.data.at is number;
-        allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+          && request.resource.data.n is string && request.resource.data.n.size() <= 24 && request.resource.data.at is number
+          && !lvMuted(id);
+        // 防串通：留言不能自己刪（避免湮滅證據），只有管理員能刪
+        allow delete: if isAdmin();
       }
       // 現在人數：每個在看的人一份報到紀錄（只存時間）
       match /viewers/{vid} {
@@ -381,8 +388,9 @@ service cloud.firestore {
     }
     match /pstat/{uid} { allow read: if true; }
     match /reports/{id} {
-      allow create: if signedIn() && request.resource.data.by == request.auth.uid;
-      allow read, delete: if isAdmin();
+      allow create: if signedIn() && request.resource.data.by == request.auth.uid
+        && (request.resource.data.get('kind', '') != 'lvchat' || (request.resource.data.keys().hasOnly(['kind', 'eid', 'mid', 'lid', 'why', 'by', 'at', 'text', 'uid']) && !('ctx' in request.resource.data)));
+      allow read, delete, update: if isAdmin();
     }
     // 管理員給會員的警告：本人看得到、可以按「我知道了」
     match /warns/{uid} {

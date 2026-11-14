@@ -815,7 +815,7 @@ async function lvFinalize(id) {
     } catch (e) { logger.error('lvFinalize', oid, String(e)); }
     const b = byBuyer.get(buyer) || { n: 0, t: 0, s: 0 }; b.n += L.length; b.t += total; b.s++; byBuyer.set(buyer, b); }
   for (const [buyer, b] of byBuyer) { try { await push(buyer, '🏆 ' + (ev.title || '拍賣會') + ' 得標 ' + b.n + ' 件', '合計 NT$ ' + b.t.toLocaleString('zh-TW') + (b.s > 1 ? '，共 ' + b.s + ' 個賣家各一筆訂單' : '，訂單已成立') + '，請到我的訂單付款', '/#/me/orders', 'lvb-' + id + buyer); } catch (e) {} }
-  await eref.update({ finalized: true, finalizedAt: now });
+  await eref.update({ finalized: true, finalizedAt: now, chatPurged: false });
 }
 exports.liveDone = onDocumentUpdated('lives/{id}', async ev => {
   const a = ev.data.after.data() || {}, b = ev.data.before.data() || {}; if (!(a.phase === 'done' && b.phase !== 'done')) return;
@@ -853,7 +853,7 @@ exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async 
       if (cur.top && cur.top.uid === b.uid) return { res: 'lead' };
       const sn = lvSnipe(e) * 1000, endsAt = cur.endsAt - now < sn ? cur.endsAt + sn : cur.endsAt; // 防尾刀：最後 N 秒內有人出價 → 結束時間「加」N 秒
       const top = { uid: b.uid, amt: need, at: now };
-      tx.update(eref, { cur: { ...cur, top, n: (cur.n || 0) + 1, endsAt, ext: endsAt !== cur.endsAt ? (cur.ext || 0) + 1 : (cur.ext || 0) }, now, bids: admin.firestore.FieldValue.increment(1) });
+      tx.update(eref, { cur: { ...cur, top, n: (cur.n || 0) + 1, endsAt, ext: endsAt !== cur.endsAt ? (cur.ext || 0) + 1 : (cur.ext || 0), bu: { ...(cur.bu || {}), [b.uid]: 1 } }, now, bids: admin.firestore.FieldValue.increment(1) });
       tx.set(eref.collection('lots').doc(cur.lid).collection('bids').doc(), { uid: b.uid, amt: need, at: now });
       return { res: 'ok', amt: need, endsAt };
     });
@@ -864,8 +864,29 @@ exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async 
 exports.liveTick = onDocumentCreated({ document: 'liveTick/{id}', ...HOT }, async ev => {
   const t = ev.data.data() || {}; if (!t.eid) return; try { await lvAdvance(t.eid); } catch (x) { logger.warn('liveTick', String(x)); } try { await ev.data.ref.delete(); } catch (e) {}
 });
+// 聊天紀錄：活動結束 30 分鐘後刪除；被檢舉的對話已另存在檢舉單裡（保留 1 年），到期刪除
+async function lvChatClean() { const now = Date.now();
+  const ds = await db.collection('lives').where('phase', '==', 'done').where('chatPurged', '==', false).limit(5).get();
+  for (const d of ds.docs) { const e = d.data(); if ((e.doneAt || e.finalizedAt || 0) > now - 30 * 60000) continue;
+    for (let k = 0; k < 20; k++) { const cs = await d.ref.collection('chat').limit(400).get(); if (cs.empty) break; const bt = db.batch(); cs.docs.forEach(x => bt.delete(x.ref)); await bt.commit(); if (cs.size < 400) break; }
+    await d.ref.update({ chatPurged: true, chatPurgedAt: now }); }
+  const old = await db.collection('reports').where('purgeAt', '<', now).limit(100).get(); if (!old.empty) { const bt = db.batch(); old.docs.forEach(x => bt.delete(x.ref)); await bt.commit(); } }
+// 檢舉拍賣會聊天：伺服器把被檢舉的訊息和前後對話、當下的出價另存到檢舉單（使用者改不了），保留 1 年
+exports.liveChatReport = onDocumentCreated('reports/{id}', async ev => {
+  const r = ev.data.data() || {}, ref = ev.data.ref; if (r.kind !== 'lvchat' || !r.eid || !r.mid || r.ctx) return;
+  const now = Date.now(), purgeAt = now + 365 * 864e5;
+  try { const es = await db.doc('lives/' + r.eid).get(), e = es.exists ? es.data() : {}; const ms = await db.doc(`lives/${r.eid}/chat/${r.mid}`).get();
+    if (!ms.exists) return void await ref.update({ purgeAt, missing: true, title: e.title || '拍賣會' });
+    const m = ms.data(), at = +m.at || now;
+    const cs = await db.collection(`lives/${r.eid}/chat`).where('at', '>=', at - 15 * 60000).orderBy('at').limit(300).get();
+    const ctx = cs.docs.map(d => ({ id: d.id, uid: d.data().uid || '', n: d.data().n || '', t: d.data().t || '', at: d.data().at || 0 })).filter(x => x.at <= at + 5 * 60000);
+    let bids = []; const lid = r.lid || (e.cur && e.cur.lid); if (lid) { const bs = await db.collection(`lives/${r.eid}/lots/${lid}/bids`).orderBy('at', 'desc').limit(60).get(); bids = bs.docs.map(d => ({ uid: d.data().uid, amt: d.data().amt, at: d.data().at })); }
+    await ref.update({ uid: m.uid || '', text: String(m.t || '').slice(0, 200), n: m.n || '', mat: at, title: e.title || '拍賣會', lid: lid || null, ctx, bids, purgeAt, keep: true });
+  } catch (x) { logger.warn('liveChatReport', String(x)); try { await ref.update({ purgeAt }); } catch (e) {} }
+});
 // 保險：沒有人在看的時候，每分鐘也會推進一次
 exports.liveSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Taipei' }, async () => {
+  try { await lvChatClean(); } catch (x) { logger.warn('lvChatClean', String(x)); }
   const ls = await db.collection('lives').where('phase', 'in', ['reg', 'wait', 'on']).get();
   for (const d of ls.docs) { const e = d.data();
     if (!e.ordered && ((e.regEnd && Date.now() > e.regEnd) || (e.startAt && Date.now() >= e.startAt - 5 * 60000))) { try { await lvArrange(d.id); } catch (x) { logger.warn('lvArrange', String(x)); } }
