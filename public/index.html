@@ -12375,7 +12375,9 @@ function histKid(k){
 }
 function renderHistory(force){
   const box=$('#historyPage'), id=S.histP, p=S.plants.get(id);
-  if (!p||!(approved(p.shop)||p.shop===S.me||S.admin)||(p.blocked&&p.shop!==S.me&&!S.admin)){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:S.ready?'找不到這株植物':'載入中…'}), S.ready?h('a',{class:'btn soft',href:'#/verify',text:'用編號查驗'}):null)); return; }
+  const more=!p&&S.ready&&[...PL.values()].some(st=>!st.full); if(more&&S.histEns!==id){ S.histEns=id; ensurePlants().catch(()=>{}).finally(()=>{ S.histEnsDone=id; if(PAGE==='history') renderHistory(true); }); }
+  const wait=!S.ready||(more&&S.histEnsDone!==id);
+  if (!p||!(approved(p.shop)||p.shop===S.me||S.admin)||(p.blocked&&p.shop!==S.me&&!S.admin)){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:40px'}, h('h3',{text:wait?'載入中…':'找不到這株植物'}), !wait?h('a',{class:'btn soft',href:'#/verify',text:'用編號查驗'}):null)); return; }
   if (privFor(p)){ privScreen(box,p); return; }
   const own=p.shop===S.me||ownerOf(p)===S.me;
   if (S.histFor!==id){ leaveHistory(); S.histFor=id; S.histDocs=null;
