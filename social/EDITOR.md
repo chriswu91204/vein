@@ -20,6 +20,15 @@
 寫血統只用 `lineage`／`mother`／`father`；`memo` 只是備註（例如「帶活性保持花牌」），不要當成血統。
 已發過的 id 在 `social/posted.json`，**絕對不要重複發同一個 id**。
 
+### 抓不到活動時（例如週末拍賣會沒出現在 feed）
+feed 只會列出「開放報名（reg）／24 小時內開始（soon）／進行中（on）」的活動；還沒開放報名、或排程跑完之後才建立的活動要等下一輪才看得到。
+要立刻查所有近期拍賣會／市集與完整拍品（含還沒進 feed 的），跑 diag 腳本 `events.js`：
+`gh api -X POST repos/chriswu91204/vein/actions/workflows/diag.yml/dispatches -f ref=main -f 'inputs[script]=events.js' -f 'inputs[img_paths]='`，
+等 run 完成後下載 artifact `diag-out` 裡的 `events.json`（每場有 title、startAt、phase、lots[]：name、code、start 起標價、thumb）。
+活動整合圖永遠可以直接用：`https://vein-48ec8.web.app/img/e/live/{id}.jpg?tpl={0~6}`（限動加 `&fmt=story`），單株用 `?lot={序號}`。
+站長傳來的現場照片：轉成 1080×1350 放 `social/media/`，push 後用 `https://raw.githubusercontent.com/chriswu91204/vein/main/social/media/{檔名}` 給 Metricool。
+拍品還在陸續增加時，文案要寫「目前 N 株，拍品陸續增加中」。
+
 ## 2. 什麼時候發什麼
 - **活動（market／live-auction）新的 id**：立刻發。
   - IG：`type: POST` 輪播，images 前 5 張（第一張是多圖直條模板：標題＋各株照片與價格＋日期＋QR），文案用 caption.instagram 為底（已含網址）。
