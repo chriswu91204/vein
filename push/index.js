@@ -742,6 +742,7 @@ exports.mktGuard = onDocumentCreated('mkts/{id}/e/{pid}', async ev => {
 
 // ===== VEIN 拍賣會：一株接一株。出價、結標全部由伺服器用伺服器時間判定，誰的手機時間不準都不影響 =====
 const LV_GAP = 5000; // 一株結標後，停 5 秒宣布得標者再換下一株
+const lvSnipe = e => e.snipe != null && e.snipe !== '' && isFinite(+e.snipe) ? Math.max(0, Math.min(120, +e.snipe)) : 10; // 防尾刀秒數：0＝不延長
 function lvStep(ev, amt) { if (+ev.step > 0) return +ev.step; return amt < 1000 ? 50 : amt < 3000 ? 100 : amt < 10000 ? 200 : amt < 30000 ? 500 : 1000; }
 async function lvLots(id) { const s = await db.collection('lives/' + id + '/lots').where('status', 'in', ['ok', 'wait', 'live', 'sold', 'pass']).get();
   return s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (twNum(a.ord) - twNum(b.ord)) || (twNum(a.at) - twNum(b.at))); }
@@ -769,12 +770,16 @@ async function lvAdvance(id) {
   await db.runTransaction(async tx => {
     const es = await tx.get(eref); if (!es.exists) return; const ev = es.data(), now = Date.now(), cur = ev.cur || null;
     if (ev.phase === 'done') return;
-    if (!cur) { if (!ev.startAt || now < ev.startAt) return; const gu = lvGather(ev); const nx = lots.find(l => l.status === 'ok' || l.status === 'wait'); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
+    // 下一件：跳過已經在別處賣掉、下架或轉走的植物（標成 gone，不拍）
+    const pick = async skip => { const gone = []; for (const l of lots) { if (skip.has(l.id) || !(l.status === 'ok' || l.status === 'wait')) continue; const ps = await tx.get(db.doc(`shops/${l.shop}/plants/${l.pid}`)); const p = ps.exists ? ps.data() : null;
+        if (!p || p.status === 'sold' || p.listed === false || p.purgeAt) { gone.push(l); continue; } return { nx: l, gone }; } return { nx: null, gone }; };
+    const markGone = G => G.forEach(l => tx.update(eref.collection('lots').doc(l.id), { status: 'gone', why: '拍賣前已售出或下架', endedAt: now }));
+    if (!cur) { if (!ev.startAt || now < ev.startAt) return; const gu = lvGather(ev); const { nx, gone } = await pick(new Set()); markGone(gone); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
       // 開場先集合：這段時間輪播所有拍品，時間到才開第一件
       if (now < gu) { if (ev.phase !== 'on' || ev.gatherUntil !== gu) tx.update(eref, { phase: 'on', gatherUntil: gu, now }); return; }
       tx.update(eref, { phase: 'on', gatherUntil: gu, cur: lvCur(ev, nx, now, 0, gu), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
     if (cur.gapUntil) { if (now < cur.gapUntil) return; const done = new Set(lots.filter(l => l.status === 'sold' || l.status === 'pass').map(l => l.id)); done.add(cur.lid);
-      const nx = lots.find(l => !done.has(l.id) && (l.status === 'ok' || l.status === 'wait'));
+      const { nx, gone } = await pick(done); markGone(gone);
       if (!nx) { tx.update(eref, { phase: 'done', doneAt: now, cur: { ...cur, over: true }, now }); return; }
       tx.update(eref, { cur: lvCur(ev, nx, now, (cur.i || 0) + 1, cur.gapUntil), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
     if (now < cur.endsAt) return;
@@ -813,7 +818,21 @@ async function lvFinalize(id) {
   await eref.update({ finalized: true, finalizedAt: now });
 }
 exports.liveDone = onDocumentUpdated('lives/{id}', async ev => {
-  const a = ev.data.after.data() || {}, b = ev.data.before.data() || {}; if (a.phase === 'done' && b.phase !== 'done' && !a.finalized) { try { await lvFinalize(ev.params.id); } catch (x) { logger.error('liveDone', String(x)); } }
+  const a = ev.data.after.data() || {}, b = ev.data.before.data() || {}; if (!(a.phase === 'done' && b.phase !== 'done')) return;
+  // 管理員提前結束：拍賣中的那件不成交（流標），還沒輪到的標成「未開拍」
+  try { const ls = await db.collection('lives/' + ev.params.id + '/lots').where('status', 'in', ['live', 'ok', 'wait']).get(); const now = Date.now();
+    for (const d of ls.docs) await d.ref.update(d.data().status === 'live' ? { status: 'pass', n: 0, endedAt: now, why: '活動提前結束' } : { status: 'skip', why: '活動提前結束' });
+    if (a.cur && !a.cur.gapUntil) await ev.data.after.ref.update({ cur: { ...a.cur, gapUntil: now, result: 'pass', over: true } });
+  } catch (x) { logger.warn('liveDone', String(x)); }
+  if (!a.finalized) { try { await lvFinalize(ev.params.id); } catch (x) { logger.error('liveDone', String(x)); } }
+});
+// 報名中／排隊中的拍品：在賣場上鎖（不能直接買走）；流標、退出、不通過、提前結束就解鎖
+exports.liveLotSync = onDocumentWritten('lives/{id}/lots/{pid}', async ev => {
+  const a = ev.data.after.exists ? ev.data.after.data() : null, id = ev.params.id, l = a || ev.data.before.data() || {}; if (!l.shop || !l.pid) return;
+  const pref = db.doc(`shops/${l.shop}/plants/${l.pid}`), want = !!a && ['ok', 'pending', 'wait', 'live'].includes(a.status);
+  try { await db.runTransaction(async tx => { const s = await tx.get(pref); if (!s.exists) return; const p = s.data();
+    if (want) { if (!p.lv || p.lv.id !== id) tx.update(pref, { lv: { id, at: Date.now() } }); }
+    else if (p.lv && p.lv.id === id) tx.update(pref, { lv: admin.firestore.FieldValue.delete() }); }); } catch (x) { logger.warn('liveLotSync', String(x)); }
 });
 // 出價：只接受「目前價＋一口」（第一口＝起拍價），而且伺服器時間還沒結束；最後 N 秒有人出價就延長到 N 秒
 exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async ev => {
@@ -824,6 +843,7 @@ exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async 
   try {
     const out = await db.runTransaction(async tx => {
       const es = await tx.get(eref); if (!es.exists) return { res: 'gone' }; const e = es.data(), cur = e.cur, now = Date.now();
+      if (e.phase === 'done') return { res: 'gone' };
       if (!cur || cur.lid !== b.lid || cur.gapUntil) return { res: 'late' };
       if (cur.previewUntil && now < cur.previewUntil) return { res: 'soon' };
       if (now >= cur.endsAt) return { res: 'late' };
@@ -831,7 +851,7 @@ exports.liveBid = onDocumentCreated({ document: 'liveBid/{id}', ...HOT }, async 
       const need = cur.top ? cur.top.amt + lvStep(e, cur.top.amt) : (cur.start || lvStep(e, 0));
       if (twNum(b.amt) !== need) return { res: 'outbid', need };
       if (cur.top && cur.top.uid === b.uid) return { res: 'lead' };
-      const sn = Math.max(0, twNum(e.snipe) || 10) * 1000, endsAt = cur.endsAt - now < sn ? cur.endsAt + sn : cur.endsAt; // 防尾刀：最後 N 秒內有人出價 → 結束時間「加」N 秒
+      const sn = lvSnipe(e) * 1000, endsAt = cur.endsAt - now < sn ? cur.endsAt + sn : cur.endsAt; // 防尾刀：最後 N 秒內有人出價 → 結束時間「加」N 秒
       const top = { uid: b.uid, amt: need, at: now };
       tx.update(eref, { cur: { ...cur, top, n: (cur.n || 0) + 1, endsAt, ext: endsAt !== cur.endsAt ? (cur.ext || 0) + 1 : (cur.ext || 0) }, now, bids: admin.firestore.FieldValue.increment(1) });
       tx.set(eref.collection('lots').doc(cur.lid).collection('bids').doc(), { uid: b.uid, amt: need, at: now });

@@ -276,6 +276,14 @@ service cloud.firestore {
         allow delete: if (isAdmin() || shopper(resource.data.shop, 'plants')) && !(resource.data.status in ['live', 'sold', 'pass']);
         match /bids/{bid} { allow read: if true; }
       }
+      // 聊天室：登入、沒被停權就能發言；只能用自己的身分、一則最多 120 字；本人或管理員可刪
+      match /chat/{mid} {
+        allow read: if true;
+        allow create: if signedIn() && notBanned() && request.resource.data.keys().hasOnly(['uid', 'n', 't', 'at'])
+          && request.resource.data.uid == request.auth.uid && request.resource.data.t is string && request.resource.data.t.size() > 0 && request.resource.data.t.size() <= 120
+          && request.resource.data.n is string && request.resource.data.n.size() <= 24 && request.resource.data.at is number;
+        allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      }
       // 現在人數：每個在看的人一份報到紀錄（只存時間）
       match /viewers/{vid} {
         allow read: if true;
