@@ -13815,6 +13815,7 @@ function lvPresence(id){ const ref=S.db.doc('lives/'+id+'/viewers/'+lvVid()); co
   LV.un.push(()=>{ clearInterval(t1); clearInterval(t2); document.removeEventListener('visibilitychange',vis); ref.delete().catch(()=>{}); }); }
 function leaveLive(){ try{ cancelAnimationFrame(LV.raf); }catch(e){} LV.un.forEach(f=>{ try{ f(); }catch(e){} }); LV.un=[]; clearInterval(LV.iv); LV.iv=0; clearInterval(LV.pt); LV.pt=0; LV.id=null; document.body.classList.remove('lv-on'); }
 function renderLive(){ const box=$('#livePage'); if(!box) return;
+  if(!S.db){ if(!box.querySelector('.lv-load')) box.replaceChildren(h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'進入拍賣會…'}))); clearTimeout(S.lvDbT); S.lvDbT=setTimeout(()=>{ if(PAGE==='live') renderLive(); },200); return; }
   if(S.liveId==='next'){ const rk=x=>evState(x)==='on'?0:1, L=[...S.lives.values()].filter(x=>['on','soon'].includes(evState(x))).sort((a,b)=>rk(a)-rk(b)||(a.startAt||0)-(b.startAt||0));
     if(L[0]){ const hs='#/live/'+L[0].id; history.replaceState(history.state,'',hs); S.curHash=hs; S.liveId=L[0].id; }
     else { const wait=Date.now()-(S.lvNextAt||(S.lvNextAt=Date.now()))<6000; box.replaceChildren(wait?h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'找拍賣會…'})):h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:'目前沒有拍賣會'}), h('a',{class:'btn soft',href:'#/raffle',text:'看其他活動'}))); if(wait) setTimeout(()=>{ if(PAGE==='live'&&S.liveId==='next') renderLive(); },1200); else S.lvNextAt=0; return; } }
