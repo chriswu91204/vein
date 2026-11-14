@@ -769,8 +769,10 @@ async function lvAdvance(id) {
   await db.runTransaction(async tx => {
     const es = await tx.get(eref); if (!es.exists) return; const ev = es.data(), now = Date.now(), cur = ev.cur || null;
     if (ev.phase === 'done') return;
-    if (!cur) { if (!ev.startAt || now < ev.startAt) return; const nx = lots.find(l => l.status === 'ok' || l.status === 'wait'); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
-      tx.update(eref, { phase: 'on', cur: lvCur(ev, nx, now, 0, ev.startAt), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
+    if (!cur) { if (!ev.startAt || now < ev.startAt) return; const gu = lvGather(ev); const nx = lots.find(l => l.status === 'ok' || l.status === 'wait'); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
+      // 開場先集合：這段時間輪播所有拍品，時間到才開第一件
+      if (now < gu) { if (ev.phase !== 'on' || ev.gatherUntil !== gu) tx.update(eref, { phase: 'on', gatherUntil: gu, now }); return; }
+      tx.update(eref, { phase: 'on', gatherUntil: gu, cur: lvCur(ev, nx, now, 0, gu), now }); tx.update(eref.collection('lots').doc(nx.id), { status: 'live', startedAt: now }); started = { ev, lot: nx }; return; }
     if (cur.gapUntil) { if (now < cur.gapUntil) return; const done = new Set(lots.filter(l => l.status === 'sold' || l.status === 'pass').map(l => l.id)); done.add(cur.lid);
       const nx = lots.find(l => !done.has(l.id) && (l.status === 'ok' || l.status === 'wait'));
       if (!nx) { tx.update(eref, { phase: 'done', doneAt: now, cur: { ...cur, over: true }, now }); return; }
@@ -787,6 +789,8 @@ async function lvAdvance(id) {
   if (result && result.sold) { try { await db.doc(`shops/${result.lot.shop}/plants/${result.lot.pid}`).update({ status: 'sold', buyer: result.lot.top.uid, soldPrice: result.lot.top.amt }); } catch (e) {} }
   return result;
 }
+const LV_GATHER = 5 * 60000; // 開場集合時間：預設 5 分鐘（活動可用 gather 欄位設分鐘數）
+function lvGather(ev) { const g = ev.gather != null && isFinite(+ev.gather) ? Math.max(0, Math.min(30, +ev.gather)) * 60000 : LV_GATHER; return (+ev.startAt || 0) + g; }
 const LV_PREVIEW = 15000; // 每一件開拍前先給大家看 15 秒照片與資訊
 // 時間一律依「預定時間」排，不依誰先來通知：base＝這一件該開始預覽的時間（開場時間或上一件的公布結束時間）
 // 這樣就算通知晚到幾秒，也不會把延遲一路累積到後面的拍品；真的晚太多時至少留 3 秒預覽
@@ -846,7 +850,7 @@ exports.liveSweep = onSchedule({ schedule: 'every 1 minutes', timeZone: 'Asia/Ta
   for (const d of ls.docs) { const e = d.data();
     if (!e.ordered && ((e.regEnd && Date.now() > e.regEnd) || (e.startAt && Date.now() >= e.startAt - 5 * 60000))) { try { await lvArrange(d.id); } catch (x) { logger.warn('lvArrange', String(x)); } }
     if (!e.startAt || Date.now() < e.startAt) continue; for (let k = 0; k < 3; k++) { try { const r = await lvAdvance(d.id); if (!r) break; } catch (x) { break; } }
-    if (e.phase !== 'on') { try { await broadcast('🔴 ' + (e.title || 'VEIN 拍賣會') + ' 開拍了！', '一株接一株，手刀進場', '/#/live/' + d.id, 'live-' + d.id); } catch (x) {} } }
+    if (!e.bcast && Date.now() - e.startAt < 15 * 60000) { try { await d.ref.update({ bcast: Date.now() }); } catch (x) {} try { await broadcast('🔴 ' + (e.title || 'VEIN 拍賣會') + ' 集合囉！', Math.round((lvGather(e) - e.startAt) / 60000) + ' 分鐘後開拍，先進場看拍品', '/#/live/' + d.id, 'live-' + d.id); } catch (x) {} } }
 });
 // 市集進行中賣家退出（或管理員移除）→ 價格立刻換回原價
 exports.mktUnreg = onDocumentDeleted('mkts/{id}/e/{pid}', async ev => {
