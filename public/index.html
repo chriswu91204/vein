@@ -6307,6 +6307,7 @@ body:has(.af-ov,.rs-ov,.gt-ov,.sv-ov,.ex-ov,.dw-ov,.lb) .ch-fab,#viewer .ch-fab,
 .gq-b2.cart{background:#0A0C0B;color:#D2FF00}.gq-b2.now{background:#D2FF00;color:#0A0C0B}
 .gq-b2.dark{background:#0A0C0B;color:#fff}.gq-b2.dis{background:#ccc;color:#666}.gq-b2.ghost{background:var(--paper,#F4F4F1);color:var(--fg)}
 body[data-page="goods"] .tabbar,body[data-page="goods"] #chDock .ch-fab{display:none!important}
+html:has(body[data-page="goods"]){scroll-padding-bottom:96px} /* 捲到某個欄位時不要被底部購買列蓋住 */
 .gq-zoom{background:#000;margin:-18px;border-radius:inherit}.gq-zt{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.gq-zt img{flex:0 0 100%;width:100%;max-height:82vh;object-fit:contain;scroll-snap-align:center}
 @media(min-width:900px){
   #pgGoods{padding-bottom:40px}
