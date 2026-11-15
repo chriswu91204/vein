@@ -55,7 +55,7 @@ function plantItem(p, shop, base) {
   const head = (auc ? '🔨 競標開始｜' : '🌿 新上架｜') + nm;
   const body = [head, lineage ? '🧬 ' + lineage : '', '🏷 ' + [kind, p.code ? '編號 ' + p.code : ''].filter(Boolean).join('・'), priceLine, (+p.photoCount || 0) > 1 ? '📸 已有 ' + p.photoCount + ' 筆成長紀錄' : '', '🏡 ' + (shop.name || 'VEIN')].filter(Boolean).join('\n');
   const T = tags(p).join(' ');
-  const pi = base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg'; const T7 = 'tpl=' + tplToday(); const imgs = [pi + '?' + T7, ...photos(p).slice(1, 10).map((u, i) => pi + '?raw=1&i=' + (i + 1))];
+  const pi = base + '/img/p/' + encodeURIComponent(shop.id) + '/' + encodeURIComponent(p.id) + '.jpg'; const T7 = 'tpl=' + tplToday() + '&v=' + IMG_V; const imgs = [pi + '?' + T7, ...photos(p).slice(1, 10).map((u, i) => pi + '?raw=1&i=' + (i + 1))];
   const at = ms(p.listedAt) || ms(p.createdAt) || ms(p.updatedAt);
   return {
     id: 'p-' + p.id, type: auc ? 'auction' : 'plant', title: head, name: nm, code: p.code || '', kind, cross: lineage, lineage, mother: par.mom || null, father: par.dad || null, memo, photoCount: photos(p).length, price: +p.price || 0, mode: auc ? 'auction' : 'buy', endsAt: end || null,
@@ -85,7 +85,7 @@ async function eventItems(base, now) {
     for (const d of s.docs) {
       const x = { id: d.id, kind, ...d.data() }; if (x.draft || x.hidden) continue; const ph = evPhase(x, now); if (ph === 'done' || ph === 'later') continue;
       const L = await eventLots(kind, x.id), isM = kind === 'mkt', name = isM ? 'VEIN 市集' : 'VEIN 拍賣會'; const LP = await Promise.all(L.slice(0, 9).map(lotPhoto));
-      const link = base + '/s/e/' + kind + '/' + x.id, img0 = base + '/img/e/' + kind + '/' + x.id + '.jpg', img = img0 + '?tpl=' + tplToday(), story = img + '&fmt=story';
+      const link = base + '/s/e/' + kind + '/' + x.id, img0 = base + '/img/e/' + kind + '/' + x.id + '.jpg', img = img0 + '?tpl=' + tplToday() + '&v=' + IMG_V, story = img + '&fmt=story';
       const top = L.slice(0, 5).map((e, i) => (i + 1) + '. ' + (e.name || e.code || '植物') + '　' + (isM ? (e.orig ? money(e.orig) + ' → ' : '') + money(e.deal) : '起拍 ' + money(e.start)));
       const H = { reg: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」認證賣家開放報名', soon: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」即將開始', on: (isM ? '🎪 ' : '🔴 ') + name + '「' + (x.title || '') + '」' + (isM ? '特賣中' : '現在開拍') }[ph];
       const lines = [H, x.sub || '', '🗓 ' + tw(x.startAt) + (isM ? ' 開賣' : ' 開拍') + (isM && x.endAt ? '～' + tw(x.endAt) : ''), !isM ? '⏱ 每件 ' + (x.dur || 60) + ' 秒・最後 ' + (x.snipe || 10) + ' 秒有人出價再加 ' + (x.snipe || 10) + ' 秒' : '', L.length ? (isM ? '🌿 精選特價：' : '🌿 精選拍品：') + '\n' + top.join('\n') + (L.length > 5 ? '\n（共 ' + L.length + ' 株）' : '') : ''].filter(Boolean).join('\n');
@@ -140,6 +140,7 @@ const TPL_NAMES = ['格狀', '主圖', '雜誌', '螢光海報', '底片', '拍�
 const tplToday = () => new Date(Date.now() + 8 * 3600e3).getUTCDay();
 const tplOf = q => { const n = parseInt(q && q.tpl, 10); return n >= 0 && n <= 6 ? n : tplToday(); };
 const V = '#D2FF00', BG = '#07080A';
+const IMG_V = 3; // 版型改過就加 1：圖片網址跟著變，社群和瀏覽器不會拿到舊的快取圖
 async function loadPhotos(items, n) {
   const bufs = await Promise.all(items.slice(0, n).map(async it => { try { const b = await sharp()(await getImg(it.url)).rotate().toBuffer(); const m = await sharp()(b).metadata(); return { b, w: m.width || 3, h: m.height || 4, it }; } catch (e) { return null; } }));
   return bufs.filter(Boolean);
@@ -150,18 +151,26 @@ async function tileBuf(o, pw, ph, rr) {
 }
 // 照片等比縮進格子裡（整張可見）
 function contain(o, c, ax = .5, ay = .5) { const sc = Math.min(c.w / o.w, c.h / o.h), pw = Math.max(1, Math.floor(o.w * sc)), ph = Math.max(1, Math.floor(o.h * sc)); return { o, pw, ph, px: Math.round(c.x + (c.w - pw) * ax), py: Math.round(c.y + (c.h - ph) * ay) }; }
-// 在一塊區域內挑最好的幾欄幾列，每列緊貼置中
+// 在一塊區域內排照片：等高列（像相簿的排法），照片整張顯示不裁切，每一列剛好填滿寬度；
+// 試所有分列方式，挑「照片最大、最平均、空白最少」的那一種（原本的格子排法在比例不同時會留下一大塊空白、或一大一小）
 function gridIn(ok, A, G) {
-  const m = Math.max(1, ok.length); let best = null;
-  for (let cols = 1; cols <= m; cols++) { const rows = Math.ceil(m / cols), cw = (A.w - G * (cols - 1)) / cols, ch = (A.h - G * (rows - 1)) / rows; if (cw < 60 || ch < 60) continue; let area = 0; ok.forEach(o => { const sc = Math.min(cw / o.w, ch / o.h); area += o.w * sc * o.h * sc; }); const sm = Math.min(...ok.map(o => Math.min(cw / o.w, ch / o.h) * o.h)); const score = area * (0.6 + 0.4 * sm / ch); if (!best || score > best.score) best = { cols, rows, cw, ch, score }; }
-  const { cols, rows, cw, ch } = best || { cols: 1, rows: 1, cw: A.w, ch: A.h };
-  const SZ = ok.map(o => { const sc = Math.min(cw / o.w, ch / o.h); return { pw: Math.max(1, Math.floor(o.w * sc)), ph: Math.max(1, Math.floor(o.h * sc)) }; });
-  const rowH = r => Math.max(...SZ.slice(r * cols, r * cols + cols).map(z => z.ph)), totH = [...Array(rows)].reduce((n, _, r) => n + rowH(r), 0) + G * (rows - 1);
-  const out = []; for (let k = 0; k < ok.length; k++) { const r = Math.floor(k / cols), RS = SZ.slice(r * cols, r * cols + cols), rowW = RS.reduce((n, z) => n + z.pw, 0) + G * (RS.length - 1);
-    let yr = A.y + (A.h - totH) / 2; for (let q = 0; q < r; q++) yr += rowH(q) + G;
-    const { pw, ph } = SZ[k]; out.push({ o: ok[k], pw, ph, px: Math.round(A.x + (A.w - rowW) / 2 + RS.slice(0, k % cols).reduce((n, z) => n + z.pw + G, 0)), py: Math.round(yr + (rowH(r) - ph) / 2) }); }
-  return out;
+  const n = ok.length; if (!n) return []; const ar = ok.map(o => o.w / o.h); let best = null;
+  for (let mask = 0; mask < (1 << (n - 1)); mask++) {
+    const rows = []; let cur = [0]; for (let i = 1; i < n; i++) { if (mask & (1 << (i - 1))) { rows.push(cur); cur = [i]; } else cur.push(i); } rows.push(cur);
+    if (rows.some(r => r.length > 3)) continue;
+    let hs = rows.map(r => (A.w - G * (r.length - 1)) / r.reduce((q, i) => q + ar[i], 0)); const tot = hs.reduce((a, b) => a + b, 0) + G * (rows.length - 1);
+    const k = Math.min(1, (A.h - G * (rows.length - 1)) / Math.max(1, tot - G * (rows.length - 1))); hs = hs.map(h => h * k);
+    const used = hs.reduce((q, h, ri) => q + rows[ri].reduce((z, i) => z + ar[i] * h * h, 0), 0) / (A.w * A.h);
+    const sizes = rows.flatMap((r, ri) => r.map(i => ar[i] * hs[ri] * hs[ri])), mn = Math.min(...sizes), mx = Math.max(...sizes);
+    const score = used * (0.55 + 0.45 * Math.sqrt(mn / mx)) - (rows.length > 3 ? .08 * (rows.length - 3) : 0);
+    if (!best || score > best.score) best = { rows, hs, score }; }
+  const { rows, hs } = best, totH = hs.reduce((a, b) => a + b, 0) + G * (rows.length - 1); let y = A.y + (A.h - totH) / 2; const out = [];
+  rows.forEach((r, ri) => { const h = Math.floor(hs[ri]), ws = r.map(i => Math.max(1, Math.floor(ar[i] * h))), rw = ws.reduce((a, b) => a + b, 0) + G * (r.length - 1); let x = A.x + (A.w - rw) / 2;
+    r.forEach((i, j) => { out.push({ o: ok[i], pw: ws[j], ph: h, px: Math.round(x), py: Math.round(y) }); x += ws[j] + G; }); y += h + G; });
+  return out.sort((a, b) => ok.indexOf(a.o) - ok.indexOf(b.o));
 }
+// 標題字級：最長的那個英文字也要放得下一行（不會把 crystallinum 拆成 crystalli／num）
+function wordFit(f, t, size, maxW, min) { if (!f) return size; const ws = String(t || '').match(/[A-Za-z0-9'’\-.$×,():/]+/g) || []; /* 只看英文字：中文本來就可以逐字換行 */ const lw = Math.max(1, ...ws.map(w => f.getAdvanceWidth(w, size))); return lw > maxW ? Math.max(min || 30, Math.floor(size * maxW / lw)) : size; }
 // 文字換行（英文以空白斷、中文逐字）
 function wrap(f, t, size, maxW, maxLines) {
   t = String(t || '').trim(); if (!f || !t) return t ? [t] : []; const lines = []; let cur = '';
@@ -189,73 +198,93 @@ async function qrTile(url, size, frame) { const q = await qrSvg(url, size - 24);
 const shortUrl = u => u.replace(/^https:\/\//, '').replace(/\?.*$/, '');
 
 // 只有一張照片：無邊框滿版（比例接近就直接鋪滿，差太多就用同張照片模糊當底、整張照片置中，不切到植物）
-async function fullBleed({ o, title, more, foot, url, story, sub, f, WW, HH, PAD }) {
+async function fullBleed({ o, title, more, foot, url, story, sub, f, WW, HH, PAD, ST = 0, SB = 0 }) {
   const r0 = o.w / o.h, rC = WW / HH, cut = 1 - Math.min(r0, rC) / Math.max(r0, rC), comp = [];
   if (cut <= .1) comp.push({ input: await sharp()(o.b).resize(WW, HH, { fit: 'cover', position: 'centre' }).toBuffer(), left: 0, top: 0 });
-  else { comp.push({ input: await sharp()(o.b).resize(Math.round(WW / 4), Math.round(HH / 4), { fit: 'cover' }).blur(6).modulate({ brightness: .45 }).resize(WW, HH).toBuffer(), left: 0, top: 0 });
+  else { const sm = await sharp()(o.b).resize(Math.round(WW / 8), Math.round(HH / 8), { fit: 'cover' }).modulate({ brightness: .45 }).toBuffer(); comp.push({ input: await sharp()(sm).resize(WW, HH).blur(14).toBuffer(), left: 0, top: 0 });
     const b = await sharp()(o.b).resize(WW, HH, { fit: 'inside' }).toBuffer({ resolveWithObject: true }); comp.push({ input: b.data, left: Math.round((WW - b.info.width) / 2), top: Math.round((HH - b.info.height) / 2) }); }
-  const th = story ? 420 : 290, bh = story ? 560 : 430, it = o.it, ts = tSize(f, title, story ? 92 : 80, WW - PAD * 2 - 20), tl = fit(f, title, ts, WW - PAD * 2 - 20);
+  const th = story ? ST + 300 : 290, bh = story ? SB + 520 : 430, it = o.it, ts = tSize(f, title, story ? 92 : 80, WW - PAD * 2 - 20), tl = fit(f, title, ts, WW - PAD * 2 - 20);
   let s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".85"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".45" stop-color="#000" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity=".92"/></linearGradient></defs>';
   s += '<rect width="' + WW + '" height="' + th + '" fill="url(#t)"/><rect y="' + (HH - bh) + '" width="' + WW + '" height="' + bh + '" fill="url(#b)"/>';
-  const ly = story ? 150 : 72; s += logo(f, PAD + 16, ly, sub, false, WW - PAD * 2) + txt(f, tl, PAD + 16, ly + ts + 22, ts, '#fff') + '<rect x="' + (PAD + 16) + '" y="' + (ly + ts + 46) + '" width="120" height="8" rx="4" fill="' + V + '"/>';
-  const qr = story ? 220 : 170, qy = HH - (story ? 160 : 52) - qr, mw = WW - PAD * 2 - 32 - qr - 30, lab = !!(it.name || it.price);
+  const ly = story ? ST + 46 : 72; s += logo(f, PAD + 16, ly, sub, false, WW - PAD * 2) + txt(f, tl, PAD + 16, ly + ts + 22, ts, '#fff') + '<rect x="' + (PAD + 16) + '" y="' + (ly + ts + 46) + '" width="120" height="8" rx="4" fill="' + V + '"/>';
+  const qr = story ? 200 : 170, qy = HH - (story ? SB + 70 : 52) - qr, mw = WW - PAD * 2 - 32 - qr - 30, lab = !!(it.name || it.price);
   const fs = autoFs(f, foot, lab ? (story ? 72 : 64) : (story ? 92 : 80), mw), fyB = lab ? qy + qr - 6 : qy + qr / 2 + fs * .36; s += txt(f, foot, PAD + 16, fyB, fs, V);
   if (lab) { const W2 = wrapFit(f, it.name, 38, mw, 3, 24), nl = W2.L, ns = W2.sz; let y = fyB - fs - 20; if (it.price) { s += txt(f, it.price, PAD + 16, y, 38, V, mw); y -= 48; } for (let i = nl.length - 1; i >= 0; i--) { s += txt(f, nl[i], PAD + 16, y, ns, '#fff'); y -= ns * 1.25; } }
-  if (story) s += txt(f, shortUrl(url), PAD + 16, HH - 92, 26, 'rgba(255,255,255,.6)', WW - PAD * 2);
+  if (story) s += txt(f, shortUrl(url), PAD + 16, qy + qr + 44, 24, 'rgba(255,255,255,.6)', WW - PAD * 2);
   if (more > 0) { const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; s += '<rect x="' + (WW - PAD - mw2 - 32) + '" y="' + (ly - 40) + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, WW - PAD - mw2 - 16, ly + 5, 42, '#fff'); }
   comp.push({ input: Buffer.from(s + '</svg>'), left: 0, top: 0 });
   const q = await qrTile(url, qr); if (q) comp.push({ input: q, left: WW - PAD - 16 - qr, top: qy });
   return sharp()({ create: { width: WW, height: HH, channels: 3, background: BG } }).composite(comp).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
 }
-async function strips({ title, items, more, foot, url, story, sub, tpl }) {
+// 限動（9:16）：IG 上方約 250px（帳號、進度條）、下方約 400px（回覆框）會蓋住畫面。
+// 所以限動＝貼文那張 4:5 卡片（圓角、陰影）放在中間的安全範圍，背景用同一張圖放大模糊鋪滿 → 7 種版型都不會被蓋住、也不會跑版
+async function storyWrap(post) {
+  const WW = 1080, HH = 1920, CW = 972, CH = 1215, x = Math.round((WW - CW) / 2), y = 270 + Math.round((1250 - CH) / 2), R = 34;
+  // 背景：同一張圖縮到很小再放大（只剩顏色、看不出字），壓暗＋微微暗角
+  const tiny = await sharp()(post).resize(18, 32, { fit: 'cover' }).modulate({ brightness: .38, saturation: 1.1 }).toBuffer(); // sharp 一條流程只做一次 resize，要分兩步
+  const bg0 = await sharp()(tiny).resize(WW, HH, { kernel: 'cubic' }).blur(40).toBuffer();
+  const vig = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><defs><radialGradient id="v" cx=".5" cy=".48" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></radialGradient></defs><rect width="' + WW + '" height="' + HH + '" fill="url(#v)"/></svg>');
+  const bg = await sharp()(bg0).composite([{ input: vig, left: 0, top: 0 }]).toBuffer();
+  const mask = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + CW + '" height="' + CH + '"><rect width="' + CW + '" height="' + CH + '" rx="' + R + '"/></svg>');
+  const card = await sharp()(post).resize(CW, CH).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer();
+  const shadow = await sharp()(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><rect x="' + x + '" y="' + (y + 18) + '" width="' + CW + '" height="' + CH + '" rx="' + R + '" fill="#000" fill-opacity=".55"/></svg>')).blur(22).png().toBuffer();
+  const rim = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '"><rect x="' + (x - 1.5) + '" y="' + (y - 1.5) + '" width="' + (CW + 3) + '" height="' + (CH + 3) + '" rx="' + (R + 1.5) + '" fill="none" stroke="#D2FF00" stroke-opacity=".7" stroke-width="3"/></svg>');
+  return sharp()(bg).composite([{ input: shadow, left: 0, top: 0 }, { input: card, left: x, top: y }, { input: rim, left: 0, top: 0 }]).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+}
+async function strips(a) { if (a.story) { const post = await strips0({ ...a, story: false }); return post ? storyWrap(post) : post; } return strips0(a); }
+async function strips0({ title, items, more, foot, url, story, sub, tpl }) {
   tpl = tpl == null ? tplToday() : tpl;
   const f = font(), WW = 1080, HH = story ? 1920 : 1350, PAD = 40;
   const ok = await loadPhotos(items, tpl === 6 && items.some(i => i.name) ? 5 : 6);
   const labeled = ok.some(o => o.it.name || o.it.price);
-  const TOP = story ? 280 : 165, BOT = story ? 300 : 195;
-  if (ok.length === 1) return fullBleed({ o: ok[0], title, more, foot, url, story, sub, f, WW, HH, PAD });
+  // 限動：IG 上方約 250px、下方約 400px 會被帳號列和回覆框蓋住 → 標題、價格、QR 都放在中間的安全範圍
+  const ST = story ? 270 : 0, SB = story ? 400 : 0;
+  const TOP = story ? 480 : 165, BOT = story ? 650 : 195;
+  if (ok.length === 1) return fullBleed({ o: ok[0], title, more, foot, url, story, sub, f, WW, HH, PAD, ST, SB });
   const comp = [], P = []; let bg = BG, svg = '', svgTop = '';
   const put = (bx, rr) => P.push({ bx, rr: rr == null ? Math.round(Math.min(bx.pw, bx.ph) * .04) : rr });
   const moreBadge = (x, y) => { if (!(more > 0)) return ''; const mt = '+' + more, mw2 = f ? f.getAdvanceWidth(mt, 42) : 80; return '<rect x="' + (x - mw2 - 32) + '" y="' + y + '" width="' + (mw2 + 32) + '" height="60" rx="30" fill="rgba(0,0,0,.65)" stroke="' + V + '" stroke-width="2"/>' + txt(f, mt, x - mw2 - 16, y + 45, 42, '#fff'); };
   // 標準頁首、頁尾（多數版型共用）
   const head = (top, center) => { const ty = top - (story ? 50 : 30), ts = tSize(f, title, story ? 92 : 76, WW - PAD * 2); const tl = fit(f, title, ts, WW - PAD * 2); const tw2 = f ? f.getAdvanceWidth(tl, ts) : 0;
-    return logo(f, center ? Math.round((WW - 126 - (sub && f ? f.getAdvanceWidth('・' + sub, 30) : 0)) / 2) : PAD + 16, story ? 150 : 56, sub, false, WW - PAD * 2) + txt(f, tl, center ? Math.round((WW - tw2) / 2) : PAD + 16, ty, ts, '#fff'); };
-  const footer = async (y0, h, opt = {}) => { const qr = Math.min(story ? 220 : 160, h - 24), fy = y0 + h / 2, mw = WW - PAD * 2 - 32 - qr - 30, fs = autoFs(f, foot, story ? 92 : 80, mw);
+    return logo(f, center ? Math.round((WW - 126 - (sub && f ? f.getAdvanceWidth('・' + sub, 30) : 0)) / 2) : PAD + 16, story ? ST + 46 : 56, sub, false, WW - PAD * 2) + txt(f, tl, center ? Math.round((WW - tw2) / 2) : PAD + 16, ty, ts, '#fff'); };
+  const footer = async (y0, h, opt = {}) => { if (story) h = Math.max(150, HH - SB - y0); const qr = Math.min(story ? 210 : 160, h - 24), fy = y0 + h / 2, mw = WW - PAD * 2 - 32 - qr - 30, fs = autoFs(f, foot, story ? 92 : 80, mw);
     let s = txt(f, foot, PAD + 16, fy + fs * .36 - (story ? 18 : 0), fs, opt.color || V); if (story) s += txt(f, shortUrl(url), PAD + 16, fy + fs * .36 + 46, 26, opt.dim || 'rgba(255,255,255,.55)', mw);
     const q = await qrTile(url, qr, opt.qrFrame); if (q) comp.push({ input: q, left: WW - PAD - 16 - qr - (opt.qrFrame ? 6 : 0), top: Math.round(fy - qr / 2) }); return s; };
 
   if (tpl === 1) { // 主圖：第一張大圖，其餘小圖排一列
     const top = TOP, bot = BOT, A = { x: 28, y: top + 6, w: WW - 56, h: HH - top - bot - 12 };
-    if (ok.length <= 1) { ok.forEach(o => put(contain(o, A))); }
-    else { const hh = Math.round(A.h * (ok.length > 3 ? .64 : .7)); put(contain(ok[0], { x: A.x, y: A.y, w: A.w, h: hh })); gridIn(ok.slice(1), { x: A.x, y: A.y + hh + 16, w: A.w, h: A.h - hh - 16 }, 12).forEach(b => put(b)); }
+    if (ok.length <= 2) { gridIn(ok, A, 16).forEach(b => put(b)); }
+    else if (ok[0].w / ok[0].h < .95) { // 主圖是直的：主圖放左邊、其餘排右邊（不會主圖兩旁空一大塊）
+      const lw = Math.round(A.w * (ok.length >= 4 ? .58 : .62)); put(contain(ok[0], { x: A.x, y: A.y, w: lw, h: A.h }, 1, .5)); gridIn(ok.slice(1), { x: A.x + lw + 14, y: A.y, w: A.w - lw - 14, h: A.h }, 12).forEach(b => put(b)); }
+    else { const hh = Math.round(A.h * (ok.length >= 5 ? .5 : ok.length === 4 ? .56 : .64)); put(contain(ok[0], { x: A.x, y: A.y, w: A.w, h: hh })); gridIn(ok.slice(1), { x: A.x, y: A.y + hh + 16, w: A.w, h: A.h - hh - 16 }, 12).forEach(b => put(b)); }
     svg += head(top) + '<rect x="' + PAD + '" y="' + (top - 6) + '" width="160" height="8" rx="4" fill="' + V + '"/>' + await footer(HH - bot, bot);
     svgTop += moreBadge(WW - PAD - 12, top + 26);
   } else if (tpl === 2) { // 雜誌：左側大字標題欄，右側照片
-    const LW = 400, A = { x: LW + 20, y: PAD, w: WW - LW - 20 - PAD, h: HH - PAD * 2 };
+    const LW = story ? 430 : 400, A = { x: LW + 20, y: story ? ST : PAD, w: WW - LW - 20 - PAD, h: HH - (story ? ST + SB : PAD * 2) };
     gridIn(ok, A, 12).forEach(b => put(b));
     svg += '<rect x="0" y="0" width="' + (LW - 10) + '" height="' + HH + '" fill="#0F1114"/><rect x="' + (LW - 10) + '" y="0" width="6" height="' + HH + '" fill="' + V + '"/>';
-    svg += logo(f, PAD, PAD + 50, '', false);
-    const ts = story ? 74 : 64, tl = wrap(f, title, ts, LW - PAD * 2 - 10); let y = PAD + 150 + ts; tl.forEach(l => { svg += txt(f, l, PAD, y, ts, '#fff'); y += ts * 1.18; });
+    svg += logo(f, PAD, story ? ST + 46 : PAD + 50, '', false);
+    const tmw = LW - PAD * 2 - 10, ts = wordFit(f, title, story ? 74 : 64, tmw, 34), WT = wrapFit(f, title, ts, tmw, 4, 34), tl = WT.L, ts2 = WT.sz; let y = (story ? ST + 130 : PAD + 150) + ts2; tl.forEach(l => { svg += txt(f, l, PAD, y, ts2, '#fff'); y += ts2 * 1.18; });
     if (sub) { y += 10; wrap(f, sub, 28, LW - PAD * 2 - 10, 3).forEach(l => { svg += txt(f, l, PAD, y, 28, 'rgba(255,255,255,.6)'); y += 38; }); }
-    const qr = 200, qy = HH - PAD - qr - (story ? 50 : 0); const fl = wrap(f, foot, 56, LW - PAD * 2 - 10, 3); let fy = qy - 40 - (fl.length - 1) * 66;
-    svg += '<rect x="' + PAD + '" y="' + (fy - 86) + '" width="70" height="6" fill="' + V + '"/>'; fl.forEach(l => { svg += txt(f, l, PAD, fy, 56, V); fy += 66; });
-    if (story) svg += txt(f, shortUrl(url), PAD, HH - PAD - 10, 20, 'rgba(255,255,255,.5)', LW - PAD * 2);
+    const qr = 200, qy = HH - (story ? SB + 10 : PAD) - qr; const fmw = LW - PAD * 2 - 10, f1 = autoFs(f, foot, 56, fmw), fsz = f1 >= 40 ? f1 : wordFit(f, foot, 56, fmw, 30), fl = f1 >= 40 ? [foot] : wrap(f, foot, fsz, fmw, 3); let fy = qy - 40 - (fl.length - 1) * (fsz + 10); /* 價格、時間盡量一行放完，太長才換行 */
+    svg += '<rect x="' + PAD + '" y="' + (fy - fsz - 30) + '" width="70" height="6" fill="' + V + '"/>'; fl.forEach(l => { svg += txt(f, l, PAD, fy, fsz, V); fy += fsz + 10; });
     const q = await qrTile(url, qr); if (q) comp.push({ input: q, left: PAD, top: qy });
     svgTop += moreBadge(WW - PAD - 12, PAD + 16);
   } else if (tpl === 3) { // 螢光海報：螢光綠底、黑字、黑框照片
     bg = V; const top = TOP + 20, bot = BOT + 10, A = { x: PAD + 6, y: top + 6, w: WW - PAD * 2 - 12, h: HH - top - bot - 12 };
     gridIn(ok, A, 18).forEach(b => put(b, 6));
     const ts = tSize(f, title, story ? 104 : 92, WW - PAD * 2 - 20), tl = fit(f, title, ts, WW - PAD * 2 - 20);
-    svg += logo(f, PAD + 8, story ? 150 : 62, sub, true, WW - PAD * 2) + txt(f, tl, PAD + 8, top - (story ? 52 : 32), ts, BG);
+    svg += logo(f, PAD + 8, story ? ST + 46 : 62, sub, true, WW - PAD * 2) + txt(f, tl, PAD + 8, top - (story ? 52 : 32), ts, BG);
     P.forEach(({ bx }) => { svg += '<rect x="' + (bx.px - 6) + '" y="' + (bx.py - 6) + '" width="' + (bx.pw + 12) + '" height="' + (bx.ph + 12) + '" rx="10" fill="' + BG + '"/>'; });
     svg += '<rect x="0" y="' + (HH - bot + 20) + '" width="' + WW + '" height="' + (bot - 20) + '" fill="' + BG + '"/>' + await footer(HH - bot + 20, bot - 20);
     svgTop += moreBadge(WW - PAD - 12, top + 20);
   } else if (tpl === 4) { // 底片：照片排在帶齒孔的底片條上（自動挑 1~3 條，照片盡量撐滿）
     const top = TOP, bot = BOT, A = { x: 0, y: top, w: WW, h: HH - top - bot }, n = ok.length, HB = 24, IP = 6, G = 10, BG2 = 14, SW = WW - 32;
-    let best = null; for (let nr = 1; nr <= Math.min(3, n); nr++) { const per = Math.ceil(n / nr), R = []; for (let i = 0; i < n; i += per) R.push(ok.slice(i, i + per));
+    let best = null; for (let nr = n <= 3 ? 1 : 2; nr <= (n <= 3 ? 1 : 2); nr++) { const per = Math.ceil(n / nr), R = []; for (let i = 0; i < n; i += per) R.push(ok.slice(i, i + per));
       const bandMax = (A.h - BG2 * (R.length - 1)) / R.length - HB * 2 - IP * 2; if (bandMax < 80) continue;
       const hs = R.map(r => Math.min(bandMax, (SW - G * (r.length - 1)) / r.reduce((q, o) => q + o.w / o.h, 0))), area = R.reduce((q, r, i) => q + r.reduce((z, o) => z + o.w / o.h * hs[i] * hs[i], 0), 0);
-      if (!best || area > best.area) best = { R, hs, area }; }
+      const sz = R.flatMap((r, i) => r.map(o => o.w / o.h * hs[i] * hs[i])), sc = area * (0.55 + 0.45 * Math.sqrt(Math.min(...sz) / Math.max(...sz))) * (R.every(r => r.length === R[0].length) ? 1 : .82);
+      if (!best || sc > best.sc) best = { R, hs, area, sc }; }
     const { R, hs } = best; let y = A.y + (A.h - (hs.reduce((a, b) => a + Math.floor(b), 0) + (HB * 2 + IP * 2) * R.length + BG2 * (R.length - 1))) / 2;
     R.forEach((r, ri) => { const h = Math.floor(hs[ri]), bh = h + HB * 2 + IP * 2; svg += '<rect x="0" y="' + y + '" width="' + WW + '" height="' + bh + '" fill="#16181C"/>';
       for (let x = 12; x < WW; x += 38) svg += '<rect x="' + x + '" y="' + (y + 6) + '" width="20" height="12" rx="3" fill="' + V + '" opacity=".9"/><rect x="' + x + '" y="' + (y + bh - 18) + '" width="20" height="12" rx="3" fill="' + V + '" opacity=".9"/>';
@@ -277,7 +306,7 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     svg += head(top) + '<rect x="0" y="' + (HH - bot) + '" width="' + WW + '" height="3" fill="' + V + '" opacity=".6"/>' + await footer(HH - bot, bot);
     svgTop += moreBadge(WW - PAD - 12, top + 10);
   } else if (tpl === 6 && labeled) { // 清單：每株一列，縮圖＋大字名稱價格
-    const top = TOP, bot = BOT, A = { x: PAD, y: top + 14, w: WW - PAD * 2, h: HH - top - bot - 28 }, n = ok.length, G = 16, rh = Math.min(story ? 320 : 270, (A.h - G * (n - 1)) / n), y0 = A.y + (A.h - (rh * n + G * (n - 1))) / 2, tw = Math.round(rh * 1.05);
+    const top = TOP, bot = BOT, A = { x: PAD, y: top + 14, w: WW - PAD * 2, h: HH - top - bot - 28 }, n = ok.length, G = 16, rh = Math.min(A.h * .44, (A.h - G * (n - 1)) / n), y0 = A.y + (A.h - (rh * n + G * (n - 1))) / 2, tw = Math.round(rh * 1.05);
     ok.forEach((o, k) => { const y = y0 + k * (rh + G); put(contain(o, { x: A.x, y, w: tw, h: rh }, 0, .5), 10);
       if (k) svg += '<rect x="' + A.x + '" y="' + (y - G / 2 - 1) + '" width="' + A.w + '" height="2" fill="rgba(210,255,0,.25)"/>';
       const tx = A.x + tw + 30, mw = A.w - tw - 30, W2 = wrapFit(f, o.it.name, Math.min(48, Math.max(28, Math.round(rh / 5))), mw, 3, 22), fs = W2.sz, nl = W2.L, ty = y + rh / 2 - (nl.length * fs * 1.2 + fs * 1.3) / 2 + fs;
@@ -301,7 +330,8 @@ async function strips({ title, items, more, foot, url, story, sub, tpl }) {
     if (tpl !== 3) svgTop += '<rect x="' + (bx.px - 1.5) + '" y="' + (bx.py - 1.5) + '" width="' + (bx.pw + 3) + '" height="' + (bx.ph + 3) + '" rx="' + (rr + 1.5) + '" fill="none" stroke="rgba(210,255,0,.55)" stroke-width="3"/>';
     if (!(tpl === 6 && labeled)) svgTop += onPhotoLabel(f, bx, tpl === 4); }
   const W0 = '<svg xmlns="http://www.w3.org/2000/svg" width="' + WW + '" height="' + HH + '">' + DEFS;
-  const layers = [{ input: Buffer.from(W0 + svg + '</svg>'), left: 0, top: 0 }, ...tiles, ...comp, { input: Buffer.from(W0 + svgTop + '</svg>'), left: 0, top: 0 }];
+  const back = []; if (story && bg === BG && ok[0]) { try { back.push({ input: await sharp()(ok[0].b).resize(Math.round(WW / 6), Math.round(HH / 6), { fit: 'cover' }).blur(4).modulate({ brightness: .32, saturation: .8 }).resize(WW, HH).toBuffer(), left: 0, top: 0 }); } catch (e) {} }
+  const layers = [...back, { input: Buffer.from(W0 + svg + '</svg>'), left: 0, top: 0 }, ...tiles, ...comp, { input: Buffer.from(W0 + svgTop + '</svg>'), left: 0, top: 0 }];
   return sharp()({ create: { width: WW, height: HH, channels: 3, background: bg } }).composite(layers).jpeg({ quality: 88, mozjpeg: true }).toBuffer();
 }
 
