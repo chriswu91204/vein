@@ -94,6 +94,17 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['by', 'st', 'act', 'phone', 'at'])
         && request.resource.data.act in ['bind', 'unbind'] && request.resource.data.phone is string && request.resource.data.phone.size() <= 20;
     }
+    // 收不到驗證碼：會員把號碼送給管理員審核（本人只能送「待審核」、只能看自己的；管理員審核）
+    match /phoneReq/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow create, update: if isMe(uid) && notBanned() && request.resource.data.uid == uid && request.resource.data.st == 'wait'
+        && request.resource.data.keys().hasOnly(['uid', 'phone', 'why', 'st', 'at'])
+        && request.resource.data.phone is string && request.resource.data.phone.matches('^09[0-9]{8}$')
+        && request.resource.data.why is string && request.resource.data.why.size() <= 80
+        && (resource == null || resource.data.st != 'wait' || resource.data.at < request.time.toMillis() - 60000);
+      allow update: if isAdmin() && request.resource.data.uid == resource.data.uid && request.resource.data.phone == resource.data.phone;
+      allow delete: if (isMe(uid) && resource.data.st == 'wait') || isAdmin();
+    }
     // 公開的名字、頭像與「手機已驗證」標記
     match /profiles/{uid} {
       allow read: if true;
@@ -387,6 +398,14 @@ service cloud.firestore {
       }
     }
     match /pstat/{uid} { allow read: if true; }
+    // 手機驗證失敗的原因（不含號碼）：本人只能新增，管理員看得到，用來查「沒有成功」是什麼錯
+    match /phoneErr/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'step', 'code', 'msg', 'ua', 'at'])
+        && request.resource.data.msg is string && request.resource.data.msg.size() <= 200
+        && request.resource.data.ua is string && request.resource.data.ua.size() <= 200;
+      allow read, delete: if isAdmin();
+    }
     match /reports/{id} {
       allow create: if signedIn() && request.resource.data.by == request.auth.uid
         && (request.resource.data.get('kind', '') != 'lvchat' || (request.resource.data.keys().hasOnly(['kind', 'eid', 'mid', 'lid', 'why', 'by', 'at', 'text', 'uid']) && !('ctx' in request.resource.data)));

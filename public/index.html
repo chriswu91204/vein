@@ -6345,6 +6345,24 @@ html:has(body[data-page="goods"]){scroll-padding-bottom:96px} /* 捲到某個欄
 .gqa-ck{display:flex;align-items:center;gap:10px;font-weight:700;padding:12px 14px;border-radius:16px;background:var(--paper,#F4F4F1)}.gqa-ck input{width:22px;height:22px}
 .gqa-ft{position:sticky;bottom:0;padding:12px 0;background:linear-gradient(transparent,var(--bg,#fff) 30%)}.gqa-ft .btn{width:100%}
 
+/* 手機驗證視窗（非 modal，讓 Google 安全驗證可以蓋在上面） */
+dialog.nm{position:fixed;inset:0;margin:auto;z-index:1999999000}
+#nmBd{position:fixed;inset:0;z-index:1999998999;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+@media (max-width:640px){dialog.nm.narrow{margin:auto 0 0;top:auto;bottom:0}}
+.vein-rc{position:relative;z-index:1}
+
+/* 收不到驗證碼 */
+.ph-acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.ph-no{font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.ph-req{margin-top:4px;padding:14px;border-radius:18px;background:#0A0C0B;color:#fff;display:flex;flex-direction:column;gap:8px}.ph-req .hint{color:#c9cfc4;margin:0}.ph-req b{color:#D2FF00}.ph-req input{background:#fff;color:#111}
+.ph-rej{margin:0;color:#FFB4A8;font-weight:700}.ph-req .btn.soft{background:rgba(255,255,255,.16);color:#fff;align-self:flex-start}.phq-h>:first-child{flex:none}
+.phq-l{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.phq-r{padding:14px;border-radius:18px;background:#fff;border:1px solid var(--line,#e5e5e5);display:flex;flex-direction:column;gap:8px}
+.phq-h{display:flex;align-items:center;gap:12px}.phq-h span{flex:1;display:flex;flex-direction:column;min-width:0}.phq-h small{color:var(--fg3,#888);font-variant-numeric:tabular-nums}
+.phq-t{font-style:normal;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px}.phq-t.w{background:#FFF2C2;color:#6b4e00}.phq-t.o{background:#D2FF00;color:#0A0C0B}.phq-t.n{background:#FFE3DD;color:#B3261E}
+.phq-w{margin:0;padding:8px 12px;border-radius:12px;background:var(--paper,#F4F4F1)}
+.phq-a{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.phq-a input{flex:1;min-width:160px}
+.phq-d{margin-top:18px}.phq-d summary{cursor:pointer;font-weight:800}
+
 </style>
 
 </head>
@@ -7157,14 +7175,33 @@ function needPhone(){ if(!window.__veinAuth||!phoneReq()||S.meInfo?.phoneVerifie
 function openPhone(reason){
   const num=h('input',{type:'tel',inputmode:'tel',autocomplete:'tel',placeholder:'0912345678',maxlength:16}), code=h('input',{inputmode:'numeric',autocomplete:'one-time-code',placeholder:'6 位數驗證碼',maxlength:6}), err=h('div',{class:'err'});
   const send=h('button',{class:'btn pri',type:'button',id:'phoneSend',text:'傳送驗證碼'}), ok=h('button',{class:'btn lime',type:'button',text:'確認'}); let conf=null; const qbox=h('p',{class:'hint ph-q'}); const quota=Q=>{ qbox.textContent='今天還能傳 '+Q.leftD+' 次、這個月還能傳 '+Q.leftM+' 次驗證碼（每天最多 '+SMS_DAY+' 次、每月 '+SMS_MONTH+' 次）'; }; if(S.db&&S.me) smsQuota().then(quota).catch(()=>{});
+  // 收不到簡訊：把號碼送給管理員人工審核（管理員通過後直接幫你綁定，等同驗證完成）
+  const reqBox=h('div',{class:'ph-req',hidden:true}); let reqOff=null;
+  const noSms=h('button',{type:'button',class:'btn ghost ph-no',text:'收不到驗證碼？',onclick:()=>{ reqBox.hidden=false; reqPaint(); reqBox.scrollIntoView({block:'center',behavior:'smooth'}); }});
+  const reqPaint=x=>{ x=x===undefined?reqBox.__x:x; reqBox.__x=x; const st=x?.st;
+    if(st==='wait'){ reqBox.hidden=false; reqBox.replaceChildren(h('b',{text:'⏳ 已送出，等管理員審核'}), h('p',{class:'hint',text:'號碼 '+String(x.phone||'')+' · '+ago(x.at)+'。審核通過會直接幫你完成手機驗證，並通知你。'}), h('button',{type:'button',class:'btn soft sm',onclick:async()=>{ try{ await S.db.doc('phoneReq/'+S.me).delete(); }catch(e){ toast('沒有成功，請再試一次'); } },text:'取消申請'})); return; }
+    if(st==='ok'){ reqBox.hidden=false; reqBox.replaceChildren(h('b',{text:'✅ 管理員已幫你完成手機驗證'}), h('p',{class:'hint',text:'重新整理網頁後就生效。'}), h('button',{type:'button',class:'btn lime sm',onclick:()=>location.reload(),text:'重新整理'})); return; }
+    const why=h('input',{maxlength:80,placeholder:'補充說明（選填，例如：試了三次都沒收到）'});
+    reqBox.replaceChildren(
+      st==='no'?h('p',{class:'ph-rej',text:'❌ 上次的申請沒有通過'+(x.note?'：'+x.note:'')+'，可以修改後再送一次。'}):st==='err'?h('p',{class:'ph-rej',text:'❌ '+(x.note||'綁定沒有成功')+'，可以修改後再送一次。'}):null,
+      h('b',{text:'📮 改由管理員人工審核'}), h('p',{class:'hint',text:'會把上面填的手機號碼和你的帳號送給管理員。審核通過後直接幫你完成驗證，不用再收簡訊。'}), why,
+      h('button',{type:'button',class:'btn pri',onclick:async e=>{ const n=String(num.value||'').replace(/[\s-]/g,'').replace(/^\+886/,'0'); if(!/^09\d{8}$/.test(n)){ err.textContent='請先在上面填好手機號碼（09 開頭 10 碼）。'; num.focus(); return; }
+        const b=e.currentTarget; b.disabled=true; try{ await S.db.doc('phoneReq/'+S.me).set({uid:S.me,phone:n,why:why.value.trim().slice(0,80),st:'wait',at:Date.now()}); err.textContent=''; toast('已送給管理員審核'); }catch(x2){ b.disabled=false; err.textContent='送出失敗，請稍後再試。'; } },text:'送給管理員審核'})); };
+  const reqWatch=()=>{ if(!S.db||!S.me) return; try{ reqOff=S.db.doc('phoneReq/'+S.me).onSnapshot(d=>{ const x=d.exists?d.data():null; if(!reqBox.isConnected){ try{ reqOff?.(); }catch(e){} return; } if(x&&x.st==='ok'&&!S.meInfo?.phoneVerified){ S.meInfo={...S.meInfo,phoneVerified:true}; } reqPaint(x); if(x&&x.st!=='wait'&&x.st!=='ok') reqBox.hidden=false; },()=>{}); }catch(e){} };
   const step2=h('div',{class:'form',hidden:true}, field('驗證碼',code), h('div',{class:'row'}, ok, h('button',{class:'link',type:'button',onclick:()=>{ step2.hidden=true; send.disabled=false; },text:'重新傳送'})));
-  const msg=e=>({'vein/bad-number':'手機號碼格式不對，請輸入 09 開頭的 10 碼。','auth/invalid-phone-number':'手機號碼格式不對。','auth/too-many-requests':'嘗試太多次，請稍後再試。','auth/credential-already-in-use':'這支手機已經綁定其他帳號。','auth/account-exists-with-different-credential':'這支手機已經綁定其他帳號。','auth/provider-already-linked':'這個帳號已經驗證過手機了。','auth/invalid-verification-code':'驗證碼不正確。','auth/code-expired':'驗證碼已過期，請重新傳送。','auth/quota-exceeded':'今天全站的簡訊額度用完了，請明天再試。','auth/operation-not-allowed':'網站的手機驗證還沒開啟，請聯絡管理員（Firebase 要打開「電話」登入方式）。','auth/billing-not-enabled':'網站的簡訊服務還沒開通付費方案，請聯絡管理員。','auth/captcha-check-failed':'安全驗證沒通過，請重新整理頁面再試一次。','auth/invalid-app-credential':'安全驗證沒通過，請重新整理頁面再試一次。','auth/missing-app-credential':'安全驗證沒通過，請重新整理頁面再試一次。','auth/network-request-failed':'網路連線有問題，請確認網路後再試。','auth/unauthorized-domain':'這個網址還沒被允許傳簡訊，請聯絡管理員。','auth/missing-verification-code':'請輸入簡訊裡的 6 位數驗證碼。','auth/requires-recent-login':'登入太久了，請登出再登入一次後重試。','auth/admin-restricted-operation':'這個號碼的地區不在允許範圍內（只支援台灣號碼）。'}[e?.code]||('沒有成功，請稍後再試。'+(e?.code?'（錯誤代碼：'+e.code+'）':'')));
+  const msg=e=>({'vein/bad-number':'手機號碼格式不對，請輸入 09 開頭的 10 碼。','auth/invalid-phone-number':'手機號碼格式不對。','auth/too-many-requests':'嘗試太多次，請稍後再試。','auth/credential-already-in-use':'這支手機已經綁定其他帳號。','auth/account-exists-with-different-credential':'這支手機已經綁定其他帳號。','auth/provider-already-linked':'這個帳號已經驗證過手機了。','auth/invalid-verification-code':'驗證碼不正確。','auth/code-expired':'驗證碼已過期，請重新傳送。','auth/quota-exceeded':'今天全站的簡訊額度用完了，請明天再試。','auth/operation-not-allowed':'網站的手機驗證還沒開啟，請聯絡管理員（Firebase 要打開「電話」登入方式）。','auth/billing-not-enabled':'網站的簡訊服務還沒開通付費方案，請聯絡管理員。','auth/captcha-check-failed':'安全驗證沒通過，請重新整理頁面再試一次。','auth/invalid-app-credential':'安全驗證沒通過，請重新整理頁面再試一次。','auth/missing-app-credential':'安全驗證沒通過，請重新整理頁面再試一次。','auth/network-request-failed':'網路連線有問題，請確認網路後再試。','auth/unauthorized-domain':'這個網址還沒被允許傳簡訊，請聯絡管理員。','auth/missing-verification-code':'請輸入簡訊裡的 6 位數驗證碼。','auth/requires-recent-login':'登入太久了，請登出再登入一次後重試。','auth/admin-restricted-operation':'這個號碼的地區不在允許範圍內（只支援台灣號碼）。','vein/recaptcha-timeout':'安全驗證逾時，請再按一次「傳送驗證碼」。','auth/timeout':'連線逾時，請再按一次「傳送驗證碼」。','auth/internal-error':'驗證服務暫時有問題，請稍後再按一次。','auth/web-storage-unsupported':'這個瀏覽器不能驗證手機（可能是無痕模式或 App 內建瀏覽器），請改用 Chrome 或 Safari 開啟。','auth/operation-not-supported-in-this-environment':'這個瀏覽器不能驗證手機，請改用 Chrome 或 Safari 開啟。'}[e?.code]||('沒有成功，請再試一次。'+'（'+(e?.code||String(e?.message||e||'未知錯誤').slice(0,60))+'）'));
   send.addEventListener('click',async()=>{ err.textContent=''; const n=String(num.value||'').replace(/[\s-]/g,''); if(!/^(09\d{8}|\+8869\d{8})$/.test(n)){ err.textContent='手機號碼格式不對，請輸入 09 開頭的 10 碼，例如 0912345678。'; return; }
     send.disabled=true; const Q=await smsQuota(); quota(Q); if(!Q.leftD||!Q.leftM){ send.disabled=false; err.textContent=!Q.leftM?'這個月已經傳了 '+SMS_MONTH+' 次驗證碼，請聯絡管理員協助。':'今天已經傳了 '+SMS_DAY+' 次驗證碼，請明天再試，或聯絡管理員。'; return; }
-    try{ conf=await window.__veinAuth.sendCode(n,'phoneSend'); smsTake().then(tk=>quota(tk.Q)).catch(()=>{}); step2.hidden=false; code.focus(); toast('驗證碼已傳送'); }catch(e){ console.warn('[VEIN] 傳送驗證碼失敗',e); err.textContent=msg(e); send.disabled=false; } });
-  ok.addEventListener('click',async()=>{ err.textContent=''; ok.disabled=true; try{ await conf.confirm(code.value); S.meInfo={...S.meInfo,phoneVerified:true}; toast('手機驗證完成'); dlg.close(); renderAll(); }catch(e){ err.textContent=msg(e); ok.disabled=false; } });
-  openDialog('驗證手機', h('div',{class:'form'}, h('h3',{style:'font-size:28px;font-weight:600',text:'驗證手機號碼'}), reason?h('p',{class:'ph-why',text:reason}):null, h('p',{class:'hint',text:'驗證一次就好。一支手機只能綁定一個帳號，號碼不會公開。'}), field('手機號碼',num), h('div',{}, send), qbox, step2, err), true);
+    try{ conf=await window.__veinAuth.sendCode(n,'phoneSend'); smsTake().then(tk=>quota(tk.Q)).catch(()=>{}); step2.hidden=false; code.focus(); toast('驗證碼已傳送'); }catch(e){ console.warn('[VEIN] 傳送驗證碼失敗',e); err.textContent=msg(e); send.disabled=false; phoneErrLog('send',e); } });
+  ok.addEventListener('click',async()=>{ err.textContent=''; if(!conf){ err.textContent='請先按「傳送驗證碼」。'; return; } ok.disabled=true; try{ await conf.confirm(code.value); S.meInfo={...S.meInfo,phoneVerified:true}; toast('手機驗證完成'); dlg.close(); renderAll(); }catch(e){ err.textContent=msg(e); ok.disabled=false; phoneErrLog('confirm',e); } });
+  openDialog('驗證手機', h('div',{class:'form'}, h('h3',{style:'font-size:28px;font-weight:600',text:'驗證手機號碼'}), reason?h('p',{class:'ph-why',text:reason}):null, h('p',{class:'hint',text:'驗證一次就好。一支手機只能綁定一個帳號，號碼不會公開。'}), field('手機號碼',num), h('div',{class:'ph-acts'}, send, noSms), qbox, step2, err, reqBox), true);
+  dlgNonModal(); reqWatch();
 }
+// Google 的安全驗證（要你點圖片的那個）是放在網頁最外層：視窗如果是「modal」會把它蓋住、點不到，驗證就卡住或失敗。
+// 手機驗證的視窗改成一般視窗（一樣有暗色背景、一樣可以按返回關掉），安全驗證才會出現在最上面。
+function dlgNonModal(){ if(!dlg.open||!dlg.matches(':modal')) return; dlg.__swap=true; dlg.classList.add('nm'); dlg.close(); dlg.show(); blPush('dlg',()=>{ if(dlg.open) dlg.close(); }); syncScrollLock();
+  if(!document.getElementById('nmBd')) document.body.append(h('div',{id:'nmBd'})); }
+function phoneErrLog(step,e){ try{ if(!S.db||!S.me) return; S.db.collection('phoneErr').doc().set({uid:S.me,step,code:String(e?.code||'').slice(0,60),msg:String(e?.message||e||'').slice(0,160),ua:navigator.userAgent.slice(0,160),at:Date.now()}).catch(()=>{}); }catch(x){} }
 function saveSocial(patch){ if(S.work){ toast('小編模式不能用賣場的身分出價、追蹤、下單或抽獎，請先切回自己的帳號'); return Promise.reject(new Error('work')); } if(!S.socialReady){ toast('資料還在載入，請稍候'); return Promise.reject(new Error('nr')); } const cur={...mySocial(),...patch}; S.social.set(S.me,cur); S.socialAll.set(S.me,cur); renderAll(); return socialQ(()=>S.db.doc('social/'+S.me).set(cur)).catch(e=>{ toast('儲存失敗，請稍後再試'); throw e; }); }
 function savePrefs(patch,msg){ if(!S.prefsReady){ toast('資料還在載入，請稍候'); return; } S.prefs={...S.prefs,...patch}; renderAll(); if(msg) toast(msg); prefsUp(patch).catch(()=>toast('沒有存成功，請稍後再試')); }
 // 只寫有改的欄位，別的裝置剛加的收藏不會被這台舊的資料蓋掉
@@ -10620,6 +10657,7 @@ async function boot(){
     if (act&&act!==S.realMe&&db){ try{ const d=await db.doc(`shops/${act}/staff/${S.realMe}`).get(); if(d.exists){ S.work={shop:act,perms:d.data().perms||{}}; S.me=act; S.admin=false; S.isOwner=false; } else { sessionStorage.removeItem('vein.actAs'); setTimeout(()=>toast('你已經不是這個賣場的小編'),1500); } }catch(e){ try{ sessionStorage.removeItem('vein.actAs'); }catch(x){} } } }
   S.booted=true; if(user) setTimeout(()=>{ try{ xrListen(); }catch(e){} },1500); renderNav(); try{ workBar(); }catch(e){} setTimeout(()=>{ try{ installNudge(); }catch(e){} },1500); setTimeout(()=>{ try{ verWatch(); }catch(e){} },4000); setTimeout(()=>{ try{ guardBoot(); }catch(e){} },2500);
   if (db&&S.admin) db.collection('upreq').onSnapshot(sn=>{ S.upreqN=sn.size; if(adm.open) renderAdmNav(); }, ()=>{});
+  if (db&&S.admin) db.collection('phoneReq').onSnapshot(sn=>{ S.phreq=sn.docs.map(d=>({id:d.id,...d.data()})); S.phreqN=S.phreq.filter(x=>x.st==='wait').length; if(adm.open){ renderAdmNav(); if(S.admTab==='phreq') renderAdmin(true); } }, ()=>{});
   if (db&&S.admin) db.collection('abuse').onSnapshot(sn=>{ S.abuseN=sn.docs.filter(d=>d.id!=='_budget').length; if(adm.open) renderAdmNav(); }, ()=>{});
   if (!db){ S.failed=true; renderAll(); return; }
   db.collection('shops').onSnapshot(sn=>{ S.shopsReady=true; S.shops.clear(); sn.docs.forEach(d=>S.shops.set(d.id,d.data())); checkReady(); }, ()=>{ S.failed=true; renderAll(); });
@@ -10813,6 +10851,8 @@ function verWatch(){ if(BUILD.startsWith('__')||verWatch.on) return; verWatch.on
   d.addEventListener('touchend',()=>{ if(y0==null) return; y0=null; d.style.transition='transform .2s'; if(dy>90){ d.style.transform='translateY(100%)'; setTimeout(()=>{ d.close(); d.style.transform=''; d.style.transition=''; },180); } else d.style.transform=''; });
 })();
 function resetDlg(){ if(S.photoUnsub){ S.photoUnsub(); S.photoUnsub=null; } S.open=null; S.openR=null; S.openCart=false; }
+// 手機驗證視窗從 modal 換成一般視窗時會觸發一次 close：攔下來，不要清空內容、不要算成關閉（要放在其他 close 監聽之前）
+dlg.addEventListener('close',e=>{ if(dlg.__swap){ dlg.__swap=false; e.stopImmediatePropagation(); return; } dlg.classList.remove('nm'); document.getElementById('nmBd')?.remove(); },true);
 dlg.addEventListener('close',()=>{ const wasR=S.openR; resetDlg(); if(wasR&&location.hash.startsWith('#/raffle/')) history.replaceState(null,'','#/raffle'); });
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 function openDialog(title, body, narrow){ resetDlg(); $('#dlgTitle').textContent=title; $('#dlgBody').replaceChildren(body); dlg.classList.toggle('narrow',!!narrow); if(!dlg.open) dlg.showModal(); dlg.scrollTop=0; }
@@ -12486,7 +12526,7 @@ function blDone(id){ const i=BL.findIndex(l=>l.id===id); if(i<0) return; BL.spli
   setTimeout(()=>{ if(BL.some(l=>l.id===id)) return; if(history.state?.blId===id){ blSkip++; history.back(); } },0); }
 function blPop(e){ if(blSkip){ blSkip--; return true; } const d=e.state?.bl||0; if(BL.length>d){ while(BL.length>d){ const l=BL.pop(); try{ l.close(); }catch(x){} } return true; } return false; }
 { const _cl=HTMLDialogElement.prototype.close; HTMLDialogElement.prototype.close=function(){ const was=this.open; const r=_cl.apply(this,arguments); if(was&&this.id&&this.id!=='admin') blDone(this.id); return r; }; }
-{ const _sm=HTMLDialogElement.prototype.showModal; HTMLDialogElement.prototype.showModal=function(){ this._openAt=performance.now(); const r=_sm.apply(this,arguments); try{ placeDock(); }catch(e){} syncScrollLock(); if(this.id&&this.id!=='admin'){ const el=this; blPush(this.id,()=>{ if(el.open) el.close(); }); } requestAnimationFrame(()=>{ const a=document.activeElement; if(a&&a.matches&&(a.matches('.x,[data-close],.navclose')||a.closest('#admNav'))) a.blur(); }); return r; }; document.addEventListener('close',e=>{ if(e.target?.id&&e.target.id!=='admin') blDone(e.target.id); setTimeout(()=>{ try{ placeDock(); }catch(e){} syncScrollLock(); }); },true); }
+{ const _sm=HTMLDialogElement.prototype.showModal; HTMLDialogElement.prototype.showModal=function(){ this._openAt=performance.now(); const r=_sm.apply(this,arguments); try{ placeDock(); }catch(e){} syncScrollLock(); if(this.id&&this.id!=='admin'){ const el=this; blPush(this.id,()=>{ if(el.open) el.close(); }); } requestAnimationFrame(()=>{ const a=document.activeElement; if(a&&a.matches&&(a.matches('.x,[data-close],.navclose')||a.closest('#admNav'))) a.blur(); }); return r; }; document.addEventListener('close',e=>{ if(e.target?.__swap) return; /* 手機驗證視窗換成一般視窗時的那次 close 不算關閉 */ if(e.target?.id&&e.target.id!=='admin') blDone(e.target.id); setTimeout(()=>{ try{ placeDock(); }catch(e){} syncScrollLock(); }); },true); }
 // 開著視窗（後台、商品…）時鎖住背後的網頁，手指滑動只會捲動目前的視窗
 function syncScrollLock(){ const H=document.documentElement, open=!!document.querySelector('dialog[open]'); if(open&&!H.classList.contains('modal-lock')){ const y=scrollY; H.dataset.sy=String(y); H.dataset.sh=location.hash; H.classList.add('modal-lock'); document.body.style.top=(-y)+'px'; } else if(!open&&H.classList.contains('modal-lock')){ const y=+H.dataset.sy||0, same=H.dataset.sh===location.hash||/^#(admin|plants)/.test(location.hash)||/^#(admin|plants)/.test(H.dataset.sh||''); H.classList.remove('modal-lock'); document.body.style.top=''; if(same) scrollTo(0,y); } }
 function lightbox(list,i){
@@ -13613,6 +13653,7 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if (T==='sellers'&&S.admin) return admSellers(main);
   if (T==='house'&&S.admin) return admHouse(main);
   if (T==='mod'&&S.admin) return admMod(main);
+  if (T==='phreq'&&S.admin) return admPhoneReq(main);
   if (T==='users'&&S.admin) return admUsers(main);
   if (T==='bcast'&&S.admin) return admBcast(main);
   if (T==='chatmon'&&S.admin) return admChatMon(main);
@@ -13643,7 +13684,7 @@ function renderAdmNav(){
     {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['goods','🛍 周邊商品',goodsMine().filter(p=>p.listed!==false&&!gSoldOut(p)).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live','catch'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],['mytags','我的立牌'],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length],['expo','🎪 展會管理',(S.expoL||[]).filter(x=>x.on&&(!x.until||x.until>Date.now())).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
-  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['events','市集／拍賣會'],['canned','罐頭訊息'],['mod','內容管理'],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['chatmon','對話監控'],['tags','立牌 QR／NFC'],['standee','立牌設計'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
+  if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['events','市集／拍賣會'],['canned','罐頭訊息'],['mod','內容管理'],['phreq','📱 手機審核',S.phreqN||0],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['chatmon','對話監控'],['tags','立牌 QR／NFC'],['standee','立牌設計'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
   const curK=it=>{ const [k]=it; const [base,sub]=k.split(':'); return (S.admTab==='lot'||(S.admTab==='new'&&S.newPreset?.list)?'list':S.admTab)===base&&(!sub||(S.shopTab||'basic')===sub); };
   S.navOpen=S.navOpen||{};
   G.forEach(g=>{ if(g.t&&g.items.some(curK)) S.navOpen[g.k]=true; });
@@ -16040,7 +16081,7 @@ function admGuard(m){
   draw();
 }
 if (location.hostname==='localhost') window.__lvDbg=()=>{ const e=LV.ev; if(!e) return null; if(e.phase==='done') return {done:true}; const c=e.cur; if(!c) return null; return {lid:c.lid,i:c.i||0,left:c.endsAt-lvNow(),pv:!!lvPrev(c),gap:!!c.gapUntil,top:c.top?.uid||null,me:S.me}; };
-if (location.hostname==='localhost') window.__vein={S,openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,openPhone:r=>openPhone(r),openCart:()=>openCart(),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -18254,6 +18295,22 @@ function admGoodsEdit(main,id){
     h('label',{class:'gqa-ck'}, listed, h('span',{text:'上架販售（取消就先存著不公開）'})),
     err, h('div',{class:'gqa-ft'}, btn));
   main.append(admTop(isNew?'上架周邊':'編輯周邊'), f); }
+
+/* ===== 後台：收不到驗證碼的人工審核 =====
+   會員在驗證視窗按「收不到驗證碼？」→ phoneReq/{uid}（st:wait）。管理員通過 → 寫 phoneBind（伺服器真的綁進登入資料，結果回寫 phoneReq 並通知會員）；不通過要寫原因。 */
+function admPhoneReq(main){ const L=(S.phreq||[]).slice().sort((a,b)=>(a.st==='wait'?0:1)-(b.st==='wait'?0:1)||(b.at||0)-(a.at||0)); resolveNames(L.map(x=>x.id));
+  const W=L.filter(x=>x.st==='wait'), D=L.filter(x=>x.st!=='wait').slice(0,30);
+  const row=x=>{ const note=h('input',{maxlength:60,placeholder:'不通過的原因（會讓會員看到）'}), st=h('span',{class:'hint'});
+    const ok=async b=>{ b.disabled=true; st.textContent='⏳ 綁定中…'; try{ await S.db.doc('phoneReq/'+x.id).update({st:'bind',by:S.me,dec:Date.now()}); await S.db.doc('phoneBind/'+x.id).set({by:S.me,st:'req',act:'bind',phone:x.phone,at:Date.now()}); admLog(x.id,'phone','手機審核通過 '+x.phone); }catch(e){ b.disabled=false; st.textContent='❌ 送出失敗'; } };
+    const no=async b=>{ const r=note.value.trim(); if(!r){ note.focus(); st.textContent='請寫不通過的原因'; return; } b.disabled=true; try{ await S.db.doc('phoneReq/'+x.id).update({st:'no',note:r,by:S.me,dec:Date.now()}); admLog(x.id,'phone','手機審核不通過：'+r); }catch(e){ b.disabled=false; st.textContent='❌ 送出失敗'; } };
+    const tag={wait:['⏳ 待審核','w'],bind:['⏳ 綁定中','w'],ok:['✅ 已通過','o'],no:['❌ 不通過','n'],err:['⚠️ 綁定失敗','n']}[x.st]||[x.st,'w'];
+    return h('div',{class:'phq-r'}, h('div',{class:'phq-h'}, avatar(x.id,40), h('span',{}, h('b',{text:nameOf(x.id)}), h('small',{text:x.phone+' · '+ago(x.at)})), h('em',{class:'phq-t '+tag[1],text:tag[0]})),
+      x.why?h('p',{class:'phq-w',text:'「'+x.why+'」'}):null, x.note&&x.st!=='wait'?h('p',{class:'hint',text:(x.st==='err'?'原因：':'不通過原因：')+x.note}):null,
+      x.st==='wait'?h('div',{class:'phq-a'}, h('button',{type:'button',class:'btn lime sm',onclick:e=>ok(e.currentTarget),text:'✅ 通過並綁定'}), note, h('button',{type:'button',class:'btn soft sm',onclick:e=>no(e.currentTarget),text:'不通過'})):null,
+      h('div',{class:'row',style:'gap:8px;align-items:center'}, h('button',{type:'button',class:'link',onclick:()=>{ S.admTab='users'; S.userSel=x.id; renderAdmin(true); },text:'看會員資料'}), st)); };
+  main.append(admTop('手機審核'), h('p',{class:'hint',text:'收不到簡訊驗證碼的會員送來的申請。通過會直接幫他綁定手機（等同驗證完成）；一支手機只能綁一個帳號，重複的會自動擋下。'}),
+    W.length?h('div',{class:'phq-l'}, ...W.map(row)):h('div',{class:'empty'}, h('h3',{text:'沒有待審核的申請'})),
+    D.length?h('details',{class:'phq-d'}, h('summary',{text:'已處理 '+D.length+' 筆'}), h('div',{class:'phq-l'}, ...D.map(row))):null); }
 
 function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ applySnipe(); }catch(e){} try{ ordAlert(); }catch(e){} try{ lockScreen(); }catch(e){} renderNav(); renderShop(); renderBell(); socialProof(); if(lastV) renderVerify(lastV);
   if (PAGE==='sell'&&!typing($('#sellPage'))) platRerender(); if (PAGE==='home') renderCommunity();

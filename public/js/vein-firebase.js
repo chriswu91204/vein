@@ -60,9 +60,19 @@ async function start() {
       let n = String(raw || '').replace(/[\s-]/g, '');
       if (/^09\d{8}$/.test(n)) n = '+886' + n.slice(1);
       if (!/^\+\d{8,15}$/.test(n)) { const e = new Error('bad'); e.code = 'vein/bad-number'; throw e; }
-      if (window.__veinRecaptcha) { try { window.__veinRecaptcha.clear(); } catch (e) {} }
-      window.__veinRecaptcha = new RecaptchaVerifier(auth, buttonId, { size: 'invisible' });
-      const c = await linkWithPhoneNumber(auth.currentUser, n, window.__veinRecaptcha);
+      // 每次都放在「新的空白容器」：同一個按鈕不能重複掛 reCAPTCHA（隱形的清不乾淨），
+      // 原本第二次按（重新傳送、或第一次失敗再按）一定失敗：「reCAPTCHA has already been rendered in this element」
+      if (window.__veinRecaptcha) { try { window.__veinRecaptcha.clear(); } catch (e) {} window.__veinRecaptcha = null; }
+      document.querySelectorAll('.vein-rc').forEach(x => x.remove());
+      const btn = document.getElementById(buttonId), box = document.createElement('div'); box.className = 'vein-rc';
+      ((btn && btn.parentNode) || document.body).appendChild(box);
+      const v = window.__veinRecaptcha = new RecaptchaVerifier(auth, box, { size: 'invisible' });
+      let c;
+      try {
+        // 安全驗證（圖片題）一直沒完成時，Firebase 不會回錯誤、會一直等：2 分鐘後當成逾時，讓使用者可以再按一次
+        c = await Promise.race([linkWithPhoneNumber(auth.currentUser, n, v),
+          new Promise((_, rej) => setTimeout(() => { const e = new Error('timeout'); e.code = 'vein/recaptcha-timeout'; rej(e); }, 120000))]);
+      } catch (e) { try { v.clear(); } catch (x) {} box.remove(); if (window.__veinRecaptcha === v) window.__veinRecaptcha = null; throw e; }
       return { async confirm(code) {
         await c.confirm(String(code).trim());
         await auth.currentUser.reload(); await auth.currentUser.getIdToken(true);

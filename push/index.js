@@ -660,7 +660,10 @@ exports.viewsCleanup = onSchedule({ schedule: 'every day 04:17', timeZone: 'Asia
 const OWNER_EMAILS = ['chriswu91204@gmail.com'];
 exports.adminPhoneBind = onDocumentWritten({ document: 'phoneBind/{uid}' }, async ev => {
   const after = ev.data.after; if (!after.exists) return; const d = after.data(); if (d.st !== 'req') return;
-  const uid = ev.params.uid, ref = after.ref, fail = (msg, extra) => ref.set({ st: 'err', err: msg, at: Date.now(), by: d.by, act: d.act, ...(extra || {}) });
+  const uid = ev.params.uid, ref = after.ref;
+  // 會員「收不到驗證碼」送來的申請（phoneReq）：綁定結果也寫回去，會員的驗證視窗會即時看到
+  const reqUpd = async o => { try { const r = db.doc('phoneReq/' + uid), x = await r.get(); if (x.exists && ['wait', 'bind'].includes(x.data().st)) await r.update({ ...o, dec: Date.now() }); } catch (e) {} };
+  const fail = async (msg, extra) => { if (d.act === 'bind') await reqUpd({ st: 'err', note: msg }); return ref.set({ st: 'err', err: msg, at: Date.now(), by: d.by, act: d.act, ...(extra || {}) }); };
   try {
     const adm = (await db.doc('site/admins').get()).data() || {}; let ok = !!(adm.uids || {})[d.by];
     if (!ok) { try { const bu = await admin.auth().getUser(d.by); ok = !!bu.email && OWNER_EMAILS.includes(bu.email.toLowerCase()); } catch (e) {} }
@@ -678,8 +681,18 @@ exports.adminPhoneBind = onDocumentWritten({ document: 'phoneBind/{uid}' }, asyn
     await admin.auth().updateUser(uid, { phoneNumber: n });
     await db.doc('profiles/' + uid).set({ phoneVerified: true, updatedAt: Date.now() }, { merge: true });
     await db.collection('admlog').add({ by: d.by, u: uid, act: 'phone', detail: '代綁手機 ' + n + (target.phoneNumber ? '（原本 ' + target.phoneNumber + '）' : ''), at: Date.now() });
+    await reqUpd({ st: 'ok' }); try { await push(uid, '✅ 手機驗證完成', '管理員已幫你綁定手機，重新整理網頁就生效', '/#/me', 'phone-ok'); } catch (e) {}
     return ref.set({ st: 'ok', act: 'bind', phone: n, at: Date.now(), by: d.by });
   } catch (e) { logger.error('adminPhoneBind', e); return fail('綁定失敗：' + (e.message || e.code || '')); }
+});
+
+// 收不到驗證碼的申請：新申請通知管理員；不通過通知會員
+async function adminUids() { const out = new Set(); try { const a = await db.doc('site/admins').get(); const u = a.exists ? a.data().uids : null; (Array.isArray(u) ? u : Object.keys(u || {})).forEach(x => out.add(x)); } catch (e) {}
+  for (const em of OWNER_EMAILS) { try { out.add((await admin.auth().getUserByEmail(em)).uid); } catch (e) {} } return [...out]; }
+exports.phoneReqNotify = onDocumentWritten({ document: 'phoneReq/{uid}' }, async ev => {
+  const a = ev.data.after.exists ? ev.data.after.data() : null, b = ev.data.before.exists ? ev.data.before.data() : null; if (!a) return;
+  if (a.st === 'wait' && (!b || b.st !== 'wait')) { const nm = await displayName(ev.params.uid); for (const u of await adminUids()) { try { await push(u, '📱 手機審核申請', nm + ' 收不到驗證碼，申請人工審核', '/#admin/phreq', 'phreq-' + ev.params.uid); } catch (e) {} } return; }
+  if (a.st === 'no' && b && b.st !== 'no') { try { await push(ev.params.uid, '手機審核沒有通過', String(a.note || '請確認號碼後再試一次').slice(0, 60), '/#/me', 'phreq-no'); } catch (e) {} }
 });
 
 // ================= 市集（特賣會）＋ VEIN 拍賣會 =================
