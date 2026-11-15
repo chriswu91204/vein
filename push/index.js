@@ -785,7 +785,8 @@ async function lvAdvance(id) {
     if (ev.phase === 'done') return;
     // 下一件：跳過已經在別處賣掉、下架或轉走的植物（標成 gone，不拍）
     const pick = async skip => { const gone = []; for (const l of lots) { if (skip.has(l.id) || !(l.status === 'ok' || l.status === 'wait')) continue; const ps = await tx.get(db.doc(`shops/${l.shop}/plants/${l.pid}`)); const p = ps.exists ? ps.data() : null;
-        if (!p || p.status === 'sold' || p.listed === false || p.purgeAt) { gone.push(l); continue; } return { nx: l, gone }; } return { nx: null, gone }; };
+        // 只有「真的不能拍」才跳過：植物不見、已售出、已刪除、已轉給別人。沒在商店上架（listed:false）的植物本來就可以報名拍賣會，不能因此被拿掉
+        if (!p || p.status === 'sold' || p.purgeAt || (p.listed === false && p.delistedWhy === 'xfer')) { gone.push(l); continue; } return { nx: l, gone }; } return { nx: null, gone }; };
     const markGone = G => G.forEach(l => tx.update(eref.collection('lots').doc(l.id), { status: 'gone', why: '拍賣前已售出或下架', endedAt: now }));
     if (!cur) { if (!ev.startAt || now < ev.startAt) return; const gu = lvGather(ev); const { nx, gone } = await pick(new Set()); markGone(gone); if (!nx) { tx.update(eref, { phase: 'done', doneAt: now }); return; }
       // 開場先集合：這段時間輪播所有拍品，時間到才開第一件
