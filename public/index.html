@@ -14099,20 +14099,28 @@ function evFx(big,small,tpl){ if(REDUCE){ toast(big); return; } const el=h('div'
 /* ---- VEIN 拍賣會：競標頁 ---- */
 const LV={id:null,un:[],ev:null,lots:new Map(),off:null,tk:{},photo:0,pt:0,iv:0,bidBusy:false,lastTop:null,lastLid:null,lastGap:false,feed:[],ext:0};
 const lvNow=()=>Date.now()+(LV.off||0);
+// 校時結果留在記憶體：離開拍賣會去逛別頁再回來，直接沿用（不用再等校時，也不會先用不準的手機時間）
+// 背景每 2 秒檢查一次手機時間有沒有被改（或睡眠醒來時間跳動）：有就整個作廢、回來時重新校時
+const LVC={samples:[],dp:null};
+setInterval(()=>{ const dp=Date.now()-performance.now(); if(LVC.dp!=null&&Math.abs(dp-LVC.dp)>800){ LVC.samples=[]; LV.gen=(LV.gen||0)+1; } LVC.dp=dp; },2000);
 // 校時：直接問伺服器現在幾點（/time），取來回最快的那次估算誤差；一進頁面測 3 次，之後每 10 秒校正一次
 // 拍賣紀錄上的 now 只是「上次更新的時間」，可能是很久以前，只拿來當下限，不能直接當現在時間
 // 平常每一幀最多調 60 毫秒（倒數不跳）；換新拍品、開拍那一刻直接對齊
 // 還沒校時前：拍賣紀錄的時間只能當「下限」（伺服器現在至少這麼晚），先用手機時間、但不早於下限；拍賣紀錄可能是幾分鐘前寫的，不能直接拿來當現在
 function lvOff(o){ if(!LV.synced){ LV.lb=Math.max(LV.lb??-Infinity,o); LV.tgt=Math.max(0,LV.lb); LV.off=LV.tgt; return; } if(o>LV.tgt+300) LV.tgt=o; }
-async function lvSync1(){ const t0=Date.now(); try{ const r=await fetch('/time?_='+t0,{cache:'no-store'}); const j=await r.json(); const t1=Date.now(), rtt=t1-t0; if(!(j&&+j.now>0)) throw 0; return {o:+j.now-(t0+t1)/2,rtt,at:t1}; }catch(e){}
+// 來回時間用 performance.now() 量（不受手機時間被改影響）；校時途中手機時間被改（LV.gen 變了）這次就作廢，不然會算出很離譜的時差
+async function lvSync1(){ const g=LV.gen||0, p0=performance.now(); try{ const r=await fetch('/time?_='+Date.now(),{cache:'no-store'}); const j=await r.json(); const p1=performance.now(), rtt=p1-p0; if((LV.gen||0)!==g) return null; if(!(j&&+j.now>0)||!(rtt>=0)) throw 0; return {o:+j.now-(Date.now()-rtt/2),rtt,at:p1,dp:Date.now()-performance.now()}; }catch(e){ if((LV.gen||0)!==g) return null; }
   // 校時網址失敗：改用網站回應的 Date 標頭（精確到秒）
-  try{ const t0=Date.now(), r=await fetch(location.pathname+'?_t='+t0,{method:'HEAD',cache:'no-store'}), t1=Date.now(), d=Date.parse(r.headers.get('date')||''); if(!(d>0)) return null; return {o:d+500-(t0+t1)/2,rtt:t1-t0+1000,at:t1}; }catch(e){ return null; } }
+  try{ const p0=performance.now(), r=await fetch(location.pathname+'?_t='+Date.now(),{method:'HEAD',cache:'no-store'}), p1=performance.now(), d=Date.parse(r.headers.get('date')||''); if((LV.gen||0)!==g||!(d>0)) return null; const rtt=p1-p0, t1=Date.now(), t0=t1-rtt; return {o:d+500-(t0+t1)/2,rtt:rtt+1000,at:p1,dp:Date.now()-performance.now()}; }catch(e){ return null; } }
 // 每拿到一次就更新（第一次很慢時不用等三次都回來）
 async function lvSync(n){ for(let i=0;i<(n||1);i++){ const x=await lvSync1(); if(!x) continue;
-  LV.samples=[...(LV.samples||[]),x].filter(y=>Date.now()-y.at<90000).sort((a,b)=>a.rtt-b.rtt).slice(0,6);
-  const best=LV.samples[0], first=!LV.synced; LV.synced=true; LV.tgt=Math.max(best.o,LV.lb??-Infinity); LV.rtt=best.rtt; if(first||LV.off==null||Math.abs(LV.off-LV.tgt)>1500) LV.off=LV.tgt; } }
+  LV.samples=[...(LV.samples||[]),x].filter(y=>performance.now()-y.at<600000&&(y.dp==null||Math.abs(y.dp-x.dp)<500)).sort((a,b)=>a.rtt-b.rtt).slice(0,6); LVC.samples=LV.samples;
+  // 每次校時代表「真正的時差一定落在 [時差−來回/2, 時差+來回/2]」：幾次的範圍取交集，再挑最接近 0 的值
+  // → 手機時間本來就準就完全不動；網路很慢（來回好幾秒）也不會被拉歪；手機時間不準時，誤差最多是最快那次來回的一半
+  let lo=-Infinity, hi=Infinity; for(const y of LV.samples){ lo=Math.max(lo,y.o-y.rtt/2-15); hi=Math.min(hi,y.o+y.rtt/2+15); }
+  const best=LV.samples[0], est=lo<=hi?Math.min(hi,Math.max(lo,0)):best.o, first=!LV.synced; LV.synced=true; LV.tgt=Math.max(est,LV.lb??-Infinity); LV.rtt=best.rtt; if(first||LV.off==null||Math.abs(LV.off-LV.tgt)>1500) LV.off=LV.tgt; } }
 // 手機時間被改（或睡眠喚醒）：舊的校時樣本全部作廢、馬上重新校時
-function lvJump(){ const pn=performance.now(), dn=Date.now(); if(LV.pn!=null){ const j=(dn-LV.dn)-(pn-LV.pn); if(Math.abs(j)>800){ LV.samples=[]; LV.lb=null; if(LV.off!=null){ LV.off-=j; LV.tgt=LV.off; } lvSync(2); } } LV.pn=pn; LV.dn=dn; }
+function lvJump(){ const pn=performance.now(), dn=Date.now(); if(LV.pn!=null){ const j=(dn-LV.dn)-(pn-LV.pn); if(Math.abs(j)>800){ LV.gen=(LV.gen||0)+1; LV.samples=[]; LVC.samples=[]; LV.lb=null; if(LV.off!=null){ LV.off-=j; LV.tgt=LV.off; } lvSync(2); } } LV.pn=pn; LV.dn=dn; }
 function lvSnap(){ if(LV.tgt!=null) LV.off=LV.tgt; }
 function lvStep(){ if(LV.tgt==null) return; if(LV.off==null){ LV.off=LV.tgt; return; } const d=LV.tgt-LV.off; if(Math.abs(d)<2) return; LV.off+=Math.max(-60,Math.min(60,d)); }
 const lvStepC=(ev,amt)=>{ if(+ev.step>0) return +ev.step; return amt<1000?50:amt<3000?100:amt<10000?200:amt<30000?500:1000; };
@@ -14120,7 +14128,7 @@ const lvGU=ev=>(+ev?.gatherUntil||0)||((+ev?.startAt||0)+(ev?.gather!=null&&isFi
 const lvGath=ev=>!!ev&&!ev.cur&&ev.phase!=='done'&&!!ev.startAt&&(ev.phase==='on'||!lvWait())&&lvNow()>=ev.startAt;
 const lvPrev=c=>!!c&&!c.gapUntil&&c.previewUntil&&lvNow()<c.previewUntil;
 // 剛進頁面、還沒對好時間（最多 2.5 秒）：先不顯示秒數，免得閃一下錯的數字
-const lvWait=()=>!LV.synced&&Date.now()-(LV.enter||0)<2500;
+const lvWait=()=>!LV.synced&&Date.now()-(LV.enter||0)<4000;
 const lvSn=ev=>ev?.snipe!=null&&ev.snipe!==''&&isFinite(+ev.snipe)?Math.max(0,+ev.snipe):10;
 const lvNeed=ev=>{ const c=ev.cur; if(!c) return 0; return c.top?c.top.amt+lvStepC(ev,c.top.amt):(c.start||lvStepC(ev,0)); };
 function lvVid(){ if(S.me) return S.me; let v=''; try{ v=sessionStorage.getItem('vein.vid')||''; if(!v){ v='g'+Math.random().toString(36).slice(2,12); sessionStorage.setItem('vein.vid',v); } }catch(e){ v='g'+Math.random().toString(36).slice(2,12); } return v; }
@@ -14135,7 +14143,9 @@ function renderLive(){ const box=$('#livePage'); if(!box) return;
     if(L[0]){ const hs='#/live/'+L[0].id; history.replaceState(history.state,'',hs); S.curHash=hs; S.liveId=L[0].id; }
     else { const wait=Date.now()-(S.lvNextAt||(S.lvNextAt=Date.now()))<6000; box.replaceChildren(wait?h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'找拍賣會…'})):h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:'目前沒有拍賣會'}), h('a',{class:'btn soft',href:'#/raffle',text:'看其他活動'}))); if(wait) setTimeout(()=>{ if(PAGE==='live'&&S.liveId==='next') renderLive(); },1200); else S.lvNextAt=0; return; } }
   const id=S.liveId; document.body.classList.add('lv-on'); if(lvNoPhone()) setTimeout(()=>{ if(PAGE==='live'&&lvNoPhone()) evPhoneNag('live'); },900);
-  if(LV.id!==id){ leaveLive(); document.body.classList.add('lv-on'); LV.id=id; LV.ev=null; LV.gi=null; LV.st=null; clearInterval(LV.gt); LV.gt=0; LV.gsig=null; LV.lots=new Map(); LV.tk={}; LV.feed=[]; LV.lastTop=null; LV.lastLid=null; LV.off=null; LV.tgt=null; LV.lb=null; LV.pn=null; LV.synced=false; LV.samples=[]; LV.enter=Date.now(); lvSync(3); LV.sy=setInterval(()=>{ if(!document.hidden) lvSync(1); },10000); const vs=()=>{ if(!document.hidden){ LV.samples=[]; lvSync(2).then(lvSnap); } }; document.addEventListener('visibilitychange',vs); LV.un.push(()=>{ clearInterval(LV.sy); document.removeEventListener('visibilitychange',vs); });
+  if(LV.id!==id){ leaveLive(); document.body.classList.add('lv-on'); LV.id=id; LV.ev=null; LV.gi=null; LV.st=null; clearInterval(LV.gt); LV.gt=0; LV.gsig=null; LV.lots=new Map(); LV.tk={}; LV.feed=[]; LV.lastTop=null; LV.lastLid=null; LV.off=null; LV.tgt=null; LV.lb=null; LV.pn=null; LV.synced=false; LV.samples=[]; LV.enter=Date.now();
+      { const dpn=Date.now()-performance.now(), keep=LVC.samples.filter(y=>performance.now()-y.at<600000&&y.dp!=null&&Math.abs(y.dp-dpn)<500); /* 離開時手機時間被改過的樣本不能再用 */ if(keep.length){ LV.samples=keep; let lo=-Infinity, hi=Infinity; for(const y of keep){ lo=Math.max(lo,y.o-y.rtt/2-15); hi=Math.min(hi,y.o+y.rtt/2+15); } LV.tgt=LV.off=lo<=hi?Math.min(hi,Math.max(lo,0)):keep[0].o; LV.synced=true; } }
+      lvSync(LV.synced?1:3); LV.sy=setInterval(()=>{ if(!document.hidden) lvSync(1); },10000); const vs=()=>{ if(!document.hidden){ LV.gen=(LV.gen||0)+1; LV.samples=[]; lvSync(2).then(lvSnap); } }; document.addEventListener('visibilitychange',vs); LV.un.push(()=>{ clearInterval(LV.sy); document.removeEventListener('visibilitychange',vs); });
     box.replaceChildren(h('div',{class:'lv-load'}, h('i',{class:'lb-spin',style:'position:static'}), h('p',{text:'進入拍賣會…'})));
     LV.un.push(S.db.doc('lives/'+id).onSnapshot(d=>{ if(!d.exists){ box.replaceChildren(h('div',{class:'empty',style:'margin-top:120px'}, h('h3',{text:'找不到這場拍賣會'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); return; }
       const ev={id:d.id,...d.data(),kind:'live'}; if(ev.now) lvOff(ev.now-Date.now()); LV.ev=ev; lvOnEv(ev); lvChatLock(); },()=>{}));
@@ -14163,6 +14173,8 @@ function lvTickUi(){ const ev=LV.ev; if(!ev||PAGE!=='live') return; const c=ev.c
   const pv=$('#livePage .lv-pv'); if(pv){ const on=lvPrev(c); pv.hidden=!on; if(on) pv.querySelector('b').textContent=lvWait()?'…':String(Math.ceil((c.previewUntil-now)/1000)); const bt=$('#livePage .lv-bid'); if(bt&&!c.gapUntil&&bt.dataset.pv!==String(on)){ bt.dataset.pv=String(on); if(!on) lvSnap(); lvPanel(); } }
   } function lvClock(){ const ev=LV.ev; if(!ev||PAGE!=='live') return; const c=ev.cur, now=lvNow();
   const cd=$('#livePage .lv-cd'); if(cd&&c){ const dur=Math.max(10,+ev.dur||60)*1000, PV=lvPrev(c), left=c.gapUntil?0:PV?dur:Math.max(0,c.endsAt-now); const t=left>0?(left>=60000?Math.floor(left/60000)+':'+p2(Math.floor(left%60000/1000)):(left/1000).toFixed(1)):(c.gapUntil?'0.0':'0.0'); const W=lvWait(); const B=cd.querySelector('b'); const t2=W&&!c.gapUntil?'…':t; if(B.textContent!==t2) B.textContent=t2; const lab=W&&!c.gapUntil?'校時中':c.gapUntil?(c.result==='sold'?'已成交':'流標'):PV?'等待開拍':left>0?'剩餘秒數':'結算中…'; const L2=cd.querySelector('small'); if(L2.textContent!==lab) L2.textContent=lab; cd.classList.toggle('hot',!PV&&!c.gapUntil&&left>0&&left<=Math.max(lvSn(ev),5)*1000); cd.classList.toggle('end',!PV&&left<=0); cd.style.setProperty('--p',String(Math.max(0,Math.min(1,left/dur)))); }
+  // 預覽倒數每一幀都更新（不等每秒一次的畫面更新）；預覽開始／結束的那一刻也立刻切換，不會先閃一下「22.0」
+  { const pv=c&&$('#livePage .lv-pv'); if(pv){ const on=!c.gapUntil&&lvPrev(c); if(pv.hidden===on) pv.hidden=!on; const pvb=on&&pv.querySelector('b'); if(pvb){ const t=lvWait()?'…':String(Math.ceil((c.previewUntil-now)/1000)); if(pvb.textContent!==t) pvb.textContent=t; } } }
   const sc=LV.st==='soon'&&$('#livePage .lv-start b'); if(sc&&ev.startAt){ const t=lvWait()?'…':ev.startAt-now>0?fmtLeft(ev.startAt-now):'即將開始'; if(sc.textContent!==t) sc.textContent=t; }
   if(!c&&LV.st==='soon'&&lvGath(ev)) lvPaint(); else if(!c&&LV.st==='gather'&&!lvGath(ev)&&ev.phase!=='on') lvPaint();
   const gc=$('#livePage .lvg-cd'); if(gc){ const gu=lvGU(ev), G=Math.max(1,gu-ev.startAt), left=Math.max(0,gu-now), t=lvWait()?'…':Math.floor(left/6e4)+':'+p2(Math.floor(left%6e4/1000)); const B=gc.querySelector('b'); if(B.textContent!==t) B.textContent=t; gc.querySelector('em').style.transform='scaleX('+Math.max(0,Math.min(1,left/G))+')'; gc.classList.toggle('hot',left<=30000); const L2=gc.querySelector('small'), lab=left>0?'開拍倒數':'第一件準備中…'; if(L2.textContent!==lab) L2.textContent=lab; }
