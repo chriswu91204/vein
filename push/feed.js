@@ -22,7 +22,7 @@ const pName = p => (normSp(p.species) + (p.cultivar ? ' ' + (/['‘’"]/.test(p
 const genus = p => normSp(p.species).split(' ')[0] || '';
 const tw = t => { const d = new Date(t + 8 * 3600e3); const w = '日一二三四五六'[d.getUTCDay()]; return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '（' + w + '）' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
 const photos = p => { const L = []; (p.media || []).forEach(m => { if (!m || !m.url) return; const u = m.type === 'video' ? (m.poster || '') : m.url; if (u && !L.includes(u)) L.push(u); }); [p.coverThumb, p.thumb].forEach(u => { if (u && !L.includes(u)) L.push(u); }); return L.filter(u => /^https:\/\//.test(u)); };
-const pub = p => p && p.listed !== false && !p.hidden && !p.private && !p.blocked && !p.purgeAt && (p.status || 'available') === 'available';
+const pub = p => p && p.kind !== 'goods' && p.listed !== false && !p.hidden && !p.private && !p.blocked && !p.purgeAt && (p.status || 'available') === 'available';
 const tags = p => { const g = genus(p).toLowerCase(); return ['#VEIN', '#植物履歷', g ? '#' + g : '', '#觀葉植物', '#天南星', '#rareplants', '#plantsofinstagram'].filter(Boolean); };
 
 let ownerCache = null;
