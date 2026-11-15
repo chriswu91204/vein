@@ -820,7 +820,10 @@ async function lvFinalize(id) {
   const sold = (await db.collection('lives/' + id + '/lots').where('status', '==', 'sold').get()).docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.winner && l.final);
   const groups = new Map(); for (const l of sold) { const k = l.winner + '|' + l.shop; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(l); }
   const now = Date.now(), byBuyer = new Map();
-  for (const [k, L] of groups) { const [buyer, shop] = k.split('|'), oid = 'lv-' + id.slice(0, 8) + '-' + buyer.slice(0, 10), oref = db.doc(`shops/${shop}/orders/${oid}`), total = L.reduce((n, l) => n + twNum(l.final), 0);
+  for (const [k, L0] of groups) { const [buyer, shop] = k.split('|'); let oid = 'lv-' + id.slice(0, 8) + '-' + buyer.slice(0, 10), L = L0;
+    // 同一場拍賣會結束後又重新開始（例如熱修復放回拍品）：已經成立過訂單的拍品不重複，新得標的另外成立一筆
+    try { for (let k2 = 2, ex = await db.doc(`shops/${shop}/orders/${oid}`).get(); ex.exists; k2++) { const had = new Set(ex.data().items || []); L = L.filter(l => !had.has(l.pid)); if (!L.length) break; oid = 'lv-' + id.slice(0, 8) + '-' + buyer.slice(0, 10) + '-' + k2; ex = await db.doc(`shops/${shop}/orders/${oid}`).get(); } } catch (e) {}
+    if (!L.length) continue; const oref = db.doc(`shops/${shop}/orders/${oid}`), total = L.reduce((n, l) => n + twNum(l.final), 0);
     try { if (!(await oref.get()).exists) { const bank = await db.doc(`data/users/${shop}/bank`).get();
         await oref.set({ buyer, items: L.map(l => l.pid), prices: Object.fromEntries(L.map(l => [l.pid, twNum(l.final)])), total, note: (ev.title || 'VEIN 拍賣會') + ' 得標 ' + L.length + ' 件（自動成立）', status: 'confirmed', payMethod: 'transfer', src: 'live', liveId: id, at: now });
         await db.doc(`deals/${shop}_${oid}`).set({ seller: shop, buyer, orderId: oid, payMethod: 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true });
