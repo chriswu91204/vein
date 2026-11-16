@@ -6363,6 +6363,10 @@ dialog.nm{position:fixed;inset:0;margin:auto;z-index:1999999000}
 .phq-a{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.phq-a input{flex:1;min-width:160px}
 .phq-d{margin-top:18px}.phq-d summary{cursor:pointer;font-weight:800}
 
+/* 聊天：影片過期 */
+.cm-vgone{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:#1b1e1c;color:#fff;min-width:200px}.cm-vgone i{font-size:24px;font-style:normal;opacity:.7}.cm-vgone span{display:flex;flex-direction:column}.cm-vgone small{color:#9aa39a;font-size:12px}
+.cm-vexp{display:block;font-size:11px;color:var(--fg3,#888);margin-top:4px}
+
 </style>
 
 </head>
@@ -10141,7 +10145,7 @@ function cwBlockEd(b,P){ const ch=()=>{ CMW.dirty=true; cmDraft(); }, hard=()=>{
     case 'img': { b.items=b.items||[]; const st=h('small',{class:'hint'}), fi=h('input',{type:'file',hidden:true,multiple:true,accept:'image/*,video/mp4,video/quicktime,video/webm'}); fi.addEventListener('change',()=>{ if(!fi.files.length) return; cwUpload(fi.files,md=>b.items.push(md),st,true); fi.value=''; });
       const g=h('div',{class:'wx-ims'}, ...b.items.map((m,i)=>h('div',{class:'wx-im',draggable:'false'}, m.type==='video'?h('video',{src:m.url,muted:true,playsinline:true}):h('img',{src:m.thumb||m.url,alt:''}), h('em',{text:String(i+1)}), h('button',{type:'button',class:'x',onclick:()=>{ b.items.splice(i,1); hard(); },text:'✕'}), i?h('button',{type:'button',class:'l',onclick:()=>{ [b.items[i-1],b.items[i]]=[b.items[i],b.items[i-1]]; hard(); },text:'‹'}):null)), h('button',{type:'button',class:'wx-add',onclick:()=>fi.click()}, h('i',{text:'＋'}), h('span',{text:b.items.length?'再加':'選照片（可多選）'})));
       return h('div',{}, g, fi, st, chips('view',[['swipe','左右滑'],['grid','拼貼'],['big','大圖一張張']]), inp('cap','照片說明（選填）')); }
-    case 'vid': return h('div',{}, cwMedia('影片',()=>b.m,m=>{ b.m=m; },'video/mp4,video/quicktime,video/webm'), inp('cap','影片說明（選填）'), h('small',{class:'hint',text:'影片最長 6 秒（認證會員可上傳）'}));
+    case 'vid': return h('div',{}, cwMedia('影片',()=>b.m,m=>{ b.m=m; },'video/mp4,video/quicktime,video/webm'), inp('cap','影片說明（選填）'), h('small',{class:'hint',text:'影片最長 20 秒（認證會員可上傳）'}));
     case 'plant': { b.ids=b.ids||[]; const mineP=all().filter(p=>(ownerOf(p)===S.me||p.shop===S.me)&&!p.hidden).sort((a,b2)=>toMs(b2.createdAt)-toMs(a.createdAt)); const q=h('input',{placeholder:'搜尋編號或品種（也能找別人的公開植物）'}), res=h('div',{class:'wx-pr'});
       const draw=()=>{ const v=q.value.trim().toLowerCase(); const L=(v?all().filter(p=>!p.hidden&&!privFor(p)&&[p.code,p.species,p.cultivar].join(' ').toLowerCase().includes(v)):mineP).slice(0,30); res.replaceChildren(...L.map(p=>h('button',{type:'button',class:b.ids.includes(p.id)?'on':'',onclick:()=>{ const i=b.ids.indexOf(p.id); if(i>=0) b.ids.splice(i,1); else if(b.ids.length<8) b.ids.push(p.id); else return toast('最多 8 株'); hard(); }}, h('img',{src:cover(p),alt:''}), h('small',{class:'mono',text:p.code||''})))); };
       q.addEventListener('input',()=>{ clearTimeout(q._t); q._t=setTimeout(draw,200); }); draw(); return h('div',{}, inp('title','標題（選填），例如：這次入手的'), h('small',{class:'hint',text:'已選 '+b.ids.length+' 株（點一下選取／取消）'}), q, res); }
@@ -10922,7 +10926,7 @@ const TOUR={
   home:[{sel:'[data-tour=add]',t:'👋 歡迎開店！我們一起上架第一株植物，只要 1 分鐘。先按這裡「登錄植物」。',click:true}],
   new:[{sel:'[data-tour=kind]',t:'① 選類型：自己的源頭植株選「母株」，從母株分出來的選「側芽」，播種的選「實生苗」。'},
        {sel:'[data-tour=species]',t:'② 選分類（屬），填種名或品種名。「備註」會顯示在商品縮圖上，可以寫雜交組合或特色。'},
-       {sel:'[data-tour=photos]',t:'③ 加照片或影片（可以多張，影片 6 秒內（認證會員）），第一張會當封面。'},
+       {sel:'[data-tour=photos]',t:'③ 加照片或影片（可以多張，影片 20 秒內（認證會員）），第一張會當封面。'},
        {sel:'[data-tour=listsw]',t:'④ 打開「登錄後直接上架販售」，填上售價（不填會顯示「洽詢」）。'},
        {sel:'[data-tour=submit]',t:'⑤ 按這裡就完成！系統會自動給編號，商品馬上上架。',click:true}],
   edit:[{t:'✅ 植物登錄好了！還沒上架的話，到「上架販售」勾選這株、設定價格就能賣。',act:['帶我去上架販售',()=>{ S.admTab='list'; S.admEdit=null; renderAdmin(true); }]}],
@@ -10970,7 +10974,7 @@ const GUIDES=[
   ['選類型','母株＝你的源頭植株；側芽＝從某株母株分出來；實生苗＝播種出來的。選錯之後也能在「管理」改。'],
   ['選父母本','點父母本欄位，輸入編號或品種搜尋 VEIN 上已登錄的植株。國外進口、向別人買的，打開「母本不在 VEIN 上」填名稱、來源、上傳父母本照片。'],
   ['填品種與備註','選分類（屬）、填種名／品種名。「備註」會顯示在商品縮圖上，適合寫雜交組合或特色（例如：斑葉、已發根）。'],
-  ['拍照或錄影','可以放多張照片和 6 秒內的影片（認證會員），第一張是封面。照片會保留原始拍攝時間。'],
+  ['拍照或錄影','可以放多張照片和 20 秒內的影片（認證會員），第一張是封面。照片會保留原始拍攝時間。'],
   ['公開與上架','預設會公開植物檔案；勾「直接上架販售」可以一起設定價格。按「登錄」就完成，編號自動產生。']],
   tips:['編號格式：屬代碼-賣家代碼-流水號（例 AN-VEN-00012），側芽接在母株後面（-S01）。','沒照片也能先登錄，但會先不公開，補照片後再打開。'],go:[['去登錄一株','adm:new']]},
  {id:'batch',cat:'seller',ic:'📷',t:'批量登錄＋連續拍照（一整批實生苗、側芽）',min:4,steps:[
@@ -12665,7 +12669,7 @@ function renderHistory(force){
             else { for(const m0 of phs) await S.db.collection(pPath(p)+'/photos').doc().set({...m0.full,thumb:m0.thumb||null,poster:m0.video?m0.thumb:null,takenAt:when||m0.takenAt,takenSource:when?'manual':m0.takenSource,title,stage:title,note:no.value.trim(),registeredAt:reg});
               const cur=S.plants.get(p.id), latest=phs.map(z=>when||z.takenAt).sort().pop(), upd={photoCount:(cur.photoCount||0)+phs.length,media:[...mediaOf(phs),...(cur.media||[])].slice(0,12)}; if(!cur.coverThumb) upd.coverThumb=cur.thumb||phs[0].thumb; if(!cur.lastPhotoAt||latest>=cur.lastPhotoAt){ upd.thumb=phs[phs.length-1].thumb; upd.lastPhotoAt=latest; upd.lastStage=title; } if(lv.value) upd.leaves=Number(lv.value); await S.db.doc(pPath(p)).update(upd); }
             S.histNew=false; toast('已加入履歷'); renderHistory(true); }catch(ex){ btn.disabled=false; er.textContent='加入失敗，請稍後再試。'; } }},
-        h('h3',{text:'新增一個時間點'}), h('div',{class:'two'}, field('標題（可自訂，也可以從建議挑）',ti), field('發生時間（沒改的話用照片拍攝時間）',dt)), field('說明',no), fieldBox('照片或影片（選填，可多張；影片 6 秒內（認證會員））',picker.el), h('div',{class:'two'}, field('目前葉片數（選填）',lv), h('div')), er,
+        h('h3',{text:'新增一個時間點'}), h('div',{class:'two'}, field('標題（可自訂，也可以從建議挑）',ti), field('發生時間（沒改的話用照片拍攝時間）',dt)), field('說明',no), fieldBox('照片或影片（選填，可多張；影片 20 秒內（認證會員））',picker.el), h('div',{class:'two'}, field('目前葉片數（選填）',lv), h('div')), er,
         h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'加入履歷'}), h('button',{class:'btn soft',type:'button',onclick:()=>{ S.histNew=false; renderHistory(true); },text:'取消'})));
     }
   }
@@ -15137,7 +15141,7 @@ function admBatch(m){
   const grpSw=h('input',{type:'checkbox',class:'sw'}), gName=h('input',{maxlength:40,placeholder:'例如 Red Queen × 銀色襯裙 實生苗 2026 春'}), gDesc=h('textarea',{rows:2,maxlength:400,placeholder:'群組介紹（選填）'});
   const gFile=h('input',{type:'file',accept:'image/*,video/*',class:'vh'}), gPrev=h('div',{class:'gcov'}, h('span',{class:'hint',text:'沒選的話用第一株的照片'}));
   gFile.addEventListener('change',()=>{ const f0=gFile.files[0]; if(!f0) return; const u=URL.createObjectURL(f0); gPrev.replaceChildren(/^video/.test(f0.type)?h('video',{src:u,muted:true,autoplay:true,loop:true,playsinline:true}):h('img',{src:u,alt:''})); });
-  const grpBox=h('div',{class:'gbox',hidden:true}, field('群組名稱（商店卡片上的大標題）', gName), field('群組介紹', gDesc), fieldBox('群組主圖（照片或 6 秒內影片）', h('div',{class:'row',style:'gap:12px;align-items:center;flex-wrap:wrap'}, gPrev, h('label',{class:'btn soft sm'}, gFile, '選擇主圖'))), h('p',{class:'hint',text:'群組只能直購，買家進去挑編號。'}));
+  const grpBox=h('div',{class:'gbox',hidden:true}, field('群組名稱（商店卡片上的大標題）', gName), field('群組介紹', gDesc), fieldBox('群組主圖（照片或 20 秒內影片）', h('div',{class:'row',style:'gap:12px;align-items:center;flex-wrap:wrap'}, gPrev, h('label',{class:'btn soft sm'}, gFile, '選擇主圖'))), h('p',{class:'hint',text:'群組只能直購，買家進去挑編號。'}));
   grpSw.addEventListener('change',()=>{ const on=grpSw.checked; grpBox.hidden=!on; if(on){ listSw.checked=true; saleBox.hidden=false; modeSel.value='fixed'; modeSel.dispatchEvent(new Event('change')); if(!gName.value.trim()) gName.value=[crIn.value.trim()||[spC.get(),epIn.value.trim()].filter(Boolean).join(' '),KIND[kind]].filter(Boolean).join(' '); } listSw.disabled=on; modeSel.querySelector('option[value=auction]').disabled=on; redraw(); });
   listSw.addEventListener('change',()=>{ saleBox.hidden=!listSw.checked; redraw(); }); modeSel.addEventListener('change',()=>redraw());
   const KVB={mother:['🪴','母株','一批成株',['母本','選填']],pup:['🌿','側芽','同一株母株',['母株','必填']],seedling:['🌱','實生苗','同一組親本',['母本','必填']]};
@@ -15324,7 +15328,7 @@ function admGroups(m){
 /* ---- 賣場裝修（認證賣家） ---- */
 const ACCENTS=['#D4F25A','#2E7D5B','#E8C9D2','#F2B84B','#7CC4E8','#B79CF2','#FF7A59','#111312'];
 async function uploadMediaFile(f,onP){
-  if (/^video\//.test(f.type)){ if(!canVideo(S.me)){ setTimeout(()=>openUpgrade('video'),50); throw new Error('影片上傳是認證會員功能（可以改傳照片）'); } let d0=0; try{ d0=await videoDuration(f); }catch(e){} if(d0>MAX_VID_SEC) throw new Error('影片最長 6 秒（目前 '+d0.toFixed(1)+' 秒），請先剪短再上傳'); try{ const cv=await compatVideo(f); f=cv.file; }catch(e){ hevcHelp(); throw new Error(HEVC_MSG); } if(f.size>24*1024*1024) throw new Error('影片檔案太大（超過 24MB），請剪短或降低畫質'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
+  if (/^video\//.test(f.type)){ if(!canVideo(S.me)){ setTimeout(()=>openUpgrade('video'),50); throw new Error('影片上傳是認證會員功能（可以改傳照片）'); } let d0=0; try{ d0=await videoDuration(f); }catch(e){} if(d0>MAX_VID_SEC) throw new Error('影片最長 20 秒（目前 '+d0.toFixed(1)+' 秒），請先剪短再上傳'); try{ const cv=await compatVideo(f); f=cv.file; }catch(e){ hevcHelp(); throw new Error(HEVC_MSG); } if(f.size>60*1024*1024) throw new Error('影片檔案太大（超過 60MB），請剪短或降低畫質'); let poster; try{ poster=await videoPoster(f); }catch(e){ hevcHelp(); throw new Error('這支影片瀏覽器播不出來（多半是 iPhone 的 HEVC 格式），請轉成 MP4（H.264）'); } const pUrl=await uploadBlob(poster); const url=await uploadBlob(f,onP); return {type:'video',url,poster:pUrl}; }
   if (/^image\//.test(f.type)){ const im=await loadImage(f), blob=await encode(im,1920,0.84); const url=await uploadBlob(blob,onP); let thumb=null; try{ thumb=await uploadBlob(await encode(im,640,0.75)); }catch(e){} return {type:'image',url,thumb}; }
   throw new Error('請選照片或影片');
 }
@@ -15649,6 +15653,8 @@ function chatBoot(db){ if(CH.booted||!S.me) return; CH.booted=true;
     sn.docs.forEach(d=>{ const v=d.data(); if((v.members||[]).includes(S.me)) S.chats.set(d.id,{id:d.id,...v}); });
     resolveNames([...S.chats.keys()].map(chatOther)); if(CH.ready) chatNotify(prev); CH.ready=true; chatRefresh(); chatBehind(); },()=>{});
   chatDock(); }
+const CHAT_VID_TTL=7*864e5; // 聊天裡傳的影片保留 7 天，之後伺服器刪檔
+const vidLeft=at=>{ const ms=(+at||0)+CHAT_VID_TTL-Date.now(), d=Math.floor(ms/864e5), hr=Math.ceil(ms/36e5); return d>=1?d+' 天後過期':hr+' 小時後過期'; };
 function chatAttach(cid){ const q=S.db.collection('chats/'+cid+'/messages').orderBy('at','desc').limit(200), put=sn=>{ S.chatMsgs.set(cid,sn.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.at-b.at)); chatRefresh(cid); };
   const un=q.onSnapshot(put,()=>{ S.chatMsgs.set(cid,[]); chatRefresh(cid); });
   // 剛打開或從背景回來時，即時連線可能還沒接上、先給的是舊的快取：再主動跟伺服器要一次最新的
@@ -15791,7 +15797,7 @@ function chatConv(cid,opt={}){
       case 'reg': { const x=(m.k==='live'?S.lives:S.mkts).get(m.eid); return card(m,[h('div',{class:'cm-ct'}, h('span',{text:m.k==='live'?'🔴 VEIN 拍賣會報名':'🎪 市集報名'})), h('p',{class:'cm-q',text:m.title||x?.title||''}), x?h('small',{class:'hint',text:evWhen(x.startAt)+' 開始'+(x.regEnd?' · 報名到 '+evWhen(x.regEnd):'')}):null, x&&regOn(x)?h('div',{class:'cm-acts'}, actBtn(hasShop()?'立即報名':'先開賣場再報名',()=>hasShop()?openReg(x):openApply(),'pri')):h('div',{class:'cm-done',text:'報名已截止'})]); }
       case 'ginv': { const g=S.chats.get(m.gid), inG=g&&(g.members||[]).includes(S.me); return card(m,[h('div',{class:'cm-ct'}, h('span',{text:'👥 群組邀請'})), h('p',{class:'cm-q',text:(meS?'你邀請對方加入':'邀請你加入')+'「'+(m.name||'群組')+'」'}), h('small',{class:'hint',text:(m.n||1)+' 位成員'}), !meS&&!inG?h('div',{class:'cm-acts'}, actBtn('加入群組',()=>grpJoin(m.gid),'pri')):inG?h('div',{class:'cm-acts'}, actBtn('打開群組',()=>grpOpen(m.gid))):null]); }
       case 'img': return h('button',{type:'button',class:'cm-img',onclick:()=>lightbox([{type:'image',url:m.url}],0)}, h('img',{src:m.url,alt:'',loading:'lazy'}));
-      case 'vid': return h('div',{class:'cm-img'}, h('video',{src:m.url,poster:m.poster||null,controls:true,playsinline:true,preload:'metadata'}));
+      case 'vid': return (m.gone||!m.url||Date.now()-(+m.at||0)>CHAT_VID_TTL)?h('div',{class:'cm-vgone'}, h('i',{text:'🎞'}), h('span',{}, h('b',{text:'影片已過播放時間'}), h('small',{text:'聊天裡的影片保留 7 天'}))):h('div',{class:'cm-img'}, h('video',{src:m.url,poster:m.poster||null,controls:true,playsinline:true,preload:'metadata'}), h('small',{class:'cm-vexp',text:'⏳ '+vidLeft(m.at)}));
       case 'prod': { if(!p) return h('div',{class:'cm-bub',text:'🌿 商品 '+(m.code||'')+'（已下架）'}); const sale=onSale(p), canCart=sale&&!isAuc(p)&&p.price&&p.shop!==S.me;
         return card(m,[prodMini(p), h('div',{class:'cm-acts'}, actBtn('看商品',()=>openPlant(p.id)), canCart?actBtn(cartIds().includes(p.id)?'已在購物車':'加入購物車',()=>addCart(p.id),'pri'):null, sale&&p.shop!==S.me?(isAuc(p)?(live(p)?actBtn('⚡ 出價競標',()=>offerForm(p),'pri'):null):actBtn('議價',()=>offerForm(p))):null, histBtn?h('a',{class:'btn soft sm',href:'#/history/'+encodeURIComponent(p.id),text:'履歷'}):null)]); }
       case 'offer': { const o=S.offers.get(m.oid)||{status:'open'}, st=o.status, seller=o.seller||(p&&p.shop);
@@ -15983,13 +15989,13 @@ const listedNow=u=>all().filter(p=>p.shop===u&&listed(p)&&p.status!=='sold').len
 function capOK(n){ if(!S.me||!n) return true; const cap=capOf(S.me), cur=listedNow(S.me); if(cur+n<=cap) return true; openUpgrade('list',{cur,cap,n}); return false; }
 function videoGate(){ if(canVideo(S.me)) return true; openUpgrade('video'); return false; }
 function openUpgrade(why,o={}){ if(!S.me){ openLogin(); return; }
-  const head={list:['已達上架上限','一般賣家同時最多上架 '+(o.cap===Infinity?'∞':o.cap)+' 株，你目前在售 '+(o.cur||0)+' 株'+(o.n?'，這次要再上架 '+o.n+' 株':'')+'。'],video:['影片上傳是認證會員功能','認證賣家與認證買家才能上傳植物影片（每支最多 6 秒）。'],design:['賣場裝修是認證賣家功能','認證賣家可以用拖拉方式設計自己的賣場。'],staff:['小編共同管理是認證賣家功能','認證賣家可以邀請最多 5 位小編，用各自的帳號一起管理賣場，並分別設定權限。']}[why]||['升級成認證會員',''];
+  const head={list:['已達上架上限','一般賣家同時最多上架 '+(o.cap===Infinity?'∞':o.cap)+' 株，你目前在售 '+(o.cur||0)+' 株'+(o.n?'，這次要再上架 '+o.n+' 株':'')+'。'],video:['影片上傳是認證會員功能','認證賣家與認證買家才能上傳植物影片（每支最多 20 秒）。'],design:['賣場裝修是認證賣家功能','認證賣家可以用拖拉方式設計自己的賣場。'],staff:['小編共同管理是認證賣家功能','認證賣家可以邀請最多 5 位小編，用各自的帳號一起管理賣場，並分別設定權限。']}[why]||['升級成認證會員',''];
   const sent=h('p',{class:'hint',hidden:true,text:'✅ 已經通知管理員，開通後會再通知你。'}), err=h('div',{class:'err'});
   const ask=async btn=>{ btn.disabled=true; try{ await S.db.doc('upreq/'+S.me).set({uid:S.me,name:(S.meInfo?.name||'').slice(0,40),shop:hasShop()?shopName(S.me).slice(0,40):'',kind:hasShop()?'seller':'buyer',why:String(why).slice(0,10),cur:o.cur||0,at:Date.now()}); sent.hidden=false; btn.textContent='已送出申請'; toast('已通知管理員'); }catch(e){ btn.disabled=false; err.textContent='送出失敗，請稍後再試或用下方聯絡方式。'; } };
   openDialog(head[0], h('div',{class:'up'}, h('div',{class:'up-ic',text:why==='list'?'📦':why==='video'?'🎬':'✨'}), h('h3',{text:head[0]}), h('p',{class:'hint',text:head[1]}),
     h('div',{class:'up-cards'},
-      h('div',{class:'up-c'}, h('b',{text:'🏪 認證賣家'}), h('ul',{}, h('li',{text:'上架數量無上限'}), h('li',{text:'賣場裝修（拖拉設計）'}), h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'小編共同管理（最多 5 人）'}), h('li',{text:'認證賣家徽章'}))),
-      h('div',{class:'up-c'}, h('b',{text:'🛍 認證買家'}), h('ul',{}, h('li',{text:'植物可以上傳 6 秒影片'}), h('li',{text:'認證買家標示，賣家更信任'})))),
+      h('div',{class:'up-c'}, h('b',{text:'🏪 認證賣家'}), h('ul',{}, h('li',{text:'上架數量無上限'}), h('li',{text:'賣場裝修（拖拉設計）'}), h('li',{text:'植物可以上傳 20 秒影片'}), h('li',{text:'小編共同管理（最多 5 人）'}), h('li',{text:'認證賣家徽章'}))),
+      h('div',{class:'up-c'}, h('b',{text:'🛍 認證買家'}), h('ul',{}, h('li',{text:'植物可以上傳 20 秒影片'}), h('li',{text:'認證買家標示，賣家更信任'})))),
     h('p',{class:'hint',text:'目前開通請先聯繫管理員，之後會開放線上升級。'}),
     h('div',{class:'row',style:'gap:8px;flex-wrap:wrap'}, h('button',{class:'btn pri',type:'button',onclick:e=>ask(e.currentTarget),text:'📩 通知管理員幫我開通'}), S.site?.line?h('a',{class:'btn soft',href:'https://line.me/R/ti/p/'+encodeURIComponent(S.site.line),target:'_blank',rel:'noopener',text:'LINE 聯絡 '+S.site.line}):null),
     sent, err), true); }
@@ -16093,7 +16099,7 @@ function admGuard(m){
   draw();
 }
 if (location.hostname==='localhost') window.__lvDbg=()=>{ const e=LV.ev; if(!e) return null; if(e.phase==='done') return {done:true}; const c=e.cur; if(!c) return null; return {lid:c.lid,i:c.i||0,left:c.endsAt-lvNow(),pv:!!lvPrev(c),gap:!!c.gapUntil,top:c.top?.uid||null,me:S.me}; };
-if (location.hostname==='localhost') window.__vein={S,openPhone:r=>openPhone(r),openCart:()=>openCart(),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,openPhone:r=>openPhone(r),openCart:()=>openCart(),openChat:(u,o)=>openChat(u,o),canVideo:u=>canVideo(u),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -16708,7 +16714,7 @@ function admEditor(m, id){
   const sale=saleFields(p);
   const nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), kidsAll=all().filter(x=>momId(x)===p.id||dadId(x)===p.id);
   const picker=mediaPicker();
-  const rec=h('form',{class:'form'}, fieldBox('照片或影片（選填，可多選，影片 6 秒內（認證會員）；不放照片就是純文字事件）', picker.el), h('div',{class:'two'}, field('階段／事件標題（可自訂）', h('input',{'data-r':'stage',maxlength:40,list:stageList(),placeholder:'例如：換盆、開花、第一片真葉',value:stagesFor(p.kind)[1]||''})), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
+  const rec=h('form',{class:'form'}, fieldBox('照片或影片（選填，可多選，影片 20 秒內（認證會員）；不放照片就是純文字事件）', picker.el), h('div',{class:'two'}, field('階段／事件標題（可自訂）', h('input',{'data-r':'stage',maxlength:40,list:stageList(),placeholder:'例如：換盆、開花、第一片真葉',value:stagesFor(p.kind)[1]||''})), field('葉片數（選填）', h('input',{type:'number',min:0,max:99,'data-r':'leaves'}))),
     field('說明（選填）', h('input',{'data-r':'note',maxlength:300,placeholder:'例如：根長約 3 公分'})), h('div',{class:'err'}), h('div',{class:'row'}, h('button',{class:'btn pri',type:'submit',text:'加入履歷'}), h('button',{class:'btn soft',type:'button',onclick:()=>openHistory(p.id),text:'看履歷頁 →'})));
   rec.addEventListener('submit',async e=>{ e.preventDefault(); const err=rec.querySelector('.err'); if(picker.busy()){ err.textContent='還在上傳，請稍候。'; return; } const phs=picker.get(); const stage=rec.querySelector('[data-r=stage]').value.trim(), note=rec.querySelector('[data-r=note]').value.trim(); if(!stage){ err.textContent='請填階段或事件標題。'; return; } const b=rec.querySelector('button[type=submit]');
     if(!phs.length){ b.disabled=true; try{ const reg=nowLocal(); await S.db.collection(pPath(p)+'/photos').doc().set({ev:true,title:stage,stage,note,takenAt:reg,takenSource:'manual',registeredAt:reg}); toast('已加入履歷'); renderAdmin(true); }catch(ex){ b.disabled=false; err.textContent='加入失敗，請稍後再試。'; } return; }
@@ -18046,8 +18052,8 @@ async function preparePhoto(file,onStage){
   return {takenAt,takenSource,thumb:preview,full:{img:dataUrlUnder(img,1200,170000)},preview};
 }
 
-/* ---------- 多照片＋6 秒影片 ---------- */
-const MAX_VID_SEC=6.5; // 影片最多 6 秒（省流量）
+/* ---------- 多照片＋20 秒影片 ---------- */
+const MAX_VID_SEC=20.5; // 影片最多 20 秒（認證賣家與認證會員）
 // iPhone 同時能開的影片播放器有限：用完一定要釋放，不然傳幾支之後就會「一下可以一下不行」
 function hiddenVid(url){ const v=document.createElement('video'); v.muted=true; v.defaultMuted=true; v.setAttribute('muted',''); v.playsInline=true; v.setAttribute('playsinline',''); v.preload='auto';
   v.style.cssText='position:fixed;right:0;bottom:0;width:4px;height:4px;opacity:.02;pointer-events:none;z-index:2147483647'; (document.querySelector('dialog[open]')||document.body).append(v); v.src=url; return v; }
@@ -18061,7 +18067,7 @@ const HEVC_MSG='這支影片的格式這個瀏覽器讀不了（多半是 iPhone
 let hevcWarned=0;
 function hevcHelp(){ if(Date.now()-hevcWarned<5000) return; hevcWarned=Date.now(); const body=h('div',{class:'hevc'}, h('p',{text:'iPhone 錄的是 HEVC（高效率）格式。電腦上的 Chrome、Edge 多半讀不了這種影片，所以沒辦法在這台電腦轉檔上傳。'}),
     h('ol',{}, h('li',{}, h('b',{text:'最簡單：'}), '直接用 iPhone 打開 VEIN（Safari 或 Chrome 都可以）上傳。網站會自動把影片轉成大家都能播的格式，大約要等影片播放一次的時間。'), h('li',{}, h('b',{text:'一定要用電腦：'}), '先在 iPhone 用「照片」或剪輯 App 把影片匯出成 MP4（H.264），或 AirDrop 到 Mac 用 Safari 上傳。')),
-    h('p',{class:'hint',text:'影片限 6 秒內、24MB 以內。照片不受影響。'}));
+    h('p',{class:'hint',text:'影片限 20 秒內、60MB 以內。照片不受影響。'}));
   openDialog('影片格式不支援', body, true); }
 /* iPhone HEVC 影片：在能播放的瀏覽器（iPhone Safari 等）先轉成 H.264 MP4（或 WebM）再上傳，所有人都能播 */
 async function isHEVC(file){ try{ const n=Math.min(file.size,1<<20), a=new Uint8Array(await file.slice(0,n).arrayBuffer()), b=file.size>n?new Uint8Array(await file.slice(file.size-n).arrayBuffer()):new Uint8Array(0);
@@ -18116,16 +18122,16 @@ async function compatVideo(file,onStage){
 async function prepareMedia(file,onStage){
   if (/^video\//.test(file.type)){
     if (!canVideo(S.me)){ setTimeout(()=>openUpgrade('video'),50); const x=new Error('影片上傳是認證會員功能（可以改傳照片）'); x.vein='msg'; throw x; }
-    if (file.size>300*1024*1024){ const x=new Error('影片原檔超過 300MB，請先剪短（只需要 6 秒內）'); x.vein='msg'; throw x; }
+    if (file.size>300*1024*1024){ const x=new Error('影片原檔超過 300MB，請先剪短（只需要 20 秒內）'); x.vein='msg'; throw x; }
     return vidQueue(()=>prepVideo(file,onStage)); }
   return preparePhoto(file,onStage);
 }
 async function prepVideo(file,onStage){ {
     onStage&&onStage('排隊處理影片…');
     let dur; try{ dur=await videoDuration(file); }catch(e){ if(!(await playableHere(file))){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; } const x=new Error('影片暫時讀不到，請再選一次（不是檔案的問題）'); x.vein='msg'; throw x; }
-    if (dur>MAX_VID_SEC){ const x=new Error('影片最長 6 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短再上傳'); x.vein='msg'; throw x; }
+    if (dur>MAX_VID_SEC){ const x=new Error('影片最長 20 秒（目前 '+dur.toFixed(1)+' 秒），請先剪短再上傳'); x.vein='msg'; throw x; }
     const cv=await compatVideo(file,onStage); if(cv.file!==file){ file=cv.file; if(cv.dur) dur=cv.dur; }
-    if (file.size>24*1024*1024){ const x=new Error('影片壓縮後還是超過 24MB（目前 '+(file.size/1048576).toFixed(0)+'MB），請剪短或用較低畫質重錄'); x.vein='msg'; throw x; }
+    if (file.size>60*1024*1024){ const x=new Error('影片壓縮後還是超過 60MB（目前 '+(file.size/1048576).toFixed(0)+'MB），請剪短或用較低畫質重錄'); x.vein='msg'; throw x; }
     onStage&&onStage('處理影片中…');
     let poster; try{ poster=await videoPoster(file); }catch(e){ try{ await new Promise(r=>setTimeout(r,800)); poster=await videoPoster(file); }catch(e2){ if(!(await playableHere(file))){ const x=new Error(HEVC_MSG); x.vein='msg'; x.hevc=true; throw x; } const x=new Error('影片封面讀不到，請再選一次（不是檔案的問題）'); x.vein='msg'; throw x; } }
     const preview=URL.createObjectURL(poster);
@@ -18136,7 +18142,7 @@ function mediaPicker(o={}){
   const items=[]; let busy=0;
   const inp=h('input',{type:'file',accept:canVideo(S.me)?'image/*,video/mp4,video/webm,video/quicktime':'image/*',multiple:true,class:'vh'});
   const grid=h('div',{class:'mp-grid'}), st=h('span',{class:'hint'});
-  const zone=h('label',{class:'drop mp-drop'}, inp, h('strong',{style:'color:var(--fg)',text:'加入照片或影片（可多選）'}), h('span',{class:'hint',text:'照片可一次選多張；影片限 6 秒內（認證會員）。第一個會當封面，可以調整順序。'}));
+  const zone=h('label',{class:'drop mp-drop'}, inp, h('strong',{style:'color:var(--fg)',text:'加入照片或影片（可多選）'}), h('span',{class:'hint',text:'照片可一次選多張；影片限 20 秒內（認證會員）。第一個會當封面，可以調整順序。'}));
   const draw=()=>{ grid.replaceChildren(...items.map((it,i)=>h('div',{class:'mp-it'+(it.err?' err':'')}, it.prep?.preview||it.prev?h('img',{src:it.prep?.preview||it.prev,alt:''}):h('span',{class:'mp-ph'}), it.isVid?h('span',{class:'mp-v',text:'▶ '+(it.prep?.dur?it.prep.dur.toFixed(0)+'s':'影片')}):null, i===0?h('span',{class:'mp-c',text:'封面'}):null,
       h('span',{class:'mp-s',text:it.err||it.st||''}),
       h('div',{class:'mp-ctl'}, i?h('button',{type:'button','aria-label':'往前',onclick:e=>{ e.preventDefault(); [items[i-1],items[i]]=[items[i],items[i-1]]; draw(); },text:'←'}):null, h('button',{type:'button','aria-label':'移除',onclick:e=>{ e.preventDefault(); items.splice(i,1); draw(); },text:'✕'}))))); st.textContent=items.length?items.filter(x=>x.prep).length+' / '+items.length+' 已上傳':''; };

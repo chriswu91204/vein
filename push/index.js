@@ -405,6 +405,12 @@ exports.retention = onSchedule({ schedule: '10 4 * * *', timeZone: 'Asia/Taipei'
   try { for (const c of (await db.collection('chats').get()).docs) { const last = tms((c.data().last || {}).at) || tms(c.data().updatedAt);
       if (last && last < now - 365 * DAY) { stat.chatMsg += await delCol(c.ref.collection('messages')); await c.ref.delete(); stat.chats++; }
       else stat.chatMsg += await delQuery(c.ref.collection('messages').where('at', '<', now - 365 * DAY), 1000); } } catch (e) { logger.warn('ret chats', e.message); }
+  // 聊天裡傳的影片：超過 7 天刪掉檔案（訊息保留，畫面顯示「影片已過播放時間」）
+  try { const bk = admin.storage().bucket(); const pathOf = u => { const m = /\/o\/([^?]+)/.exec(String(u || '')); return m ? decodeURIComponent(m[1]) : null; };
+    for (const c of (await db.collection('chats').get()).docs) { const sn = await c.ref.collection('messages').where('t', '==', 'vid').get();
+      for (const d of sn.docs) { const m = d.data(); if (m.gone || tms(m.at) > now - 7 * DAY) continue;
+        for (const u of [m.url, m.poster]) { const p = pathOf(u); if (p && p.startsWith('uploads/')) { try { await bk.file(p).delete(); } catch (e) {} } }
+        await d.ref.update({ gone: true, url: admin.firestore.FieldValue.delete(), poster: admin.firestore.FieldValue.delete() }).catch(() => {}); stat.chatVid = (stat.chatVid || 0) + 1; } } } catch (e) { logger.warn('ret chat video', e.message); }
   // 訂單留言
   try { for (const sh of await db.collection('ordmsg').listDocuments()) for (const o of await sh.collection('o').listDocuments()) stat.ordMsg += await delQuery(o.collection('m').where('at', '<', now - 365 * DAY), 1000); } catch (e) { logger.warn('ret ordmsg', e.message); }
   // 觀戰
