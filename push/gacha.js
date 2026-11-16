@@ -108,6 +108,12 @@ module.exports = ctx => {
       else err = '不支援';
     } catch (e) { logger.warn('gachaReq', e.message); err = '系統忙碌，請再試一次'; }
     await ref.set({ done: true, ok: !err, ...(err ? { err } : {}) }, { merge: true });
+    // 上架成功 → 通知追蹤這家的人
+    if (!err && r.act === 'pub') { try { const g = (await db.doc('gacha/' + r.gid).get()).data() || {}, nm = await displayName(r.uid), who = new Set();
+        (await db.collection('social').where('follows', 'array-contains', r.uid).get()).forEach(x => who.add(x.id)); who.delete(r.uid);
+        const when = g.startAt && g.startAt > Date.now() ? new Date(g.startAt + 8 * 36e5).toISOString().slice(5, 16).replace('-', '/').replace('T', ' ') + ' 開賣' : '現在就能抽';
+        for (const u of who) { try { await push(u, '🎰 ' + nm + ' 開了新轉蛋機', '「' + g.title + '」每抽 ' + nt(g.price) + '，共 ' + g.total + ' 抽，' + when, '/#/gacha/' + r.gid, 'gnew-' + r.gid); } catch (e) {} }
+        await ref.set({ notified: who.size }, { merge: true }); } catch (e) { logger.warn('gNotify', e.message); } }
   });
 
   // ---------- 買抽獎券：下單就保留名額（不超賣） ----------
