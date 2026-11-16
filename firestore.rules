@@ -375,8 +375,9 @@ service cloud.firestore {
       allow delete: if signedIn() && resource.data.shop == request.auth.uid && resource.data.status == 'draft';
     }
     match /gReq/{id} {
-      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'gid', 'act', 'at'])
-        && request.resource.data.act in ['pub', 'pause', 'resume', 'end'] && request.resource.data.gid is string
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'gid', 'act', 'at', 'oid'])
+        && request.resource.data.act in ['pub', 'pause', 'resume', 'end', 'lok', 'lno'] && request.resource.data.gid is string
+        && (!('oid' in request.resource.data) || (request.resource.data.oid is string && request.resource.data.oid.size() <= 80))
         && get(/databases/$(database)/documents/gacha/$(request.resource.data.gid)).data.shop == request.auth.uid;
       allow read: if signedIn() && resource.data.uid == request.auth.uid;
     }

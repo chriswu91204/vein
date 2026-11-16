@@ -975,5 +975,5 @@ exports.xferDelist = onDocumentWritten('owners/{pid}', async ev => {
 });
 
 // 轉蛋機（一番賞）
-const G = require('./gacha')({ db, push, displayName, logger, ordAct, nt, onDocumentCreated, onDocumentWritten, onSchedule, HOT });
+const G = require('./gacha')({ db, push, displayName, logger, ordAct, nt, onDocumentCreated, onDocumentWritten, onSchedule, HOT, hasPhone: async u => { try { return !!(await admin.auth().getUser(u)).phoneNumber; } catch (e) { return false; } } });
 for (const k of ['gachaReq', 'gachaOrder', 'gachaDraw', 'gachaShip', 'gachaSweep']) exports[k] = G[k];
