@@ -117,12 +117,19 @@ async function autoConfirm(shop, oid, o, buyer) {
   try {
     res = await db.runTransaction(async tx => {
       const ex = await tx.get(oref); if (ex.exists) return { r: 'exists' };
-      const ids = [...new Set(o.items || [])], refs = ids.map(pid => db.doc(`shops/${shop}/plants/${pid}`)), snaps = [];
-      for (const r of refs) snaps.push(await tx.get(r));
-      let why = null; const ups = []; const goods = snaps.some(s => s.exists && s.data().kind === 'goods');
-      snaps.forEach((s, i) => { if (!s.exists) { why = '商品已下架'; return; } const p = s.data(), q = Math.max(1, +((o.qty || {})[ids[i]]) || 1), lot = (p.lot === true && p.mode !== 'auction') || !!(o.qty || {})[ids[i]];
-        if (lot) { const left = Math.max(0, Math.floor(+p.stock || 0)); if (left < q) { why = '庫存不夠'; return; } ups.push([refs[i], { stock: left - q, soldN: (+p.soldN || 0) + q, ...(left - q <= 0 ? { status: 'sold' } : {}) }]); }
-        else { if (p.gcLock) { why = '已放進轉蛋機'; return; } if ((p.status === 'sold' || p.status === 'reserved') && p.buyer && p.buyer !== buyer) { why = '已被別人買走'; return; } ups.push([refs[i], { status: 'sold', buyer, soldPrice: p.soldPrice || p.price || null }]); } });
+      // 周邊多規格：items 裡的「商品ID#規格」扣那個規格的庫存（同一件商品不同規格會一起算）
+      const ids = [...new Set(o.items || [])].filter(x => typeof x === 'string' && x), baseOf = id => id.split('#')[0], varOf = id => (id.includes('#') ? id.slice(id.indexOf('#') + 1) : null);
+      const snapM = new Map(); for (const b of [...new Set(ids.map(baseOf))]) snapM.set(b, await tx.get(db.doc(`shops/${shop}/plants/${b}`)));
+      let why = null; const upd = new Map(); const goods = [...snapM.values()].some(s => s.exists && s.data().kind === 'goods');
+      ids.forEach(id => { if (why) return; const b = baseOf(id), sn = snapM.get(b); if (!sn.exists) { why = '商品已下架'; return; } const p0 = sn.data(), cur = upd.get(b) || {}, p = { ...p0, ...cur };
+        const q = Math.max(1, +((o.qty || {})[id]) || 1), vk = varOf(id);
+        if (p.gcLock) { why = '已放進轉蛋機'; return; }
+        if (vk) { const vars = (p.vars || []).map(v => ({ ...v })), v = vars.find(x => x.k === vk); if (!v) { why = '規格已下架'; return; } const left = Math.max(0, Math.floor(+v.stock || 0)); if (left < q) { why = '「' + (v.n || '') + '」庫存不夠'; return; }
+          v.stock = left - q; const tot = vars.reduce((a, x) => a + Math.max(0, Math.floor(+x.stock || 0)), 0); upd.set(b, { ...cur, vars, stock: tot, soldN: (+p.soldN || 0) + q, ...(tot <= 0 ? { status: 'sold' } : {}) }); return; }
+        const lot = (p.lot === true && p.mode !== 'auction') || !!(o.qty || {})[id];
+        if (lot) { const left = Math.max(0, Math.floor(+p.stock || 0)); if (left < q) { why = '庫存不夠'; return; } upd.set(b, { ...cur, stock: left - q, soldN: (+p.soldN || 0) + q, ...(left - q <= 0 ? { status: 'sold' } : {}) }); }
+        else { if ((p.status === 'sold' || p.status === 'reserved') && p.buyer && p.buyer !== buyer) { why = '已被別人買走'; return; } upd.set(b, { ...cur, status: 'sold', buyer, soldPrice: p.soldPrice || p.price || null }); } });
+      const ups = [...upd].map(([b, d]) => [db.doc(`shops/${shop}/plants/${b}`), d]);
       const base = { buyer, items: o.items || [], total: o.total || 0, note: o.note || '', at: o.at || now, payMethod: o.payMethod || 'transfer', src: o.src || null, ...(o.qty ? { qty: o.qty } : {}), ...(o.ship ? { ship: o.ship } : {}), updatedAt: now, auto: true };
       if (why) { tx.set(oref, { ...base, status: 'cancelled', cancelledAt: now, cancelWhy: why }); return { r: 'cancel', why }; }
       ups.forEach(([r, d]) => tx.update(r, d)); tx.set(oref, { ...base, status: 'confirmed', confirmedAt: now }); return { r: 'ok', goods };
