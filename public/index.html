@@ -6569,6 +6569,7 @@ dialog.nm{position:fixed;inset:0;margin:auto;z-index:1999999000}
   <div class="page" id="pgHistory" hidden><section class="sec wrap page-top" id="historyPage"></section></div>
   <div class="page" id="pgGroup" hidden><section class="sec wrap page-top" id="groupPage"></section></div>
   <div class="page" id="pgPlant" hidden><section class="sec wrap page-top plantpage" id="plantPage"></section></div>
+  <div class="page" id="pgGacha" hidden><section class="sec wrap page-top" id="gachaPage"></section></div>
   <div class="page" id="pgGoods" hidden><section class="sec wrap page-top gq-page" id="goodsPage"></section></div>
   <div class="page" id="pgVerify" hidden>
   <!-- VERIFY -->
@@ -7053,7 +7054,7 @@ const isSeller=()=>!!S.me&&(!!shopOf(S.me)||S.admin);
 const isGoods=p=>!!p&&p.kind==='goods'; // 周邊商品（盆器、介質…），不是植物
 const all=()=>[...S.plants.values()].filter(p=>p.kind!=='goods');
 // 植株＝植物檔案（登錄、履歷、血統）；listed＝有上架販售。舊資料沒有 listed 欄位，視為已上架
-const listed=p=>!!p&&p.listed!==false;
+const listed=p=>!!p&&p.listed!==false&&!p.gcLock;
 // 鎖住（私人）：擁有者以外的人看不到這株，連預覽圖都不顯示
 const isPriv=p=>!!p?.private;
 const privFor=p=>isPriv(p)&&p.shop!==S.me&&!(S.owners?.get?.(p.id)?.current===S.me);
@@ -9293,7 +9294,7 @@ const dropAll=()=>[...S.drops.values()].filter(d=>approved(d.shop)&&dropState(d)
 let playSig='';
 // 限時頁：搜尋＋篩選（篩選器預設收起，要用才打開）
 // 限時頁的玩法按鈕：管理員可自訂文字、圖示、顏色、背景圖，或直接寫 HTML／CSS
-const PT_DEF=[['auc','🔨','競標'],['enc','⚔️','遭遇戰'],['drop','🎁','福利組合'],['raffle','🎲','抽獎'],['mkt','🎪','市集'],['live','🔴','拍賣會']];
+const PT_DEF=[['auc','🔨','競標'],['enc','⚔️','遭遇戰'],['drop','🎁','福利組合'],['raffle','🎲','抽獎'],['gacha','🎰','轉蛋機'],['mkt','🎪','市集'],['live','🔴','拍賣會']];
 S.ptab={};
 const ptOrder=()=>{ const o=(S.ptab.order||[]).filter(k=>PT_DEF.some(d=>d[0]===k)); PT_DEF.forEach(d=>{ if(!o.includes(d[0])) o.push(d[0]); }); const t=S.ptab.tabs||{}; return o.filter(k=>!t[k]?.hide); };
 function ptCss(){ let st=document.getElementById('ptCss'); if(!st){ st=document.createElement('style'); st.id='ptCss'; document.head.append(st); } st.textContent=String(S.ptab.css||'').replace(/<\/?style[^>]*>/gi,''); }
@@ -9305,7 +9306,7 @@ function ptTile(k,info,T,onClick,cfg){ const d=PT_DEF.find(x=>x[0]===k), c=(cfg|
   return b; }
 function ptEdit(){ const cfg=JSON.parse(JSON.stringify(S.ptab||{})); cfg.tabs=cfg.tabs||{}; let order=ptOrder(); PT_DEF.forEach(d=>{ if(!order.includes(d[0])) order.push(d[0]); }); if(cfg.order) order=[...cfg.order.filter(k=>PT_DEF.some(d=>d[0]===k)),...PT_DEF.map(d=>d[0]).filter(k=>!cfg.order.includes(k))];
   const prev=h('div',{class:'play-tabs pt-grid'}), list=h('div',{class:'pt-ed'}), css=h('textarea',{rows:5,class:'mono',placeholder:'.ptb-live{ border:2px solid #FF2D55 } /* 進階：自訂 CSS，對所有按鈕有效 */'}, cfg.css||'');
-  const demo={auc:{n:3,hot:'競標中 3'},enc:{n:1,hot:'孵化中'},drop:{n:0},raffle:{n:2},mkt:{n:1,hot:'特賣中'},live:{n:1,hot:'LIVE'}};
+  const demo={auc:{n:3,hot:'競標中 3'},enc:{n:1,hot:'孵化中'},drop:{n:0},raffle:{n:2},gacha:{n:3,hot:'3 台'},mkt:{n:1,hot:'特賣中'},live:{n:1,hot:'LIVE'}};
   const paintPrev=()=>{ const vis=order.filter(k=>!cfg.tabs[k]?.hide); prev.className='play-tabs pt-grid n'+vis.length; prev.replaceChildren(...vis.map((k,i)=>ptTile(k,demo[k],i===0?k:'',null,cfg.tabs))); let st=document.getElementById('ptCssPrev'); if(!st){ st=document.createElement('style'); st.id='ptCssPrev'; document.head.append(st); } st.textContent=String(css.value||'').replace(/<\/?style[^>]*>/gi,''); };
   css.addEventListener('input',paintPrev);
   const draw=()=>{ list.replaceChildren(...order.map((k,i)=>{ const d=PT_DEF.find(x=>x[0]===k), c=cfg.tabs[k]=cfg.tabs[k]||{};
@@ -9341,15 +9342,17 @@ function playRender(){ const tabs=$('#playTabs'), body=$('#playBody'), rf=$('#pl
   if(!S.playTab) S.playTab=E.some(p=>encState(p)==='live')?'enc':AU.length?'auc':E.length?'enc':D.length?'drop':'raffle';
   if(!ptOrder().includes(S.playTab)) S.playTab=ptOrder()[0]||'auc';
   const T=S.playTab, MKL=[...S.mkts.values()].filter(x=>x.phase!=='draft'&&evState(x)!=='done'), LVL=[...S.lives.values()].filter(x=>x.phase!=='draft'&&evState(x)!=='done'), MKn=MKL.length, LVn=LVL.length, MKon=MKL.some(x=>evState(x)==='on'), LVon=LVL.some(x=>evState(x)==='on');
-  const sig=JSON.stringify([T,evSig,E.map(p=>p.id+encState(p)),D.map(d=>d.id+dropState(d)),R.length,T==='auc'?AU.map(p=>p.id+(topBid(p.id)?.amt||0)):AU.length]);
+  const sig=JSON.stringify([T,evSig,T==='gacha'&&window.gcSig?gcSig():0,E.map(p=>p.id+encState(p)),D.map(d=>d.id+dropState(d)),R.length,T==='auc'?AU.map(p=>p.id+(topBid(p.id)?.amt||0)):AU.length]);
   if(sig===playSig&&body.firstChild!==undefined&&tabs.firstChild) return; playSig=sig;
-  const INFO={auc:{n:AU.length,hot:AU.length?'競標中 '+AU.length:''},enc:{n:E.length,hot:eLive?'戰鬥中':E.length?'孵化中':''},drop:{n:D.length,hot:dLive?'開搶中':D.length?'即將開搶':''},raffle:{n:R.length,hot:''},mkt:{n:MKn,hot:MKon?'特賣中':MKn?'即將開賣':''},live:{n:LVn,hot:LVon?'LIVE':LVn?'即將開拍':''}};
-  tabs.className='play-tabs pt-grid n'+ptOrder().length; tabs.replaceChildren(...ptOrder().map(k=>ptTile(k,INFO[k],T,()=>{ S.playTab=k; playSig=''; renderRafflePage(); })));
+  const INFO={auc:{n:AU.length,hot:AU.length?'競標中 '+AU.length:''},enc:{n:E.length,hot:eLive?'戰鬥中':E.length?'孵化中':''},drop:{n:D.length,hot:dLive?'開搶中':D.length?'即將開搶':''},raffle:{n:R.length,hot:''},mkt:{n:MKn,hot:MKon?'特賣中':MKn?'即將開賣':''},live:{n:LVn,hot:LVon?'LIVE':LVn?'即將開拍':''},gacha:window.gcPlayInfo?gcPlayInfo():{n:0,hot:''}};
+  tabs.className='play-tabs pt-row'; tabs.replaceChildren(...ptOrder().map(k=>{ const b=ptTile(k,INFO[k],T,()=>{ S.playTab=k; playSig=''; renderRafflePage(); requestAnimationFrame(()=>b.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'})); }); if(INFO[k]?.hot) b.classList.add('has-sub'); return b; }));
+  requestAnimationFrame(()=>{ const on=tabs.querySelector('[aria-pressed=true]'); if(on&&tabs.scrollWidth>tabs.clientWidth) tabs.scrollLeft=Math.max(0,on.offsetLeft-tabs.clientWidth/2+on.offsetWidth/2); });
   rf.hidden=T!=='raffle';
   if(T==='enc'){ const z=encZone({grid:true}); body.replaceChildren(z?h('div',{class:'play-enc'}, z):h('div',{class:'play-empty'}, h('b',{text:'🥚'}), h('h3',{text:'目前沒有遭遇戰'}), h('p',{text:'追蹤喜歡的溫室，遭遇戰開始時會通知你'}), h('button',{type:'button',class:'btn soft',onclick:()=>encIntro(true),text:'遭遇戰怎麼玩？'}))); }
   else if(T==='drop') body.replaceChildren(D.length?h('div',{class:'play-drop'}, ...D.sort((a,b)=>a.at-b.at).map(d=>dropView(d,{shop:true}))):h('div',{class:'play-empty'}, h('b',{text:'🎁'}), h('h3',{text:'目前沒有福利組合'}), h('button',{type:'button',class:'btn soft',onclick:()=>dropIntro(true),text:'福利組合怎麼玩？'})));
   else if(T==='auc'){ const w=h('div',{class:'play-auc'}); body.replaceChildren(w); try{ storeAuction(w); }catch(e){ console.warn(e); } if(!w.childElementCount) w.append(h('div',{class:'play-empty'}, h('b',{text:'🔨'}), h('h3',{text:'目前沒有競標'}))); }
   else if(T==='mkt'||T==='live') body.replaceChildren(evListBody(T));
+  else if(T==='gacha') body.replaceChildren(window.gcList?gcList():h('div'));
   else body.replaceChildren();
   plSf(); plApply(); }
 // 活動按鈕左上角：正在進行的活動輪流顯示（競標中、戰鬥中、孵化中、開搶中、預約中、抽獎中）
@@ -9357,7 +9360,7 @@ let PB_I=0;
 function playMsgs(){ const E=encAll(), DL=dropAll(), AU=pub().filter(live).length, R=pubRaffles().filter(r=>rState(r)==='open').length, out=[];
   { const EV=[...(S.mkts?.values()||[]),...(S.lives?.values()||[])]; const on=k=>EV.some(x=>x.kind===k&&evState(x)==='on'), soon=k=>EV.some(x=>x.kind===k&&evState(x)==='soon');
     if(on('live')) out.push(['🔴 拍賣進行中','live']); if(on('mkt')) out.push(['🎪 市集特賣中','live']); if(soon('live')) out.push(['🔨 拍賣即將開始','soon']); if(soon('mkt')) out.push(['🎪 市集即將開始','soon']); }
-  if(E.some(p=>encState(p)==='live')) out.push(['⚔ 戰鬥中','live']); if(AU) out.push(['🔨 競標中 '+AU,'auc']); if(DL.some(d=>dropState(d)==='live')) out.push(['🎁 開搶中','live']); if(E.some(p=>encState(p)==='soon')) out.push(['🥚 孵化中','soon']); if(DL.some(d=>dropState(d)!=='live')) out.push(['⏰ 預約中','soon']); if(R) out.push(['🎲 抽獎中 '+R,'raf']); return out; }
+  if(E.some(p=>encState(p)==='live')) out.push(['⚔ 戰鬥中','live']); if(AU) out.push(['🔨 競標中 '+AU,'auc']); if(DL.some(d=>dropState(d)==='live')) out.push(['🎁 開搶中','live']); if(E.some(p=>encState(p)==='soon')) out.push(['🥚 孵化中','soon']); if(DL.some(d=>dropState(d)!=='live')) out.push(['⏰ 預約中','soon']); if(R) out.push(['🎲 抽獎中 '+R,'raf']); try{ const gi=window.gcPlayInfo&&gcPlayInfo(); if(gi&&gi.hot) out.push(['🎰 轉蛋中','live']); }catch(e){} return out; }
 function playBadge(){ const L=playMsgs(); if(PB_I>=L.length) PB_I=0; const cur=L[PB_I];
   document.querySelectorAll('.play-badge').forEach(b=>{ b.hidden=!cur; if(!cur) return; if(b.textContent!==cur[0]){ b.classList.remove('pb-in'); void b.offsetWidth; b.textContent=cur[0]; b.classList.add('pb-in'); } b.className='play-badge pb-in k-'+cur[1]+(cur[1]==='live'?' live':''); }); }
 setInterval(()=>{ PB_I++; try{ playBadge(); }catch(e){} },2600);
@@ -10390,9 +10393,9 @@ function renderMe(force){
     !S.meBdgAll&&next?h('div',{class:'mp-next'}, h('span',{text:'下一個：'+next.ic+' '+next.n}), h('i',{}, h('em',{style:'width:'+Math.round(Math.min(1,next.prog[0]/next.prog[1])*100)+'%'})), h('small',{text:next.prog[0]+' / '+next.prog[1]})):null);
   const acc=h('div',{class:'mp-acc'}, h('div',{class:'mp-id'}, h('small',{text:'會員 ID（加好友、轉移植物用）'}), h('code',{text:'@'+memberId()})), h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(memberId()),text:'複製'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openMemberQR(),text:'🔳 QR'}), h('button',{class:'btn soft sm',type:'button',onclick:()=>openProfile(),text:'⚙️ 個人資料'}),
     window.__veinAuth?h('button',{class:'btn soft sm mp-out',type:'button',onclick:()=>window.__veinAuth.signOut(),text:'登出'}):null);
-  const side=h('aside',{class:'me-side'}, h('div',{class:'me-card'}, head, quick, stats), evRegBanner(), meStaffCard(), meExpoCard(), myShopCard(), acts), extra=h('div',{class:'me-extra'}, bdg, acc);
+  const side=h('aside',{class:'me-side'}, h('div',{class:'me-card'}, head, quick, stats), window.gcMeCard?gcMeCard():null, evRegBanner(), meStaffCard(), meExpoCard(), myShopCard(), acts), extra=h('div',{class:'me-extra'}, bdg, acc);
   // ---- 右欄：分頁 ----
-  const TABS=[['home','總覽'],['recent','瀏覽紀錄',rv.length],['orders','訂單',ords.length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['offers','議價',offs.length],['favs','收藏',favs.length],['follows','追蹤',fol.length],['mine','我的植物',owned.length],['qs','提問',qs.length]];
+  const TABS=[['home','總覽'],['recent','瀏覽紀錄',rv.length],['orders','訂單',ords.length],['bids','出價',bids.length],['raffles','抽獎',rafs.length],['gacha','🎰 轉蛋',window.gcMeCount?gcMeCount():0],['offers','議價',offs.length],['favs','收藏',favs.length],['follows','追蹤',fol.length],['mine','我的植物',owned.length],['qs','提問',qs.length]];
   const tabs=h('div',{class:'htabs scroll mp-tabs me-tabs',id:'meTabs',role:'tablist'}, ...TABS.map(([k,l,n])=>h('button',{type:'button',role:'tab','aria-selected':String(T===k),onclick:()=>go2(k)}, l, n?h('span',{class:'n',text:String(n)}):null)));
   const main=h('div',{class:'me-main'}, tabs), add=x=>x&&main.append(x);
   const empty=(a,b,act)=>add(h('div',{class:'empty'}, h('h3',{text:a}), h('p',{text:b}), act||null));
@@ -10444,6 +10447,7 @@ function renderMe(force){
       const row=h('button',{class:'li',type:'button',onclick:()=>openPlant(p.id)}, (p.coverThumb||p.thumb)?h('img',{src:cover(p),alt:''}):h('i'), h('div',{style:'min-width:0'}, h('b',{text:short(p.species)+' · '+p.code}), h('span',{text:(live(p)?'剩 '+fmtLeft(p.endsAtMs-Date.now()):'已結標')+' · 我出 '+money(my.amt)})),
         h('div',{class:'r'}, h('b',{text:t?money(t.amt):'—'}), h('span',{class:'tag '+(lead?'lime':live(p)?'red':'grey'),text:lead?(live(p)?'領先中':'得標'):(live(p)?'被超越':'未得標')})));
       return live(p)&&!lead?h('div',{class:'li-wrap'}, row, quickBidBtn(p)):row; }))); }
+  else if (T==='gacha'){ add(window.gcMeTab?gcMeTab():null); }
   else if (T==='raffles'){ if(!rafs.length) empty('還沒有參加抽獎','到「抽獎」頁看看正在進行的抽獎。',h('a',{class:'btn lime',href:'#/raffle',text:'看抽獎'})); else add(h('div',{class:'list'}, ...rafs.map(r=>{ const st=rState(r), win=(r.drawn?.winners||[]).includes(S.me);
       return h('button',{class:'li',type:'button',onclick:()=>go('#/raffle/'+rKey(r))}, h('img',{src:rImg(r),alt:''}), h('div',{style:'min-width:0'}, h('b',{text:r.title}), h('span',{text:shopName(r.shop)+' · '+(st==='open'?'剩 '+fmtLeft(r.endsAtMs-Date.now()):st==='drawn'?'已開獎':st==='ended'?'等待開獎':'尚未開始')})), h('div',{class:'r'}, h('span',{class:'tag '+(win?'lime':'grey'),text:win?'🎉 中獎':st==='drawn'?'未中獎':'已參加'}))); }))); }
   else if (T==='follows'){ if(!fol.length) empty('還沒有追蹤賣家','在賣家頁面按「追蹤」，有新品和抽獎就會通知你。',h('a',{class:'btn lime',href:'#/store/sellers',text:'找溫室'})); else add(h('div',{class:'me-fg'}, ...fol.map(meShopCard))); }
@@ -10720,7 +10724,7 @@ async function boot(){
 // 立牌（先印、之後再綁）：掃 QR 或碰 NFC 進站是 ?t=代碼（NFC 多帶 &n=1），轉成 #/tag/代碼
 (()=>{ try{ const q=new URLSearchParams(location.search), c=(q.get('t')||'').toUpperCase().replace(/[^0-9A-Z]/g,''); if(!c) return;
   if(q.get('n')==='1') sessionStorage.setItem('vein.tagNfc',c); history.replaceState(null,'',location.pathname+'#/tag/'+c); }catch(e){} })();
-const PAGES=['goods','mkt','live','reg','home','shop','store','verify','raffle','seller','plant','group','history','claim','tag','guide','chats','feed','sell','about','rules','me','staff','lp','batch','gh','community','post','write'];
+const PAGES=['gacha','goods','mkt','live','reg','home','shop','store','verify','raffle','seller','plant','group','history','claim','tag','guide','chats','feed','sell','about','rules','me','staff','lp','batch','gh','community','post','write'];
 function go(hash){ if(location.hash===hash) route(); else if((history.state?.bl||0)>(window.__BL?.length||0)){ history.replaceState(null,'',hash); route(); } /* 剛關掉的視窗留下的那筆紀錄直接換掉，按上一頁才不會多按一次 */ else location.hash=hash; }
 // 返回鍵：所有不是主要分頁的頁面都顯示（App 模式沒有瀏覽器返回鍵，一定要有）；有上一頁就回上一頁，沒有就回首頁
 const ROOT_HASH=new Set(['','#','#/','#/store','#/store/auction','#/raffle','#/verify','#/me']);
@@ -10791,7 +10795,7 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
   const changed=pg!==PAGE||(pg==='seller')||tabChanged||plantChanged||groupChanged||histChanged;
   const apply=()=>{
     PAGE=pg; document.body.dataset.page=pg;
-    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgMe').hidden=pg!=='me'; $('#pgStaff').hidden=pg!=='staff'; $('#pgLp').hidden=pg!=='lp'; $('#pgBatch').hidden=pg!=='batch'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGoods').hidden=pg!=='goods'; $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim'; $('#pgGuide').hidden=pg!=='guide';
+    $('#pgHome').hidden=pg!=='home'; $('#pgShop').hidden=pg!=='shop'; $('#pgVerify').hidden=pg!=='verify'; $('#pgRaffle').hidden=pg!=='raffle'; $('#pgMe').hidden=pg!=='me'; $('#pgStaff').hidden=pg!=='staff'; $('#pgLp').hidden=pg!=='lp'; $('#pgBatch').hidden=pg!=='batch'; $('#pgSeller').hidden=pg!=='seller'; $('#pgPlant').hidden=pg!=='plant'; $('#pgGoods').hidden=pg!=='goods'; $('#pgGacha').hidden=pg!=='gacha'; if(pg!=='gacha'){ document.querySelectorAll('.gc-buy,.gc-tray').forEach(e=>e.remove()); } $('#pgGroup').hidden=pg!=='group'; $('#pgHistory').hidden=pg!=='history'; $('#pgClaim').hidden=pg!=='claim'; $('#pgGuide').hidden=pg!=='guide';
     if (pg==='home'&&window.__hsSize) __hsSize();
     if (pg==='home') renderCommunity();
     if (pg==='verify'&&arg){ $('#vcode').value=arg; renderVerify(arg); }
@@ -10799,6 +10803,7 @@ function route(){ const POPY=scrPopFor(), POP=POPY!=null; S.navPop=POP; updBack(
     if (pg==='group') renderGroup(true);
     if (pg==='history') renderHistory(true);
     if (pg==='goods'){ S.goodsId=arg; renderGoods(arg,true); }
+    if (pg==='gacha'&&window.gcRoute) gcRoute(arg);
     if (pg==='claim') renderClaim();
     $('#pgTag').hidden=pg!=='tag'; if (pg==='tag'){ S.tagCode=String(arg||'').toUpperCase(); S.tagDoc=null; renderTag(); }
     $('#pgCommunity').hidden=pg!=='community'; $('#pgPost').hidden=pg!=='post'; $('#pgWrite').hidden=pg!=='write'; document.body.classList.toggle('wx-on',pg==='write'); document.body.classList.toggle('px-on',pg==='post'); if(pg==='community'){ const np=arg==='gh'?'gh':'post'; if(np!==CM.page){ CM.page=np; CM.sig=''; } renderCommunityPg(!S.navPop); } if(pg==='post'){ if(CMP&&CMP.id!==arg) CMP=null; renderPost(arg); } else CMP=null; if(pg==='write') renderWrite(); $('#pgGh').hidden=pg!=='gh'; if(pg!=='gh'||!arg) ghBodyBg(''); if(pg==='gh'){ const nu=arg||''; if(nu!==S.ghId){ S.ghId=nu; GH.lim=30; } if(GH.edit&&GH.edit.u!==nu){ GH.edit=null; } renderGh(true); } else if(GH.edit){ GH.edit=null; blDone('ghed'); document.body.classList.remove('gh-dockb','gh-edm'); } $('#pgChats').hidden=pg!=='chats'; $('#pgFeed').hidden=pg!=='feed'; $('#pgSell').hidden=pg!=='sell'; $('#pgAbout').hidden=pg!=='about'; $('#pgRules').hidden=pg!=='rules'; chatBadge();
@@ -13397,7 +13402,7 @@ const PLANT_TABS=['reg','care','new','batch','labels','bulked'];
 async function openPlants(tab){ if(needLogin()) return; if(sheet.open) sheet.close(); if(dlg.open) dlg.close(); S.admMode='plant'; S.admTab=PLANT_TABS.includes(tab)?tab:(PLANT_TABS.includes(S.admTab)?S.admTab:'reg'); S.admEdit=null; S.batchDone=null; renderAdmin(true); if(!adm.open) adm.showModal(); syncAdmHash(); }
 const SHOPM=()=>S.admMode!=='plant'&&hasShop();
 const hasShop=()=>!!S.me&&!!shopOf(S.me);
-const SELLER_TABS=['home','reg','care','plants','new','batch','list','groups','labels','orders','offers','auc','raffle','qa','shop','expo','goods'];
+const SELLER_TABS=['home','reg','care','plants','new','batch','list','groups','labels','orders','offers','auc','raffle','qa','shop','expo','goods','gacha'];
 adm.addEventListener('close',()=>{ try{ if(PK.on) pkEnd(); }catch(e){} setTimeout(()=>{ try{ ordAlert(); }catch(e){} },0); tourStop(false); if(!S.admClosingByRoute&&isAdmHash(location.hash)) history.replaceState(null,'',S.admReturn&&!isAdmHash(S.admReturn)?S.admReturn:'#/'); });
 function field(label,input){ return h('label',{class:'field'}, h('span',{text:label}), input); }
 function fieldBox(label,el){ return h('div',{class:'field'}, h('span',{text:label}), el); }
@@ -13646,6 +13651,7 @@ function renderAdmin(force){ try{ ordAlert(); }catch(e){}
   if ((T==='plants'||T==='reg')&&S.admEdit) return admEditor(main, S.admEdit);
   if (T==='plants') return admPlants(main);
   if (T==='goods') return admGoods(main);
+  if (T==='gacha') return window.gcAdmin?gcAdmin(main):null;
   if (T==='reg') return admReg(main);
   if (T==='list') return admList(main);
   if (T==='groups') return admGroups(main);
@@ -13695,7 +13701,7 @@ function renderAdmNav(){
   else if (hasShop()) G.push(
     {k:'home',items:[['home','總覽']]},
     {k:'plant',t:'植物',ic:'🌱',items:[['reg','植物管理',myPlants().length],['new','登錄一株'],['batch','批量登錄'],['labels','標籤列印']]},
-    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['goods','🛍 周邊商品',goodsMine().filter(p=>p.listed!==false&&!gSoldOut(p)).length],['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live','catch'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
+    {k:'sell',t:'銷售',ic:'🏷',items:[['list','上架販售'],['plants','商品管理',mine().filter(listed).length],['goods','🛍 周邊商品',goodsMine().filter(p=>p.listed!==false&&!gSoldOut(p)).length],...(S.work?[]:[['gacha','🎰 轉蛋機'+(isVerified(S.me)?'':' 🔒'),(()=>{ try{ return sellerOrders(S.me).filter(o=>(ordSo(o)?.src||o.src)==='gacha'&&o.status==='paid').length; }catch(e){ return 0; } })()]]),['auc','競標',liveN],['enc','遭遇戰'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),mine().filter(p=>isEnc(p)&&['soon','live','catch'].includes(encState(p))).length],['groups','群組販售',Object.keys(shopOf(S.me)?.groups||{}).length],['drops','福利組合'+(isVerified(S.work?.shop||S.me)?'':' 🔒'),[...S.drops.values()].filter(d=>d.shop===(S.work?.shop||S.me)&&dropState(d)!=='end').length],['raffle','抽獎',rOpen],...(S.work?[]:[['boost','精選與點數',isVerified(S.me)?(S.pts?.bal??''):'🔒']])]},
     {k:'shop',t:'賣場',ic:'🏠',items:[['shop:basic','賣場設定'],['shop:ship','運送方式'],['shop:design','賣場裝修'+(proOf(S.me)?'':' 🔒')],['mytags','我的立牌'],...(S.work?[]:[['staff','小編管理'+(proOf(S.me)?'':' 🔒'),(S.staffL||[]).length],['expo','🎪 展會管理',(S.expoL||[]).filter(x=>x.on&&(!x.until||x.until>Date.now())).length]])]});
   if (S.work) G.forEach(g=>{ g.items=g.items.filter(it=>tabOK(it[0].split(':')[0])); });
   if (S.admin&&!PM&&!OM) G.push({k:'admin',t:'平台管理',ic:'🛡',items:[['sellers','賣家審核',apps],['events','市集／拍賣會'],['canned','罐頭訊息'],['mod','內容管理'],['phreq','📱 手機審核',S.phreqN||0],['users','會員中心',Object.keys(S.bans||{}).length],['tiers','認證會員',S.upreqN||0],['bcast','推播通知'],['chatmon','對話監控'],['tags','立牌 QR／NFC'],['standee','立牌設計'],['site','網站設定'],['sfront','頁面設計'],['spot','競標焦點',spotEvents().length],['pts','精選點數'],['guard','安全與流量',S.abuseN||0],...(S.isOwner?[['media','主頁編輯']]:[]),...(!hasShop()?[['house','開設官方賣場']]:[])]});
@@ -16109,7 +16115,7 @@ function admGuard(m){
   draw();
 }
 if (location.hostname==='localhost') window.__lvDbg=()=>{ const e=LV.ev; if(!e) return null; if(e.phase==='done') return {done:true}; const c=e.cur; if(!c) return null; return {lid:c.lid,i:c.i||0,left:c.endsAt-lvNow(),pv:!!lvPrev(c),gap:!!c.gapUntil,top:c.top?.uid||null,me:S.me}; };
-if (location.hostname==='localhost') window.__vein={S,openPhone:r=>openPhone(r),openCart:()=>openCart(),openChat:(u,o)=>openChat(u,o),canVideo:u=>canVideo(u),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,saveSocial:x=>saveSocial(x),mySocial:()=>mySocial(),openPhone:r=>openPhone(r),openCart:()=>openCart(),openChat:(u,o)=>openChat(u,o),canVideo:u=>canVideo(u),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -17474,10 +17480,10 @@ const feeTxt=f=>f==null?'運費另計':+f?'+'+money(+f):'免運';
 function ordShip(o){ const so=S.sorders.get(o.shop+'/'+o.id); return [o.deal?.shipSel,so?.ship,o.ship].filter(Boolean).sort((a,b)=>(b.at||0)-(a.at||0))[0]||null; }
 const ordFee=o=>+(ordShip(o)?.fee)||0, ordGrand=o=>(o.total||0)+ordFee(o);
 const ordShipOK=o=>!['paid','preparing','shipped','done','cancelled'].includes(o.status);
-const ordNeedRecv=o=>!!o.deal&&o.buyer===S.me&&!o.deal.recv&&!['shipped','done','cancelled'].includes(o.status);
+const ordNeedRecv=o=>(o.src||ordSo(o)?.src)!=='gacha'&&!!o.deal&&o.buyer===S.me&&!o.deal.recv&&!['shipped','done','cancelled'].includes(o.status);
 const RECV_L={meet:['方便面交的時間、地點','例如 週六下午 台中花市'],store:['取貨門市（店名或店號）','例如 7-11 鑫忠孝門市 / 123456'],home:['收件地址','例如 台中市西屯區…']};
 const recvTxt=r=>[r.name,r.phone,r.place].filter(Boolean).join(' · ');
-function ordShipLine(o){ const x=ordShip(o); return h('div',{class:'osl'}, h('span',{text:(x?(SHIP_IC[x.k]||'📦')+' '+x.n:'📦 還沒選收貨方式')}), x?h('small',{text:x.fee==null?'運費另計':+x.fee?'運費 '+money(+x.fee):'免運'}):null); }
+function ordShipLine(o){ if((o.src||ordSo(o)?.src)==='gacha'){ const G=ordSo(o)?.gacha||o.gacha||{}; return h('div',{class:'osl'}, h('span',{text:'🎟 抽獎券 × '+(G.n||'')+(G.title?' · '+G.title:'')}), h('small',{text:'不用寄送，確認收款後自動發券'})); } const x=ordShip(o); return h('div',{class:'osl'}, h('span',{text:(x?(SHIP_IC[x.k]||'📦')+' '+x.n:'📦 還沒選收貨方式')}), x?h('small',{text:x.fee==null?'運費另計':+x.fee?'運費 '+money(+x.fee):'免運'}):null); }
 function ordOpenBtn(o){ return h('button',{type:'button',class:'oopen',onclick:()=>openOrder(o)}, h('span',{text:'📝 訂單詳情・留言・照片'}), h('b',{text:'→'})); }
 function ordFind(shop,id){ return (shop===S.me?sellerOrders(shop):buyerOrders(S.me)).find(x=>x.shop===shop&&x.id===id)||buyerOrders(S.me).find(x=>x.shop===shop&&x.id===id)||sellerOrders(shop).find(x=>x.id===id)||null; }
 async function setShip(o,x){ const sel={n:x.n,fee:x.fee??null,k:x.k||'home',at:Date.now(),by:S.me};
@@ -17548,7 +17554,7 @@ async function setOrder(o,status,patch){ const base={buyer:o.buyer,items:o.items
   const so=S.sorders.get(o.shop+'/'+o.id)||{}; await S.db.doc(`shops/${S.me}/orders/${o.id}`).set({...base,...so,id:undefined,shop:undefined,...(patch||{}),status,updatedAt:Date.now()}); }
 // 訂單一律自動成立：伺服器會處理；賣家打開網站時也幫還在「成立中」的訂單補上（不用按接受）
 const ORD_AUTO=new Set();
-function ordAuto(o){ if(!ordCan()||o.shop!==S.me||o.status!=='pending'||ORD_AUTO.has(o.id)||cancelReqOf(o)||(ordSo(o)?.cancelRej&&!ordSo(o)?.status)) return; ORD_AUTO.add(o.id);
+function ordAuto(o){ if(!ordCan()||o.shop!==S.me||o.status!=='pending'||o.src==='gacha'||ORD_AUTO.has(o.id)||cancelReqOf(o)||(ordSo(o)?.cancelRej&&!ordSo(o)?.status)) return; ORD_AUTO.add(o.id);
   setTimeout(async()=>{ const x=sellerOrders(S.me).find(y=>y.id===o.id); if(!x||x.status!=='pending'||cancelReqOf(x)||(ordSo(x)&&ordSo(x).status!=='pending')) return; const items=(x.items||[]).map(i=>S.plants.get(i)).filter(Boolean), qn=p=>Math.max(1,+(x.qty?.[p.id])||1), lotIt=p=>isLot(p)||!!x.qty?.[p.id];
     if (items.some(p=>lotIt(p)?lotLeft(p)<qn(p):(p.status==='sold'||p.status==='reserved')&&p.buyer&&p.buyer!==x.buyer)) return;
     try{ await setOrder(x,'confirmed',{confirmedAt:Date.now(),auto:true}); for(const p of items){ if(lotIt(p)){ const left=lotLeft(p)-qn(p); await S.db.doc(pPath(p)).update({stock:Math.max(0,left),soldN:(+p.soldN||0)+qn(p),status:left<=0?'sold':p.status}); } else await S.db.doc(pPath(p)).update({status:'sold',buyer:x.buyer,soldPrice:p.soldPrice||p.price||null}); } await ensureDeal(x); renderAll(); }catch(e){ ORD_AUTO.delete(o.id); } },4000); }
@@ -18359,6 +18365,917 @@ function renderAll(){ if(rq) return; rq=requestAnimationFrame(()=>{ rq=0; try{ a
 let was='';
 setInterval(()=>{ const now=Date.now(); document.querySelectorAll('[data-ends]').forEach(el=>{ el.textContent=fmtLeft(Number(el.dataset.ends)-now); }); const sig=all().filter(live).map(p=>p.id).join()+'|'+[...S.raffles.values()].map(rState).join(); if(sig!==was){ if(was) renderAll(); was=sig; } },1000);
 renderAll(); route(); boot();
+
+/* VEIN 轉蛋機（一番賞）：限時頁列表、機台頁、買抽獎券、獎單牆、撕獎單動畫、轉蛋倉庫、會員主頁卡片、賣家後台
+   伺服器規則在 push/gacha.js；這裡只負責畫面與送出請求（名額、抽獎結果、運費都是伺服器算的） */
+{
+const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const TPL=[['neon','霓虹'],['retro','經典紅'],['washi','和紙'],['jungle','叢林'],['candy','糖果'],['noir','黑金']];
+const TN={r4:'極稀有',r3:'稀有',r2:'精選',r1:'常見'};
+const tierOf=(n,t)=>{ const p=t?n/t*100:0; return p<5?'r4':p<10?'r3':p<30?'r2':'r1'; };
+const pctTxt=(n,t)=>{ const p=t?n/t*100:0; return (p<10?p.toFixed(1):Math.round(p))+'%'; };
+const M$=n=>'NT$ '+Number(n||0).toLocaleString();
+const GC={pub:new Map(),mine:new Map(),tix:new Map(),box:new Map(),res:new Map(),sbox:new Map(),stix:new Map(),boxDoc:null,subs:[],uid:undefined,shown:new Set(),q:{},whSel:new Set(),aTab:'g',meSeg:'box'};
+window.__gc=GC;
+const gget=id=>GC.mine.get(id)||GC.pub.get(id)||null;
+const esc=s=>String(s==null?'':s);
+const GOODS_IMG='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 96"><rect width="80" height="96" fill="#EFE9DC"/><path d="M20 44h40l-5 34a6 6 0 0 1-6 5H31a6 6 0 0 1-6-5z" fill="#C8693F"/><rect x="16" y="36" width="48" height="10" rx="4" fill="#A9522C"/><path d="M40 36c-3-9-11-13-17-12 3 7 9 10 17 12zm0 0c3-10 11-14 18-13-3 8-10 11-18 13z" fill="#2E7D5B"/></svg>');
+const imgOf=it=>{ if(!it) return GOODS_IMG; if(it.pid){ const p=S.plants.get(it.pid); if(p) return cover(p); } const gid=it.goods||it.gid; if(gid){ const p=S.plants.get(gid); const im=p&&(p.imgs||[]).find(x=>x&&(x.t||x.f)); if(im) return im.t||im.f; if(p&&p.coverThumb) return p.coverThumb; } return it.img||(gid||it.kind==='goods'?GOODS_IMG:'m/p1.jpg'); };
+const vibe=ms=>{ try{ navigator.vibrate&&navigator.vibrate(ms); }catch(e){} };
+
+/* ---------------- 樣式 ---------------- */
+const CSS=`
+.gc{--r4a:#FFD23F;--r4b:#FF7A00;--r3:#A970FF;--r2:#2FA8FF;--r1:#3DDC84;--volt:#D2FF00;--night:#0C0E0D;font-family:var(--f)}
+.gc *{box-sizing:border-box}
+.gcr4{background:linear-gradient(135deg,#FFD23F,#FF7A00)!important;color:#000!important}.gcr3{background:#A970FF!important;color:#fff!important}.gcr2{background:#2FA8FF!important;color:#fff!important}.gcr1{background:#3DDC84!important;color:#000!important}
+.gc-tc{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:24px;padding:0 6px;border-radius:8px;font:800 12px var(--f-display);color:#000;position:relative;overflow:hidden}
+.gc-tc small{font-weight:600;font-size:10px;margin-left:2px;opacity:.8}
+.gc-tc.lst{background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d)}
+.gc-shine{position:relative;overflow:hidden}.gc-shine::after{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.7) 50%,transparent 60%);animation:gcSh 2.8s ease-in-out infinite}
+@keyframes gcSh{0%{transform:translateX(-60%)}60%,100%{transform:translateX(60%)}}
+/* 模板 */
+.gt-neon{--t-bg:#0C0E0D;--t-fg:#fff;--t-art:radial-gradient(circle at 50% 40%,#22281a,#0C0E0D 70%);--t-acc:#D2FF00;--m-body:#16191A;--m-trim:#D2FF00;--m-panel:#D2FF00;--m-pfg:#000;--tk-paper:#F7F7EE;--tk-strip:#D2FF00;--tk-ink:#0C0E0D;--h-bg:radial-gradient(120% 80% at 50% 0%,#2a3312 0%,#0C0E0D 60%)}
+.gt-retro{--t-bg:#E63A2E;--t-fg:#fff;--t-art:radial-gradient(circle at 50% 40%,#ff6a57,#c92a1f 75%);--t-acc:#FFD23F;--m-body:#E63A2E;--m-trim:#FFF4E0;--m-panel:#FFD23F;--m-pfg:#7a1c12;--tk-paper:#FFF4E0;--tk-strip:#E63A2E;--tk-ink:#7a1c12;--h-bg:radial-gradient(120% 80% at 50% 0%,#ff7b63,#B8261B 70%)}
+.gt-washi{--t-bg:#F3EAD7;--t-fg:#22305C;--t-art:radial-gradient(circle at 50% 40%,#fff8ea,#e6d8bb 75%);--t-acc:#D9483B;--m-body:#22305C;--m-trim:#D9483B;--m-panel:#F3EAD7;--m-pfg:#22305C;--tk-paper:#FBF5E8;--tk-strip:#22305C;--tk-ink:#22305C;--h-bg:linear-gradient(#F3EAD7,#e9dcc0)}
+.gt-jungle{--t-bg:#1F5C42;--t-fg:#fff;--t-art:radial-gradient(circle at 50% 40%,#2E7D5B,#143f2d 75%);--t-acc:#D4F25A;--m-body:#143f2d;--m-trim:#D4F25A;--m-panel:#D4F25A;--m-pfg:#143f2d;--tk-paper:#F1F7EC;--tk-strip:#2E7D5B;--tk-ink:#143f2d;--h-bg:radial-gradient(120% 80% at 50% 0%,#2E7D5B,#0f3021 70%)}
+.gt-candy{--t-bg:#FFD6E4;--t-fg:#4a1d33;--t-art:radial-gradient(circle at 50% 40%,#fff,#ffc2d6 75%);--t-acc:#5BC0FF;--m-body:#FF8FB1;--m-trim:#fff;--m-panel:#8FD3FF;--m-pfg:#1d3a5c;--tk-paper:#fff;--tk-strip:#FF8FB1;--tk-ink:#4a1d33;--h-bg:linear-gradient(160deg,#ffd6e4,#cfeaff)}
+.gt-noir{--t-bg:#141210;--t-fg:#F3E6C4;--t-art:radial-gradient(circle at 50% 40%,#2c261b,#0d0b09 75%);--t-acc:#D4AF37;--m-body:#0d0b09;--m-trim:#D4AF37;--m-panel:#D4AF37;--m-pfg:#141210;--tk-paper:#1d1a15;--tk-strip:#D4AF37;--tk-ink:#F3E6C4;--h-bg:radial-gradient(120% 80% at 50% 0%,#3a3020,#0d0b09 65%)}
+/* 轉蛋機（純 CSS） */
+.gc-mach{position:relative;width:220px;height:300px;flex:none}
+.gc-mach .dome{position:absolute;left:10px;top:0;width:200px;height:190px;border-radius:50% 50% 18px 18px/56% 56% 18px 18px;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.55),rgba(255,255,255,.08) 38%,rgba(255,255,255,.04) 60%),rgba(255,255,255,.12);border:5px solid var(--m-trim);overflow:hidden;box-shadow:inset 0 -18px 30px rgba(0,0,0,.25)}
+.gc-mach .gk-cap{position:absolute;width:44px;height:44px;border-radius:50%;background:linear-gradient(180deg,var(--c1) 0 50%,#fff 50% 100%);box-shadow:inset -4px -6px 8px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.25);animation:gcBob 2.6s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes gcBob{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-6px) rotate(calc(var(--r) + 14deg))}}
+.gc-mach.spin .gk-cap{animation:gcShk .18s linear 6}
+@keyframes gcShk{25%{transform:translate(4px,-8px) rotate(40deg)}50%{transform:translate(-5px,-3px) rotate(-30deg)}75%{transform:translate(3px,-10px)}}
+.gc-mach .body{position:absolute;left:0;top:178px;width:220px;height:122px;border-radius:22px;background:var(--m-body);border:5px solid var(--m-trim);box-shadow:0 18px 30px -10px rgba(0,0,0,.5)}
+.gc-mach .pnl{position:absolute;left:16px;top:18px;width:84px;height:44px;border-radius:12px;background:var(--m-panel);color:var(--m-pfg);display:grid;place-items:center;font:900 22px var(--f-display);letter-spacing:.06em}
+.gc-mach .knob{position:absolute;right:20px;top:14px;width:62px;height:62px;border-radius:50%;background:var(--m-trim);box-shadow:inset 0 -5px 0 rgba(0,0,0,.2);transition:transform 1.1s cubic-bezier(.5,0,.2,1)}
+.gc-mach .knob::before{content:"";position:absolute;left:8px;right:8px;top:24px;height:14px;border-radius:7px;background:var(--m-body)}
+.gc-mach.spin .knob{transform:rotate(360deg)}
+.gc-mach .slot{position:absolute;left:18px;bottom:16px;width:80px;height:34px;border-radius:12px 12px 6px 6px;background:rgba(0,0,0,.45);box-shadow:inset 0 6px 10px rgba(0,0,0,.6)}
+@media (prefers-reduced-motion:reduce){.gc-mach .gk-cap{animation:none}}
+body:has(.gc-ov) #chDock,body:has(.gc-tear) #chDock,body:has(.gc-win) #chDock{display:none!important}
+body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:calc(160px + env(safe-area-inset-bottom,0px))!important}
+@media(min-width:861px){body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:100px!important}}
+/* 限時頁：玩法列 A（一排膠囊） */
+#playTabs.pt-row{display:flex!important;gap:8px;overflow-x:auto!important;scrollbar-width:none;padding:6px 16px 10px!important;margin:0 calc(-1*var(--gl,16px)) 6px!important;position:sticky;top:calc(58px + env(safe-area-inset-top,0px));z-index:6;background:linear-gradient(var(--paper) 82%,rgba(244,244,241,0))!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+#playTabs.pt-row::-webkit-scrollbar{display:none}
+#playTabs.pt-row .ptb::after{display:none!important}
+#playTabs.pt-row .ptb:not([aria-pressed=true])>small,#playTabs.pt-row .ptb[aria-pressed=true]:not(.has-sub)>small{display:none!important}
+#playTabs.pt-row .ptb{flex:none!important;display:flex!important;flex-direction:row!important;justify-items:start!important;align-items:center!important;align-content:center!important;gap:7px!important;height:46px!important;min-height:46px!important;padding:0 15px 0 6px!important;border-radius:99px!important;background:var(--pt-bg,#fff)!important;border:0!important;box-shadow:0 1px 0 rgba(0,0,0,.06);font:800 14px/1.15 var(--f-display)!important;color:var(--pt-fg,#111)!important;position:relative;text-align:left;min-width:0!important;background-image:var(--pt-img,none)!important;background-size:cover!important}
+#playTabs.pt-row .ptb>i{line-height:1!important;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px!important;font-style:normal;background:var(--pc,#F1F2EE);flex:none}
+#playTabs.pt-row .ptb>b{font:inherit!important;white-space:nowrap}
+#playTabs.pt-row .ptb>small{display:none!important}
+#playTabs.pt-row .ptb.hot:not([aria-pressed=true])::before{content:"";z-index:1;position:absolute;top:6px;left:32px;width:9px;height:9px;border-radius:50%;background:#FF3B30;border:2px solid #fff}
+#playTabs.pt-row .ptb[aria-pressed=true]{background:var(--night,#0C0E0D)!important;color:#D2FF00!important;padding-right:17px!important}
+#playTabs.pt-row .ptb[aria-pressed=true]>i{background:#24272A}
+#playTabs.pt-row .ptb[aria-pressed=true].has-sub{display:grid!important;grid-template-columns:34px auto;grid-template-rows:auto auto;column-gap:7px;align-content:center}
+#playTabs.pt-row .ptb[aria-pressed=true].has-sub>i{grid-row:1/3}
+#playTabs.pt-row .ptb[aria-pressed=true].has-sub>b{align-self:end;line-height:1.1}
+#playTabs.pt-row .ptb[aria-pressed=true].has-sub>small{display:block!important;align-self:start;font:600 10.5px var(--f-display);color:rgba(255,255,255,.7);background:none!important;padding:0!important;line-height:1.3;white-space:nowrap}
+#playTabs.pt-row .ptb em{display:none}
+.ptb-auc{--pc:#FFE1D6}.ptb-enc{--pc:#E8E0FF}.ptb-drop{--pc:#FFF1C2}.ptb-raffle{--pc:#DCEBFF}.ptb-gacha{--pc:#E9F7B0}.ptb-mkt{--pc:#FFDDEB}.ptb-live{--pc:#FFD9D6}
+/* 限時頁：轉蛋機列表 */
+.gc-lh{display:flex;align-items:flex-end;justify-content:space-between;margin:6px 0 4px}
+.gc-lh h2{margin:0;font:900 26px var(--f-display);letter-spacing:-.02em}
+.gc-lh p{margin:3px 0 0;font-size:12.5px;color:var(--fg2)}
+.gc-lh button{font:700 12.5px var(--f-display);background:#fff;padding:7px 12px;border-radius:99px;border:0;box-shadow:0 1px 0 var(--line)}
+.gc-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 0 10px}
+.gc-chips button{flex:none;padding:7px 13px;border-radius:99px;background:#fff;font:700 13px var(--f-display);border:1px solid var(--line)}
+.gc-chips button[aria-pressed=true]{background:#D2FF00;border-color:#D2FF00}
+.gc-list{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.gc-card{position:relative;display:block;width:100%;text-align:left;border-radius:30px;overflow:hidden;background:var(--t-bg);color:var(--t-fg);padding:16px 16px 14px;min-height:318px;isolation:isolate;border:0;cursor:pointer;box-shadow:0 22px 40px -22px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.06);font:inherit}
+.gc-card .gk-bg{position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 78% 30%,color-mix(in srgb,var(--t-acc) 38%,transparent),transparent 52%),radial-gradient(color-mix(in srgb,var(--t-fg) 9%,transparent) 1.2px,transparent 1.5px) 0 0/14px 14px}
+.gc-card .wm{position:absolute;right:-6px;bottom:58px;z-index:-1;font:900 132px/1 var(--f-display);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--t-fg) 14%,transparent)}
+.gc-card .gk-m{position:absolute;right:-34px;top:4px;transform:scale(.66) rotate(6deg);transform-origin:top right;filter:drop-shadow(0 18px 24px rgba(0,0,0,.4))}
+.gc-card .gk-top{display:flex;align-items:center;gap:8px;position:relative;flex-wrap:wrap;max-width:70%}
+.gc-card .gk-sh{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--t-fg) 10%,transparent);padding:4px 10px 4px 4px;border-radius:99px;font:600 12px var(--f-display)}
+.gc-card .gk-sh .av{width:22px!important;height:22px!important;border-radius:50%;font-size:10px}
+.gc-card .gk-sh i{font-style:normal;width:15px;height:15px;border-radius:50%;background:var(--t-acc);color:#000;font:800 9px/15px var(--f-display);text-align:center}
+.gc-card .gk-hot{font:800 11px var(--f-display);background:#FF3B30;color:#fff;padding:5px 10px;border-radius:99px}
+.gc-card .gk-hot.soon{background:#fff;color:#000}.gc-card .gk-hot.end{background:rgba(0,0,0,.45)}
+.gc-card h3{margin:14px 0 0;font:900 27px/1.08 var(--f-display);letter-spacing:-.03em;max-width:62%;word-break:break-word}
+.gc-card .gk-pr{display:flex;align-items:baseline;gap:5px;margin-top:8px}
+.gc-card .gk-pr b{font:800 22px var(--f-mono);letter-spacing:-.03em;background:var(--t-acc);color:#000;padding:1px 9px;border-radius:10px}
+.gc-card .gk-pr small{font:600 12px var(--f-display);opacity:.7}
+.gc-card .fan{display:flex;margin:16px 0 0 2px;height:92px}
+.gc-card .gk-pf{position:relative;width:70px;height:88px;border-radius:14px;padding:3px;background:#fff;box-shadow:0 8px 18px -6px rgba(0,0,0,.5);margin-right:-14px}
+.gc-card .gk-pf img{width:100%;height:100%;border-radius:11px;object-fit:cover;display:block}
+.gc-card .gk-pf .gc-tc{position:absolute;left:-5px;top:-7px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.gc-card .gk-pf .fp{position:absolute;left:3px;right:3px;bottom:3px;border-radius:0 0 11px 11px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font:800 11px var(--f-mono);text-align:center;padding:10px 0 4px}
+.gc-card .more{align-self:center;margin-left:22px;font:700 12px var(--f-display);opacity:.8;line-height:1.35}
+.gc-card .more b{display:block;font:800 15px var(--f-display);opacity:1}
+.gc-card .gk-ft{display:flex;align-items:center;gap:10px;margin-top:14px;background:color-mix(in srgb,var(--t-fg) 9%,transparent);border-radius:22px;padding:8px}
+.gc-ring{width:50px;height:50px;border-radius:50%;flex:none;background:conic-gradient(var(--t-acc) calc(var(--p)*1%),color-mix(in srgb,var(--t-fg) 15%,transparent) 0);display:grid;place-items:center;position:relative}
+.gc-ring::before{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--t-bg)}
+.gc-ring span{position:relative;text-align:center;line-height:1}
+.gc-ring b{display:block;font:800 15px var(--f-mono)}.gc-ring small{font:600 9px var(--f-mono);opacity:.7}
+.gc-card .tl{flex:1;display:flex;gap:4px;min-width:0}
+.gc-card .tl div{flex:1;min-width:0;text-align:center}
+.gc-card .tl b{display:block;font:800 12px var(--f-display)}
+.gc-card .tl i{display:block;height:5px;border-radius:5px;margin-top:3px;background:color-mix(in srgb,var(--t-fg) 15%,transparent);overflow:hidden}
+.gc-card .tl i u{display:block;height:100%;border-radius:5px}
+.gc-card .go{flex:none;height:44px;padding:0 14px;border-radius:15px;background:var(--t-fg);color:var(--t-bg);font:800 14px var(--f-display);display:grid;place-items:center}
+.gc-empty{text-align:center;padding:40px 16px;color:var(--fg2)}.gc-empty b{font-size:44px;display:block}.gc-empty h3{color:var(--fg);margin:6px 0}
+/* 機台頁 */
+.gc-pg{max-width:720px;margin:0 auto;padding-bottom:140px}
+.gc-hero{position:relative;background:var(--h-bg);color:var(--t-fg);padding:14px 16px 26px;border-radius:0 0 34px 34px;overflow:hidden;margin:0 calc(-1*var(--gl,16px))}
+.gc-hero .glow{position:absolute;left:50%;top:80px;width:360px;height:360px;transform:translateX(-50%);background:radial-gradient(circle,color-mix(in srgb,var(--t-acc) 35%,transparent),transparent 65%);filter:blur(10px);pointer-events:none}
+.gc-hero .gc-mach{margin:0 auto}
+.gc-hero h1{margin:18px 0 4px;font:800 26px/1.15 var(--f-display);letter-spacing:-.02em;text-align:center;position:relative}
+.gc-hero .who{display:flex;justify-content:center;align-items:center;gap:7px;font-size:13px;opacity:.9;position:relative}
+.gc-hero .who .vf{background:var(--t-acc);color:#000;font:700 10px var(--f-display);padding:2px 7px;border-radius:99px}
+.gc-hero .desc{text-align:center;font-size:13px;opacity:.8;margin:8px auto 0;max-width:420px;position:relative;white-space:pre-wrap}
+.gc-hst{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.gc-hst div{background:color-mix(in srgb,var(--t-fg) 10%,transparent);border-radius:16px;padding:10px 8px;text-align:center}
+.gc-hst b{display:block;font:800 20px var(--f-mono)}.gc-hst small{font-size:11px;opacity:.75}
+.gc-bar{height:8px;border-radius:9px;background:color-mix(in srgb,var(--t-fg) 18%,transparent);overflow:hidden;margin-top:12px;position:relative}
+.gc-bar i{display:block;height:100%;border-radius:9px;background:var(--t-acc)}
+.gc-sec{margin:22px 0 10px;display:flex;align-items:center;gap:8px;font:800 19px var(--f-display)}
+.gc-sec em{font-style:normal;font:600 12px var(--f-display);color:var(--fg2);margin-left:auto}
+.gc-leg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.gc-leg div{border-radius:14px;padding:9px 4px 8px;text-align:center;font:700 12px var(--f-display);line-height:1.25}
+.gc-leg small{display:block;font:600 10.5px var(--f-mono);opacity:.85}
+.gc-pz{display:flex;gap:12px;align-items:stretch;background:#fff;border-radius:22px;padding:10px;margin-bottom:10px}
+.gc-pz.out{opacity:.45}
+.gc-pz .lt{width:58px;flex:none;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:900 30px/1 var(--f-display);position:relative;overflow:hidden}
+.gc-pz .lt small{font:700 10px var(--f-display);margin-top:4px;opacity:.85}
+.gc-pz .gk-ph{width:76px;height:88px;flex:none;border-radius:14px;overflow:hidden;background:#eee;position:relative}
+.gc-pz .gk-ph img{width:100%;height:100%;object-fit:cover}
+.gc-pz .gk-ph .gk-n{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;font:700 10px var(--f-mono);padding:1px 5px;border-radius:6px}
+.gc-pz .in{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.gc-pz .in b{font:700 15px/1.3 var(--f-display)}
+.gc-pz .gk-m{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.gc-pz .gk-pc{font:700 12px var(--f-mono);padding:3px 8px;border-radius:99px}
+.gc-pz .gk-lf{font:700 12px var(--f-mono);color:var(--fg2)}
+.gc-pz .val{font:800 13px var(--f-mono);color:#000;background:#F1F2EE;padding:2px 8px;border-radius:8px}
+.gc-pz .vs{font-size:11.5px;color:var(--fg2)}
+.gc-last{border-radius:24px;padding:3px;background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d)}
+.gc-last>div{background:#0C0E0D;color:#fff;border-radius:21px;display:flex;gap:12px;padding:12px;align-items:center}
+.gc-last img{width:84px;height:100px;border-radius:14px;object-fit:cover}
+.gc-last b{display:block;font:800 17px var(--f-display)}.gc-last p{margin:4px 0 0;font-size:12.5px;opacity:.8}
+.gc-last .gk-lb{display:inline-block;font:800 11px var(--f-display);background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d);color:#000;padding:3px 9px;border-radius:99px;margin-bottom:5px}
+.gc-rules{margin-top:16px;background:#fff;border-radius:22px;padding:8px 16px;font-size:13px;line-height:1.6}
+.gc-rules div{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}.gc-rules div:last-child{border:0}
+.gc-fair{margin-top:12px;display:flex;gap:10px;align-items:center;background:#E7F5DF;border-radius:18px;padding:11px 14px;font-size:12.5px;color:#1F5C42;word-break:break-all}
+.gc-fair code{font:600 11px var(--f-mono);background:#fff;padding:2px 6px;border-radius:6px;color:#333}
+.gc-buy{position:fixed;left:50%;transform:translateX(-50%);width:min(700px,calc(100% - 20px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:40;background:#0C0E0D;color:#fff;border-radius:24px;padding:10px;display:flex;gap:8px;align-items:center;box-shadow:0 16px 40px -10px rgba(0,0,0,.55)}
+@media(min-width:861px){.gc-buy{bottom:20px}}
+.gc-buy .gk-qs{display:flex;gap:5px}
+.gc-buy .gk-qs button{width:42px;height:46px;border-radius:13px;background:#24272A;font:800 15px var(--f-mono);color:#fff;border:0}
+.gc-buy .gk-qs button[aria-pressed=true]{background:#fff;color:#000}
+.gc-buy .gk-qs button:disabled{opacity:.3}
+.gc-buy .go{flex:1;height:50px;border-radius:16px;background:#D2FF00;color:#000;font:800 15px var(--f-display);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;border:0}
+.gc-buy .go small{font:600 11px var(--f-mono)}
+.gc-buy .go.tix{background:linear-gradient(90deg,#FFD23F,#FF7A00)}
+.gc-buy .go.off{background:#33373A;color:#9a9ea1}
+.gc-buy .pend{flex:1;height:50px;border-radius:16px;background:#FFD23F;color:#000;font:800 14px var(--f-display);border:0}
+/* 抽屜、彈窗 */
+.gc-ov{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;animation:gcFade .25s}
+@keyframes gcFade{from{opacity:0}}
+.gc-sheet{width:min(560px,100%);background:var(--paper);border-radius:28px 28px 0 0;padding:10px 16px calc(22px + env(safe-area-inset-bottom,0px));animation:gcUp .4s var(--ease);max-height:92vh;overflow:auto}
+@media(min-width:700px){.gc-ov{align-items:center}.gc-sheet{border-radius:28px}}
+@keyframes gcUp{from{transform:translateY(60px);opacity:.3}}
+.gc-sheet .gr{width:40px;height:5px;border-radius:5px;background:#ccc;margin:0 auto 12px}
+.gc-sheet h3{margin:0 0 12px;font:800 21px var(--f-display)}
+.gc-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:16px;padding:13px 14px;margin-bottom:8px;font-size:14px;gap:10px}
+.gc-row b{font:700 15px var(--f-mono)}
+.gc-step{display:flex;align-items:center;gap:6px}
+.gc-step button{width:38px;height:38px;border-radius:12px;background:#E6E7E3;font:700 18px var(--f-mono);border:0}
+.gc-step b{min-width:36px;text-align:center;font:800 20px var(--f-mono)}
+.gc-note{display:flex;gap:10px;background:#FFF7D6;border-radius:16px;padding:11px 13px;font-size:12.5px;line-height:1.5;margin-bottom:8px}
+.gc-note.g{background:#E7F5DF;color:#1F5C42}.gc-note.r{background:#FFE9E3;color:#9b2a00}
+.gc-cta{width:100%;height:54px;border-radius:18px;background:#0C0E0D;color:#fff;font:800 16px var(--f-display);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer}
+.gc-cta.v{background:#D2FF00;color:#000}.gc-cta:disabled{opacity:.45}
+.gc-cta.ghost{background:transparent;color:inherit;height:44px;font-weight:600;font-size:14px;margin-top:2px}
+/* 獲得抽獎券 */
+.gc-win{position:fixed;inset:0;z-index:1300;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,rgba(40,48,10,.94),rgba(0,0,0,.95));animation:gcFade .35s}
+.gc-win .wc{width:min(320px,88vw);text-align:center;color:#fff;position:relative}
+.gc-win .fan{position:relative;height:190px;margin-bottom:6px}
+.gc-win .gk-ft{position:absolute;left:50%;top:20px;width:112px;height:150px;margin-left:-56px;border-radius:12px;background:var(--tk-paper,#F7F7EE);box-shadow:0 14px 30px rgba(0,0,0,.5);opacity:0;transform:translateY(160px);animation:gcFan .7s var(--ease) forwards}
+.gc-win .gk-ft::before{content:"";position:absolute;left:0;right:0;top:0;height:38px;border-radius:12px 12px 0 0;background:var(--tk-strip,#D2FF00);border-bottom:2px dashed rgba(0,0,0,.35)}
+.gc-win .gk-ft::after{content:"VEIN";position:absolute;left:0;right:0;top:66px;text-align:center;font:900 22px var(--f-display);color:var(--tk-ink,#000);letter-spacing:.12em}
+.gc-win .gk-ft:nth-child(1){--rz:-16deg;--tx:-62px;animation-delay:.15s}.gc-win .gk-ft:nth-child(2){--rz:0deg;--tx:0px;animation-delay:.3s}.gc-win .gk-ft:nth-child(3){--rz:16deg;--tx:62px;animation-delay:.45s}
+@keyframes gcFan{to{opacity:1;transform:translate(var(--tx),0) rotate(var(--rz))}}
+.gc-win h2{margin:0;font:800 30px var(--f-display)}
+.gc-win .cnt{font:900 64px/1 var(--f-mono);color:#D2FF00;margin:6px 0 4px;text-shadow:0 0 30px rgba(210,255,0,.5)}
+.gc-win p{margin:0 0 20px;opacity:.75;font-size:13.5px}
+.gc-cf{position:fixed;width:9px;height:14px;top:-12px;border-radius:2px;pointer-events:none;z-index:1400}
+/* 訂單頁 */
+.gc-o2-hd{position:relative;background:var(--h-bg);color:var(--t-fg);padding:24px 18px 92px;border-radius:0 0 34px 34px;overflow:hidden;text-align:center;margin:0 calc(-1*var(--gl,16px))}
+.gc-o2-hd .lab2{display:inline-flex;align-items:center;gap:6px;font:800 12px var(--f-display);background:#FFD23F;color:#000;padding:5px 11px;border-radius:99px}
+.gc-o2-hd .lab2.gk-ok{background:#D2FF00}.gc-o2-hd .lab2.gk-no{background:#ff8a7a}
+.gc-o2-hd .lab2 i{width:7px;height:7px;border-radius:50%;background:#000;animation:gcBlink 1s infinite}
+@keyframes gcBlink{50%{opacity:.2}}
+.gc-o2-hd h2{margin:12px 0 6px;font:900 30px var(--f-display)}
+.gc-cd{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.gc-cd span{min-width:46px;padding:7px 4px 5px;border-radius:12px;background:color-mix(in srgb,var(--t-fg) 12%,transparent);font:800 22px/1 var(--f-mono)}
+.gc-cd span small{display:block;font:600 9.5px var(--f-display);opacity:.65;margin-top:3px}
+.gc-cd em{font:800 20px/40px var(--f-mono);font-style:normal;opacity:.5}
+.gc-tkt{position:relative;margin:-70px 4px 0;filter:drop-shadow(0 18px 26px rgba(0,0,0,.18))}
+.gc-tkt .gk-a,.gc-tkt .b{background:#fff;position:relative}
+.gc-tkt .gk-a{border-radius:26px 26px 0 0;padding:16px 18px 18px;-webkit-mask:radial-gradient(circle 13px at 0 100%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 13px at 100% 100%,transparent 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 13px at 0 100%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 13px at 100% 100%,transparent 98%,#000) right/51% 100% no-repeat}
+.gc-tkt .b{border-radius:0 0 26px 26px;padding:16px 18px;-webkit-mask:radial-gradient(circle 13px at 0 0,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 13px at 100% 0,transparent 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 13px at 0 0,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 13px at 100% 0,transparent 98%,#000) right/51% 100% no-repeat}
+.gc-tkt .gk-a::after{content:"";position:absolute;left:20px;right:20px;bottom:0;border-bottom:2px dashed #E1E2DD}
+.gc-tkt .r1{display:flex;gap:12px;align-items:center}
+.gc-tkt .gk-mini{width:58px;height:70px;border-radius:16px;background:var(--t-art);position:relative;overflow:hidden;flex:none}
+.gc-tkt .gk-mini .gc-mach{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.24)}
+.gc-tkt .r1 b{display:block;font:800 17px/1.25 var(--f-display)}.gc-tkt .r1 small{color:var(--fg2);font-size:12px}
+.gc-tkt .qx{margin-left:auto;font:900 34px var(--f-mono)}.gc-tkt .qx small{font-size:14px;color:var(--fg2)}
+.gc-tkt .gk-ln{display:flex;justify-content:space-between;font-size:13.5px;margin-top:12px;color:#444;gap:10px}
+.gc-tkt .gk-ln b{font:700 14px var(--f-mono);color:#000;text-align:right}.gc-tkt .gk-ln .gk-fr{color:#1F5C42;font-family:var(--f-display)}
+.gc-tkt .tot{display:flex;justify-content:space-between;align-items:flex-end}
+.gc-tkt .tot span{font:700 13px var(--f-display);color:var(--fg2)}.gc-tkt .tot b{font:900 34px/1 var(--f-mono)}
+.gc-tkt .gk-bc{display:flex;gap:2px;height:30px;margin-top:12px}.gc-tkt .gk-bc i{background:#111;flex:none}
+.gc-tkt .no2{font:600 11px var(--f-mono);color:var(--fg2);margin-top:5px;display:flex;justify-content:space-between}
+.gc-tl{display:flex;margin:18px 0 4px;position:relative}
+.gc-tl::before{content:"";position:absolute;left:12%;right:12%;top:17px;height:3px;background:#E1E2DD;border-radius:3px}
+.gc-tl div{flex:1;text-align:center;font:700 11.5px var(--f-display);color:#9a9c98;position:relative;z-index:1}
+.gc-tl div i{display:grid;place-items:center;width:36px;height:36px;margin:0 auto 5px;border-radius:50%;background:#E6E7E3;font-style:normal;font-size:15px}
+.gc-tl div.dn{color:#000}.gc-tl div.dn i{background:#0C0E0D;color:#D2FF00}
+.gc-tl div.on{color:#000}.gc-tl div.on i{background:#D2FF00;animation:gcPulse 1.6s infinite}
+@keyframes gcPulse{0%{box-shadow:0 0 0 0 rgba(210,255,0,.7)}70%{box-shadow:0 0 0 12px rgba(210,255,0,0)}100%{box-shadow:0 0 0 0 rgba(210,255,0,0)}}
+.gc-bank{margin-top:14px;border-radius:24px;padding:16px 18px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#1d2a20,#0C0E0D 60%)}
+.gc-bank::before{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(210,255,0,.35),transparent 65%)}
+.gc-bank .bt{display:flex;justify-content:space-between;align-items:center;position:relative;font:700 13px var(--f-display);opacity:.85}
+.gc-bank .gk-chip{width:34px;height:26px;border-radius:6px;background:linear-gradient(135deg,#e9d58a,#b8933a)}
+.gc-bank .acc{position:relative;margin:16px 0 4px;font:800 22px var(--f-mono);letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between;gap:8px;word-break:break-all}
+.gc-bank .acc button{font:800 12px var(--f-display);background:#D2FF00;color:#000;padding:7px 12px;border-radius:99px;border:0;flex:none;letter-spacing:0}
+.gc-bank .who2{position:relative;display:flex;justify-content:space-between;font-size:12px;opacity:.7;gap:8px}
+.gc-five{margin-top:12px;background:#fff;border-radius:20px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gc-five label{font:700 13px var(--f-display)}
+.gc-five input{margin-left:auto;width:150px;height:46px;border-radius:12px;border:2px solid #0C0E0D;text-align:center;font:800 22px var(--f-mono);letter-spacing:.3em}
+.gc-fine{text-align:center;font-size:12px;color:var(--fg2);margin-top:10px}
+/* 撕獎單 */
+.gc-board{background:#0C0E0D;color:#fff;margin:0 calc(-1*var(--gl,16px));padding:6px 16px 160px;min-height:100vh}
+.gc-b2h{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding-top:6px}
+.gc-b2h h2{margin:0;font:900 30px/1.05 var(--f-display)}.gc-b2h h2 em{font-style:normal;color:#D2FF00}
+.gc-b2h p{margin:6px 0 0;font-size:12.5px;opacity:.65}
+.gc-stub{flex:none;width:86px;height:60px;border-radius:12px;background:#D2FF00;color:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(4deg);-webkit-mask:radial-gradient(circle 7px at 0 50%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 7px at 100% 50%,transparent 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 7px at 0 50%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 7px at 100% 50%,transparent 98%,#000) right/51% 100% no-repeat}
+.gc-stub b{font:900 26px/1 var(--f-mono)}.gc-stub small{font:800 9.5px var(--f-display);letter-spacing:.1em}
+.gc-stock{display:flex;gap:9px;overflow-x:auto;scrollbar-width:none;padding:16px 0 4px}
+.gc-sk{flex:none;width:96px;border-radius:18px;background:#1A1D1F;padding:5px 5px 8px;position:relative}
+.gc-sk .im{height:84px;border-radius:14px;overflow:hidden;position:relative}
+.gc-sk .im img{width:100%;height:100%;object-fit:cover;display:block}
+.gc-sk .gc-tc{position:absolute;left:8px;top:8px}
+.gc-sk .gk-ct{display:flex;justify-content:space-between;color:#fff;font:700 11px var(--f-mono);margin:7px 4px 0}.gc-sk .gk-ct span{opacity:.6}
+.gc-sk .pv{color:#fff;font:800 12px var(--f-mono);margin:3px 4px 0}.gc-sk .pv.nv{font:600 11px var(--f-display);color:#8a8e91}
+.gc-sk .gk-sb{height:4px;border-radius:4px;background:#2C3033;margin:5px 4px 0;overflow:hidden}.gc-sk .gk-sb u{display:block;height:100%}
+.gc-sk.z{opacity:.4}
+.gc-wall{margin:14px 0 20px;border-radius:28px;padding:12px 10px 14px;background:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.4px) 0 0/10px 10px,linear-gradient(160deg,#1c2023,#131618);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07)}
+.gc-wall .gk-wh{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 8px}
+.gc-wall .gk-wh b{font:800 15px var(--f-display)}.gc-wall .gk-wh b small{font:600 12px var(--f-mono);opacity:.55;margin-left:6px}
+.gc-wall .gk-wh button{font:800 12.5px var(--f-display);color:#000;background:#fff;padding:7px 12px;border-radius:99px;border:0}
+.gc-wk{display:flex;gap:12px;padding:0 4px 10px;font:700 11.5px var(--f-display);color:rgba(255,255,255,.7);align-items:center}
+.gc-wk span{display:flex;align-items:center;gap:6px}
+.gc-wk i{width:14px;height:18px;border-radius:3px;display:inline-block}
+.gc-wk .gk-a{background:linear-gradient(var(--tk-strip) 0 30%,var(--tk-paper) 30%)}.gc-wk .b{background:#08090A;box-shadow:inset 0 2px 4px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.1)}
+.gc-wk label{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer}
+.gc-sw{width:34px;height:20px;border-radius:99px;background:#33373A;position:relative;transition:.2s;border:0;padding:0}
+.gc-sw::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.gc-sw[aria-pressed=true]{background:#D2FF00}.gc-sw[aria-pressed=true]::after{left:16px;background:#000}
+.gc-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px 7px}
+@media(min-width:600px){.gc-grid{grid-template-columns:repeat(10,1fr)}}
+.gc-t{position:relative;aspect-ratio:5/7;border-radius:8px;transform:rotate(var(--rt));transition:transform .3s var(--ease);border:0;padding:0;background:none;cursor:pointer}
+.gc-t .gk-pp{position:absolute;inset:0;border-radius:8px;overflow:hidden;background:linear-gradient(90deg,var(--tk-paper) 0 49%,color-mix(in srgb,var(--tk-paper) 86%,#000) 50%,var(--tk-paper) 54% 100%);box-shadow:0 0 0 1px rgba(255,255,255,.25),0 6px 10px -4px rgba(0,0,0,.6)}
+.gc-t .gk-pp::before{content:"";position:absolute;left:0;right:0;top:0;height:27%;background:var(--tk-strip)}
+.gc-t .gk-pp::after{content:"";position:absolute;left:3px;right:3px;top:27%;height:3px;margin-top:-1.5px;background:radial-gradient(circle,rgba(0,0,0,.45) 1px,transparent 1.3px) 0 0/5px 3px}
+.gc-t .gk-no{position:absolute;left:0;right:0;top:46%;text-align:center;font:900 15px var(--f-mono);color:var(--tk-ink)}
+.gc-t::after{content:"";position:absolute;left:50%;bottom:7px;width:16px;height:3px;margin-left:-8px;border-radius:3px;background:var(--tk-strip);opacity:.7}
+.gc-t .od{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;background:#D2FF00;color:#000;font:900 12px/22px var(--f-mono);text-align:center;opacity:0;transform:scale(.3);transition:.25s var(--ease);box-shadow:0 3px 8px rgba(0,0,0,.4);z-index:2}
+.gc-t[aria-pressed=true]{transform:translateY(-6px) scale(1.08);z-index:3}
+.gc-t[aria-pressed=true] .gk-pp{box-shadow:inset 0 0 0 2.5px #D2FF00,0 10px 14px rgba(0,0,0,.6)}
+.gc-t[aria-pressed=true] .od{opacity:1;transform:none}
+.gc-t.op{transform:none;cursor:default}
+.gc-t.op .gk-pp{background:#08090A;box-shadow:inset 0 3px 8px rgba(0,0,0,.9),inset 0 0 0 1px rgba(255,255,255,.04)}
+.gc-t.op .gk-pp::before{height:9%;background:#2a2d30;clip-path:polygon(0 0,100% 0,100% 50%,90% 100%,80% 50%,70% 100%,60% 50%,50% 100%,40% 50%,30% 100%,20% 50%,10% 100%,0 50%)}
+.gc-t.op .gk-pp::after{display:none}
+.gc-t.op::after{content:"已撕";left:0;right:0;width:auto;height:auto;margin:0;background:none;top:16%;bottom:auto;text-align:center;font:700 8px var(--f-display);color:#3d4144;letter-spacing:.1em;opacity:1}
+.gc-t.op .gk-no{top:auto;bottom:3px;color:#4a4e52;font-size:9px}
+.gc-t .stp{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font:900 15px var(--f-display);background:none!important}
+.gc-t .stp.r4{color:#FFB21A}.gc-t .stp.r3{color:#B58BFF}.gc-t .stp.r2{color:#4DB5FF}.gc-t .stp.r1{color:#3DDC84}
+.gc-grid.dim .gc-t.op{opacity:.12}
+.gc-tray{position:fixed;left:50%;transform:translateX(-50%);width:min(700px,calc(100% - 20px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:40;background:rgba(26,29,31,.94);backdrop-filter:blur(14px);border-radius:26px;padding:10px;display:flex;align-items:center;gap:10px;box-shadow:0 18px 40px -10px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.08)}
+@media(min-width:861px){.gc-tray{bottom:20px}}
+.gc-tray .sl{flex:1;display:flex;gap:6px;min-width:0;overflow:hidden;padding-left:4px}
+.gc-tray .sl span{width:34px;height:46px;border-radius:7px;display:grid;place-items:center;font:800 11px var(--f-mono);border:1.5px dashed rgba(255,255,255,.25);color:rgba(255,255,255,.35);flex:none}
+.gc-tray .sl span.f{border:0;background:var(--tk-paper,#F7F7EE);color:#000;box-shadow:inset 0 13px 0 var(--tk-strip,#D2FF00);padding-top:12px}
+.gc-tray button{height:52px;padding:0 18px;border-radius:17px;background:#D2FF00;color:#000;font:900 15px var(--f-display);flex:none;border:0}
+.gc-tray button:disabled{background:#33373A;color:#7d8285}
+/* 撕開 */
+.gc-tear{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;position:fixed;inset:0;z-index:1350;background:radial-gradient(circle at 50% 42%,#26292b,#050606 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;animation:gcFade .3s;touch-action:none}
+.gc-tear .ctr{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:0;right:0;text-align:center;color:#fff;font:700 13px var(--f-mono);opacity:.7}
+.gc-tear .skip{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:99px;padding:8px 14px;font:700 12.5px var(--f-display)}
+.gc-tear .rays{position:absolute;left:50%;top:44%;width:900px;height:900px;margin:-450px 0 0 -450px;background:repeating-conic-gradient(from 0deg,var(--ray) 0 7deg,transparent 7deg 18deg);opacity:0;border-radius:50%;-webkit-mask:radial-gradient(circle,#000 10%,transparent 60%);mask:radial-gradient(circle,#000 10%,transparent 60%)}
+.gc-tear.fx .rays{animation:gcRot 6s linear infinite,gcIn .5s forwards}
+@keyframes gcRot{to{transform:rotate(360deg)}}@keyframes gcIn{to{opacity:.9}}
+.gc-tear .gk-rk{position:absolute;top:calc(48px + env(safe-area-inset-top,0px));left:0;right:0;text-align:center;font:900 15px var(--f-display);letter-spacing:.3em;color:var(--ray2,#fff);opacity:0;transition:.5s .3s}
+.gc-tear.fx .gk-rk{opacity:1}
+.gc-big{position:relative;width:250px;height:340px;perspective:1100px}
+.gc-big .face{position:absolute;inset:0;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;overflow:hidden;transform:scale(.92);transition:transform .6s var(--ease)}
+.gc-big .face .L{font:900 150px/1 var(--f-display);letter-spacing:-.04em;text-shadow:0 6px 0 rgba(0,0,0,.18)}
+.gc-big .face.lst .L{font-size:84px}
+.gc-big .face .gk-tg{font:800 16px var(--f-display);background:rgba(0,0,0,.2);padding:5px 14px;border-radius:99px;margin-top:6px}
+.gc-big.rev .face{transform:scale(1)}
+.gc-big .gk-strip{position:absolute;left:0;right:0;top:0;height:84px;border-radius:22px 22px 0 0;background:var(--tk-strip);color:var(--tk-ink);z-index:4;display:flex;align-items:center;justify-content:space-between;padding:0 18px 10px;font:800 14px var(--f-display);clip-path:polygon(0 0,100% 0,100% 88%,95% 100%,90% 88%,85% 100%,80% 88%,75% 100%,70% 88%,65% 100%,60% 88%,55% 100%,50% 88%,45% 100%,40% 88%,35% 100%,30% 88%,25% 100%,20% 88%,15% 100%,10% 88%,5% 100%,0 88%);transform-origin:100% 100%;transition:transform .55s cubic-bezier(.5,0,.6,1),opacity .55s;cursor:grab;touch-action:none}
+.gc-big .gk-strip .arr{display:flex;align-items:center;gap:6px;font:700 12px var(--f-display);opacity:.8}
+.gc-big .gk-strip .arr i{font-style:normal;animation:gcNud 1.2s ease-in-out infinite}
+@keyframes gcNud{50%{transform:translateX(6px)}}
+.gc-big .prog{position:absolute;left:0;top:0;height:74px;width:0;background:rgba(0,0,0,.14);border-radius:22px 0 0 0;z-index:5;pointer-events:none}
+.gc-big.t1 .prog{opacity:0}
+.gc-big.t1 .gk-strip{transform:translate(160px,-120px) rotate(28deg);opacity:0;pointer-events:none}
+.gc-big .gk-door{position:absolute;top:74px;bottom:0;width:50%;background:var(--tk-paper);z-index:3;transition:transform .8s cubic-bezier(.6,0,.2,1);backface-visibility:hidden}
+.gc-big .gk-door.l{left:0;border-radius:0 0 0 22px;transform-origin:0 50%;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.035) 0 6px,transparent 6px 12px)}
+.gc-big .gk-door.r{right:0;border-radius:0 0 22px 0;transform-origin:100% 50%;background-image:repeating-linear-gradient(-45deg,rgba(0,0,0,.035) 0 6px,transparent 6px 12px)}
+.gc-big .gk-door .gk-lg{position:absolute;top:40%;font:900 26px var(--f-display);color:var(--tk-ink);letter-spacing:.1em}
+.gc-big .gk-door.l .gk-lg{right:6px}.gc-big .gk-door.r .gk-lg{left:6px}
+.gc-big .gk-door .nn{position:absolute;bottom:16px;font:800 13px var(--f-mono);color:var(--tk-ink);opacity:.7}
+.gc-big .gk-door.l .nn{right:8px}.gc-big .gk-door.r .nn{left:8px}
+.gc-big.t2 .gk-door.l{transform:rotateY(-165deg)}.gc-big.t2 .gk-door.r{transform:rotateY(165deg)}
+.gc-big.nt *{transition:none!important}
+.gc-big.shk{animation:gcShake .5s}
+@keyframes gcShake{20%{transform:translate(-8px,4px) rotate(-2deg)}40%{transform:translate(7px,-5px) rotate(2deg)}60%{transform:translate(-5px,3px)}80%{transform:translate(4px,-2px)}}
+.gc-tear .gk-hint{position:absolute;bottom:150px;color:#fff;opacity:.8;font:600 14px var(--f-display);transition:opacity .3s}
+.gc-prize{position:absolute;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;z-index:6;background:#fff;border-radius:24px;padding:12px;display:flex;gap:12px;align-items:center;transform:translateY(160%);transition:transform .6s var(--ease)}
+.gc-prize.on{transform:none}
+.gc-prize img{width:72px;height:86px;border-radius:14px;object-fit:cover;flex:none}
+.gc-prize b{font:800 16px/1.25 var(--f-display);display:block}
+.gc-prize small{font-size:12px;color:var(--fg2)}
+.gc-prize .pp2{display:inline-block;font:900 14px var(--f-mono);color:#000;background:#D2FF00;padding:1px 7px;border-radius:8px;margin-right:6px}
+.gc-prize .nx{margin-left:auto;height:48px;padding:0 16px;border-radius:15px;background:#0C0E0D;color:#fff;font:800 14px var(--f-display);flex:none;border:0}
+.gc-flash{position:absolute;inset:0;z-index:7;background:#fff;opacity:0;pointer-events:none}
+.gc-flash.go{animation:gcFl .7s ease-out}@keyframes gcFl{0%{opacity:.95}100%{opacity:0}}
+.gc-pt{position:absolute;left:50%;top:44%;width:10px;height:10px;border-radius:50%;pointer-events:none;z-index:6}
+.gc-res{position:absolute;inset:0;z-index:8;background:var(--paper);overflow:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 30px;animation:gcFade .3s}
+.gc-res h2{font:900 26px var(--f-display);margin:6px 0 12px}
+.gc-ri{display:flex;gap:12px;align-items:center;background:#fff;border-radius:20px;padding:9px;margin-bottom:9px;animation:gcUp .5s var(--ease) backwards}
+.gc-ri .lt{width:48px;height:56px;border-radius:14px;display:grid;place-items:center;font:900 22px var(--f-display);flex:none}
+.gc-ri img{width:56px;height:64px;border-radius:12px;object-fit:cover;flex:none}
+.gc-ri b{font:700 15px var(--f-display);display:block}.gc-ri small{font-size:12px;color:var(--fg2)}
+.gc-lastfx{position:absolute;inset:0;z-index:9;display:grid;place-items:center;background:#000;animation:gcFade .4s}
+.gc-lastfx .gk-ring{position:absolute;width:560px;height:560px;border-radius:50%;background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d);filter:blur(40px);opacity:.55;animation:gcRot 3s linear infinite}
+.gc-lastfx .lc{position:relative;text-align:center;color:#fff}
+.gc-lastfx .gk-k{font:900 16px var(--f-display);letter-spacing:.4em}
+.gc-lastfx h2{margin:6px 0 14px;font:900 56px/1 var(--f-display);background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gc-lastfx .im{width:220px;height:270px;border-radius:24px;overflow:hidden;margin:0 auto;padding:4px;background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d)}
+.gc-lastfx .im img{width:100%;height:100%;object-fit:cover;border-radius:20px;display:block}
+.gc-lastfx b{display:block;margin-top:14px;font:800 20px var(--f-display)}
+/* 倉庫、會員主頁 */
+.gc-mecard{position:relative;margin:12px 0 0;border-radius:28px;padding:14px;color:#fff;overflow:hidden;background:radial-gradient(circle at 90% 0%,rgba(210,255,0,.35),transparent 45%),#0C0E0D}
+.gc-mecard .gk-cv{position:absolute;right:-34px;top:-40px;transform:scale(.36) rotate(10deg);transform-origin:top right;pointer-events:none}
+.gc-mecard .hd{display:flex;align-items:center;gap:8px;font:900 18px var(--f-display);position:relative}
+.gc-mecard .hd em{font:800 11px var(--f-display);font-style:normal;background:#D2FF00;color:#000;padding:3px 9px;border-radius:99px}
+.gc-mr{display:flex;align-items:center;gap:10px;margin-top:10px;background:rgba(255,255,255,.07);border-radius:20px;padding:10px;position:relative;width:100%;border:0;color:#fff;text-align:left;font:inherit;cursor:pointer}
+.gc-mr .gk-t{flex:1;min-width:0}.gc-mr .gk-t b{display:block;font:800 14.5px var(--f-display)}.gc-mr .gk-t small{font-size:11.5px;opacity:.7}
+.gc-mr .gk-bar{height:5px;margin-top:6px;background:rgba(255,255,255,.15);border-radius:5px;overflow:hidden}.gc-mr .gk-bar i{display:block;height:100%;background:linear-gradient(90deg,#2E7D5B,#D2FF00)}
+.gc-mr .go{height:40px;padding:0 14px;border-radius:13px;background:rgba(255,255,255,.14);font:800 13px var(--f-display);display:grid;place-items:center;flex:none}
+.gc-mr .go.v{background:#D2FF00;color:#000}.gc-mr .go.o{background:#FF9A1F;color:#000}
+.gc-tix3{position:relative;width:52px;height:44px;flex:none}
+.gc-tix3 span{position:absolute;top:2px;left:12px;width:28px;height:38px;border-radius:5px;background:linear-gradient(#D2FF00 0 30%,#F7F7EE 30%);box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.gc-tix3 span:nth-child(1){transform:rotate(-14deg) translateX(-8px)}.gc-tix3 span:nth-child(3){transform:rotate(14deg) translateX(8px)}
+.gc-th{display:flex;flex:none}.gc-th img{width:30px;height:38px;border-radius:8px;object-fit:cover;border:2px solid #0C0E0D;margin-right:-10px}
+.gc-th+.gk-t{margin-left:12px}
+.gc-seg{display:flex;background:#E6E7E3;border-radius:16px;padding:4px;gap:4px;margin-bottom:10px}
+.gc-seg button{flex:1;height:38px;border-radius:12px;font:700 13px var(--f-display);color:#555;border:0;background:none}
+.gc-seg button[aria-pressed=true]{background:#fff;color:#000;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.gc-shop{background:#fff;border-radius:24px;padding:12px;margin-bottom:12px}
+.gc-shop .hd{display:flex;align-items:center;gap:8px;font:800 15px var(--f-display);padding-bottom:6px}
+.gc-shop .hd em{margin-left:auto;font:600 11.5px var(--f-display);font-style:normal;background:#F1F2EE;padding:4px 9px;border-radius:99px;color:#555}
+.gc-wi{display:flex;gap:10px;align-items:center;padding:8px 2px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;font:inherit;cursor:pointer;color:inherit}
+.gc-wi .gk-ck{width:26px;height:26px;border-radius:9px;border:2px solid #ccc;display:grid;place-items:center;flex:none;font-size:15px;color:transparent}
+.gc-wi[aria-pressed=true] .gk-ck{background:#0C0E0D;border-color:#0C0E0D;color:#D2FF00}
+.gc-wi img{width:54px;height:62px;border-radius:12px;object-fit:cover;flex:none}
+.gc-wi .gk-tx{flex:1;min-width:0}.gc-wi .gk-tx b{display:block;font:700 14.5px/1.3 var(--f-display)}.gc-wi .gk-tx small{font-size:11.5px;color:var(--fg2)}
+.gc-wi .gk-tx small.soon{color:#B23A00;font-weight:700}
+.gc-wi .vv{font:700 13px var(--f-mono);text-align:right}.gc-wi .vv.nv{font:600 11px var(--f-display);color:#9a9c98}
+.gc-wi.dis{cursor:default;opacity:.65}
+.gc-fs{margin:10px 2px 2px;background:#F4F4F1;border-radius:16px;padding:11px 12px}
+.gc-fs .gk-t{display:flex;justify-content:space-between;font:700 13px var(--f-display);margin-bottom:8px;gap:8px}.gc-fs .gk-t b{font-family:var(--f-mono)}
+.gc-fs .gk-bar{height:10px;background:#E1E2DD;border-radius:9px;overflow:hidden}.gc-fs .gk-bar i{display:block;height:100%;background:linear-gradient(90deg,#2E7D5B,#D2FF00);transition:width .5s var(--ease)}
+.gc-fs.gk-ok .gk-t{color:#1F5C42}
+.gc-fsn{font:600 11.5px var(--f-display);color:var(--fg2);margin:8px 4px 0}
+.gc-ship{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.gc-ship button{flex:1;min-width:120px;background:#F4F4F1;border-radius:16px;padding:10px;text-align:left;font-size:12px;color:var(--fg2);border:2px solid transparent;font-family:inherit}
+.gc-ship button b{display:block;font:700 14px var(--f-display);color:#000}
+.gc-ship button[aria-pressed=true]{border-color:#0C0E0D;background:#fff}
+.gc-tk{display:flex;gap:10px;align-items:center;background:#fff;border-radius:20px;padding:12px;margin-bottom:10px;width:100%;border:0;text-align:left;font:inherit;cursor:pointer}
+.gc-tk .mini2{width:44px;height:52px;border-radius:12px;background:var(--t-art);position:relative;overflow:hidden;flex:none}
+.gc-tk .mini2 .gc-mach{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.19)}
+.gc-tk .gk-t{flex:1;min-width:0}.gc-tk .gk-t b{display:block;font:800 14.5px var(--f-display)}.gc-tk .gk-t small{font-size:12px;color:var(--fg2)}
+.gc-tk .gk-st{font:800 11.5px var(--f-display);padding:4px 10px;border-radius:99px;background:#F1F2EE;flex:none}
+.gc-tk .gk-st.gk-w{background:#FFF1D6;color:#7a4800}.gc-tk .gk-st.p{background:#DCEBFF;color:#0B4FA0}.gc-tk .gk-st.gk-ok{background:#E3F7D9;color:#1F7A3A}.gc-tk .gk-st.gk-no{background:#eee;color:#888}.gc-tk .gk-st.v{background:#D2FF00;color:#000}
+/* 後台 */
+.gc-adm .tabs{display:flex;gap:6px;margin:0 0 12px;position:sticky;top:0;z-index:3;background:inherit;padding:4px 0}
+.gc-adm .tabs button{flex:1;height:44px;border-radius:15px;background:#fff;font:800 13.5px var(--f-display);display:flex;align-items:center;justify-content:center;gap:6px;color:#444;border:1px solid var(--line)}
+.gc-adm .tabs button[aria-pressed=true]{background:#0C0E0D;color:#D2FF00;border-color:#0C0E0D}
+.gc-adm .tabs em{font-style:normal;min-width:19px;height:19px;border-radius:99px;background:#FF7A00;color:#fff;font:800 11px/19px var(--f-mono);padding:0 5px}
+.gc-kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.gc-kpi div{border-radius:20px;padding:12px;min-height:84px;display:flex;flex-direction:column;justify-content:space-between}
+.gc-kpi small{font:700 11.5px var(--f-display);opacity:.75}.gc-kpi b{font:900 21px/1.05 var(--f-mono)}
+.gc-kpi .gk-a{background:#D2FF00}.gc-kpi .b{background:#0C0E0D;color:#fff}.gc-kpi .gk-c{background:#FF7A00;color:#fff}
+.gc-newg{width:100%;margin:10px 0;height:56px;border-radius:20px;border:2px dashed #b9bcb5;font:800 15px var(--f-display);color:#333;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.6);cursor:pointer}
+.gc-am{background:#fff;border-radius:24px;padding:12px;margin-bottom:10px;border:1px solid var(--line)}
+.gc-am .arow{display:flex;gap:12px}
+.gc-am .art{width:76px;height:92px;border-radius:16px;background:var(--t-art);position:relative;overflow:hidden;flex:none}
+.gc-am .art .gc-mach{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.3)}
+.gc-am .gk-tx{flex:1;min-width:0}.gc-am .gk-tx b{display:block;font:800 16px/1.25 var(--f-display)}
+.gc-stt{display:inline-flex;align-items:center;gap:5px;font:800 11px var(--f-display);padding:3px 9px;border-radius:99px;margin-bottom:5px}
+.gc-stt i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.gc-stt.on{background:#E3F7D9;color:#1F7A3A}.gc-stt.draft{background:#EEE;color:#666}.gc-stt.done{background:linear-gradient(90deg,#FFD23F,#FF7A00);color:#000}.gc-stt.pause{background:#FFF1D6;color:#9a5b00}.gc-stt.end{background:#eee;color:#999}
+.gc-am .nums{display:flex;gap:12px;margin-top:6px;font:600 11.5px var(--f-display);color:var(--fg2);flex-wrap:wrap}
+.gc-am .nums b{display:inline;font:800 13px var(--f-mono);color:#000}
+.gc-am .bar2{margin-top:8px;height:6px;background:#EEE;border-radius:6px;overflow:hidden}.gc-am .bar2 i{display:block;height:100%;background:#0C0E0D}
+.gc-am .tl3{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}
+.gc-am .acts{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed #e3e3e3;flex-wrap:wrap}
+.gc-am .acts button{flex:1;min-width:80px;height:38px;border-radius:12px;background:#F1F2EE;font:700 12.5px var(--f-display);border:0}
+.gc-am .acts button.gk-k{background:#0C0E0D;color:#fff}
+.gc-am .pend{display:flex;align-items:center;gap:8px;margin-top:10px;background:#FFF1D6;border-radius:14px;padding:8px 10px;font:700 12.5px var(--f-display);color:#7a4800;border:0;width:100%;cursor:pointer}
+.gc-am .pend em{margin-left:auto;font-style:normal;background:#FF7A00;color:#fff;font:800 12px var(--f-display);padding:6px 11px;border-radius:99px}
+.gc-fp{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
+.gc-fp button{flex:none;height:34px;padding:0 13px;border-radius:99px;background:#fff;font:700 12.5px var(--f-display);display:flex;align-items:center;gap:5px;border:1px solid var(--line)}
+.gc-fp button[aria-pressed=true]{background:#0C0E0D;color:#fff;border-color:#0C0E0D}
+.gc-fp em{font-style:normal;font:800 11px var(--f-mono);background:#FF7A00;color:#fff;border-radius:99px;padding:1px 6px}
+.gc-oc{background:#fff;border-radius:24px;margin-bottom:10px;overflow:hidden;border:1px solid var(--line)}
+.gc-oc .tp{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.gc-oc .gk-tag{font:800 11.5px var(--f-display);padding:4px 10px;border-radius:99px}.gc-oc .gk-tag.gk-k{background:#D2FF00}.gc-oc .gk-tag.s{background:#DCEBFF;color:#0B4FA0}
+.gc-oc .tp small{margin-left:auto;font:600 11.5px var(--f-mono);color:var(--fg2)}
+.gc-oc .gk-bd{padding:12px}
+.gc-oc .who{display:flex;align-items:center;gap:9px}
+.gc-oc .who b{font:800 14.5px var(--f-display)}.gc-oc .who small{display:block;font-size:11.5px;color:var(--fg2)}
+.gc-oc .who .amt{margin-left:auto;text-align:right}.gc-oc .who .amt b{font:900 19px var(--f-mono);display:block}
+.gc-oc .tkx{display:flex;align-items:center;gap:10px;margin-top:10px;background:#F4F4F1;border-radius:16px;padding:10px}
+.gc-oc .tkx span{font:700 13px var(--f-display);flex:1}.gc-oc .tkx b{font:900 20px var(--f-mono)}
+.gc-oc .f5{margin-top:8px;font:600 12px var(--f-display);color:var(--fg2)}
+.gc-oc .f5 code{font:800 14px var(--f-mono);color:#000;background:#FFF7D6;padding:3px 8px;border-radius:8px;letter-spacing:.12em}
+.gc-oc .acts2{display:flex;gap:8px;padding:0 12px 12px}
+.gc-oc .acts2 button{height:48px;border-radius:15px;font:800 14px var(--f-display);background:#F1F2EE;padding:0 14px;border:0}
+.gc-oc .acts2 button.v{flex:1;background:#D2FF00;color:#000}.gc-oc .acts2 button.gk-k{flex:1;background:#0C0E0D;color:#fff}
+.gc-pzs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.gc-pzs div{width:52px;height:62px;border-radius:12px;overflow:hidden;position:relative;flex:none}
+.gc-pzs img{width:100%;height:100%;object-fit:cover}
+.gc-pzs .gc-tc{position:absolute;left:3px;top:3px;min-width:18px;height:18px;font-size:10px;border-radius:6px;padding:0 4px}
+.gc-pzs .lk{position:absolute;right:2px;bottom:2px;font-size:9px;background:rgba(0,0,0,.6);border-radius:5px;padding:0 2px}
+.gc-oc .gk-shp{display:flex;align-items:center;gap:8px;margin-top:10px;font:600 12.5px var(--f-display);flex-wrap:wrap}
+.gc-fr{margin-left:auto;font:800 11.5px var(--f-display);padding:4px 9px;border-radius:99px}
+.gc-fr.gk-ok{background:#E3F7D9;color:#1F7A3A}.gc-fr.mg{background:#E8E0FF;color:#4B2A9A}.gc-fr.due{background:#FFE3D6;color:#B23A00}
+.gc-wsum{background:#0C0E0D;color:#fff;border-radius:22px;padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.gc-wsum small{display:block;font-size:11px;opacity:.6}.gc-wsum b{font:900 19px var(--f-mono)}
+.gc-wsum .gk-wn{grid-column:1/-1;font:600 12px var(--f-display);opacity:.8;background:rgba(255,255,255,.07);border-radius:12px;padding:8px 10px}
+/* 編輯器 */
+.gc-ed .gk-lab{font:800 14px var(--f-display);margin:18px 0 9px;display:flex;align-items:center;gap:8px}
+.gc-ed .gk-lab em{margin-left:auto;font:600 12px var(--f-display);color:var(--fg2);font-style:normal}
+.gc-tpls{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 8px}
+.gc-tp{flex:none;width:112px;border-radius:20px;overflow:hidden;background:var(--t-bg);color:var(--t-fg);text-align:center;padding:0 0 10px;border:3px solid transparent;cursor:pointer;font:inherit}
+.gc-tp[aria-pressed=true]{border-color:#000;box-shadow:0 0 0 3px #D2FF00}
+.gc-tp .gk-a{height:116px;position:relative;background:var(--t-art);overflow:hidden}
+.gc-tp .gk-a .gc-mach{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.36)}
+.gc-tp b{display:block;font:800 13px var(--f-display);margin-top:7px}
+.gc-fld{display:block;background:#fff;border-radius:16px;padding:9px 14px;margin-bottom:8px;border:1px solid var(--line)}
+.gc-fld small{display:block;font-size:11.5px;color:var(--fg2);font-weight:600}
+.gc-fld input,.gc-fld textarea,.gc-fld select{width:100%;border:0;outline:0;background:none;font:700 16px var(--f-display);padding:2px 0;color:#000}
+.gc-fld textarea{font:500 14px var(--f);resize:vertical;min-height:54px}
+.gc-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gc-ti{background:#fff;border-radius:20px;padding:10px;margin-bottom:8px;border:1px solid var(--line)}
+.gc-ti .hd{display:flex;gap:10px;align-items:center}
+.gc-ti .lt{width:46px;height:52px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:900 22px/1 var(--f-display);flex:none}
+.gc-ti .lt small{font:700 9.5px var(--f-mono);margin-top:3px}
+.gc-ti .mid{flex:1;min-width:0}
+.gc-ti .kk{display:inline-flex;background:#F1F2EE;border-radius:99px;padding:2px}
+.gc-ti .kk button{font:700 11.5px var(--f-display);padding:4px 10px;border-radius:99px;color:#777;border:0;background:none}
+.gc-ti .kk button[aria-pressed=true]{background:#0C0E0D;color:#fff}
+.gc-ti .gk-nm{width:100%;border:0;border-bottom:1px dashed #ddd;font:700 14px var(--f-display);padding:4px 0;margin-top:4px;outline:0;background:none}
+.gc-ti .gk-ct{text-align:right;flex:none}.gc-ti .gk-ct b{font:800 18px var(--f-mono);display:block}.gc-ti .gk-ct small{font-size:10.5px;color:var(--fg2)}
+.gc-ti .ims{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.gc-ti .ims img{width:40px;height:46px;border-radius:9px;object-fit:cover}
+.gc-ti .ims button{width:40px;height:46px;border-radius:9px;border:1.5px dashed #bbb;display:grid;place-items:center;color:#777;font-size:18px;background:none}
+.gc-ti .gq{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.gc-ti .gq select{flex:1;min-width:140px;height:40px;border-radius:12px;border:1px solid var(--line);font:600 13px var(--f);padding:0 8px;background:#fff}
+.gc-ti .del{border:0;background:none;color:#c33;font:700 12px var(--f-display);margin-left:auto}
+.gc-add{width:100%;height:46px;border-radius:16px;border:2px dashed #c9cbc5;font:700 14px var(--f-display);color:#555;background:none;cursor:pointer}
+.gc-sum{background:#0C0E0D;color:#fff;border-radius:22px;padding:14px 16px;margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gc-sum small{display:block;font-size:11px;opacity:.65}.gc-sum b{font:800 18px var(--f-mono)}
+.gc-sum .gk-w{grid-column:1/-1;display:flex;height:10px;border-radius:9px;overflow:hidden;gap:2px}.gc-sum .gk-w i{display:block;height:100%}
+.gc-sg{display:flex;background:#E6E7E3;border-radius:16px;padding:4px;gap:4px}
+.gc-sg button{flex:1;padding:10px 6px;border-radius:12px;font:700 13px var(--f-display);color:#555;line-height:1.3;border:0;background:none}
+.gc-sg button small{display:block;font-weight:500;font-size:11px;opacity:.75}
+.gc-sg button[aria-pressed=true]{background:#fff;color:#000}
+.gc-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;max-height:56vh;overflow:auto;padding:2px}
+.gc-pick button{position:relative;border:2px solid transparent;border-radius:14px;padding:4px;background:#fff;text-align:left;font:inherit;cursor:pointer}
+.gc-pick button[aria-pressed=true]{border-color:#0C0E0D;box-shadow:0 0 0 2px #D2FF00}
+.gc-pick button:disabled{opacity:.35;cursor:not-allowed}
+.gc-pick img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;display:block}
+.gc-pick b{display:block;font:700 11.5px/1.25 var(--f-display);margin-top:4px;max-height:2.5em;overflow:hidden}
+.gc-pick small{font:700 11px var(--f-mono);color:var(--fg2)}
+.gc-pick .gk-ck{position:absolute;right:8px;top:8px;width:22px;height:22px;border-radius:50%;background:#D2FF00;display:none;place-items:center;font-size:13px}
+.gc-pick button[aria-pressed=true] .gk-ck{display:grid}
+.gc-tag{display:inline-block;font:800 10.5px var(--f-display);padding:2px 8px;border-radius:99px;background:#D2FF00;color:#000;margin-right:4px;vertical-align:middle}
+.gc-tag.s{background:#DCEBFF;color:#0B4FA0}
+`;
+function gcCss(){ if(document.getElementById('gcCss')) return; const st=document.createElement('style'); st.id='gcCss'; st.textContent=CSS; document.head.append(st); }
+
+/* ---------------- 小元件 ---------------- */
+const C1=['#FFD23F','#A970FF','#2FA8FF','#3DDC84','#FF6B8A','#D2FF00','#2FA8FF','#3DDC84','#FFD23F','#A970FF','#FF6B8A'];
+const CPOS=[[18,112],[60,120],[104,116],[146,110],[38,78],[84,82],[128,76],[164,70],[62,44],[108,40],[20,40]];
+function mach(n){ const m=h('div',{class:'gc-mach'}), d=h('div',{class:'dome'}); CPOS.slice(0,n==null?11:n).forEach((p,i)=>{ const c=h('span',{class:'gk-cap'}); c.style.cssText=`left:${p[0]}px;top:${p[1]}px;--c1:${C1[i]};--r:${i*37%90}deg;--d:${-i*.31}s`; d.append(c); });
+  m.append(d, h('div',{class:'body'}, h('div',{class:'pnl',text:'賞'}), h('div',{class:'knob'}), h('div',{class:'slot'}))); return m; }
+const tc=(k,cls,sub)=>h('span',{class:'gc-tc '+(k==='LAST'?'lst':'gc'+cls)}, k==='LAST'?'LAST':k, sub!=null?h('small',{text:String(sub)}):null);
+const tplCls=g=>'gt-'+(TPL.some(t=>t[0]===g?.tpl)?g.tpl:'neon');
+function prizeVal(pz){ const v=(pz.items||[]).map(x=>+x.val||0); if(!v.length||v.every(x=>!x)) return null; const lo=Math.min(...v), hi=Math.max(...v); return lo===hi?M$(lo):M$(lo)+' 起'; }
+function confetti(n){ const C=['#D2FF00','#FFD23F','#A970FF','#2FA8FF','#3DDC84','#FF6B8A','#fff']; if((typeof REDUCE!=="undefined"&&REDUCE)) return; for(let i=0;i<(n||70);i++){ const e=h('i',{class:'gc-cf'}); e.style.left=Math.random()*innerWidth+'px'; e.style.background=C[i%C.length]; document.body.append(e);
+  e.animate([{transform:'translateY(0) rotate(0)'},{transform:`translate(${Math.random()*80-40}px,${innerHeight+80}px) rotate(${Math.random()*900}deg)`}],{duration:1800+Math.random()*1400,delay:Math.random()*500,easing:'cubic-bezier(.2,.6,.4,1)',fill:'forwards'}).onfinish=()=>e.remove(); } }
+function ov(node,id,onClose){ const o=h('div',{class:'gc gc-ov'}); o.append(node); const close=()=>{ if(!o.isConnected) return; o.remove(); blDone(id); onClose&&onClose(); }; o.addEventListener('click',e=>{ if(e.target===o) close(); }); document.body.append(o); blPush(id,()=>{ o.remove(); onClose&&onClose(); }); return close; }
+
+/* ---------------- 資料 ---------------- */
+function gcSync(){ if(!S.db) return; const me=S.me||null; if(GC.uid===me) return;
+  GC.subs.forEach(f=>{ try{ f(); }catch(e){} }); GC.subs=[]; GC.uid=me; [GC.mine,GC.tix,GC.box,GC.res,GC.sbox,GC.stix].forEach(m=>m.clear()); GC.boxDoc=null;
+  const sub=(q,map,filt)=>GC.subs.push(q.onSnapshot(sn=>{ map.clear(); sn.docs.forEach(d=>{ const x={id:d.id,...d.data()}; if(!filt||filt(x)) map.set(d.id,x); }); gcRefresh(); },e=>console.warn('gacha',e&&e.code)));
+  sub(S.db.collection('gacha').where('pubAt','>',0),GC.pub);
+  if(me){ sub(S.db.collection('gacha').where('shop','==',me),GC.mine); sub(S.db.collection('gTix').where('uid','==',me),GC.tix); sub(S.db.collection('gbi').where('uid','==',me),GC.box);
+    sub(S.db.collection('gRes').where('shop','==',me),GC.res); sub(S.db.collection('gbi').where('shop','==',me),GC.sbox); sub(S.db.collection('gTix').where('shop','==',me),GC.stix);
+    GC.subs.push(S.db.doc('gBox/'+me).onSnapshot(d=>{ GC.boxDoc=d.exists?d.data():null; },()=>{})); }
+}
+let rfT=0; function gcRefresh(){ if(rfT) return; rfT=requestAnimationFrame(()=>{ rfT=0; try{ gcWinCheck(); }catch(e){}
+  try{ if(PAGE==='gacha') gcRender(); }catch(e){ console.warn(e); }
+  try{ if(PAGE==='raffle'&&S.playTab==='gacha'){ playSig=''; renderRafflePage(); } }catch(e){}
+  try{ if(PAGE==='me') renderMe(true); }catch(e){}
+  try{ if(adm.open&&S.admTab==='gacha') gcAdmDraw(); }catch(e){} }); }
+const gList=()=>[...GC.pub.values()].filter(g=>['on','pause','done'].includes(g.status)&&(approved(g.shop)||g.shop===S.me));
+const gLeft=g=>Math.max(0,(+g.total||0)-(+g.opened||0));
+const gSellLeft=g=>Math.max(0,(+g.total||0)-(+g.sold||0));
+const myTix=gid=>+(GC.tix.get(S.me+'_'+gid)?.n||0);
+const myTicketOrders=()=>{ try{ return buyerOrders(S.me).filter(o=>o.src==='gacha'||ordSo(o)?.src==='gacha'); }catch(e){ return []; } };
+const tOrdG=o=>(ordSo(o)?.gacha)||o.gacha||{};
+const gcOpenN=()=>gList().filter(g=>g.status==='on').length;
+window.gcSig=()=>JSON.stringify([GC.q.f,[...GC.pub.values()].map(g=>g.id+g.status+g.sold+g.opened),[...GC.tix.values()].map(t=>t.n)]);
+window.gcPlayInfo=()=>{ const L=gList().filter(g=>g.status!=='done'), hot=L.filter(g=>g.status==='on'&&gSellLeft(g)>0); const soon=hot.filter(g=>gLeft(g)/g.total<.25).length; return {n:L.length,hot:hot.length?hot.length+' 台'+(soon?' · '+soon+' 台快完抽':''):''}; };
+
+/* ---------------- 限時頁：列表 ---------------- */
+window.gcList=function(){ gcCss(); gcSync(); const F=GC.q.f||'all';
+  let L=gList(); const rank=g=>(g.status==='on'?0:g.status==='pause'?1:2);
+  if(F==='soon') L=L.filter(g=>g.status==='on'&&gLeft(g)/g.total<.3); else if(F==='last') L=L.filter(g=>g.last&&g.status!=='done'); else if(F==='plant') L=L.filter(g=>(g.prizes||[]).some(p=>p.kind==='plant')); else if(F==='goods') L=L.filter(g=>(g.prizes||[]).some(p=>p.kind==='goods')); else if(F==='mine') L=L.filter(g=>myTix(g.id)>0);
+  L.sort((a,b)=>rank(a)-rank(b)||gLeft(a)/a.total-gLeft(b)/b.total||(b.pubAt||0)-(a.pubAt||0));
+  const chips=[['all','全部'],['soon','快完抽'],['last','有最後賞'],['plant','植物大賞'],['goods','周邊'],...(S.me&&[...GC.tix.values()].some(t=>t.n>0)?[['mine','🎟 我有券']]:[])];
+  const box=h('div',{class:'gc'}, h('div',{class:'gc-lh'}, h('div',{}, h('h2',{text:'🎰 轉蛋機'}), h('p',{text:'認證賣家開的一番賞，撕到就是你的'})), h('button',{type:'button',onclick:gcRules,text:'怎麼玩？'})),
+    h('div',{class:'gc-chips'}, ...chips.map(([k,l])=>h('button',{type:'button','aria-pressed':String(F===k),onclick:()=>{ GC.q.f=k; playSig=''; renderRafflePage(); },text:l}))),
+    L.length?h('div',{class:'gc-list'}, ...L.map((g,i)=>gcCard(g,i))):h('div',{class:'gc-empty'}, h('b',{text:'🎰'}), h('h3',{text:F==='all'?'目前沒有轉蛋機':'沒有符合的轉蛋機'}), h('p',{text:'追蹤喜歡的溫室，開新的轉蛋機會通知你'})));
+  return box; };
+function gcCard(g,i){ const T=g.prizes||[], left=gLeft(g), pc=Math.round(left/(g.total||1)*100);
+  const hot=g.status==='done'?['已完抽','end']:g.status==='pause'?['暫停販售','end']:gSellLeft(g)===0?['券已賣完','end']:left/g.total<.25?['🔥 快完抽','']:g.startAt&&g.startAt>Date.now()?[fmtWhen(g.startAt)+' 開賣','soon']:['🔥 開抽中',''];
+  const fan=T.slice(0,3).map((p,j)=>{ const it=(p.items||[])[0]; return h('div',{class:'gk-pf',style:`transform:rotate(${[-6,3,-2][j]}deg);z-index:${3-j}`}, tc(p.k,tierOf(p.n,g.total)), h('img',{src:imgOf(it),alt:'',loading:'lazy'}), it&&it.val?h('span',{class:'fp',text:'$'+Number(it.val).toLocaleString()}):null); });
+  return h('button',{type:'button',class:'gc-card '+tplCls(g),onclick:()=>go('#/gacha/'+g.id)}, h('div',{class:'gk-bg'}), h('div',{class:'wm',text:String(i+1).padStart(2,'0')}), h('div',{class:'gk-m'}, mach(11)),
+    h('div',{class:'gk-top'}, h('span',{class:'gk-sh'}, avatar(g.shop,22), shopName(g.shop), isVerified(g.shop)?h('i',{text:'✓'}):null), h('span',{class:'gk-hot '+hot[1],text:hot[0]})),
+    h('h3',{text:g.title}), h('div',{class:'gk-pr'}, h('b',{text:'$'+g.price}), h('small',{text:'/ 抽'})),
+    h('div',{class:'fan'}, ...fan, h('div',{class:'more'}, g.last?h('b',{text:'+ 最後賞'}):null, '共 '+T.length+' 種獎')),
+    h('div',{class:'gk-ft'}, h('div',{class:'gc-ring',style:'--p:'+pc}, h('span',{}, h('b',{text:String(left)}), h('small',{text:'/'+g.total}))),
+      h('div',{class:'tl'}, ...T.slice(0,8).map(p=>h('div',{}, h('b',{text:p.k}), h('i',{}, h('u',{class:'gc'+tierOf(p.n,g.total),style:'width:'+((+g.left?.[p.k]||0)/p.n*100)+'%'}))))),
+      h('span',{class:'go',text:g.status==='on'?'去抽 →':'看看 →'}))); }
+const fmtWhen=t=>{ const d=new Date(t); return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
+function gcRules(){ const close=ov(h('div',{class:'gc-sheet'}, h('div',{class:'gr'}), h('h3',{text:'轉蛋機怎麼玩？'}),
+  ...[['🎟','選一台轉蛋機，買抽獎券（幾抽就買幾張）。買完會成立訂單，匯款給賣家'],['✅','賣家確認收款後，你打開網站就會收到抽獎券'],['✋','到「撕獎單」挑號碼，往右撕開就知道中了哪個賞'],['🎨','顏色代表機率：金橘＜5%、紫 5–10%、藍 10–30%、綠 30% 以上'],['🏆','撕到最後一張的人，另外拿「最後賞」'],['📦','抽到的獎品先放「轉蛋倉庫」，湊滿免運門檻再一起寄'],['🔒','每張獎單背後是什麼，開賣前就由系統鎖好，賣家也看不到；完抽後公開驗證碼']].map(([i,t])=>h('div',{class:'gc-row',style:'justify-content:flex-start'}, h('span',{style:'font-size:20px',text:i}), h('span',{text:t}))),
+  h('button',{type:'button',class:'gc-cta v',onclick:()=>close(),text:'知道了'})),'gcrules'); }
+
+/* ---------------- 頁面路由：#/gacha/ID、#/gacha/ID/b（撕獎單）、#/gacha/ID/o/SHOP~OID（抽獎券訂單） ---------------- */
+window.gcRoute=function(arg){ gcCss(); gcSync(); GC.route=String(arg||''); GC.bSel=GC.bSel&&GC.bSel.gid===GC.route.split('/')[0]?GC.bSel:{gid:GC.route.split('/')[0],L:[]}; gcRender(true); scrollTo(0,0); };
+function gcRender(force){ const box=$('#gachaPage'); if(!box) return; const [gid,mode,x]=GC.route.split('/'); const g=gget(gid);
+  const sig=JSON.stringify([GC.route,g&&[g.status,g.sold,g.opened,g.updatedAt],myTix(gid),S.me,mode==='o'?gcOrdSig(x):'',myTicketOrders().map(o=>o.id+o.status).join()]);
+  if(!force&&sig===GC.sig&&box.firstChild) return; if(!force&&mode==='b'&&box.firstChild&&GC.drawing) return; GC.sig=sig;
+  $('.gc-buy')?.remove(); $('.gc-tray')?.remove();
+  if(!g){ box.replaceChildren(h('div',{class:'gc gc-empty'}, h('b',{text:'🎰'}), h('h3',{text:GC.pub.size||GC.loaded?'找不到這台轉蛋機':'載入中…'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); GC.loaded=true; return; }
+  if(mode==='b') return gcBoard(box,g); if(mode==='o') return gcOrderPage(box,g,x);
+  gcMachine(box,g); }
+function gcMachine(box,g){ const T=g.prizes||[], left=gLeft(g), r4=T.filter(p=>tierOf(p.n,g.total)==='r4').reduce((a,p)=>a+(+g.left?.[p.k]||0),0);
+  const pend=myTicketOrders().filter(o=>tOrdG(o).id===g.id&&['confirmed','paid'].includes(o.status));
+  const hero=h('div',{class:'gc-hero'}, h('div',{class:'glow'}), mach(11), h('h1',{text:g.title}), h('div',{class:'who'}, avatar(g.shop,22), h('a',{href:'#/seller/'+g.shop,style:'color:inherit',text:shopName(g.shop)}), isVerified(g.shop)?h('span',{class:'vf',text:'認證賣家'}):null),
+    g.desc?h('div',{class:'desc',text:g.desc}):null,
+    h('div',{class:'gc-hst'}, h('div',{}, h('b',{text:String(left)}), h('small',{text:'剩餘抽數'})), h('div',{}, h('b',{text:'$'+g.price}), h('small',{text:'每抽'})), h('div',{}, h('b',{text:String(r4)}), h('small',{text:'極稀有還在'}))),
+    h('div',{class:'gc-bar'}, h('i',{style:'width:'+(left/g.total*100)+'%'})));
+  const leg=h('div',{class:'gc-leg'}, ...[['r4','極稀有','< 5%'],['r3','稀有','5–10%'],['r2','精選','10–30%'],['r1','常見','30%+']].map(([c,n,r])=>h('div',{class:'gc'+c}, n, h('small',{text:r}))));
+  const pz=T.map(p=>{ const t=tierOf(p.n,g.total), l=+g.left?.[p.k]||0, it=(p.items||[])[0], v=prizeVal(p);
+    return h('div',{class:'gc-pz'+(l?'':' out')}, h('div',{class:'lt gc'+t+(t==='r4'?' gc-shine':'')}, p.k, h('small',{text:'賞'})), h('div',{class:'gk-ph'}, h('img',{src:imgOf(it),alt:'',loading:'lazy'}), p.items.length>1&&p.kind==='plant'?h('span',{class:'gk-n',text:p.items.length+' 株'}):null),
+      h('div',{class:'in'}, h('b',{text:p.name||it?.name||''}), h('div',{class:'gk-m'}, h('span',{class:'gk-pc gc'+t,text:pctTxt(p.n,g.total)+' · '+TN[t]})), h('div',{class:'gk-m'}, h('span',{class:'gk-lf',text:'剩 '+l+' / '+p.n}), v?h('span',{class:'val',text:v}):h('span',{class:'vs',text:'未標價'})))); });
+  const lp=g.last?.items?.[0];
+  const sh=g.ship||{};
+  const rules=h('div',{class:'gc-rules'}, h('div',{}, h('i',{style:'font-style:normal',text:'🎟'}), h('span',{text:'每抽 '+M$(g.price)+'，買完先付款，賣家確認收款後就能撕'})), h('div',{}, h('i',{style:'font-style:normal',text:'📦'}), h('span',{text:'抽到的獎品先放進「轉蛋倉庫」，想寄時再勾選出貨'})),
+    h('div',{}, h('i',{style:'font-style:normal',text:'🚚'}), h('span',{text:sh.mode==='incl'?'抽獎券已含運，獎品出貨一律免運':(sh.free?'出貨滿 '+M$(sh.free)+'（獎品價格）免運；':'')+'這家還有沒寄出的訂單時也免運'})), h('div',{}, h('i',{style:'font-style:normal',text:'⏳'}), h('span',{text:'倉庫保管 '+(sh.keep||30)+' 天，到期自動用你上次的寄送方式出貨'})), h('div',{}, h('i',{style:'font-style:normal',text:'🎰'}), h('span',{text:'券只能用在這一台；每次最多買 '+(g.maxPer||10)+' 抽'})));
+  const fair=h('div',{class:'gc-fair'}, h('span',{text:'🔒'}), h('span',{}, g.reveal?'已公開所有獎單：':'開賣前已鎖定所有獎單，賣家也看不到。公平驗證碼 ', h('code',{text:String(g.commit||'').slice(0,8)+'…'+String(g.commit||'').slice(-4)}), g.reveal?h('button',{type:'button',class:'bf-lk',onclick:()=>gcVerify(g),text:' 驗證'}):'，完抽後公開'));
+  box.replaceChildren(h('div',{class:'gc gc-pg '+tplCls(g)}, hero, h('div',{class:'gc-sec',text:'機率顏色'}), leg, h('div',{class:'gc-sec'}, '賞一覽', h('em',{text:T.length+' 種 · 共 '+g.total+' 抽'})), ...pz,
+    lp?h('div',{class:'gc-sec',text:'🏆 最後賞'}):null, lp?h('div',{class:'gc-last'}, h('div',{}, h('img',{src:imgOf(lp),alt:''}), h('div',{}, h('span',{class:'gk-lb',text:'LAST ONE'}), h('b',{text:g.last.name||lp.name}), h('p',{text:g.lastWin?'已經被 '+nameOf(g.lastWin.uid)+' 拿走':'撕到最後一張的人，另外加送'+(lp.val?'（價值 '+M$(lp.val)+'）':'')})))):null,
+    rules, fair));
+  // 底部購買列
+  const bar=h('div',{class:'gc gc-buy '+tplCls(g)}); const tix=myTix(g.id), sl=gSellLeft(g);
+  if(pend.length) bar.append(h('button',{type:'button',class:'pend',onclick:()=>go('#/gacha/'+g.id+'/o/'+pend[0].shop+'~'+pend[0].id),text:'🎟 '+pend.length+' 筆抽獎券'+(pend[0].status==='paid'?'等賣家確認 →':'待付款 → 去付款')}));
+  if(tix>0) bar.append(h('button',{type:'button',class:'go tix',onclick:()=>go('#/gacha/'+g.id+'/b')}, '🎟 '+tix+' 張抽獎券', h('small',{text:'去撕獎單'})));
+  else if(!pend.length){
+    if(g.status!=='on'||sl<=0) bar.append(h('button',{type:'button',class:'go off',disabled:true,text:g.status==='done'?'已完抽，謝謝參與':g.status==='pause'?'賣家暫停販售中':'抽獎券已賣完'}));
+    else if(g.shop===S.me) bar.append(h('button',{type:'button',class:'go off',onclick:()=>openAdmin&&go('#admin/gacha'),text:'這是你的轉蛋機 · 到後台管理'}));
+    else { let q=Math.min(GC.q.qty||3,sl,g.maxPer||10); const QS=[1,3,5,10].filter(n=>n<=(g.maxPer||10));
+      const btn=h('button',{type:'button',class:'go'}), qs=h('div',{class:'gk-qs'});
+      const paint=()=>{ qs.replaceChildren(...QS.map(n=>h('button',{type:'button','aria-pressed':String(q===n),disabled:n>sl,onclick:()=>{ q=n; GC.q.qty=n; paint(); },text:String(n)}))); btn.replaceChildren('買抽獎券', h('small',{text:q+' 抽 · '+M$(q*g.price)})); };
+      btn.onclick=()=>gcBuySheet(g,q); paint(); bar.append(qs,btn); } }
+  if(bar.childElementCount) document.body.append(bar); }
+function gcVerify(g){ const ks=g.reveal?.ks||[]; const salt=g.reveal?.salt||''; const close=ov(h('div',{class:'gc-sheet'}, h('div',{class:'gr'}), h('h3',{text:'公平驗證'}), h('div',{class:'gc-note g'}, h('span',{text:'開賣前公開的驗證碼，是用「鹽值＋每張獎單的賞」算出來的。下面重新計算，一樣就代表沒被動過。'})),
+  h('div',{class:'gc-row'}, h('span',{text:'開賣前'}), h('code',{style:'font-size:11px;word-break:break-all',text:g.commit||''})), h('div',{class:'gc-row',id:'gcVr'}, h('span',{text:'重新計算'}), h('code',{style:'font-size:11px',text:'計算中…'})),
+  h('div',{class:'gc-row',style:'display:block;font:600 12px var(--f-mono);word-break:break-all'}, ks.map((k,i)=>(i+1)+':'+k).join('  ')), h('button',{type:'button',class:'gc-cta',onclick:()=>close(),text:'關閉'})),'gcver');
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+ks.join(''))).then(b=>{ const hx=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); const el=document.querySelector('#gcVr code'); if(el){ el.textContent=hx; el.parentElement.append(h('b',{style:'color:'+(hx===g.commit?'#1F7A3A':'#c00'),text:hx===g.commit?' ✓ 一樣':' ✗ 不一樣'})); } }); }
+
+/* ---------------- 買抽獎券 ---------------- */
+function gcBuySheet(g,q0){ if(needLogin()||needPhone()) return; let q=q0; const sl=()=>Math.min(gSellLeft(g),g.maxPer||10);
+  const qEl=h('b',{text:String(q)}), tot=h('b',{style:'font-size:22px'}), paint=()=>{ qEl.textContent=String(q); tot.textContent=M$(q*g.price); };
+  const sh=g.ship||{}, btn=h('button',{type:'button',class:'gc-cta v',text:'確認下單'});
+  const close=ov(h('div',{class:'gc-sheet'}, h('div',{class:'gr'}), h('h3',{text:'買抽獎券'}),
+    h('div',{class:'gc-row'}, h('span',{text:'抽數'}), h('div',{class:'gc-step'}, h('button',{type:'button',onclick:()=>{ q=Math.max(1,q-1); paint(); },text:'−'}), qEl, h('button',{type:'button',onclick:()=>{ q=Math.min(sl(),q+1); paint(); },text:'＋'}))),
+    h('div',{class:'gc-row'}, h('span',{text:'每抽'}), h('b',{text:M$(g.price)})),
+    h('div',{class:'gc-note'}, h('span',{text:'📦'}), h('span',{text:sh.mode==='incl'?'抽獎券已含運，獎品出貨不用再付運費。':'獎品先放進轉蛋倉庫，現在不用付運費。'+(sh.free?'出貨滿 '+M$(sh.free)+' 免運。':'')})),
+    h('div',{class:'gc-note g'}, h('span',{text:'🎰'}), h('span',{text:'這些券只能用在「'+g.title+'」。下單後名額先保留給你，'+48+' 小時內沒付款會自動取消。'})),
+    h('div',{class:'gc-row',style:'background:#0C0E0D;color:#fff'}, h('span',{text:'應付'}), tot), btn),'gcbuy');
+  paint();
+  btn.onclick=async()=>{ if(!rateOK('order')) return; btn.disabled=true; btn.textContent='送出中…'; const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    try{ await saveSocial({orders:{...mySocial().orders,[id]:{seller:g.shop,src:'gacha',gacha:{id:g.id,n:q},items:[],total:q*g.price,payMethod:'transfer',at:Date.now()}}}); close(); const m=document.querySelector('.gc-pg .gc-mach'); m&&m.classList.add('spin'); vibe(30);
+      setTimeout(()=>go('#/gacha/'+g.id+'/o/'+g.shop+'~'+id),900); }catch(e){ btn.disabled=false; btn.textContent='確認下單'; toast('送出失敗，請再試一次'); } }; }
+
+/* ---------------- 抽獎券訂單頁 ---------------- */
+function gcOrdFind(x){ const [shop,oid]=String(x||'').split('~'); let o=null; try{ o=buyerOrders(S.me).find(y=>y.id===oid&&y.shop===shop)||null; }catch(e){} return {shop,oid,o,so:S.sorders.get(shop+'/'+oid)||null,deal:S.deals?.get(shop+'_'+oid)||null}; }
+function gcOrdSig(x){ const r=gcOrdFind(x); return JSON.stringify([r.o?.status,r.so?.status,!!r.deal?.bank,r.deal?.pay?.at]); }
+function gcOrderPage(box,g,x){ const {shop,oid,o,so,deal}=gcOrdFind(x); const st=o?.status||'pending', G=so?.gacha||o?.gacha||{}, n=G.n||0, tot=so?.total??(n*g.price);
+  const cancelled=st==='cancelled', done=['preparing','shipped','done'].includes(st)||so?.granted;
+  const lab=cancelled?['gk-no','已取消']:done?['gk-ok','已發券']:st==='paid'?['','已付款 · 等賣家確認']:st==='pending'?['','成立中…']:['','待付款'];
+  const left=so?Math.max(0,(so.confirmedAt||so.at||Date.now())+48*36e5-Date.now()):0;
+  const cd=h('div',{class:'gc-cd'}); const tick=()=>{ const t=Math.max(0,(so?.confirmedAt||so?.at||0)+48*36e5-Date.now()), H=Math.floor(t/36e5), m=Math.floor(t%36e5/6e4), s=Math.floor(t%6e4/1e3); cd.replaceChildren(h('span',{}, String(H).padStart(2,'0'), h('small',{text:'時'})), h('em',{text:':'}), h('span',{}, String(m).padStart(2,'0'), h('small',{text:'分'})), h('em',{text:':'}), h('span',{}, String(s).padStart(2,'0'), h('small',{text:'秒'}))); }; tick();
+  clearInterval(GC.cdT); if(!cancelled&&!done&&st!=='paid') GC.cdT=setInterval(()=>{ if(!cd.isConnected){ clearInterval(GC.cdT); return; } tick(); },1000);
+  const hd=h('div',{class:'gc-o2-hd'}, h('span',{class:'lab2 '+lab[0]}, (!cancelled&&!done)?h('i',{}):null, lab[1]), h('h2',{text:cancelled?'訂單已取消':done?'抽獎券到手！':'訂單成立！'}),
+    h('div',{style:'font-size:13px;opacity:.8',text:cancelled?(so?.cancelWhy||'這筆訂單沒有成立'):done?'去撕獎單吧':st==='paid'?'賣家對帳後就會發券':'付款期限內匯款，賣家確認後就發券'}), (!cancelled&&!done&&st!=='paid'&&so)?cd:null);
+  const bc=h('div',{class:'gk-bc'}); for(let i=0;i<46;i++) bc.append(h('i',{style:'width:'+[1,2,3,1,2,1,4][(i*7+oid.length)%7]+'px'}));
+  const tkt=h('div',{class:'gc-tkt'}, h('div',{class:'gk-a'}, h('div',{class:'r1'}, h('div',{class:'gk-mini'}, mach(9)), h('div',{}, h('b',{text:g.title}), h('small',{text:shopName(g.shop)+' · 抽獎券'})), h('div',{class:'qx'}, h('small',{text:'×'}), String(n||'–'))),
+      h('div',{class:'gk-ln'}, h('span',{text:'每抽'}), h('b',{text:M$(g.price)})), h('div',{class:'gk-ln'}, h('span',{text:'運費'}), h('b',{class:'gk-fr',text:g.ship?.mode==='incl'?'已含運':'出貨時再算'+(g.ship?.free?' · 滿 $'+Number(g.ship.free).toLocaleString()+' 免運':'')}))),
+    h('div',{class:'b'}, h('div',{class:'tot'}, h('span',{text:'應付金額'}), h('b',{text:M$(tot)})), bc, h('div',{class:'no2'}, h('span',{text:oid}), h('span',{text:so?fmtWhen(so.at):''}))));
+  const step=k=>({pending:0,confirmed:1,paid:2,preparing:3,shipped:3,done:3,cancelled:-1})[k];
+  const sv=step(st); const tl=h('div',{class:'gc-tl'}, ...[['✓','下單'],['💸','付款'],['🧾','賣家確認'],['🎟','撕獎單']].map(([i,t],k)=>h('div',{class:k<sv||(k===sv&&k===3)?'dn':k===sv?'on':''}, h('i',{text:k<sv?'✓':i}), t)));
+  const kids=[hd,tkt,cancelled?null:tl];
+  if(!cancelled&&!done){
+    if(deal?.bank&&st==='confirmed'){ const b=deal.bank; const acct=String(b.account||b.acct||b.no||'');
+      const five=h('input',{inputmode:'numeric',maxlength:5,placeholder:'12345'});
+      kids.push(h('div',{class:'gc-bank'}, h('div',{class:'bt'}, h('span',{text:[b.bankCode||b.code,b.bank||b.bankName].filter(Boolean).join(' ')||'匯款帳號'}), h('span',{class:'gk-chip'})), h('div',{class:'acc'}, h('span',{text:acct||'（賣家還沒填帳號，請聊聊詢問）'}), acct?h('button',{type:'button',onclick:()=>copyText(acct),text:'複製'}):null), h('div',{class:'who2'}, h('span',{text:b.name||b.holder||shopName(g.shop)}), h('span',{text:'金額 '+M$(tot)}))),
+        h('div',{class:'gc-five'}, h('label',{text:'匯款帳號末五碼'}), five),
+        h('button',{type:'button',class:'gc-cta v',style:'margin-top:12px',onclick:async e=>{ const v=five.value.trim(); if(!/^\d{3,5}$/.test(v)){ toast('請填帳號末五碼'); five.focus(); return; } e.target.disabled=true; await updDeal({shop,id:oid},{pay:{method:'transfer',last5:v,amount:tot,time:new Date().toISOString().slice(0,16),note:'',at:Date.now()}},'已通知賣家，等他對帳'); e.target.disabled=false; },text:'我已付款，通知賣家'}),
+        h('div',{class:'gc-fine',text:'賣家確認收款後，你打開網站就會收到抽獎券'})); }
+    else if(st==='paid') kids.push(h('div',{class:'gc-note g',style:'margin-top:14px'}, h('span',{text:'✅'}), h('span',{text:'已送出匯款資訊（末五碼 '+(deal?.pay?.last5||'')+'），賣家對帳後就會發券，會推播通知你。'})));
+    else kids.push(h('div',{class:'gc-note',style:'margin-top:14px'}, h('span',{text:'⏳'}), h('span',{text:'訂單成立中，幾秒後會顯示匯款帳號…'})));
+    kids.push(h('div',{class:'row',style:'gap:8px;margin-top:12px'}, h('button',{type:'button',class:'gc-cta ghost',style:'flex:1;background:#fff',onclick:()=>{ const oo=buyerOrders(S.me).find(y=>y.id===oid); if(oo) openOrder(oo); },text:'訂單詳情・聊聊'}), st==='confirmed'?h('button',{type:'button',class:'gc-cta ghost',style:'flex:1;background:#fff;color:#c33',onclick:async()=>{ if(!confirm('取消這筆抽獎券訂單？名額會放回去。')) return; const oo=buyerOrders(S.me).find(y=>y.id===oid); if(oo) await cancelOrder(oo); },text:'取消訂單'}):null)); }
+  else if(done) kids.push(h('button',{type:'button',class:'gc-cta v',style:'margin-top:14px',onclick:()=>go('#/gacha/'+g.id+'/b'),text:'去撕獎單 →'}));
+  else kids.push(h('button',{type:'button',class:'gc-cta',style:'margin-top:14px',onclick:()=>go('#/gacha/'+g.id),text:'回轉蛋機'}));
+  box.replaceChildren(h('div',{class:'gc gc-pg '+tplCls(g)}, ...kids)); }
+
+/* ---------------- 獲得抽獎券（畫面正中間） ---------------- */
+function gcWinCheck(){ if(!S.me||document.querySelector('.gc-win')||document.querySelector('.gc-tear')) return;
+  const t=[...GC.tix.values()].find(t=>t.news&&t.news.at>(+t.seen||0)&&!GC.shown.has(t.id+t.news.at)); if(!t) return; GC.shown.add(t.id+t.news.at);
+  const g=gget(t.gid); const cls=tplCls(g); const n=t.news.n;
+  const cnt=h('div',{class:'cnt',text:'×0'});
+  const w=h('div',{class:'gc gc-win '+cls}, h('div',{class:'wc'}, h('div',{class:'fan'}, h('div',{class:'gk-ft'}), h('div',{class:'gk-ft'}), h('div',{class:'gk-ft'})), h('h2',{text:'獲得抽獎券'}), cnt, h('p',{text:shopName(t.shop)+' 已確認收款 · '+(g?.title||t.title||'')}),
+    h('button',{type:'button',class:'gc-cta v',onclick:()=>{ close(); go('#/gacha/'+t.gid+'/b'); },text:'去撕獎單 →'}), h('button',{type:'button',class:'gc-cta ghost',style:'color:#fff',onclick:()=>close(),text:'稍後再抽'})));
+  const close=()=>{ w.remove(); blDone('gcwin'); try{ S.db.doc('gTix/'+t.id).update({seen:t.news.at}); }catch(e){} };
+  document.body.append(w); blPush('gcwin',()=>{ w.remove(); try{ S.db.doc('gTix/'+t.id).update({seen:t.news.at}); }catch(e){} }); confetti(70); vibe([30,40,30]);
+  let k=0; const iv=setInterval(()=>{ k++; cnt.textContent='×'+Math.min(k,n); if(k>=n) clearInterval(iv); },Math.max(60,600/n)); }
+
+/* ---------------- 撕獎單：獎單牆 ---------------- */
+const rot=i=>((i*73)%9-4)*.55;
+function gcBoard(box,g){ const tix=myTix(g.id), sel=GC.bSel.L=GC.bSel.L.filter(s=>!(g.open||{})[s]).slice(0,tix); const open=g.open||{};
+  if(!S.me){ box.replaceChildren(h('div',{class:'gc gc-empty'}, h('h3',{text:'請先登入'}))); return; }
+  const stock=h('div',{class:'gc-stock'}, ...(g.prizes||[]).map(p=>{ const l=+g.left?.[p.k]||0, t=tierOf(p.n,g.total), v=prizeVal(p); return h('div',{class:'gc-sk'+(l?'':' z')}, h('div',{class:'im'}, h('img',{src:imgOf(p.items?.[0]),alt:''}), tc(p.k,t)), h('div',{class:'gk-ct'}, h('b',{text:'剩 '+l}), h('span',{text:'/ '+p.n})), v?h('div',{class:'pv',text:v}):h('div',{class:'pv nv',text:'未標價'}), h('div',{class:'gk-sb'}, h('u',{class:'gc'+t,style:'width:'+(l/p.n*100)+'%'}))); }));
+  const grid=h('div',{class:'gc-grid'+(GC.dim?' dim':'')});
+  const paintSel=()=>{ grid.querySelectorAll('.gc-t:not(.op)').forEach(b=>{ const k=sel.indexOf(+b.dataset.n); b.setAttribute('aria-pressed',String(k>=0)); b.querySelector('.od').textContent=k>=0?String(k+1):''; }); trayPaint(); };
+  for(let i=1;i<=g.total;i++){ const o=open[i]; const b=h('button',{type:'button',class:'gc-t'+(o?' op':''),'data-n':String(i),'aria-label':o?'第 '+i+' 張，已撕，'+o+' 賞':'第 '+i+' 張',style:'--rt:'+(o?0:rot(i))+'deg'}, h('span',{class:'gk-pp'}));
+    if(o){ const pz=(g.prizes||[]).find(p=>p.k===o); b.append(h('span',{class:'stp '+(pz?tierOf(pz.n,g.total):'r1'),text:o}), h('span',{class:'gk-no',text:String(i)})); b.disabled=true; }
+    else { b.append(h('span',{class:'gk-no',text:String(i).padStart(2,'0')}), h('span',{class:'od'})); b.onclick=()=>{ const k=sel.indexOf(i); if(k>=0) sel.splice(k,1); else { if(sel.length>=tix){ toast(tix?'你只有 '+tix+' 張券':'先買抽獎券才能撕'); return; } sel.push(i); vibe(8); } paintSel(); }; }
+    grid.append(b); }
+  const sw=h('button',{type:'button',class:'gc-sw','aria-pressed':String(!!GC.dim),'aria-label':'淡化已撕'}); sw.onclick=()=>{ GC.dim=!GC.dim; sw.setAttribute('aria-pressed',String(GC.dim)); grid.classList.toggle('dim',GC.dim); };
+  const free=()=>[...Array(g.total)].map((_,i)=>i+1).filter(s=>!open[s]&&!sel.includes(s));
+  const rnd=h('button',{type:'button',onclick:()=>{ const need=tix-sel.length; if(need<=0){ toast('已經選滿了'); return; } let k=0; const iv=setInterval(()=>{ const F=free(); if(k++>=need||!F.length){ clearInterval(iv); return; } sel.push(F[Math.floor(Math.random()*F.length)]); paintSel(); vibe(8); },180); },text:'🎲 隨機幫我挑'});
+  box.replaceChildren(h('div',{class:'gc '+tplCls(g)}, h('div',{class:'gc-board'},
+    h('div',{class:'row',style:'justify-content:space-between;padding:6px 0'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>go('#/gacha/'+g.id),text:'‹ '+g.title})),
+    h('div',{class:'gc-b2h'}, h('div',{}, h('h2',{}, tix?['挑 ',h('em',{text:String(tix)}),' 張',h('br'),'撕開看看']:['獎單牆']), h('p',{text:tix?'每張背後的獎，開賣前就鎖好了':g.status==='done'?'已經完抽':'買抽獎券後就能來撕'})), h('div',{class:'gc-stub'}, h('b',{text:String(tix)}), h('small',{text:'TICKETS'}))),
+    stock,
+    h('div',{class:'gc-wall'}, h('div',{class:'gk-wh'}, h('b',{}, '獎單牆', h('small',{text:'剩 '+gLeft(g)+' / '+g.total})), tix?rnd:null), h('div',{class:'gc-wk'}, h('span',{}, h('i',{class:'gk-a'}), '還沒撕'), h('span',{}, h('i',{class:'b'}), '已撕開'), h('label',{}, '淡化已撕', sw)), grid))));
+  // 底部選號列
+  const tray=h('div',{class:'gc gc-tray '+tplCls(g)}), slots=h('div',{class:'sl'}), go2=h('button',{type:'button'}); tray.append(slots,go2);
+  function trayPaint(){ slots.replaceChildren(...Array.from({length:Math.max(tix,1)},(_,i)=>sel[i]?h('span',{class:'f',text:String(sel[i]).padStart(2,'0')}):h('span',{text:'?'}))); const r=tix-sel.length;
+    go2.disabled=!tix||r>0&&!sel.length; go2.textContent=!tix?'先買抽獎券':sel.length?'撕開 '+sel.length+' 張 →':'再挑 '+r+' 張'; }
+  go2.onclick=()=>{ if(!tix){ go('#/gacha/'+g.id); return; } if(!sel.length) return; gcDraw(g,[...sel],go2); };
+  if(tix||g.status!=='done') document.body.append(tray); trayPaint(); }
+async function gcDraw(g,slots,btn){ if(GC.drawing) return; GC.drawing=true; btn.disabled=true; btn.textContent='撕開中…';
+  const ref=S.db.collection('gDraw').doc(); let un=null, to=null;
+  const fin=()=>{ GC.drawing=false; un&&un(); clearTimeout(to); };
+  try{ await ref.set({uid:S.me,gid:g.id,slots,at:Date.now()}); }catch(e){ fin(); btn.disabled=false; toast('送出失敗，請再試一次'); gcRender(true); return; }
+  to=setTimeout(()=>{ fin(); toast('網路有點慢，結果稍後會出現在轉蛋倉庫'); gcRender(true); },25000);
+  un=ref.onSnapshot(d=>{ const x=d.data(); if(!x||!x.st) return; fin();
+    if(x.st==='err'){ toast(x.err||'沒有撕成功'); if(x.taken) GC.bSel.L=GC.bSel.L.filter(s=>!x.taken.includes(s)); gcRender(true); return; }
+    GC.bSel.L=[]; gcTear(g,x.res||[],x.last||null); },()=>{}); }
+
+/* ---------------- 撕開動畫 ---------------- */
+const RAY={r4:['rgba(255,210,63,.55)','#FFD23F'],r3:['rgba(169,112,255,.5)','#C9A4FF'],r2:['rgba(47,168,255,.45)','#8FD0FF'],r1:['rgba(61,220,132,.35)','#9FF0C3']};
+function gcTear(g,res,last){ const tz=k=>{ const p=(g.prizes||[]).find(x=>x.k===k); return p?tierOf(p.n,g.total):'r1'; };
+  const T=h('div',{class:'gc gc-tear '+tplCls(g)}), big=h('div',{class:'gc-big'}), face=h('div',{class:'face'}), fL=h('div',{class:'L'}), fT=h('div',{class:'gk-tg'}); face.append(fL,fT);
+  const strip=h('div',{class:'gk-strip'}, h('span',{text:g.title.slice(0,10)}), h('span',{class:'arr'}, '往右撕開 ', h('i',{text:'⟶'}))), prog=h('div',{class:'prog'}), dn=h('span',{class:'nn'});
+  big.append(face, h('div',{class:'gk-door l'}, h('span',{class:'gk-lg',text:'VE'}), dn), h('div',{class:'gk-door r'}, h('span',{class:'gk-lg',text:'IN'}), h('span',{class:'nn',text:g.total+' 抽'})), strip, prog);
+  const ctr=h('div',{class:'ctr'}), rk=h('div',{class:'gk-rk'}), hint=h('div',{class:'gk-hint',text:'👆 按住上方的撕條往右拉（或點一下）'}), prize=h('div',{class:'gc-prize'}), flash=h('div',{class:'gc-flash'});
+  const skip=h('button',{type:'button',class:'skip',text:'全部翻開'});
+  T.append(h('div',{class:'rays'}), rk, ctr, skip, big, hint, prize, flash); document.body.append(T); blPush('gctear',()=>{ T.remove(); gcRender(true); });
+  let i=0, busy=false;
+  const set=()=>{ const r=res[i], t=tz(r.k); big.className='gc-big nt'; void big.offsetWidth; requestAnimationFrame(()=>requestAnimationFrame(()=>big.classList.remove('nt')));
+    T.classList.remove('fx'); prize.classList.remove('on'); hint.style.opacity=.8; prog.style.width='0'; strip.style.transform='';
+    face.className='face gc'+t+(t==='r4'?' gc-shine':''); fL.textContent=r.k; const pz=(g.prizes||[]).find(x=>x.k===r.k); fT.textContent=TN[t]+' · '+(pz?pctTxt(pz.n,g.total):''); dn.textContent='No.'+String(r.slot).padStart(2,'0'); ctr.textContent=(i+1)+' / '+res.length; busy=false; };
+  const burst=(c,n)=>{ if((typeof REDUCE!=="undefined"&&REDUCE)) return; for(let k=0;k<n;k++){ const e=h('i',{class:'gc-pt'}); e.style.background=c[k%c.length]; T.append(e); const a=Math.random()*Math.PI*2, d=120+Math.random()*220;
+    e.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(.2)`,opacity:0}],{duration:900+Math.random()*700,easing:'cubic-bezier(.1,.7,.3,1)',fill:'forwards'}).onfinish=()=>e.remove(); } };
+  const reveal=()=>{ const r=res[i], t=tz(r.k); T.style.setProperty('--ray',RAY[t][0]); T.style.setProperty('--ray2',RAY[t][1]);
+    if(t==='r4'||t==='r3'){ T.classList.add('fx'); rk.textContent=t==='r4'?'★ ULTRA RARE ★':'RARE'; flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go'); big.classList.add('shk'); setTimeout(()=>big.classList.remove('shk'),600); burst(t==='r4'?['#FFD23F','#FF7A00','#fff','#D2FF00']:['#A970FF','#C9A4FF','#fff'],t==='r4'?60:34); if(t==='r4') confetti(90); vibe(t==='r4'?[60,40,120]:[40,30,40]); }
+    else { burst(t==='r2'?['#2FA8FF','#fff']:['#3DDC84','#fff'],18); vibe(20); }
+    prize.replaceChildren(h('img',{src:imgOf(r),alt:''}), h('div',{style:'min-width:0'}, h('b',{text:r.k+' 賞 · '+r.name}), h('small',{}, r.val?h('span',{class:'pp2',text:M$(r.val)}):null, TN[t]+' · 已放進倉庫')), h('button',{type:'button',class:'nx',onclick:next,text:i<res.length-1?'下一張':last?'🏆 還有…':'看結果'}));
+    setTimeout(()=>prize.classList.add('on'),450); };
+  const tear=async()=>{ if(busy||big.classList.contains('t1')) return; busy=true; hint.style.opacity=0; big.classList.add('t1'); vibe(15); await new Promise(r=>setTimeout(r,420)); big.classList.add('t2','rev'); await new Promise(r=>setTimeout(r,520)); reveal(); };
+  function next(){ if(i<res.length-1){ i++; set(); } else if(last&&!T.querySelector('.gc-lastfx')){ const L=h('div',{class:'gc-lastfx'}, h('div',{class:'gk-ring'}), h('div',{class:'lc'}, h('div',{class:'gk-k',text:'LAST ONE'}), h('h2',{text:'最後賞'}), h('div',{class:'im'}, h('img',{src:imgOf(last),alt:''})), h('b',{text:last.name}), h('small',{style:'opacity:.7',text:'你撕開了最後一張，全部抽完！'}), h('button',{type:'button',class:'gc-cta v',style:'margin-top:16px',onclick:()=>{ L.remove(); summary(); },text:'太好了 →'})));
+      T.append(L); confetti(120); vibe([80,50,80,50,160]); } else summary(); }
+  function summary(){ const all=[...res,...(last?[last]:[])]; const sp=h('div',{class:'gc-res'}, h('h2',{text:'本次抽到 '+all.length+' 件'}), ...all.map((r,k)=>{ const t=r.k==='LAST'?'r4':tz(r.k); return h('div',{class:'gc-ri',style:'animation-delay:'+k*.1+'s'}, h('div',{class:'lt '+(r.k==='LAST'?'':'gc'+t),style:r.k==='LAST'?'background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d)':'',text:r.k==='LAST'?'🏆':r.k}), h('img',{src:imgOf(r),alt:''}), h('div',{style:'min-width:0'}, h('b',{text:r.name}), h('small',{text:(r.slot?'No.'+String(r.slot).padStart(2,'0')+' · ':'最後賞 · ')+(r.k==='LAST'?'':TN[t]+' · ')+(r.val?M$(r.val):'未標價')}))); }),
+      h('div',{class:'gc-note g',style:'margin-top:6px'}, h('span',{text:'📦'}), h('span',{text:'已經放進你的轉蛋倉庫，可以繼續抽，湊滿再一起寄'})),
+      h('button',{type:'button',class:'gc-cta v',onclick:()=>{ closeT(); S.meTab='gacha'; GC.meSeg='box'; go('#/me/gacha'); },text:'打開轉蛋倉庫'}), h('button',{type:'button',class:'gc-cta ghost',onclick:()=>{ closeT(); go(myTix(g.id)?'#/gacha/'+g.id+'/b':'#/gacha/'+g.id); },text:myTix(g.id)?'繼續撕（還有 '+myTix(g.id)+' 張）':'回轉蛋機'}));
+    T.append(sp); }
+  const closeT=()=>{ T.remove(); blDone('gctear'); gcRender(true); };
+  skip.onclick=()=>{ summary(); };
+  { let x0=null, moved=false; const mv=e=>{ if(x0==null) return; const d=Math.max(0,e.clientX-x0); if(d>8) moved=true; prog.style.width=Math.min(250,d)+'px'; strip.style.transform='rotate('+Math.min(8,d/25)+'deg)'; if(d>140){ end(); tear(); } };
+    const end=()=>{ x0=null; strip.style.transform=''; prog.style.width='0'; removeEventListener('pointermove',mv,true); removeEventListener('pointerup',up,true); removeEventListener('pointercancel',end,true); };
+    const up=()=>{ const tap=!moved; end(); if(tap) tear(); };
+    strip.addEventListener('pointerdown',e=>{ e.preventDefault(); x0=e.clientX; moved=false; addEventListener('pointermove',mv,true); addEventListener('pointerup',up,true); addEventListener('pointercancel',end,true); });
+    T.addEventListener('dragstart',e=>e.preventDefault());
+    big.addEventListener('click',e=>{ if(!strip.contains(e.target)) tear(); }); }
+  set(); }
+
+/* ---------------- 會員主頁：轉蛋卡片 ＋ 「轉蛋」分頁 ---------------- */
+const boxItems=()=>[...GC.box.values()].filter(x=>x.st==='box').sort((a,b)=>a.exp-b.exp);
+window.gcMeCount=()=>{ gcSync(); return boxItems().length+[...GC.tix.values()].reduce((a,t)=>a+(+t.n||0),0); };
+window.gcMeCard=function(){ gcCss(); gcSync(); if(!S.me) return null;
+  const tix=[...GC.tix.values()].filter(t=>t.n>0), B=boxItems(), pend=myTicketOrders().filter(o=>['confirmed','paid'].includes(o.status));
+  const sp=[...GC.res.values()].filter(r=>r.st==='held'), payN=sp.filter(r=>{ const o=S.sorders.get(r.shop+'/'+r.oid); try{ return fillOrder({...o,id:r.oid,shop:r.shop}).status==='paid'; }catch(e){ return false; } }).length;
+  if(!tix.length&&!B.length&&!pend.length&&!sp.length) return null;
+  const rows=[];
+  if(tix.length){ const n=tix.reduce((a,t)=>a+t.n,0), t0=tix[0], g=gget(t0.gid); rows.push(h('button',{type:'button',class:'gc-mr',onclick:()=>go('#/gacha/'+t0.gid+'/b')}, h('div',{class:'gc-tix3'}, h('span'), h('span'), h('span')), h('div',{class:'gk-t'}, h('b',{text:n+' 張抽獎券還沒撕'}), h('small',{text:(g?.title||t0.title||'')+(tix.length>1?' 等 '+tix.length+' 台':'')+' · '+shopName(t0.shop)})), h('span',{class:'go v',text:'去撕 →'}))); }
+  if(pend.length){ const o=pend[0], G=tOrdG(o); rows.push(h('button',{type:'button',class:'gc-mr',onclick:()=>go('#/gacha/'+G.id+'/o/'+o.shop+'~'+o.id)}, h('span',{style:'font-size:26px;width:52px;text-align:center',text:'💸'}), h('div',{class:'gk-t'}, h('b',{text:pend.length+' 筆抽獎券'+(o.status==='paid'?'等賣家確認':'待付款')}), h('small',{text:(G.title||'')+' · '+M$(ordSo(o)?.total||o.total)})), h('span',{class:'go o',text:o.status==='paid'?'查看':'去付款'}))); }
+  if(B.length){ const val=B.reduce((a,x)=>a+(+x.val||0),0), soon=B[0], d=Math.max(0,Math.ceil((soon.exp-Date.now())/864e5)); rows.push(h('button',{type:'button',class:'gc-mr',onclick:()=>{ S.meTab='gacha'; GC.meSeg='box'; go('#/me/gacha'); }}, h('div',{class:'gc-th'}, ...B.slice(0,4).map(x=>h('img',{src:imgOf(x),alt:''}))), h('div',{class:'gk-t'}, h('b',{text:'轉蛋倉庫 '+B.length+' 件'}), h('small',{text:(val?'價值 '+M$(val)+' · ':'')+'最早 '+d+' 天後到期'})), h('span',{class:'go',text:'出貨'}))); }
+  if(sp.length){ rows.push(h('button',{type:'button',class:'gc-mr',onclick:()=>{ S.gcATab='o'; go('#admin/gacha'); }}, h('span',{style:'font-size:26px;width:52px;text-align:center',text:'🧾'}), h('div',{class:'gk-t'}, h('b',{text:(payN?payN+' 筆已匯款，等你確認收款':sp.length+' 筆抽獎券訂單等買家付款')}), h('small',{text:'你的轉蛋機 · 確認後自動發券'})), h('span',{class:'go '+(payN?'o':''),text:'去確認'}))); }
+  const c=h('div',{class:'gc gc-mecard'}, h('div',{class:'gk-cv'}, mach(11)), h('div',{class:'hd'}, h('span',{text:'🎰 轉蛋'}), tix.length?h('em',{text:tix.reduce((a,t)=>a+t.n,0)+' 張待撕'}):null), ...rows); return c; };
+window.gcMeTab=function(){ gcCss(); gcSync(); const seg=GC.meSeg||'box', B=boxItems(), T=myTicketOrders(), TX=[...GC.tix.values()].filter(t=>t.n>0);
+  const sg=h('div',{class:'gc-seg'}, ...[['box','倉庫 '+B.length],['tix','抽獎券 '+(TX.reduce((a,t)=>a+t.n,0)||'')],['log','紀錄']].map(([k,l])=>h('button',{type:'button','aria-pressed':String(seg===k),onclick:()=>{ GC.meSeg=k; renderMe(true); },text:l})));
+  const out=h('div',{class:'gc'}, sg);
+  if(seg==='box'){ if(!B.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'📦'}), h('h3',{text:'倉庫是空的'}), h('p',{text:'抽到的獎品會先放這裡'}), h('a',{class:'btn soft',href:'#/raffle',onclick:()=>{ S.playTab='gacha'; },text:'去轉蛋'})));
+    const byShop=new Map(); B.forEach(x=>{ if(!byShop.has(x.shop)) byShop.set(x.shop,[]); byShop.get(x.shop).push(x); });
+    for(const [shop,L] of byShop) out.append(gcWhShop(shop,L));
+    const ing=[...GC.box.values()].filter(x=>x.st==='ship'); if(ing.length) out.append(h('div',{class:'gc-shop'}, h('div',{class:'hd'}, '🚚 出貨中', h('em',{text:ing.length+' 件'})), ...ing.slice(0,30).map(x=>h('button',{type:'button',class:'gc-wi dis',onclick:()=>{ const o=buyerOrders(S.me).find(y=>y.id===x.oid); if(o) openOrder(o); }}, h('img',{src:imgOf(x),alt:''}), h('div',{class:'gk-tx'}, h('b',{text:x.name}), h('small',{text:x.k+' 賞 · 訂單 '+x.oid})), h('span',{class:'gc-tag s',text:'看訂單'}))))); }
+  else if(seg==='tix'){ if(!TX.length&&!T.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'🎟'}), h('h3',{text:'還沒有抽獎券'})));
+    TX.forEach(t=>{ const g=gget(t.gid); out.append(h('button',{type:'button',class:'gc-tk '+tplCls(g),onclick:()=>go('#/gacha/'+t.gid+'/b')}, h('div',{class:'mini2'}, mach(7)), h('div',{class:'gk-t'}, h('b',{text:g?.title||t.title||''}), h('small',{text:shopName(t.shop)+' · 只能用在這一台'})), h('span',{class:'gk-st v',text:t.n+' 張 · 去撕'}))); });
+    T.forEach(o=>{ const G=tOrdG(o), g=gget(G.id), st=o.status; const L={confirmed:['gk-w','待付款'],paid:['p','等賣家確認'],preparing:['gk-ok','已發券'],shipped:['gk-ok','已發券'],done:['gk-ok','已發券'],cancelled:['gk-no','已取消'],pending:['gk-w','成立中']}[st]||['','']; out.append(h('button',{type:'button',class:'gc-tk '+tplCls(g),onclick:()=>go('#/gacha/'+G.id+'/o/'+o.shop+'~'+o.id)}, h('div',{class:'mini2'}, mach(7)), h('div',{class:'gk-t'}, h('b',{text:(G.title||g?.title||'抽獎券')+' × '+(G.n||'')}), h('small',{text:fmtWhen(o.at)+' · '+M$(ordSo(o)?.total||o.total)})), h('span',{class:'gk-st '+L[0],text:L[1]}))); }); }
+  else { const all=[...GC.box.values()].sort((a,b)=>b.at-a.at); if(!all.length) out.append(h('div',{class:'gc-empty'}, h('h3',{text:'還沒有抽獎紀錄'})));
+    out.append(...all.slice(0,80).map(x=>h('div',{class:'gc-wi dis'}, h('img',{src:imgOf(x),alt:''}), h('div',{class:'gk-tx'}, h('b',{text:x.name}), h('small',{text:x.gtitle+' · '+(x.k==='LAST'?'最後賞':x.k+' 賞 · No.'+x.slot)+' · '+fmtWhen(x.at)})), h('span',{class:'gc-tag'+(x.st==='ship'?' s':''),text:x.st==='ship'?'已出貨':'倉庫'})))); }
+  return out; };
+function gcWhShop(shop,L){ const sel=GC.whSel; const mine=L.filter(x=>sel.has(x.id)); const gids=[...new Set(L.map(x=>x.gid))].map(gget).filter(Boolean);
+  const allIncl=gids.length&&gids.every(g=>g.ship?.mode==='incl'); const thr=Math.max(0,...gids.map(g=>g.ship?.mode==='sep'?+g.ship.free||0:0));
+  const SO=shipOpts(shop); const last=GC.boxDoc?.lastShip?.[shop]; let si=GC.q['sh'+shop]; if(si==null){ si=last?SO.findIndex(o=>o.n===last.n):-1; if(si<0) si=SO.findIndex(o=>o.k!=='meet'); if(si<0) si=0; }
+  let unshipped=false; try{ unshipped=buyerOrders(S.me).some(o=>o.shop===shop&&['confirmed','paid','preparing'].includes(o.status)&&o.src!=='gacha'&&(ordSo(o)?.src)!=='gacha'); }catch(e){}
+  const val=mine.reduce((a,x)=>a+(+x.val||0),0), opt=SO[si]||SO[0], thrOK=thr>0&&val>=thr, free=opt&&opt.fee===0?'zero':allIncl?'incl':thrOK?'thr':unshipped?'merge':'';
+  const fee=free?0:(opt?.fee??null);
+  const items=L.map(x=>{ const d=Math.max(0,Math.ceil((x.exp-Date.now())/864e5)); return h('button',{type:'button',class:'gc-wi','aria-pressed':String(sel.has(x.id)),onclick:()=>{ sel.has(x.id)?sel.delete(x.id):sel.add(x.id); renderMe(true); }}, h('span',{class:'gk-ck',text:'✓'}), h('img',{src:imgOf(x),alt:''}), h('div',{class:'gk-tx'}, h('b',{text:x.name}), h('small',{class:d<=3?'soon':'',text:(x.k==='LAST'?'最後賞':x.k+' 賞 · No.'+x.slot)+' · 剩 '+d+' 天'})), h('div',{class:'vv'+(x.val?'':' nv'),text:x.val?M$(x.val):'未標價'})); });
+  const fs=allIncl?h('div',{class:'gc-note g'}, h('span',{text:'🎉'}), h('span',{text:'這家的轉蛋機含運，出貨一律免運'})):thr?h('div',{class:'gc-fs'+(thrOK?' gk-ok':'')}, h('div',{class:'gk-t'}, h('span',{text:thrOK?'🎉 已達免運':'再 '+M$(thr-val)+' 免運'}), h('b',{text:M$(val)+' / '+M$(thr)})), h('div',{class:'gk-bar'}, h('i',{style:'width:'+Math.min(100,val/thr*100)+'%'}))):null;
+  const ship=h('div',{class:'gc-ship'}, ...SO.map((o,k)=>h('button',{type:'button','aria-pressed':String(k===si),onclick:()=>{ GC.q['sh'+shop]=k; renderMe(true); }}, h('b',{text:(SHIP_IC[o.k]||'📦')+' '+o.n}), feeTxt(o.fee))));
+  const why={zero:'這個寄送方式免運',incl:'含運的轉蛋機',thr:'滿免運門檻',merge:'你在這家還有沒寄出的訂單，一起寄免運'}[free];
+  const btn=h('button',{type:'button',class:'gc-cta v',disabled:!mine.length,text:mine.length?'出貨 '+mine.length+' 件 · '+(fee===0?'免運':fee==null?'運費賣家另計':'運費 '+M$(fee)):'勾選要寄的獎品'});
+  btn.onclick=async()=>{ if(!mine.length) return; if(needRecv(()=>renderMe(true))) return; btn.disabled=true; btn.textContent='送出中…';
+    const ref=S.db.collection('gShip').doc(); try{ await ref.set({uid:S.me,shop,items:mine.map(x=>x.id),ship:{n:opt.n,k:opt.k||'home'},at:Date.now()}); }catch(e){ btn.disabled=false; toast('送出失敗'); return; }
+    const un=ref.onSnapshot(d=>{ const x=d.data(); if(!x||!x.st) return; un(); if(x.st==='err'){ toast(x.err||'出貨失敗'); renderMe(true); return; } mine.forEach(i=>sel.delete(i.id)); toast(x.fee===0?'📦 已成立出貨單（免運），賣家會盡快寄出':x.fee==null?'📦 已成立出貨單，運費賣家會跟你確認':'📦 已成立出貨單，付完運費 '+M$(x.fee)+' 就會寄出');
+      setTimeout(()=>{ const o=buyerOrders(S.me).find(y=>y.id===x.oid); if(o) openOrder(o); },800); },()=>{}); };
+  return h('div',{class:'gc-shop'}, h('div',{class:'hd'}, avatar(shop,28), shopName(shop), h('em',{text:L.length+' 件'+(allIncl?' · 含運':thr?' · 滿 '+M$(thr)+' 免運':'')})), ...items,
+    L.some(x=>!x.val)&&thr?h('div',{class:'gc-fsn',text:'沒標價的獎品不算進免運金額'}):null, fs, ship, why&&mine.length?h('div',{class:'gc-note g',style:'margin-top:8px'}, h('span',{text:'✅'}), h('span',{text:'免運：'+why})):null, btn); }
+
+/* ---------------- 賣家後台 ---------------- */
+let ADM=null;
+window.gcAdmin=function(main){ gcCss(); gcSync(); ADM=main; gcAdmDraw(); };
+function gcAdmDraw(){ const m=ADM; if(!m||!m.isConnected) return; if(GC.edit){ return gcEditor(m); }
+  const t=S.gcATab||'g'; const os=(()=>{ try{ return sellerOrders(S.me); }catch(e){ return []; } })();
+  const tOrd=os.filter(o=>(ordSo(o)?.src||o.src)==='gacha'), sOrd=os.filter(o=>(ordSo(o)?.src||o.src)==='gship');
+  const needPay=tOrd.filter(o=>['confirmed','paid'].includes(o.status)), needShip=sOrd.filter(o=>['confirmed','paid','preparing'].includes(o.status));
+  const tabs=h('div',{class:'tabs'}, ...[['g','轉蛋機'],['o','轉蛋訂單',needPay.filter(o=>o.status==='paid').length+needShip.filter(o=>o.status!=='confirmed').length],['w','寄放倉庫']].map(([k,l,n])=>h('button',{type:'button','aria-pressed':String(t===k),onclick:()=>{ S.gcATab=k; gcAdmDraw(); }}, l, n?h('em',{text:String(n)}):null)));
+  const out=h('div',{class:'gc gc-adm'}, admTop('🎰 轉蛋機'), tabs);
+  if(!isVerified(S.me)) out.append(h('div',{class:'gc-note r'}, h('span',{text:'🔒'}), h('span',{text:'只有認證賣家可以上架轉蛋機。可以先建草稿，通過認證後再送出上架。'})));
+  if(t==='g'){ const L=[...GC.mine.values()].sort((a,b)=>({on:0,pause:1,draft:2,done:3,end:4}[a.status]-{on:0,pause:1,draft:2,done:3,end:4}[b.status])||(b.updatedAt||0)-(a.updatedAt||0));
+    const mon=new Date(); mon.setDate(1); mon.setHours(0,0,0,0); const gm=tOrd.filter(o=>ordSo(o)?.granted&&(ordSo(o)?.doneAt||0)>=+mon);
+    out.append(h('div',{class:'gc-kpi'}, h('div',{class:'gk-a'}, h('small',{text:'本月賣出'}), h('b',{text:gm.reduce((a,o)=>a+(+ordSo(o).gacha?.n||0),0)+' 抽'})), h('div',{class:'b'}, h('small',{text:'本月營收'}), h('b',{text:'$'+gm.reduce((a,o)=>a+(+ordSo(o).total||0),0).toLocaleString()})), h('div',{class:'gk-c'}, h('small',{text:'待確認收款'}), h('b',{text:needPay.filter(o=>o.status==='paid').length+' 筆'}))),
+      h('button',{type:'button',class:'gc-newg',onclick:()=>{ GC.edit={id:null,d:gcNewDraft()}; gcAdmDraw(); }}, '＋ 上架新轉蛋機'));
+    if(!L.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'🎰'}), h('h3',{text:'還沒有轉蛋機'}), h('p',{text:'選模板、放獎品，幾分鐘就能開一台一番賞'})));
+    L.forEach(g=>{ const ST={on:['on','販售中'],pause:['pause','暫停販售'],draft:['draft','草稿'+(g.startAt?' · '+fmtWhen(g.startAt)+' 開賣':'')],done:['done','已完抽'],end:['end','已結束']}[g.status]||['draft',g.status];
+      const pend=needPay.filter(o=>tOrdG(o).id===g.id&&o.status==='paid').length, held=[...GC.res.values()].filter(r=>r.gid===g.id&&r.st==='held').length;
+      const rev=tOrd.filter(o=>tOrdG(o).id===g.id&&ordSo(o)?.granted).reduce((a,o)=>a+(+ordSo(o).total||0),0);
+      const acts=g.status==='draft'?[h('button',{type:'button',onclick:()=>{ GC.edit={id:g.id,d:JSON.parse(JSON.stringify(g))}; gcAdmDraw(); },text:'編輯'}), h('button',{type:'button',onclick:async()=>{ if(!confirm('刪除這個草稿？')) return; try{ await S.db.doc('gacha/'+g.id).delete(); }catch(e){ toast('刪除失敗'); } },text:'刪除'}), h('button',{type:'button',class:'gk-k',onclick:()=>gcReq(g.id,'pub'),text:'送出上架'})]
+        :g.status==='on'?[h('button',{type:'button',onclick:()=>go('#/gacha/'+g.id+'/b'),text:'獎單牆'}), h('button',{type:'button',onclick:()=>gcReq(g.id,'pause'),text:'暫停販售'}), h('button',{type:'button',class:'gk-k',onclick:()=>go('#/gacha/'+g.id),text:'看前台'})]
+        :g.status==='pause'?[h('button',{type:'button',onclick:()=>gcReq(g.id,'resume'),text:'恢復販售'}), h('button',{type:'button',onclick:()=>{ if(confirm('結束這台轉蛋機？沒抽出的植物會解鎖、周邊庫存會還回去。（還有沒處理的訂單或沒撕的券時不能結束）')) gcReq(g.id,'end'); },text:'結束'}), h('button',{type:'button',class:'gk-k',onclick:()=>go('#/gacha/'+g.id),text:'看前台'})]
+        :[h('button',{type:'button',onclick:()=>go('#/gacha/'+g.id),text:'看前台'}), g.reveal?h('button',{type:'button',onclick:()=>gcVerify(g),text:'公平驗證'}):null, h('button',{type:'button',class:'gk-k',onclick:()=>{ const d=JSON.parse(JSON.stringify(g)); ['id','status','total','left','sold','opened','open','commit','reveal','pubAt','lastWin','doneAt','endAt'].forEach(k=>delete d[k]); d.title=(d.title||'')+' 再一台'; d.prizes=(d.prizes||[]).map(p=>({kind:p.kind,name:p.name||'',pids:p.kind==='plant'?[]:undefined,gid:p.kind==='goods'?p.items?.[0]?.gid:undefined,var:p.items?.[0]?.var,n:p.kind==='goods'?p.n:undefined})); d.last=null; GC.edit={id:null,d:{...gcNewDraft(),...d,status:'draft'}}; gcAdmDraw(); },text:'再開一台'})];
+      out.append(h('div',{class:'gc-am '+tplCls(g)}, h('div',{class:'arow'}, h('div',{class:'art'}, mach(9)), h('div',{class:'gk-tx'}, h('span',{class:'gc-stt '+ST[0]}, h('i'), ST[1]), h('b',{text:g.title||'（未命名）'}),
+          g.status==='draft'?h('div',{class:'nums'}, h('span',{}, '每抽 ', h('b',{text:'$'+(g.price||0)})), h('span',{}, h('b',{text:String((g.prizes||[]).length)}), ' 種獎')):h('div',{class:'nums'}, h('span',{}, '已賣 ', h('b',{text:String(g.sold||0)}), '/'+g.total), h('span',{}, '已撕 ', h('b',{text:String(g.opened||0)})), h('span',{}, '營收 ', h('b',{text:'$'+rev.toLocaleString()}))),
+          g.total?h('div',{class:'bar2'}, h('i',{style:'width:'+((g.sold||0)/g.total*100)+'%'})):null)),
+        g.total?h('div',{class:'tl3'}, ...(g.prizes||[]).map(p=>tc(p.k,tierOf(p.n,g.total),(+g.left?.[p.k]||0)+'/'+p.n))):null,
+        pend||held?h('button',{type:'button',class:'pend',onclick:()=>{ S.gcATab='o'; gcAdmDraw(); }}, pend?'💸 '+pend+' 筆已匯款，等你確認收款':'🧾 '+held+' 筆抽獎券等買家付款', h('em',{text:'去看'})):null,
+        h('div',{class:'acts'}, ...acts))); }); }
+  else if(t==='o'){ const F=S.gcOF||'pay'; const shipFee=sOrd.filter(o=>o.status==='confirmed');
+    const fp=h('div',{class:'gc-fp'}, ...[['pay','待確認收款',needPay.length],['ship','待出貨',sOrd.filter(o=>['paid','preparing'].includes(o.status)).length],['fee','等補運費',shipFee.length],['done','已完成',0]].map(([k,l,n])=>h('button',{type:'button','aria-pressed':String(F===k),onclick:()=>{ S.gcOF=k; gcAdmDraw(); }}, l, n?h('em',{text:String(n)}):null)));
+    out.append(fp);
+    const L=F==='pay'?needPay:F==='ship'?sOrd.filter(o=>['paid','preparing'].includes(o.status)):F==='fee'?shipFee:[...tOrd,...sOrd].filter(o=>['shipped','done','cancelled'].includes(o.status)).slice(0,40);
+    if(!L.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:F==='pay'?'💸':'📦'}), h('h3',{text:F==='pay'?'沒有待確認的抽獎券':F==='fee'?'沒有等補運費的出貨單':'沒有待出貨的轉蛋獎品'})));
+    L.sort((a,b)=>(b.status==='paid')-(a.status==='paid')||b.at-a.at).forEach(o=>out.append((ordSo(o)?.src||o.src)==='gacha'?gcTOrdCard(o):gcSOrdCard(o))); }
+  else { const B=[...GC.sbox.values()].filter(x=>x.st==='box'); const val=B.reduce((a,x)=>a+(+x.val||0),0), soon=B.filter(x=>x.exp-Date.now()<7*864e5).length;
+    out.append(h('div',{class:'gc-wsum'}, h('div',{}, h('small',{text:'客人寄放中'}), h('b',{text:B.length+' 件'})), h('div',{}, h('small',{text:'價值'}), h('b',{text:'$'+(val>=1e4?(val/1e3).toFixed(0)+'k':val.toLocaleString())})), h('div',{}, h('small',{text:'7 天內到期'}), h('b',{style:'color:#FF9A4D',text:soon+' 件'})), h('div',{class:'gk-wn',text:'🔒 寄放中的植物已鎖定，不能另外賣 · 到期會用客人上次的寄送方式自動成立出貨單'})));
+    const byU=new Map(); B.forEach(x=>{ if(!byU.has(x.uid)) byU.set(x.uid,[]); byU.get(x.uid).push(x); });
+    if(!B.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'📦'}), h('h3',{text:'沒有寄放中的獎品'})));
+    [...byU].sort((a,b)=>Math.min(...a[1].map(x=>x.exp))-Math.min(...b[1].map(x=>x.exp))).forEach(([u,L])=>{ const e=Math.min(...L.map(x=>x.exp)), d=Math.max(0,Math.ceil((e-Date.now())/864e5)), v=L.reduce((a,x)=>a+(+x.val||0),0);
+      out.append(h('div',{class:'gc-oc'}, h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(u,34), h('div',{}, h('b',{text:nameOf(u)}), h('small',{text:L.length+' 件寄放中'})), h('div',{class:'amt'}, h('b',{text:'$'+v.toLocaleString()}))),
+        h('div',{class:'gc-pzs'}, ...L.slice(0,8).map(x=>h('div',{}, tc(x.k==='LAST'?'LAST':x.k,'r1'), h('img',{src:imgOf(x),alt:''}), x.kind==='plant'?h('span',{class:'lk',text:'🔒'}):null)), L.length>8?h('div',{style:'display:grid;place-items:center;background:#F1F2EE;font:800 12px var(--f-display)',text:'+'+(L.length-8)}):null),
+        h('div',{class:'gk-shp'}, h('span',{style:'color:'+(d<=7?'#B23A00':'var(--fg2)'),text:(d<=7?'⚠️':'⏳')+' 最早 '+d+' 天後到期'}), h('button',{type:'button',class:'btn soft sm',style:'margin-left:auto',onclick:()=>{ try{ openChatWith?openChatWith(u):go('#/chats'); }catch(e){ go('#/chats'); } },text:'聊聊'}))))); }); }
+  m.replaceChildren(out); }
+function gcTOrdCard(o){ const so=ordSo(o)||{}, G=so.gacha||o.gacha||{}, g=gget(G.id); const paid=o.status==='paid', d=o.deal||{};
+  return h('div',{class:'gc-oc'}, h('div',{class:'tp'}, h('span',{class:'gk-tag gk-k',text:'🎟 抽獎券'}), h('small',{text:o.id+' · '+fmtWhen(o.at)})),
+    h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(o.buyer,34), h('div',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:paid?'已匯款，請對帳':'等買家付款（48 小時內）'})), h('div',{class:'amt'}, h('b',{text:M$(so.total??o.total)}))),
+      h('div',{class:'tkx '+tplCls(g)}, h('span',{text:G.title||g?.title||''}), h('b',{text:'×'+(G.n||'')})),
+      paid?h('div',{class:'f5'}, '客人回報末五碼 ', h('code',{text:d.pay?.last5||''}), ' · '+M$(d.pay?.amount||0)+(d.pay?.time?' · '+String(d.pay.time).replace('T',' '):'')):null),
+    h('div',{class:'acts2'}, h('button',{type:'button',onclick:async()=>{ if(!confirm('取消這筆抽獎券訂單？名額會放回去。')) return; try{ await setOrder(o,'cancelled',{cancelledAt:Date.now(),cancelWhy:'賣家取消'}); toast('已取消，名額放回去了'); }catch(e){ toast('操作失敗'); } },text:'取消'}),
+      h('button',{type:'button',class:'v',onclick:async e=>{ if(!paid&&!confirm('買家還沒回報匯款。確定已經收到錢、要發 '+(G.n||'')+' 張券？')) return; e.target.disabled=true; e.target.textContent='發券中…'; try{ await setOrder(o,'preparing'); toast('🎟 已發 '+(G.n||'')+' 張券給 '+nameOf(o.buyer)); }catch(x){ e.target.disabled=false; toast('操作失敗'); } },text:(paid?'確認收款 · 發 ':'已收款 · 發 ')+(G.n||'')+' 張券'}))); }
+function gcSOrdCard(o){ const so=ordSo(o)||{}, gs=so.gship||{}, f=gs.free; const fee=so.ship?.fee;
+  const tag=f==='incl'?['gk-ok','免運 · 含運機台']:f==='thr'?['gk-ok','免運 · 滿額']:f==='merge'?['mg','免運 · 併單 '+(gs.merge||'')]:f==='zero'?['gk-ok','免運']:fee==null?['due','運費另計']:['due','補運費 '+M$(fee)];
+  return h('div',{class:'gc-oc'}, h('div',{class:'tp'}, h('span',{class:'gk-tag s',text:'📦 轉蛋出貨'+(gs.auto?'（到期自動）':'')}), h('small',{text:o.id+' · '+fmtWhen(o.at)})),
+    h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(o.buyer,34), h('div',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:(gs.list||[]).length+' 件 · 價值 '+M$(gs.val||0)}))),
+      h('div',{class:'gc-pzs'}, ...(gs.list||[]).slice(0,10).map(x=>h('div',{}, tc(x.k,'r1'), h('img',{src:imgOf(x),alt:''})))),
+      h('div',{class:'gk-shp'}, h('span',{text:(SHIP_IC[so.ship?.k]||'📦')+' '+(so.ship?.n||'')}), h('span',{class:'gc-fr '+tag[0],text:tag[1]})),
+      o.status==='confirmed'&&fee?h('div',{class:'gc-note r',style:'margin-top:8px'}, h('span',{text:'⏳'}), h('span',{text:'買家補完運費才能出貨'})):null),
+    h('div',{class:'acts2'}, h('button',{type:'button',class:'gk-k',onclick:()=>openOrder(o),text:o.status==='confirmed'?'查看訂單':'填物流 · 出貨'}))); }
+async function gcReq(gid,act){ const ref=S.db.collection('gReq').doc(); const t=toastStay?toastStay(act==='pub'?'送出上架中…':'處理中…'):null;
+  try{ await ref.set({uid:S.me,gid,act,at:Date.now()}); }catch(e){ t&&t.done(); toast('送出失敗：'+(e?.code||'')); return; }
+  const un=ref.onSnapshot(d=>{ const x=d.data(); if(!x||!x.done) return; un(); t&&t.done(); if(x.ok){ toast({pub:'🎉 已上架！',pause:'已暫停販售',resume:'已恢復販售',end:'已結束，沒抽出的獎品已退回'}[act]); if(act==='pub'){ GC.edit=null; gcAdmDraw(); } } else { gcErrBox(x.err||'沒有成功'); } },()=>{}); }
+function gcErrBox(msg){ const close=ov(h('div',{class:'gc-sheet'}, h('div',{class:'gr'}), h('h3',{text:'還不能上架'}), h('div',{class:'gc-note r'}, h('span',{text:'⚠️'}), h('span',{text:msg})), h('button',{type:'button',class:'gc-cta',onclick:()=>close(),text:'知道了'})),'gcerr'); }
+
+/* ---------------- 編輯器 ---------------- */
+function gcNewDraft(){ return {shop:S.me,title:'',tpl:'neon',price:300,maxPer:10,desc:'',prizes:[{kind:'plant',name:'',pids:[]},{kind:'plant',name:'',pids:[]},{kind:'goods',name:'',gid:'',n:10}],last:null,ship:{mode:'sep',free:1500,keep:30},startAt:0,status:'draft'}; }
+const plantOK=(p,d,cur)=>p&&!isGoods(p)&&p.shop===S.me&&!p.buyer&&!['sold','reserved','keep'].includes(p.status)&&(!p.gcLock||p.gcLock===cur)&&p.mode!=='auction'&&!p.lv&&p.lot!==true;
+function gcEditor(m){ const E=GC.edit, d=E.d; d.prizes=d.prizes||[];
+  const tot=d.prizes.reduce((a,p)=>a+(p.kind==='plant'?(p.pids||[]).length:(+p.n||0)),0);
+  const save=async(silent)=>{ const err=gcDraftErr(d,true); const clean={shop:S.me,title:String(d.title||'').trim().slice(0,40),tpl:d.tpl||'neon',price:Math.max(0,Math.floor(+d.price||0)),maxPer:Math.max(1,Math.min(100,Math.floor(+d.maxPer||10))),desc:String(d.desc||'').slice(0,600),
+      prizes:d.prizes.map(p=>p.kind==='plant'?{kind:'plant',name:String(p.name||'').slice(0,40),pids:(p.pids||[]).slice(0,300)}:{kind:'goods',name:String(p.name||'').slice(0,40),gid:p.gid||'',...(p.var?{var:p.var}:{}),n:Math.max(0,Math.floor(+p.n||0))}),
+      last:d.last&&(d.last.kind==='plant'?(d.last.pids||[]).length:d.last.gid)?(d.last.kind==='plant'?{kind:'plant',name:String(d.last.name||'').slice(0,40),pids:(d.last.pids||[]).slice(0,1)}:{kind:'goods',name:String(d.last.name||'').slice(0,40),gid:d.last.gid,...(d.last.var?{var:d.last.var}:{}),n:1}):null,
+      ship:{mode:d.ship?.mode==='incl'?'incl':'sep',free:Math.max(0,Math.floor(+d.ship?.free||0)),keep:Math.max(7,Math.min(90,Math.floor(+d.ship?.keep||30)))},startAt:+d.startAt||0,status:'draft',updatedAt:Date.now()};
+    if(!clean.title) clean.title='未命名轉蛋機';
+    try{ if(E.id) await S.db.doc('gacha/'+E.id).set(clean); else { const ref=S.db.collection('gacha').doc(); await ref.set({...clean,createdAt:Date.now()}); E.id=ref.id; } if(!silent) toast('草稿已儲存'); return err; }catch(e){ toast('儲存失敗：'+(e?.code==='permission-denied'?'沒有權限（需要認證賣家）':'請稍後再試')); return 'save'; } };
+  const re=()=>gcEditor(m);
+  const fld=(lab,inp)=>h('label',{class:'gc-fld'}, h('small',{text:lab}), inp);
+  const inp=(k,attrs,num)=>{ const x=h('input',{value:d[k]??'',...attrs}); x.addEventListener('input',()=>{ d[k]=num?(+x.value||0):x.value; if(num) sumPaint(); }); return x; };
+  const tpls=h('div',{class:'gc-tpls'}, ...TPL.map(([k,n])=>h('button',{type:'button',class:'gc-tp gt-'+k,'aria-pressed':String(d.tpl===k),onclick:()=>{ d.tpl=k; re(); }}, h('div',{class:'gk-a'}, mach(9)), h('b',{text:n}))));
+  const tierRow=(p,i,isLast)=>{ const n=p.kind==='plant'?(p.pids||[]).length:(+p.n||0), t=isLast?null:tierOf(n,tot), k=isLast?'LAST':LET[i];
+    const kind=h('div',{class:'kk'}, ...[['plant','植物'],['goods','周邊']].map(([v,l])=>h('button',{type:'button','aria-pressed':String(p.kind===v),onclick:()=>{ if(p.kind===v) return; p.kind=v; if(v==='plant'){ p.pids=[]; delete p.gid; delete p.n; } else { p.gid=''; p.n=isLast?1:5; delete p.pids; } re(); },text:l})));
+    const nm=h('input',{class:'gk-nm',placeholder:isLast?'最後賞名稱（選填）':'這個賞的名稱（選填，例如 帝王花燭大苗）',value:p.name||'',maxlength:40}); nm.addEventListener('input',()=>{ p.name=nm.value; });
+    let body;
+    if(p.kind==='plant'){ const L=(p.pids||[]).map(id=>S.plants.get(id)).filter(Boolean); body=h('div',{class:'ims'}, ...L.slice(0,12).map(x=>h('img',{src:cover(x),alt:'',title:x.species||''})), h('button',{type:'button',onclick:()=>gcPickPlants(p,isLast,re),text:'＋'})); }
+    else { const G=goodsMine().filter(x=>x.listed!==false); const g=G.find(x=>x.id===p.gid); const sel=h('select',{}, h('option',{value:'',text:G.length?'選一個周邊':'還沒有上架周邊'}), ...G.map(x=>h('option',{value:x.id,selected:x.id===p.gid,text:(x.gname||x.species||'周邊')+' · 庫存 '+(+x.stock||0)})));
+      sel.onchange=()=>{ p.gid=sel.value; delete p.var; re(); };
+      const vs=g&&Array.isArray(g.vars)&&g.vars.length?h('select',{}, h('option',{value:'',text:'選規格'}), ...g.vars.map(v=>h('option',{value:v.k,selected:v.k===p.var,text:v.n+' · 庫存 '+(+v.stock||0)}))):null; if(vs) vs.onchange=()=>{ p.var=vs.value; };
+      const q=h('div',{class:'gc-step'}, h('button',{type:'button',onclick:()=>{ p.n=Math.max(1,(+p.n||1)-1); re(); },text:'−'}), h('b',{text:String(+p.n||0)}), h('button',{type:'button',onclick:()=>{ p.n=(+p.n||0)+1; re(); },text:'＋'}));
+      body=h('div',{class:'gq'}, sel, vs, isLast?null:q, isLast?null:h('button',{type:'button',class:'btn soft sm',onclick:()=>{ const v=prompt('數量',String(p.n||1)); if(v!=null&&+v>0){ p.n=Math.floor(+v); re(); } },text:'輸入'})); }
+    return h('div',{class:'gc-ti'}, h('div',{class:'hd'}, h('div',{class:'lt '+(isLast?'':'gc'+t),style:isLast?'background:conic-gradient(#ff4d6d,#ffd23f,#3ddc84,#2fa8ff,#a970ff,#ff4d6d)':''}, isLast?'🏆':k, isLast?null:h('small',{text:tot?pctTxt(n,tot):'–'})),
+      h('div',{class:'mid'}, kind, nm), h('div',{class:'gk-ct'}, h('b',{text:String(n)}), h('small',{text:p.kind==='plant'?'株 · 自動算':'個 · 不用編號'})),
+      h('button',{type:'button',class:'del',onclick:()=>{ if(isLast) d.last=null; else d.prizes.splice(i,1); re(); },text:'刪除'})), body); };
+  const sumEl=h('div',{class:'gc-sum'}); const sumPaint=()=>{ const t2=d.prizes.reduce((a,p)=>a+(p.kind==='plant'?(p.pids||[]).length:(+p.n||0)),0), val=d.prizes.reduce((a,p)=>a+(p.kind==='plant'?(p.pids||[]).reduce((b,id)=>b+(+S.plants.get(id)?.price||0),0):(+p.n||0)*(+goodsMine().find(x=>x.id===p.gid)?.price||0)),0);
+    sumEl.replaceChildren(h('div',{}, h('small',{text:'總抽數'}), h('b',{text:t2+' 抽'})), h('div',{}, h('small',{text:'全部賣完營收'}), h('b',{text:M$(t2*(+d.price||0))})), h('div',{class:'gk-w'}, ...d.prizes.map(p=>{ const n=p.kind==='plant'?(p.pids||[]).length:(+p.n||0); return h('i',{class:'gc'+tierOf(n,t2),style:'flex:'+(n||0.01)}); })), h('div',{}, h('small',{text:'獎品總價值（有標價的）'}), h('b',{text:M$(val)})), h('div',{}, h('small',{text:'顏色'}), h('b',{style:'font:700 13px var(--f-display)',text:'依機率自動配'}))); };
+  sumPaint();
+  const shipSg=h('div',{class:'gc-sg'}, ...[['incl','抽獎券含運','獎品出貨都免運'],['sep','出貨時另計','可設免運門檻']].map(([k,l,s])=>h('button',{type:'button','aria-pressed':String((d.ship?.mode||'sep')===k),onclick:()=>{ d.ship={...(d.ship||{}),mode:k}; re(); }}, l, h('small',{text:s}))));
+  const freeI=h('input',{type:'number',min:0,inputmode:'numeric',value:d.ship?.free??1500}); freeI.oninput=()=>{ d.ship={...(d.ship||{}),free:+freeI.value||0}; };
+  const keepI=h('input',{type:'number',min:7,max:90,inputmode:'numeric',value:d.ship?.keep??30}); keepI.oninput=()=>{ d.ship={...(d.ship||{}),keep:+keepI.value||30}; };
+  const startI=h('input',{type:'datetime-local',value:d.startAt?new Date(d.startAt-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):''}); startI.oninput=()=>{ d.startAt=startI.value?new Date(startI.value).getTime():0; };
+  const desc=h('textarea',{maxlength:600,placeholder:'介紹這台轉蛋機（選填）'}, d.desc||''); desc.oninput=()=>{ d.desc=desc.value; };
+  const out=h('div',{class:'gc gc-adm gc-ed'}, h('div',{class:'row',style:'justify-content:space-between;align-items:center'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>{ GC.edit=null; gcAdmDraw(); },text:'‹ 返回'}), h('b',{style:'font:800 18px var(--f-display)',text:E.id?'編輯草稿':'新轉蛋機'}), h('span')),
+    h('div',{class:'gk-lab'}, '模板', h('em',{text:'6 款'})), tpls,
+    h('div',{class:'gk-lab',text:'基本'}), fld('名稱',inp('title',{maxlength:40,placeholder:'例如 綠野一番賞 第 3 彈'})), h('div',{class:'gc-two'}, fld('每抽價格（NT$）',inp('price',{type:'number',min:1,inputmode:'numeric'},true)), fld('每次最多買幾抽',inp('maxPer',{type:'number',min:1,max:100,inputmode:'numeric'},true))), fld('開賣時間（不填＝上架就開賣）',startI), fld('介紹',desc),
+    h('div',{class:'gk-lab'}, '獎項', h('em',{text:'共 '+tot+' 抽 · 植物＝選幾株就是幾個'})), ...d.prizes.map((p,i)=>tierRow(p,i,false)),
+    d.prizes.length<26?h('button',{type:'button',class:'gc-add',onclick:()=>{ d.prizes.push({kind:'plant',name:'',pids:[]}); re(); },text:'＋ 新增 '+LET[d.prizes.length]+' 賞'}):null,
+    h('div',{class:'gk-lab',text:'🏆 最後賞（選填，撕到最後一張的人另外拿）'}), d.last?tierRow(d.last,0,true):h('button',{type:'button',class:'gc-add',onclick:()=>{ d.last={kind:'plant',name:'',pids:[]}; re(); },text:'＋ 加最後賞'}),
+    h('div',{class:'gk-lab',text:'運費'}), shipSg, h('div',{class:'gc-two',style:'margin-top:8px'}, (d.ship?.mode||'sep')==='sep'?fld('免運門檻（獎品價格加總，0＝不設）',freeI):h('div'), fld('倉庫保管天數（7–90）',keepI)),
+    h('div',{class:'gc-note',style:'margin-top:8px'}, h('span',{text:'💡'}), h('span',{text:'買家抽到後先放轉蛋倉庫；這家還有沒寄出的訂單時，出貨免運。上架後獎品會鎖住（植物不能另外賣、周邊先扣庫存），結束時沒抽出的會還回來。'})),
+    sumEl,
+    h('div',{class:'row',style:'gap:8px;margin-top:14px'}, h('button',{type:'button',class:'gc-cta ghost',style:'flex:1;background:#fff',onclick:()=>save(),text:'存草稿'}), h('button',{type:'button',class:'gc-cta v',style:'flex:2',onclick:async e=>{ const err=gcDraftErr(d); if(err){ gcErrBox(err); return; } if(!isVerified(S.me)){ gcErrBox('只有認證賣家可以上架轉蛋機'); return; } if(!confirm('送出上架？上架後就不能改獎項了。')) return; e.target.disabled=true; const r=await save(true); e.target.disabled=false; if(r==='save') return; gcReq(E.id,'pub'); },text:'送出上架'})));
+  m.replaceChildren(out); }
+function gcDraftErr(d){ if(!String(d.title||'').trim()) return '請填名稱'; if(!(+d.price>=1)) return '請填每抽價格'; if(!d.prizes.length) return '至少要有 1 個賞';
+  for(const [i,p] of d.prizes.entries()){ if(p.kind==='plant'&&!(p.pids||[]).length) return LET[i]+' 賞還沒選植物'; if(p.kind==='goods'&&(!p.gid||!(+p.n>0))) return LET[i]+' 賞還沒選周邊或數量'; const g=p.kind==='goods'?goodsMine().find(x=>x.id===p.gid):null; if(g&&Array.isArray(g.vars)&&g.vars.length&&!p.var) return LET[i]+' 賞要選周邊規格'; }
+  const tot=d.prizes.reduce((a,p)=>a+(p.kind==='plant'?(p.pids||[]).length:(+p.n||0)),0); if(tot<2) return '總抽數至少 2'; if(d.last&&d.last.kind==='plant'&&!(d.last.pids||[]).length) return '最後賞還沒選植物（不要的話按刪除）'; return null; }
+function gcPickPlants(p,single,done){ const used=new Set(); const E=GC.edit.d; [...E.prizes,E.last].filter(Boolean).forEach(x=>{ if(x!==p&&x.kind==='plant') (x.pids||[]).forEach(id=>used.add(id)); });
+  const sel=new Set(p.pids||[]); let q=''; const grid=h('div',{class:'gc-pick'}), qi=h('input',{type:'search',placeholder:'搜尋品種、編號',style:'width:100%;height:44px;border-radius:14px;border:1px solid var(--line);padding:0 12px;margin-bottom:10px;font:inherit'});
+  const L=mine().filter(x=>plantOK(x,E,GC.edit.id)).sort((a,b)=>(+b.price||0)-(+a.price||0));
+  const paint=()=>{ const t=q.toLowerCase(); grid.replaceChildren(...L.filter(x=>!t||[x.species,x.code,x.cultivar].join(' ').toLowerCase().includes(t)).slice(0,300).map(x=>h('button',{type:'button','aria-pressed':String(sel.has(x.id)),disabled:used.has(x.id),onclick:()=>{ if(single){ sel.clear(); sel.add(x.id); } else sel.has(x.id)?sel.delete(x.id):sel.add(x.id); paint(); cnt.textContent='確定（'+sel.size+' 株）'; }}, h('span',{class:'gk-ck',text:'✓'}), h('img',{src:cover(x),alt:'',loading:'lazy'}), h('b',{text:short?short(x.species):x.species}), h('small',{text:x.price?M$(x.price):'未標價'})))); };
+  qi.oninput=()=>{ q=qi.value.trim(); paint(); };
+  const cnt=h('button',{type:'button',class:'gc-cta v',text:'確定（'+sel.size+' 株）'});
+  const close=ov(h('div',{class:'gc-sheet'}, h('div',{class:'gr'}), h('h3',{text:single?'選最後賞植物':'選這個賞的植物'}), h('div',{class:'gc-note'}, h('span',{text:'💡'}), h('span',{text:'只列出可以賣的單株（沒賣出、沒在競標或其他轉蛋機）。選幾株，這個賞就有幾個。'})), qi, L.length?grid:h('div',{class:'gc-empty'}, h('h3',{text:'沒有可以用的植物'}), h('p',{text:'先到「植物管理」登錄，或把植物設成可售'})), cnt),'gcpick');
+  cnt.onclick=()=>{ p.pids=[...sel]; close(); done(); }; paint(); }
+
+/* ---------------- 啟動 ---------------- */
+gcCss(); setInterval(gcSync,1500); setTimeout(gcSync,300);
+}
 })();
 </script>
 

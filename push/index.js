@@ -122,7 +122,7 @@ async function autoConfirm(shop, oid, o, buyer) {
       let why = null; const ups = []; const goods = snaps.some(s => s.exists && s.data().kind === 'goods');
       snaps.forEach((s, i) => { if (!s.exists) { why = '商品已下架'; return; } const p = s.data(), q = Math.max(1, +((o.qty || {})[ids[i]]) || 1), lot = (p.lot === true && p.mode !== 'auction') || !!(o.qty || {})[ids[i]];
         if (lot) { const left = Math.max(0, Math.floor(+p.stock || 0)); if (left < q) { why = '庫存不夠'; return; } ups.push([refs[i], { stock: left - q, soldN: (+p.soldN || 0) + q, ...(left - q <= 0 ? { status: 'sold' } : {}) }]); }
-        else { if ((p.status === 'sold' || p.status === 'reserved') && p.buyer && p.buyer !== buyer) { why = '已被別人買走'; return; } ups.push([refs[i], { status: 'sold', buyer, soldPrice: p.soldPrice || p.price || null }]); } });
+        else { if (p.gcLock) { why = '已放進轉蛋機'; return; } if ((p.status === 'sold' || p.status === 'reserved') && p.buyer && p.buyer !== buyer) { why = '已被別人買走'; return; } ups.push([refs[i], { status: 'sold', buyer, soldPrice: p.soldPrice || p.price || null }]); } });
       const base = { buyer, items: o.items || [], total: o.total || 0, note: o.note || '', at: o.at || now, payMethod: o.payMethod || 'transfer', src: o.src || null, ...(o.qty ? { qty: o.qty } : {}), ...(o.ship ? { ship: o.ship } : {}), updatedAt: now, auto: true };
       if (why) { tx.set(oref, { ...base, status: 'cancelled', cancelledAt: now, cancelWhy: why }); return { r: 'cancel', why }; }
       ups.forEach(([r, d]) => tx.update(r, d)); tx.set(oref, { ...base, status: 'confirmed', confirmedAt: now }); return { r: 'ok', goods };
@@ -144,11 +144,13 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
   for (const [oid, o] of Object.entries(after.orders || {})) {
     const bo = (before.orders || {})[oid];
     if (o.seller && (!bo || JSON.stringify({ c: bo.cancelled, r: bo.cancelReq, j: bo.cancelRej, s: bo.status, p: bo.paid }) !== JSON.stringify({ c: o.cancelled, r: o.cancelReq, j: o.cancelRej, s: o.status, p: o.paid }))) await ordAct(o.seller, o.seller, oid, 'upd');
+    if (bo && !bo.cancelled && o.cancelled && o.seller && o.src === 'gacha') { try { await G.release(o.seller, oid, 'buyer'); } catch (e) { logger.warn('gRel', e.message); } }
     if (bo && !bo.cancelled && o.cancelled && o.seller) { await push(o.seller, o.cancelledBy === 'agree' ? '買家同意取消訂單' : '訂單已取消', me + (o.cancelledBy === 'agree' ? ' 同意取消訂單（' : ' 取消了訂單（') + nt(o.total) + '）', '/#orders/orders', 'order-' + oid); continue; }
     if (bo && o.seller && o.cancelReq && (!bo.cancelReq || bo.cancelReq.at !== o.cancelReq.at)) { await push(o.seller, '✋ 買家申請取消訂單', me + (o.cancelReq.why ? '：「' + String(o.cancelReq.why).slice(0, 40) + '」' : '') + '，請到訂單同意或不同意', '/#orders/orders', 'order-' + oid); continue; }
     if (bo && o.seller && o.cancelRej && (!bo.cancelRej || bo.cancelRej.at !== o.cancelRej.at)) { await push(o.seller, '買家不同意取消', me + ' 希望訂單繼續', '/#orders/orders', 'order-' + oid); continue; }
     if (bo || !o.seller || o.cancelled) continue;
     const n = (o.items || []).length, q = Object.values(o.qty || {}).reduce((a, b) => a + b, 0);
+    if (o.src === 'gacha') { await G.ticketOrder(o.seller, oid, o, uid); continue; }
     const ac = await autoConfirm(o.seller, oid, o, uid); if (ac && ac.r === 'cancel') continue;
     await push(o.seller, '📦 新訂單（已成立）', me + ' 下單 ' + (q ? q + (ac && ac.goods ? ' 件' : ' 株') : n + ' 件') + '，共 ' + nt(o.total) + '，等買家付款', '/#orders/orders', 'order-' + oid);
   }
@@ -178,6 +180,7 @@ exports.pushOrder = onDocumentWritten({ document: 'shops/{shop}/orders/{oid}', .
   if (a.cancelReq && (!b || !b.cancelReq || b.cancelReq.at !== a.cancelReq.at)) { await push(a.buyer, '✋ 賣家申請取消訂單', '「' + (await displayName(ev.params.shop)) + '」' + (a.cancelReq.why ? '：' + String(a.cancelReq.why).slice(0, 40) : '') + '，請到訂單同意或不同意', '/#/me/orders', 'ord-' + ev.params.oid); return; }
   if (a.cancelRej && (!b || !b.cancelRej || b.cancelRej.at !== a.cancelRej.at)) { await push(a.buyer, '賣家不同意取消', '「' + (await displayName(ev.params.shop)) + '」希望訂單繼續', '/#/me/orders', 'ord-' + ev.params.oid); return; }
   if (b && b.status === a.status) return;
+  if (a.src === 'gacha' && a.status !== 'cancelled') return;
   if (a.status === 'cancelled' && a.src === 'enc') { try { await encStrike(a.buyer, ev.params.shop, ev.params.oid); } catch (e) { logger.warn('encStrike', e.message); } }
   const sn = await displayName(ev.params.shop), auc = String(ev.params.oid).startsWith('auc-');
   const M = { confirmed: [auc ? '🎉 得標訂單已成立' : '✅ 賣家接受了你的訂單', '「' + sn + '」已確認，訂單頁會顯示匯款資訊'], preparing: ['📦 賣家已確認收款', '「' + sn + '」正在備貨'], shipped: ['🚚 你的植物出貨了', '「' + sn + '」已寄出，收到後記得按「我已收到貨」'], cancelled: b && b.status !== 'pending' ? ['訂單已取消', '「' + sn + '」的訂單已取消'] : ['訂單未成立', '「' + sn + '」這次無法接受訂單'] }[a.status];
@@ -963,3 +966,7 @@ exports.xferDelist = onDocumentWritten('owners/{pid}', async ev => {
   await ref.update({ listed: false, delistedAt: Date.now(), delistedWhy: 'xfer' });
   logger.info('xferDelist', { pid: ev.params.pid });
 });
+
+// 轉蛋機（一番賞）
+const G = require('./gacha')({ db, push, displayName, logger, ordAct, nt, onDocumentCreated, onDocumentWritten, onSchedule, HOT });
+for (const k of ['gachaReq', 'gachaOrder', 'gachaDraw', 'gachaShip', 'gachaSweep']) exports[k] = G[k];

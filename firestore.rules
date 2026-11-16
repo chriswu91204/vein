@@ -356,6 +356,57 @@ service cloud.firestore {
       allow read: if isMe(uid) || isAdmin();
       allow write: if isAdmin();
     }
+
+    // ===== 轉蛋機（一番賞）=====
+    // 機台：任何人可讀；認證賣家建立草稿、只能改草稿；上架／暫停／結束要送 gReq 給伺服器（伺服器才會改狀態、算名額）
+    function gDraftOK() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['shop', 'title', 'tpl', 'price', 'maxPer', 'prizes', 'last', 'ship', 'startAt', 'desc', 'createdAt', 'updatedAt', 'status', 'cover'])
+        && d.status == 'draft' && d.title is string && d.title.size() <= 40
+        && (!('price' in d) || (d.price is int && d.price >= 0 && d.price <= 100000))
+        && (!('prizes' in d) || (d.prizes is list && d.prizes.size() <= 26))
+        && (!('desc' in d) || (d.desc is string && d.desc.size() <= 600))
+        && (!('tpl' in d) || (d.tpl is string && d.tpl.size() <= 20));
+    }
+    match /gacha/{gid} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.shop == request.auth.uid && (vSeller(request.auth.uid) || isAdmin()) && gDraftOK();
+      allow update: if signedIn() && resource.data.shop == request.auth.uid && resource.data.status == 'draft' && request.resource.data.shop == resource.data.shop && gDraftOK();
+      allow delete: if signedIn() && resource.data.shop == request.auth.uid && resource.data.status == 'draft';
+    }
+    match /gReq/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'gid', 'act', 'at'])
+        && request.resource.data.act in ['pub', 'pause', 'resume', 'end'] && request.resource.data.gid is string
+        && get(/databases/$(database)/documents/gacha/$(request.resource.data.gid)).data.shop == request.auth.uid;
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /gSec/{gid} { allow read, write: if false; }
+    match /gRes/{id} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || resource.data.shop == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+    // 抽獎券：只有伺服器能加減；買家只能標記「看過了」（中間那個獲得抽獎券的視窗）
+    match /gTix/{id} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || resource.data.shop == request.auth.uid || isAdmin());
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['seen']) && request.resource.data.seen is int;
+    }
+    match /gDraw/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'gid', 'slots', 'at'])
+        && request.resource.data.gid is string && request.resource.data.slots is list && request.resource.data.slots.size() >= 1 && request.resource.data.slots.size() <= 20;
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    // 轉蛋倉庫：買家看自己的、賣家看寄放在自己這裡的；只有伺服器能改
+    match /gbi/{id} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || resource.data.shop == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+    match /gBox/{uid} { allow read: if signedIn() && request.auth.uid == uid; allow write: if false; }
+    match /gShip/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.keys().hasOnly(['uid', 'shop', 'items', 'ship', 'at'])
+        && request.resource.data.items is list && request.resource.data.items.size() >= 1 && request.resource.data.items.size() <= 50
+        && request.resource.data.ship is map && request.resource.data.shop is string;
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+    }
     // 遭遇戰：每個人自己的攻擊次數（只能往上加，每次最多 +60，上限 300000）
     function vSeller(u) { return exists(/databases/$(database)/documents/site/verified) && u in get(/databases/$(database)/documents/site/verified).data.get('uids', {}); }
     function encOK() { return !exists(/databases/$(database)/documents/encBan/$(request.auth.uid))
