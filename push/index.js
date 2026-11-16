@@ -119,13 +119,13 @@ async function autoConfirm(shop, oid, o, buyer) {
       const ex = await tx.get(oref); if (ex.exists) return { r: 'exists' };
       const ids = [...new Set(o.items || [])], refs = ids.map(pid => db.doc(`shops/${shop}/plants/${pid}`)), snaps = [];
       for (const r of refs) snaps.push(await tx.get(r));
-      let why = null; const ups = [];
+      let why = null; const ups = []; const goods = snaps.some(s => s.exists && s.data().kind === 'goods');
       snaps.forEach((s, i) => { if (!s.exists) { why = '商品已下架'; return; } const p = s.data(), q = Math.max(1, +((o.qty || {})[ids[i]]) || 1), lot = (p.lot === true && p.mode !== 'auction') || !!(o.qty || {})[ids[i]];
         if (lot) { const left = Math.max(0, Math.floor(+p.stock || 0)); if (left < q) { why = '庫存不夠'; return; } ups.push([refs[i], { stock: left - q, soldN: (+p.soldN || 0) + q, ...(left - q <= 0 ? { status: 'sold' } : {}) }]); }
         else { if ((p.status === 'sold' || p.status === 'reserved') && p.buyer && p.buyer !== buyer) { why = '已被別人買走'; return; } ups.push([refs[i], { status: 'sold', buyer, soldPrice: p.soldPrice || p.price || null }]); } });
       const base = { buyer, items: o.items || [], total: o.total || 0, note: o.note || '', at: o.at || now, payMethod: o.payMethod || 'transfer', src: o.src || null, ...(o.qty ? { qty: o.qty } : {}), ...(o.ship ? { ship: o.ship } : {}), updatedAt: now, auto: true };
       if (why) { tx.set(oref, { ...base, status: 'cancelled', cancelledAt: now, cancelWhy: why }); return { r: 'cancel', why }; }
-      ups.forEach(([r, d]) => tx.update(r, d)); tx.set(oref, { ...base, status: 'confirmed', confirmedAt: now }); return { r: 'ok' };
+      ups.forEach(([r, d]) => tx.update(r, d)); tx.set(oref, { ...base, status: 'confirmed', confirmedAt: now }); return { r: 'ok', goods };
     });
   } catch (e) { logger.warn('autoConfirm', oid, e.message); return; }
   if (res.r === 'ok') {
@@ -134,7 +134,7 @@ async function autoConfirm(shop, oid, o, buyer) {
       await dref.set({ seller: shop, buyer, orderId: oid, payMethod: pm, ...(dd.exists && dd.data().bank ? {} : { bank: bank && bank.exists ? bank.data() : null }), ...(dd.exists ? {} : { at: now }) }, { merge: true }); } catch (e) { logger.warn('autoDeal', oid, e.message); }
     await ordAct(buyer, shop, oid, 'upd');
   } else if (res.r === 'cancel') { await push(buyer, '訂單沒有成立', '商品' + res.why + '，這筆訂單已自動取消', '/#/me/orders', 'order-' + oid); await ordAct(buyer, shop, oid, 'upd'); }
-  return res.r;
+  return res;
 }
 exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, async ev => {
   const uid = ev.params.uid, before = ev.data.before.exists ? ev.data.before.data() : {}, after = ev.data.after.exists ? ev.data.after.data() : null;
@@ -149,8 +149,8 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
     if (bo && o.seller && o.cancelRej && (!bo.cancelRej || bo.cancelRej.at !== o.cancelRej.at)) { await push(o.seller, '買家不同意取消', me + ' 希望訂單繼續', '/#orders/orders', 'order-' + oid); continue; }
     if (bo || !o.seller || o.cancelled) continue;
     const n = (o.items || []).length, q = Object.values(o.qty || {}).reduce((a, b) => a + b, 0);
-    const r = await autoConfirm(o.seller, oid, o, uid); if (r === 'cancel') continue;
-    await push(o.seller, '📦 新訂單（已成立）', me + ' 下單 ' + (q ? q + ' 株' : n + ' 件') + '，共 ' + nt(o.total) + '，等買家付款', '/#orders/orders', 'order-' + oid);
+    const ac = await autoConfirm(o.seller, oid, o, uid); if (ac && ac.r === 'cancel') continue;
+    await push(o.seller, '📦 新訂單（已成立）', me + ' 下單 ' + (q ? q + (ac && ac.goods ? ' 件' : ' 株') : n + ' 件') + '，共 ' + nt(o.total) + '，等買家付款', '/#orders/orders', 'order-' + oid);
   }
   // 新出價 → 賣家；被超標 → 原本最高的人
   for (const [pid, bid] of Object.entries(after.bids || {})) {
