@@ -9859,6 +9859,7 @@ function ghHead(K,D,y,fg,sub,acc,big){ const {g}=K; K.text('MY GREENHOUSE',K.L,y
   let yy=y+ts+12; if(D.bio){ K.wrap(D.bio,K.R-K.L,'600 28px '+K.F,2).forEach((l,i)=>K.text(l,K.L,yy+48+i*40,'600 28px '+K.F,sub)); yy+=48+Math.min(2,K.wrap(D.bio,K.R-K.L,'600 28px '+K.F,2).length)*40-20; }
   K.text(D.n+' 株 · '+D.gen+' 個屬'+(D.owner?' · '+D.owner:''),K.L,yy+50,'700 26px '+K.F,acc); return yy+70; }
 async function ghPoster(u,fmt,st){ const D=ghPosterData(u); try{ await document.fonts?.ready; }catch(e){}
+  if (MAGK.has(st)){ const L=D.L.slice(0,6); return magPoster(fmt,st,{imgs:await Promise.all(L.map(ghImg)),caps:L.map(p=>({t:pName(p),s:p.code||''})),title:D.name,sub:D.bio||(D.owner?D.owner+' 的溫室':''),lines:[D.n+' 株收藏',D.gen+' 個屬'],kicker:'MY GREENHOUSE',brand:'VEIN',mast:magGenus(D.L),url:D.url,acc:D.acc}); }
   if (st==='grid') return gridPoster({pill:'GREENHOUSE',kicker:'MY GREENHOUSE',title:D.name,sub:D.bio||(D.owner?D.owner+' 的收藏':''),avatar:D.av,stats:[['收藏',D.n+' 株'],['屬',String(D.gen)],['主打',String((D.c.feat||[]).length)]],items:D.L.map(p=>({img:(p.media||[]).find(m=>m.type!=='video')?.url||p.coverThumb||p.thumb||cover(p),code:p.code,tag:pName(p),badge:(D.c.feat||[]).includes(p.id)?'★ 主打':null})),line:'來逛逛我的溫室',url:D.url,qrCap:'掃描逛溫室'},fmt);
   const K=pkCanvas(fmt), {g,W,H}=K; const ims=await Promise.all(D.L.slice(0,9).map(ghImg));
   if (st==='theme'){ ghBg(K,D); ghLeaves(K,D.dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)'); K.logo(K.L,K.T,48,D.fg); let y=ghHead(K,D,K.T+(K.story?120:100),D.fg,D.sub,D.acc);
@@ -9897,7 +9898,7 @@ async function ghPoster(u,fmt,st){ const D=ghPosterData(u); try{ await document.
     const QS=band-60; await K.qr(D.url,K.R-QS,AH+30,QS,fg==='#fff'?'#111':'#fff',fg==='#fff'?'#fff':'#111'); }
   return {blob:await K.done(),photo:true}; }
 function ghShareText(u,fmt){ const D=ghPosterData(u); if(fmt==='story') return '🪴 '+D.name+'\n👉 '+D.url; return ['🪴 '+D.name+'｜VEIN 玩家溫室', D.bio||'', '🌿 收藏 '+D.n+' 株・'+D.gen+' 個屬', D.L.slice(0,3).map(p=>'・'+pName(p)).join('\n'), '', '👉 來逛：'+D.url, '', '#VEIN #我的溫室 #植物收藏'].filter((x,i,a)=>x!==''||(i>0&&a[i-1]!=='')).join('\n'); }
-function openGhShare(u){ lsSet('vein.didShare',true); return shareFmts({title:'轉發溫室',url:ghUrl(u),file:'greenhouse-'+String(u).slice(0,6),draw:(f,st)=>ghPoster(u,f,st||'theme'),text:f=>ghShareText(u,f),styles:GH_POST,lead:'選一種風格，會用溫室裡的植物（主打的排最前面）排成分享圖，附 QR code。'}); }
+function openGhShare(u){ lsSet('vein.didShare',true); return shareFmts({title:'轉發溫室',url:ghUrl(u),file:'greenhouse-'+String(u).slice(0,6),draw:(f,st)=>ghPoster(u,f,st||'theme'),text:f=>ghShareText(u,f),styles:[...GH_POST,...MAG_TPL],lead:'選一種風格，會用溫室裡的植物（主打的排最前面）排成分享圖，附 QR code。'}); }
 const PSTAT=new Map();
 function pstatOf(u){ if(!u) return {}; if(!PSTAT.has(u)&&S.db){ PSTAT.set(u,{}); S.db.doc('pstat/'+u).get().then(d=>{ if(d.exists){ PSTAT.set(u,d.data()); BCACHE?.clear?.(); renderAll(); } }).catch(()=>{}); } return PSTAT.get(u)||{}; }
 /* ================= 植友社群：瀏覽溫室、發文、按讚留言、精選置頂 ================= */
@@ -11310,10 +11311,158 @@ async function sharePoster(p,kind){
   return {blob,photo};
 }
 
+/* ================= 雜誌封面模板（所有轉發編輯器共用）：16 種，單圖／多圖都能用 ================= */
+const MAG_TPL=[['mg_didone','時尚大刊頭'],['mg_arch','拱窗刊'],['mg_blob','紅色圓塊'],['mg_check','粉格子'],['mg_script','草寫刊頭'],['mg_outline','空心大字'],['mg_couture','高訂大標'],['mg_bw','黑白人像'],['mg_band','黃色橫幅'],['mg_pixel','像素酒紅'],
+  ['mg_bride','酒紅典藏'],['mg_frame','白框藝術刊'],['mg_border','色框週刊'],['mg_side','直排側欄'],['mg_retro','復古刊物'],['mg_tabloid','八卦頭條'],['mg_mini','極簡小刊頭'],['mg_contents','目錄頁'],['mg_quad','四格封面'],['mg_scrap','拼貼特輯']];
+const MAGK=new Set(MAG_TPL.map(x=>x[0]));
+const MAG_FONT='https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Great+Vibes&family=Pacifico&family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Noto+Serif+TC:wght@700;900&display=swap';
+let magFontP=null;
+function magFonts(){ if(magFontP) return magFontP; if(!document.querySelector('link[data-magf]')) document.head.append(h('link',{rel:'stylesheet',href:MAG_FONT,'data-magf':'1'}));
+  const L=['400 80px "Bodoni Moda"','italic 400 80px "Bodoni Moda"','900 80px "Bodoni Moda"','400 80px "Playfair Display"','italic 700 80px "Playfair Display"','900 80px "Playfair Display"','80px "Abril Fatface"','80px "Anton"','80px "Great Vibes"','80px "Pacifico"','900 80px "Noto Serif TC"'];
+  magFontP=Promise.race([Promise.all(L.map(f=>document.fonts?.load(f).catch(()=>null))),new Promise(r=>setTimeout(r,2500))]).catch(()=>null); return magFontP; }
+async function magDraw(g,W,H,st,o){ await magFonts();
+  const DID='"Bodoni Moda","Playfair Display","Didot","Bodoni 72",Georgia,"Noto Serif TC",serif', SER='"Playfair Display",Georgia,"Noto Serif TC","Songti TC",serif', SANS='"Noto Sans TC","PingFang TC","Inter",system-ui,sans-serif', CON='"Anton","Bebas Neue",Impact,"Noto Sans TC",sans-serif', FAT='"Abril Fatface","Playfair Display",Georgia,"Noto Serif TC",serif', TCS='"Noto Serif TC","Songti TC",Georgia,serif', SCR='"Great Vibes","Snell Roundhand","Brush Script MT",cursive,"Noto Serif TC",serif', PAC='"Pacifico","Brush Script MT",cursive,"Noto Sans TC",sans-serif';
+  const story=H>1700, sq=H<1200, T0=story?240:60, B0=story?H-290:H-56, L=64, R=W-64, A=o.acc||'#D2FF00', I=o.imgs||[], im0=I[0]||null, brand0=o.brand||'VEIN', brand=String(o.mast||brand0), title=o.title||'', sub=o.sub||'', lines=(o.lines||[]).filter(Boolean), issue=o.issue||((o.mast&&o.mast!==brand0?brand0+' · ':'')+'NO.'+String(new Date().getMonth()+1).padStart(2,'0')+' · '+new Date().getFullYear());
+  const dark=c=>{ const m=String(c).replace('#',''); if(m.length<6) return false; const n=parseInt(m,16); return ((n>>16&255)*.3+(n>>8&255)*.59+(n&255)*.11)<140; }, onA=dark(A)?'#fff':'#111';
+  const C=(img,x,y,w,hh,r,flt)=>{ g.save(); g.beginPath(); r?g.roundRect(x,y,w,hh,r):g.rect(x,y,w,hh); g.clip(); if(img){ const s=Math.max(w/img.width,hh/img.height), iw=img.width*s, ih=img.height*s; if(flt) g.filter=flt; g.drawImage(img,x+(w-iw)/2,y+(hh-ih)*.4,iw,ih); g.filter='none'; } else { const gr=g.createLinearGradient(x,y,x+w,y+hh); gr.addColorStop(0,'#1F5C42'); gr.addColorStop(1,'#0C0E0D'); g.fillStyle=gr; g.fillRect(x,y,w,hh); } g.restore(); };
+  const T=(t,x,y,font,col,align,ls)=>{ g.font=font; g.fillStyle=col; g.textBaseline='alphabetic'; t=String(t??''); if(!ls){ g.textAlign=align||'left'; g.fillText(t,x,y); g.textAlign='left'; return g.measureText(t).width; }
+    const ws=[...t].map(ch=>g.measureText(ch).width), tw=ws.reduce((a,b)=>a+b,0)+ls*(ws.length-1); let X=align==='center'?x-tw/2:align==='right'?x-tw:x; g.textAlign='left'; [...t].forEach((ch,i)=>{ g.fillText(ch,X,y); X+=ws[i]+ls; }); return tw; };
+  const fit=(t,maxW,pre,fam,max,min,ls)=>{ let s=max; for(;s>min;s-=2){ g.font=pre+' '+s+'px '+fam; const w=g.measureText(String(t)).width+(ls?ls*s*(String(t).length-1):0); if(w<=maxW) break; } return s; };
+  const wrap=(t,maxW,font,maxL)=>{ g.font=font; const out=[]; let line=''; for(const ch of String(t||'')){ if(ch==='\n'){ out.push(line); line=''; continue; } if(g.measureText(line+ch).width>maxW&&line){ const cut=line.lastIndexOf(' '); if(ch!==' '&&cut>line.length*.4&&/[A-Za-z]/.test(ch)){ out.push(line.slice(0,cut)); line=line.slice(cut+1)+ch; } else { out.push(line.trimEnd()); line=ch===' '?'':ch; } if(out.length>=maxL){ line=''; break; } } else line+=ch; }
+    if(line&&out.length<maxL) out.push(line); if(out.length===maxL&&out.join('').replace(/\s/g,'').length<String(t||'').replace(/\s/g,'').length){ let l=out[maxL-1]; while(l&&g.measureText(l+'…').width>maxW) l=l.slice(0,-1); out[maxL-1]=l+'…'; } return out; };
+  const para=(t,x,y,maxW,font,lh,col,maxL,align)=>{ const ls=wrap(t,maxW,font,maxL); ls.forEach((l,i)=>T(l,x,y+i*lh,font,col,align)); return ls.length*lh; };
+  const shade=(y0,y1,a0,a1,col)=>{ const gr=g.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,'rgba('+(col||'0,0,0')+','+a0+')'); gr.addColorStop(1,'rgba('+(col||'0,0,0')+','+a1+')'); g.fillStyle=gr; g.fillRect(0,Math.min(y0,y1),W,Math.abs(y1-y0)); };
+  const qr=async(x,y,S0,bg,fg)=>{ if(!o.url) return false; const Q=await loadQR(); if(!Q) return false; try{ const q=Q(0,'M'); q.addData(o.url); q.make(); const n=q.getModuleCount(), pad=S0*.08, cell=(S0-pad*2)/n; g.fillStyle=bg; g.fillRect(x,y,S0,S0); g.fillStyle=fg; for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) g.fillRect(x+pad+c*cell,y+pad+r*cell,Math.ceil(cell),Math.ceil(cell)); return true; }catch(e){ return false; } };
+  const barcode=(x,y,w,hh,col)=>{ g.fillStyle=col; let X=x, k=7; while(X<x+w){ const bw=[2,4,1,3,2,5,1][k%7]; g.fillRect(X,y,bw,hh); X+=bw+[3,2,4,2,5,2,3][(k*3)%7]; k++; } };
+  const price=(x,y,size,col,align,fam)=>{ if(o.price) T(o.price,x,y,'900 '+size+'px '+(fam||SANS),col,align); };
+  const capOf=i=>(o.caps||[])[i]||{};
+  const QS=sq?130:story?170:150;
+  // 封面主照片滿版＋刊頭
+  const full=(flt)=>{ C(im0,0,0,W,H,0,flt); };
+  switch(st){
+  case 'mg_didone':{ full(); shade(0,H*.34,.45,0); shade(H*.55,H,0,.7);
+    const ms=fit(brand,R-L,'400',DID,story?360:sq?250:320,120,.02); T(brand,W/2,T0+ms*.8,'400 '+ms+'px '+DID,'#fff','center',ms*.02);
+    T(issue,R,T0+ms*.8+40,'500 22px '+SANS,'rgba(255,255,255,.85)','right',4); if(o.kicker) T(o.kicker.toUpperCase(),L,T0+ms*.8+40,'italic 400 30px '+DID,A);
+    let y=H*(sq?.5:.5); y+=para(title,L,y,R-L,'italic 400 '+(sq?56:68)+'px '+DID,(sq?60:74),'#fff',2); if(sub) y+=para(sub,L,y+8,R-L,'600 26px '+SANS,34,'rgba(255,255,255,.9)',2)+8;
+    lines.slice(0,sq?1:3).forEach((l,i)=>{ T(wrap(l,R-L,'italic 400 30px '+DID,1)[0],L,y+40+i*44,'italic 400 30px '+DID,'rgba(255,255,255,.92)'); });
+    price(L,B0-(o.url?QS+30:10),sq?52:64,A,null,DID); if(o.note) T(o.note,L,B0,'600 26px '+SANS,'#fff'); if(o.url) await qr(R-QS,B0-QS,QS,'#fff','#111'); break; }
+  case 'mg_frame':{ g.fillStyle='#F4F0E8'; g.fillRect(0,0,W,H); const ms=fit(brand,R-L,'400',DID,120,60,.3); T(brand,W/2,T0+ms*.82,'400 '+ms+'px '+DID,'#141414','center',ms*.3); T(issue,W/2,T0+ms+30,'600 20px '+SANS,'#7A746A','center',6);
+    const py=T0+ms+60, ph=B0-py-(sq?150:story?380:260); C(im0,L,py,R-L,ph,0); g.strokeStyle='#141414'; g.lineWidth=2; g.strokeRect(L-14,py-14,R-L+28,ph+28);
+    let y=py+ph+(sq?70:90); y+=para(title,L,y,R-L-(o.url?QS+30:0),'italic 400 '+(sq?46:58)+'px '+DID,62,'#141414',story?2:1); if(sub) T(sub,L,y+18,'600 24px '+SANS,'#6A645A');
+    if(o.kicker) T(o.kicker,L,py-34,'800 22px '+SANS,'#B5462B',null,4); price(L,B0,36,'#141414',null,DID); if(o.url) await qr(R-QS+10,B0-QS+10,QS-10,'#F4F0E8','#141414'); break; }
+  case 'mg_border':{ g.fillStyle=A; g.fillRect(0,0,W,H); const bw=40, top=T0-20; C(im0,bw,top,W-bw*2,H-top-(story?250:bw),0); const ms=fit(brand,W-bw*2-60,'900',SER,story?280:sq?200:250,100);
+    g.fillStyle=A; g.fillRect(bw,top,W-bw*2,ms*1.02); T(brand,W/2,top+ms*.84,'900 '+ms+'px '+SER,onA,'center'); T(issue,W-bw-20,top+ms+44,'800 22px '+SANS,'#fff','right',3);
+    shade(H*.55,H,0,.8); let y=B0-(o.url?QS+40:30)-(sq?100:170); if(o.kicker) T(o.kicker,L,y-56,'900 30px '+SANS,A); y+=para(title,L,y,R-L-(sub?0:0),'900 '+(sq?60:76)+'px '+SER,82,'#fff',2); if(sub) T(sub,L,y+14,'700 26px '+SANS,'rgba(255,255,255,.9)');
+    price(L,B0-10,40,'#fff',null,SANS); if(o.url) await qr(R-QS,B0-QS,QS,'#fff','#111'); break; }
+  case 'mg_side':{ const cw=sq?300:340; g.fillStyle=A; g.fillRect(0,0,cw,H); C(im0,cw,0,W-cw,H,0); const ms=fit(brand,B0-T0-80,'900',DID,cw*.9,100,.05); g.save(); g.translate(cw/2+ms*.34,B0); g.rotate(-Math.PI/2); T(brand,0,0,'900 '+ms+'px '+DID,onA,null,ms*.05); g.restore();
+    T(issue,24,T0+10,'800 20px '+SANS,onA,null,3); if(o.kicker){ g.fillStyle='#111'; g.fillRect(cw,T0,W-cw,64); T(o.kicker,cw+24,T0+44,'900 30px '+SANS,A); }
+    shade(H*.55,H,0,.75); let y=B0-(o.url?QS+40:20)-(sq?110:170); y+=para(title,cw+30,y,W-cw-60,'italic 700 '+(sq?52:66)+'px '+SER,72,'#fff',2); if(sub) T(sub,cw+30,y+10,'700 24px '+SANS,'rgba(255,255,255,.9)');
+    price(cw+30,B0-6,38,A); if(o.url) await qr(R-QS,B0-QS,QS,'#fff','#111'); break; }
+  case 'mg_retro':{ g.fillStyle='#EFE4CC'; g.fillRect(0,0,W,H); const fr=34; C(im0,fr+24,T0+150,W-(fr+24)*2,B0-T0-(sq?320:430),0,'sepia(.55) contrast(1.05) saturate(.8)'); g.strokeStyle='#5A3E22'; g.lineWidth=3; g.strokeRect(fr,T0-30,W-fr*2,B0-T0+30); g.lineWidth=1; g.strokeRect(fr+10,T0-20,W-fr*2-20,B0-T0+10);
+    const ms=fit(brand,W-200,'italic 900',SER,140,70); T(brand,W/2,T0+ms*.8,'italic 900 '+ms+'px '+SER,'#5A3E22','center'); T('— '+issue+' —',W/2,T0+ms*.8+40,'700 20px '+SANS,'#8A6A44','center',5);
+    let y=B0-(sq?150:260); y+=para(title,W/2,y,W-260,'900 '+(sq?48:60)+'px '+TCS,66,'#3B2814',2,'center'); if(sub) T(sub,W/2,y+8,'italic 400 28px '+SER,'#6A4E2E','center');
+    if(o.price){ g.save(); g.translate(R-90,T0+ms+110); g.rotate(-.2); g.fillStyle='#B5462B'; g.beginPath(); g.arc(0,0,86,0,7); g.fill(); g.strokeStyle='#EFE4CC'; g.lineWidth=3; g.beginPath(); g.arc(0,0,74,0,7); g.stroke(); const ps=fit(o.price,130,'900',SANS,34,18); T(o.price,0,ps*.35,'900 '+ps+'px '+SANS,'#fff','center'); g.restore(); }
+    if(o.url) await qr(L+10,B0-QS-20,QS-10,'#EFE4CC','#3B2814'); break; }
+  case 'mg_tabloid':{ full(); const bh=sq?150:190; g.fillStyle='#E10600'; g.fillRect(0,T0-40,W,bh); const ms=fit(brand,W-120-230,'',CON,bh*.95,60); T(brand,L,T0-40+bh*.82,ms+'px '+CON,'#fff'); T(issue,R,T0-40+bh*.82,'900 24px '+SANS,'#FFE600','right');
+    const hy=T0-40+bh+40; const lns=[o.kicker||'獨家！',...lines.slice(0,sq?1:2)]; lns.forEach((l,i)=>{ g.font='900 '+(i?34:46)+'px '+SANS; const tw=g.measureText(l).width+40; g.save(); g.translate(L,hy+i*86); g.rotate(i%2?.02:-.03); g.fillStyle=i?'#111':'#FFE600'; g.fillRect(0,0,tw,i?62:74); T(l,20,i?44:54,'900 '+(i?34:46)+'px '+SANS,i?'#FFE600':'#111'); g.restore(); });
+    shade(H*.55,H,0,.75); let y=B0-(o.url?QS+40:20)-(sq?120:180); y+=para(title,L,y,R-L,'900 '+(sq?64:84)+'px '+SANS,88,'#fff',2); if(sub) T(sub,L,y+10,'800 28px '+SANS,'#FFE600');
+    if(o.price){ g.save(); g.translate(R-120,H*.42); g.rotate(.15); g.fillStyle='#FFE600'; g.beginPath(); for(let i=0;i<24;i++){ const a=i/24*Math.PI*2, r=i%2?84:112; g.lineTo(Math.cos(a)*r,Math.sin(a)*r); } g.closePath(); g.fill(); const ps=fit(o.price,150,'900',SANS,38,18); T(o.price,0,ps*.35,'900 '+ps+'px '+SANS,'#E10600','center'); g.restore(); }
+    if(o.url) await qr(R-QS,B0-QS,QS,'#fff','#111'); break; }
+  case 'mg_mini':{ g.fillStyle='#FAFAF7'; g.fillRect(0,0,W,H); const ph=story?H*.58:sq?H*.6:H*.62; C(im0,0,0,W,ph,0); T(brand0,L,T0+40,'900 44px '+DID,'#fff',null,10); T(issue.replace(brand0+' · ',''),R,T0+40,'700 20px '+SANS,'#fff','right',4);
+    if(o.mast&&o.mast!==brand0) T(o.mast.toUpperCase(),L,ph-40,'italic 400 '+fit(o.mast.toUpperCase(),R-L,'italic 400',DID,120,40)+'px '+DID,'#fff');
+    let y=ph+(sq?80:110); if(o.kicker) T(o.kicker.toUpperCase(),L,y-30,'800 22px '+SANS,'#9A9A92',null,6); y+=para(title,L,y+30,R-L-(o.url?QS+20:0),'400 '+(sq?62:84)+'px '+DID,(sq?66:90),'#111',2); if(sub) T(sub,L,y+30,'600 26px '+SANS,'#55554E');
+    g.fillStyle='#111'; g.fillRect(L,B0-80,60,4); price(L,B0-20,34,'#111'); if(o.url) await qr(R-QS,B0-QS,QS,'#FAFAF7','#111'); break; }
+  case 'mg_arch':{ g.fillStyle='#E07A5F'; g.fillRect(0,0,W,H); const ms=fit(brand.toUpperCase(),R-L,'400',DID,story?250:sq?170:220,90); T('ISSUE '+String(new Date().getMonth()+1).padStart(2,'0'),L,T0+8,'700 20px '+SANS,'rgba(255,255,255,.85)',null,3);
+    T(brand.toUpperCase(),W/2,T0+30+ms*.78,'400 '+ms+'px '+DID,'#fff','center'); T('M A G A Z I N E',W/2,T0+30+ms*.78+40,'700 20px '+SANS,'#fff','center',4);
+    const aw=W*(sq?.36:.44), ax=(W-aw)/2, ay=T0+ms+90, ah=B0-ay-(sq?20:40); g.save(); g.beginPath(); g.moveTo(ax,ay+ah); g.lineTo(ax,ay+aw/2); g.arc(ax+aw/2,ay+aw/2,aw/2,Math.PI,0); g.lineTo(ax+aw,ay+ah); g.closePath(); g.fillStyle='#2B1A14'; g.fill(); g.clip(); C(im0,ax,ay,aw,ah,0); g.restore();
+    const cw=ax-L-24; let y=ay+40; if(o.kicker){ T(o.kicker,L,y,'900 24px '+SANS,'#2B1A14'); y+=36; } y+=para(title,L,y+10,cw,'800 '+(sq?28:34)+'px '+SANS,40,'#fff',3)+10; if(sub) y+=para(sub,L,y+6,cw,'600 22px '+SANS,28,'rgba(255,255,255,.85)',3);
+    if(o.price){ T('現在',L,y+70,'800 20px '+SANS,'#2B1A14'); T(o.price,L,y+108,'900 '+fit(o.price,cw,'900',SANS,40,20)+'px '+SANS,'#fff'); }
+    let ry=ay+40; lines.slice(0,sq?2:4).forEach(l=>{ ry+=para(l,R,ry,R-ax-aw-24,'800 24px '+SANS,30,'#fff',3,'right')+26; });
+    barcode(R-170,B0-90,150,70,'#2B1A14'); if(o.url) await qr(L,B0-QS,QS,'#fff','#2B1A14'); break; }
+  case 'mg_blob':{ g.fillStyle='#F4EEE6'; g.fillRect(0,0,W,H); const RED='#C8102E'; const ms=fit(brand.toUpperCase(),R-L,'',CON,story?300:sq?190:250,90); T(brand.toUpperCase(),W/2,T0+ms*.88,ms+'px '+CON,RED,'center');
+    const cy=T0+ms+(H-T0-ms-(H-B0))*.42, rr=Math.min(W*.4,(B0-T0-ms)*.36); const blob=(r0,ox,oy)=>{ g.beginPath(); for(let i=0;i<=64;i++){ const a=i/64*Math.PI*2, r=r0*(1+.1*Math.sin(3*a+.6)+.06*Math.cos(5*a)); const X=W/2+ox+Math.cos(a)*r, Y=cy+oy+Math.sin(a)*r; i?g.lineTo(X,Y):g.moveTo(X,Y); } g.closePath(); };
+    blob(rr*1.08,24,18); g.fillStyle=RED; g.fill(); g.save(); blob(rr,0,0); g.clip(); C(im0,W/2-rr*1.2,cy-rr*1.2,rr*2.4,rr*2.4,0); g.restore();
+    const sy=cy+rr*1.25+ (sq?40:80); const ts=fit(title,R-L,'400',SCR,sq?80:110,44); T(title,W/2,sy,'400 '+ts+'px '+SCR,RED,'center'); if(sub) T(sub,W/2,sy+50,'700 24px '+SANS,'#5A4A44','center');
+    const d=new Date(), mon=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]+' '+d.getFullYear(); T(mon,L,B0-6,'30px '+CON,RED); g.fillStyle=RED; g.fillRect(L+180,B0-18,R-L-(o.url?QS+20:0)-400,3); T((o.kicker||'LIFESTYLE').toUpperCase(),R-(o.url?QS+20:0),B0-6,'30px '+CON,RED,'right');
+    if(o.price) T(o.price,W/2,T0+ms+40,'900 30px '+SANS,'#2B2B2B','center'); if(o.url) await qr(R-QS+20,B0-QS+20,QS-20,'#F4EEE6',RED); break; }
+  case 'mg_check':{ g.fillStyle='#F7C5D9'; g.fillRect(0,0,W,H); const cs=64; for(let y=0;y<H;y+=cs) for(let x=W*.45;x<W;x+=cs) if(((x/cs|0)+(y/cs|0))%2) { g.fillStyle='rgba(240,120,170,.45)'; g.fillRect(x,y,cs,cs); }
+    T('VOLUME '+String(new Date().getMonth()+1).padStart(2,'0'),L,T0+6,'700 18px '+SANS,'#2B2B6B',null,3); T('ISSUE '+new Date().getFullYear(),R,T0+6,'700 18px '+SANS,'#2B2B6B','right',3);
+    const ms=fit(brand.toUpperCase(),R-L,'',CON,story?260:sq?170:220,90); T(brand.toUpperCase(),L,T0+30+ms*.88,ms+'px '+CON,'#2B2B6B'); T('M A G A Z I N E',L,T0+ms+70,'800 22px '+SANS,'#2B2B6B',null,3);
+    const px=W*.4, py=T0+ms+100; C(im0,px,py,R-px+64,B0-py,0); let y=py+40; const cw=px-L-20;
+    y+=para(title,L,y,cw,'italic 900 '+(sq?32:40)+'px '+SER,46,'#2B2B6B',3)+12; if(sub) y+=para(sub,L,y,cw,'italic 700 24px '+SER,30,'#2B2B6B',2)+16; lines.slice(0,sq?2:4).forEach(l=>{ y+=para(l.toUpperCase(),L,y+10,cw,'italic 800 22px '+SANS,28,'#2B2B6B',2)+14; });
+    if(o.kicker||o.price){ const bx=px+30, by=B0-150; g.fillStyle='#2B2B6B'; g.beginPath(); g.arc(bx+70,by+70,78,0,7); g.fill(); para(o.kicker||'TOP',bx+70,by+(o.price?62:80),130,'900 22px '+SANS,26,'#fff',2,'center'); if(o.price) T(o.price,bx+70,by+112,'900 '+fit(o.price,130,'900',SANS,24,14)+'px '+SANS,'#F7C5D9','center'); }
+    if(o.url) await qr(L,B0-QS,QS,'#fff','#2B2B6B'); break; }
+  case 'mg_script':{ g.fillStyle='#8C8A55'; g.fillRect(0,0,W,H); const ms=fit(brand.toLowerCase(),R-L,'400',PAC,story?220:sq?150:190,70); T(brand.toLowerCase(),W/2,T0+ms*.92,'400 '+ms+'px '+PAC,'#111','center'); T('PLANTS & COLLECTORS',W/2,T0+ms+30,'800 20px '+SANS,'#111','center',4);
+    const top=T0+ms+70, px=W*.38; C(im0,px,top,W-px,B0-top-50,0); const cw=px-L-24; let y=top+10;
+    const blk=(hd,tx)=>{ if(!tx) return; g.fillStyle='#111'; g.font='900 20px '+SANS; const tw=g.measureText(hd).width+20; g.fillRect(L,y,tw,32); T(hd,L+10,y+23,'900 20px '+SANS,'#E8E4C4'); y+=46; y+=para(tx,L,y+6,cw,'700 '+(sq?22:25)+'px '+SANS,31,'#fff',sq?2:3)+22; };
+    blk(o.kicker||'封面故事',title); blk('關於',sub); lines.slice(0,sq?1:3).forEach((l,i)=>blk(['重點','亮點','收藏'][i],l)); if(o.price) blk('價格',o.price);
+    T(issue,L,B0-6,'700 20px '+SANS,'#111',null,2); T(location.host,R,B0-6,'700 20px '+SANS,'#111','right'); if(o.url) await qr(px+20,B0-50-QS-20,QS,'#fff','#111'); break; }
+  case 'mg_outline':{ full(); shade(0,H*.35,.35,0); shade(H*.62,H,0,.6); T(issue,L,T0+4,'700 20px '+SANS,'#fff',null,2);
+    const ms=fit(brand.toUpperCase(),R-L,'900',DID,story?300:sq?200:260,90); g.save(); g.font='900 '+ms+'px '+DID; g.textAlign='center'; g.fillStyle='rgba(184,242,208,.35)'; g.fillText(brand.toUpperCase(),W/2,T0+30+ms*.8); g.lineWidth=4; g.strokeStyle='#B8F2D0'; g.strokeText(brand.toUpperCase(),W/2,T0+30+ms*.8); g.restore();
+    if(o.kicker) T(o.kicker,R,T0+ms+90,'italic 700 40px '+SER,'#fff','right'); lines.slice(0,3).forEach((l,i)=>T(wrap(l,W*.42,'600 22px '+SER,1)[0],R,T0+ms+140+i*32,'600 22px '+SER,'rgba(255,255,255,.9)','right'));
+    let y=B0-(sq?190:260); y+=para(title,L,y,W*.62,'italic 700 '+(sq?46:58)+'px '+SER,62,'#fff',2); if(sub) para(sub,L,y+8,W*.6,'500 22px '+SER,28,'rgba(255,255,255,.88)',2); price(L,B0-6,34,'#B8F2D0',null,SER);
+    barcode(R-170,B0-70,150,64,'#fff'); if(o.url) await qr(R-170-QS-20,B0-QS,QS,'#fff','#111'); break; }
+  case 'mg_couture':{ full(); shade(H*.35,H,0,.85); T(o.kicker||'New Trends',L,T0+40,'700 40px '+SER,A); para(sub||lines[0]||'',L,T0+90,W*.34,'500 22px '+SER,28,'rgba(255,255,255,.88)',6);
+    const ny=B0-(o.url?QS+20:0)-(sq?140:200); T(wrap(title,W*.4,'700 34px '+SER,2)[0]||'',L,ny-170,'700 34px '+SER,'#fff'); lines.slice(0,2).forEach((l,i)=>T(wrap(l,W*.45,'500 20px '+SER,1)[0],L,ny-130+i*28,'500 20px '+SER,'rgba(255,255,255,.8)'));
+    const w1=brand.toLowerCase(), s1=fit(w1,R-L,'400',DID,story?300:sq?200:240,90); g.save(); g.globalAlpha=.75; T(w1,R,ny+s1*.15,'italic 400 '+s1+'px '+DID,A,'right'); g.restore();
+    const w2=(title.match(/[A-Za-z][A-Za-z]+/)||[title.slice(0,8)])[0], s2=fit(w2,R-L,'400',DID,sq?130:160,60); T(w2,W/2,ny+s1*.15+s2*.9,'400 '+s2+'px '+DID,'#fff','center');
+    T(issue,L,B0-6,'600 18px '+SANS,'rgba(255,255,255,.7)',null,2); price(W/2,B0-6,30,A,'center',SER); if(o.url) await qr(R-QS,B0-QS,QS,'#fff','#111'); break; }
+  case 'mg_bw':{ full('grayscale(1) contrast(1.15)'); shade(0,H*.3,.4,0); shade(H*.7,H,0,.6); const ms=fit(brand,R-L-60,'900',DID,story?320:sq?220:280,90); T(brand,L,T0+ms*.8,'900 '+ms+'px '+DID,'#fff');
+    T('Plant magazine · '+issue,L,T0+ms*.8+40,'500 22px '+SER,'rgba(255,255,255,.85)'); if(o.price){ T(o.price,L,T0-8+ (story?0:4),'800 22px '+SANS,'#fff'); }
+    g.save(); g.translate(L+10,B0-(o.url?QS+30:0)); g.rotate(-Math.PI/2); T((o.kicker||title).slice(0,24),0,0,'900 '+(sq?40:52)+'px '+SER,'#fff'); T((sub||'').slice(0,40),0,30,'500 18px '+SANS,'rgba(255,255,255,.8)'); g.restore();
+    let y=B0-(sq?130:180); y+=para(title,R,y,W*.5,'italic 700 '+(sq?36:44)+'px '+SER,48,'#fff',2,'right'); lines.slice(0,1).forEach(l=>T(wrap(l,W*.5,'500 20px '+SANS,1)[0],R,y+10,'500 20px '+SANS,'rgba(255,255,255,.85)','right')); if(o.url) await qr(R-QS,T0+ms+70,QS,'#fff','#111'); break; }
+  case 'mg_band':{ g.fillStyle='#FFFFFF'; g.fillRect(0,0,W,H); const bh=sq?200:story?280:240; g.fillStyle='#FFD60A'; g.fillRect(0,T0-60,W,bh); const ms=fit(brand.toUpperCase(),R-L,'',CON,bh*1.05,80); T(brand.toUpperCase(),W/2,T0-60+bh*.5+ms*.38,ms+'px '+CON,'#111','center');
+    const d=new Date(), mon=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'][d.getMonth()]+' '+d.getFullYear(); T(mon,L,T0-60+bh+40,'900 22px '+SANS,'#111'); T('NO.'+String(d.getDate()).padStart(2,'0'),R,T0-60+bh+40,'900 22px '+SANS,'#111','right');
+    const py=T0-60+bh+64, bb=sq?150:190; C(im0,0,py,W,B0-py-bb+40,0); g.fillStyle='#111'; g.fillRect(0,B0-bb+40,W,H-(B0-bb+40)); const tx=o.url?R-QS-30:R;
+    T((o.kicker||'EXCLUSIVE').toUpperCase(),L,B0-bb+86,'900 22px '+SANS,'#FFD60A',null,3); para(title,L,B0-bb+128,tx-L,'900 '+(sq?36:44)+'px '+SANS,48,'#fff',2); if(o.price) T(o.price,L,B0-4,'900 26px '+SANS,'#FFD60A');
+    if(o.url) await qr(R-QS,B0-bb+60,QS-10,'#fff','#111'); break; }
+  case 'mg_pixel':{ g.fillStyle='#5B1A2B'; g.fillRect(0,0,W,H); const ps=36; for(let i=0;i<70;i++){ const x=W-((i*137)%(W*.45))-ps, y=T0+((i*89)%(H*.3)); g.fillStyle=i%3?'rgba(240,98,146,.55)':'#7A2A40'; g.fillRect(Math.round(x/ps)*ps,Math.round(y/ps)*ps,ps,ps); }
+    T('CHROMA · '+(o.brand||'VEIN'),L,T0+6,'800 20px '+SANS,'#fff',null,3); T(issue,R,T0+6,'800 20px '+SANS,'#fff','right',2); const ms=fit(brand.toUpperCase(),R-L,'',CON,story?240:sq?160:200,80); T(brand.toUpperCase(),L,T0+40+ms*.86,ms+'px '+CON,'#fff');
+    let y=T0+ms+110; y+=para(title.toUpperCase(),L,y,W*.42,'900 '+(sq?28:34)+'px '+SANS,40,'#F06292',3)+10; lines.slice(0,sq?1:3).forEach(l=>{ y+=para(l.toUpperCase(),L,y+6,W*.38,'800 22px '+SANS,28,'#fff',2)+14; });
+    const px=W*.44, py=Math.max(y-40,H*.36); C(im0,px,py,W-px,B0-py+(story?0:56),0); T((o.kicker||'HOW TO STYLE').toUpperCase(),L,B0-(o.url?QS+30:10),'900 '+(sq?34:42)+'px '+SANS,'#fff'); price(L,B0-(o.url?QS+80:60),28,'#F06292');
+    if(o.url) await qr(L,B0-QS,QS,'#fff','#5B1A2B'); break; }
+  case 'mg_bride':{ g.fillStyle='#5E0F14'; g.fillRect(0,0,W,H); const ms=fit(brand.toUpperCase(),R-L,'400',DID,story?160:sq?110:140,60,.12); T(brand.toUpperCase(),W/2,T0+ms*.82,'400 '+ms+'px '+DID,'#F5E6D3','center',ms*.12);
+    T('VOL '+(new Date().getMonth()+1)+'  |  '+(o.kicker||'THE NEW ISSUE'),W/2,T0+ms+30,'600 20px '+SANS,'#E9C9A0','center',3); const pw=W*(sq?.46:.54), px=(W-pw)/2, py=T0+ms+70, ph=B0-py-(sq?10:30);
+    g.strokeStyle='#C9A36B'; g.lineWidth=2; g.strokeRect(px-12,py-12,pw+24,ph+24); C(im0,px,py,pw,ph,0); const cw=px-L-30;
+    let y=py+60; y+=para(title,L,y,cw,'italic 400 '+(sq?28:34)+'px '+DID,38,'#F5E6D3',4)+14; if(sub) y+=para(sub,L,y,cw,'500 20px '+SANS,26,'#E9C9A0',4);
+    let ry=py+60; lines.slice(0,3).forEach(l=>{ ry+=para(l,R,ry,cw,'500 21px '+DID,28,'#F5E6D3',3,'right')+18; }); price(R,ry+40,30,'#E9C9A0','right',DID);
+    if(o.url) await qr(L,B0-QS+(sq?10:0),Math.min(QS,cw),'#F5E6D3','#5E0F14'); break; }
+  case 'mg_contents':{ g.fillStyle='#F6F4EF'; g.fillRect(0,0,W,H); T('CONTENTS',L,T0+90,'900 '+fit('CONTENTS',R-L,'900',DID,96,50)+'px '+DID,'#111'); g.fillStyle='#111'; g.fillRect(L,T0+120,R-L,3); T((o.mast&&o.mast!==brand0?o.mast+' · ':'')+issue,L,T0+150,'700 20px '+SANS,'#77736A',null,4);
+    const n=Math.max(1,Math.min(I.length,story?6:sq?3:4)), top=T0+180, bot=B0-(o.url?QS+30:20), rh=(bot-top)/n; for(let i=0;i<n;i++){ const y=top+i*rh, th=rh-24, cp=capOf(i); T(String(i+1).padStart(2,'0'),L,y+th*.62,'italic 400 '+Math.min(110,th*.7)+'px '+DID,A==='#FFFFFF'?'#111':dark(A)?A:'#111');
+      C(I[i],L+150,y+8,th*1.15,th,0); T(wrap(cp.t||title,R-L-180-th*1.15,'800 30px '+SANS,1)[0]||'',L+150+th*1.15+24,y+th*.45,'800 30px '+SANS,'#111'); if(cp.s) T(cp.s,L+150+th*1.15+24,y+th*.45+40,'700 24px '+SANS,'#6A665E'); g.fillStyle='#DDD8CC'; g.fillRect(L,y+rh-10,R-L,1); }
+    T(title,L,B0-10,'italic 400 '+fit(title,R-L-(o.url?QS+30:0),'italic 400',DID,44,24)+'px '+DID,'#111'); if(o.url) await qr(R-QS,B0-QS,QS,'#F6F4EF','#111'); break; }
+  case 'mg_quad':{ g.fillStyle='#111'; g.fillRect(0,0,W,H); const band=sq?200:story?(T0+260):280, by=story?0:0; const gy=band, gh=H-band-(story?300:0), gp=6; const cells=[[0,0],[1,0],[0,1],[1,1]];
+    cells.forEach(([cx,cy],i)=>{ const w=W/2, hh=gh/2; C(I[i%Math.max(1,I.length)],cx*w+gp/2,gy+cy*hh+gp/2,w-gp,hh-gp,0); const cp=capOf(i%Math.max(1,I.length)); if(cp.s){ g.fillStyle=A; g.font='900 26px '+SANS; const tw=g.measureText(cp.s).width+24; g.fillRect(cx*w+18,gy+cy*hh+18,tw,44); T(cp.s,cx*w+30,gy+cy*hh+50,'900 26px '+SANS,onA); } });
+    const ms=fit(brand,W*.5,'900',DID,story?150:130,60); T(brand,L,(story?T0:0)+ms*.95+(story?20:30),'900 '+ms+'px '+DID,'#fff'); T(issue,R,(story?T0:0)+60,'700 20px '+SANS,'#fff','right',4);
+    para(title,L,(story?T0:0)+ms+ (story?90:80),R-L-(o.url&&!story?QS:0)-10,'800 '+(sq?34:40)+'px '+SANS,46,A,1); if(o.url) await qr(story?R-QS:R-QS+20,story?B0-QS+60:band-QS-14+(sq?6:0),story?QS:QS-20,'#fff','#111'); if(story&&sub) T(sub,L,B0+30,'700 26px '+SANS,'#fff'); break; }
+  default:{ /* mg_scrap */ g.fillStyle='#EDE6D8'; g.fillRect(0,0,W,H); for(let i=0;i<60;i++){ g.fillStyle='rgba(120,100,70,'+(.03+(i%5)*.01)+')'; g.fillRect((i*197)%W,(i*331)%H,3,3); }
+    const ms=fit(brand,R-L,'',FAT,story?260:sq?170:220,90); T(brand,L,T0+ms*.82,ms+'px '+FAT,'#111'); T(issue,R,T0+ms*.82,'800 20px '+SANS,'#7A6A50','right',4); if(o.kicker){ g.save(); g.translate(L,T0+ms+20); g.rotate(-.03); g.fillStyle=A; g.font='900 32px '+SANS; const tw=g.measureText(o.kicker).width+30; g.fillRect(0,0,tw,52); T(o.kicker,15,38,'900 32px '+SANS,onA); g.restore(); }
+    const n=Math.max(1,Math.min(I.length,4)), area=[T0+ms+90,B0-(sq?140:220)], rot=[-.06,.05,-.03,.07]; const pos=n===1?[[.5,.5,.86]]:n===2?[[.32,.42,.6],[.68,.6,.6]]:n===3?[[.3,.35,.55],[.72,.4,.5],[.5,.72,.5]]:[[.28,.3,.48],[.72,.3,.48],[.3,.72,.48],[.72,.72,.48]];
+    pos.forEach(([px,py,ps],i)=>{ const aw=R-L, ah=area[1]-area[0], s0=Math.min(aw,ah)*ps*(sq?1.05:1.15), cx=L+aw*px, cy=area[0]+ah*py; g.save(); g.translate(cx,cy); g.rotate(rot[i]); g.shadowColor='rgba(0,0,0,.3)'; g.shadowBlur=22; g.shadowOffsetY=8; g.fillStyle='#fff'; g.fillRect(-s0/2-14,-s0/2-14,s0+28,s0+70); g.shadowColor='transparent'; C(I[i],-s0/2,-s0/2,s0,s0,0); const cp=capOf(i); if(cp.t) T(wrap(cp.t,s0,'800 22px '+SANS,1)[0],0,s0/2+40,'800 22px '+SANS,'#222','center'); g.fillStyle='rgba(210,255,0,.7)'; g.fillRect(-50,-s0/2-30,100,32); g.restore(); });
+    let y=area[1]+(sq?60:80); y+=para(title,L,y,R-L-(o.url?QS+30:0),'italic 900 '+(sq?44:56)+'px '+SER,60,'#111',2); price(L,B0-6,36,'#B5462B'); if(o.url) await qr(R-QS,B0-QS,QS,'#EDE6D8','#111'); }
+  }
+  return true; }
+// 給 shareFmts 用的通用封面：fmt × style → {blob,photo}
+const magGenus=L=>{ const c=new Map(); (L||[]).forEach(p=>{ const g0=p&&genusOf(normSp(p.species||'')); if(g0) c.set(g0,(c.get(g0)||0)+1); }); let b='',n=0; c.forEach((v,k)=>{ if(v>n){ n=v; b=k; } }); return b; };
+async function magPoster(fmt,st,o){ const K=pkCanvas(fmt); try{ await magDraw(K.g,K.W,K.H,st,o); }catch(e){ console.warn('mag',e); } return {blob:await K.done(),photo:!!(o.imgs||[])[0]}; }
+async function magFromGrid(d,n,plants){ const it=(d.items||[]).slice(0,n||6); const imgs=await Promise.all(it.map(x=>sdImg(x.img))); return {imgs,caps:it.map(x=>({t:x.code||'',s:x.tag||''})),title:d.title||'',sub:d.sub||'',kicker:d.kicker||'',lines:(d.stats||[]).map(([a,b])=>a+' '+b),url:d.url||null,price:'',brand:'VEIN',mast:magGenus(plants||[])}; }
+
+// 植物分享圖設計工具：雜誌封面
+async function sdMag(cv,p,c,scale){ const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale); cv.width=W; cv.height=H; const g=cv.getContext('2d'); g.save(); g.scale(W/W0,H/H0);
+  let imgs=[], caps=[];
+  if(p.__multi){ const Lp=p.__multi.slice(0,6); imgs=await Promise.all(Lp.map(q=>sdImg(cover(q)))); caps=Lp.map(q=>({t:pName(q),s:c.showPrice!==false&&onSale(q)?priceLabel(q).main:(q.code||'')})); }
+  else { const ph=sdPhotos(p), first=c.photo||ph[0]||cover(p), U=[first,...ph.filter(u=>u!==first)].slice(0,6); imgs=await Promise.all(U.map(async(u,i)=>(i===0&&scale>=1?await sdImg(await hiPhoto(p,u)):null)||sdImg(u))); caps=U.map((u,i)=>({t:pName(p),s:i?'#'+(i+1):(p.code||'')})); }
+  const name=c.title||(p.__multi?p.__name:pName(p)), price=c.showPrice?(p.__multi?p.__price:onSale(p)?priceLabel(p).main:''):'';
+  const sub=p.__multi?(shopName(p.shop)||''):[c.showCode!==false?p.code:'',({mother:'母株',pup:'側芽',seedling:'實生苗'})[p.kind]||''].filter(Boolean).join(' · ');
+  const lines=[...(sdTags(p,c)||[]), !p.__multi&&p.cross&&/[×xX]/.test(p.cross)?String(p.cross):''].filter(Boolean).slice(0,4);
+  try{ await magDraw(g,W0,H0,c.tpl,{imgs,caps,title:name,sub,lines,price,kicker:c.note||'',brand:c.showVein===false?(shopName(p.shop)||'VEIN'):'VEIN',mast:magGenus(p.__multi||[p]),url:c.showQR?plantUrl(p):null,acc:c.color||'#D2FF00'}); }catch(e){ console.warn('sdMag',e); }
+  g.restore(); return true; }
+
 /* ================= 分享圖設計工具：滿版照片＋必要資訊，多種模板 ================= */
 const SD_FMT={story:[1080,1920,'限動 9:16'],post:[1080,1350,'貼文 4:5'],square:[1080,1080,'方形 1:1']};
 const SD_TPL=[['minimal','極簡'],['magazine','雜誌'],['volt','螢光貼紙'],['glass','毛玻璃'],['label','植物吊牌'],['bold','超大字'],['frame','細框藝廊'],['split','雙色條'],['poster','海報'],['circle','圓窗'],['neon','霓虹'],['ticket','票券'],['news','報紙'],['arch','拱門']];
 const SD_TPL_M=[['multi','吊牌卡'],['mgrid','拼貼滿版'],['mbento','便當格'],['mfilm','底片'],['mpola','拍立得'],['mfan','扇形疊卡'],['mdot','圓點拼貼'],['mmag','雜誌目錄'],['mmenu','價目表'],['mcat','型錄格'],['mhero','主角配角'],['mwall','瀑布牆'],['march','拱門窗'],['mneon','霓虹拼貼'],['mstrip','直條長卷'],['mscrap','牛皮剪貼']];
+SD_TPL.push(...MAG_TPL); SD_TPL_M.push(...MAG_TPL);
 const SD_MBG_T=new Set(['mfan','mmenu','mcat','mhero','mwall','march','mneon','mstrip','mscrap']);
 const SD_COLORS=['#D2FF00','#FFFFFF','#FFB4C8','#FF8A3D','#7FD4FF','#8CF5C0','#111312'];
 const SD_FONTS=[['sans','黑體'],['serif','襯線'],['round','圓體'],['mono','等寬']];
@@ -11379,6 +11528,7 @@ async function sdParents(cv,p,c,scale=1){
 }
 async function sdRender(cv,p,c,scale=1){
   if (c.tpl==='parents') return sdParents(cv,p,c,scale);
+  if (MAGK.has(c.tpl)) return sdMag(cv,p,c,scale);
   const [W0,H0]=SD_FMT[c.fmt]||SD_FMT.post, W=Math.round(W0*scale), H=Math.round(H0*scale), u=W/1080, s=u*(c.size||1), rd=c.round??1, TX=c.ink||'#fff'; cv.width=W; cv.height=H; const g=cv.getContext('2d');
   const FF={sans:'"PingFang TC","Noto Sans TC","Inter",system-ui,sans-serif',serif:'"Noto Serif TC","Songti TC",Georgia,serif',round:'"Arial Rounded MT Bold","Yuanti TC","PingFang TC",system-ui,sans-serif',mono:'"JetBrains Mono",ui-monospace,Menlo,monospace'}, F=FF[c.font]||FF.sans, MONO=FF.mono;
   const A=c.color||VOLT, INK='#050605', dark=A==='#111312', onA=['#FFFFFF','#D2FF00','#FFB4C8','#8CF5C0','#7FD4FF','#FF8A3D'].includes(A)?INK:'#fff';
@@ -12050,14 +12200,16 @@ async function renderBatch(key){ const box=$('#batchPage'); if(!box) return; con
 // 共用：三種尺寸的分享視窗
 function shareFmts(o){ const mk=(k,label,sub,aspect)=>({k,label,sub,aspect,image:st=>o.draw(k,st),text:o.text(k),file:o.file+'-'+k});
   return shareDialog({title:o.title,lead:o.lead,url:o.url,start:o.start,styles:o.styles,modes:[mk('post','貼文 4:5','IG／FB／Threads'),mk('story','限動 9:16','IG／FB 限動','916'),mk('square','方形 1:1','LINE／訊息','11')]}); }
+async function aucMagData(p){ const ph=sdPhotos(p).slice(0,6), imgs=await Promise.all(ph.map(async(u,i)=>(i===0?await sdImg(await hiPhoto(p,u)):null)||sdImg(u))); const bs=bidsFor(p.id), t=bs[0], L=live(p), amt=t?t.amt:p.startPrice;
+  return {imgs,caps:ph.map((u,i)=>({t:pName(p),s:i?'#'+(i+1):p.code||''})),title:pName(p),sub:(L?'目前出價 ':'得標價 ')+money(amt)+(p.code?' · '+p.code:''),lines:[L&&p.endsAtMs?'倒數 '+fmtLeft(p.endsAtMs-Date.now()):'已結標',bs.length+' 次出價',...(parList(p)||[]).filter(Boolean).length?['親本 '+parList(p).filter(Boolean).join(' × ')]:[]],price:money(amt),kicker:L?'限時競標':'競標結果',brand:'VEIN',mast:magGenus([p]),url:plantUrl(p),acc:'#FF5A2A'}; }
 function openAucShare(p){ lsSet('vein.didShare',true);
-  return shareFmts({title:live(p)?'轉發這場競標':'分享競標結果',url:plantUrl(p),file:p.code+'-auction',draw:f=>aucPoster(p,f),text:f=>aucText(p,f),
+  return shareFmts({title:live(p)?'轉發這場競標':'分享競標結果',url:plantUrl(p),file:p.code+'-auction',draw:(f,st)=>MAGK.has(st)?aucMagData(p).then(o=>magPoster(f,st,o)):aucPoster(p,f),styles:[['std','原版'],...MAG_TPL],text:f=>aucText(p,f),
     lead:h('div',{}, h('span',{text:live(p)?'圖上會放目前出價、截止時間和 QR code，朋友掃了就能直接出價。':'圖上會放得標價與完整履歷的 QR code。'}), ' ', h('button',{class:'link',type:'button',onclick:()=>openShare(p,'auction'),text:'想自己排版？用分享圖設計工具'}))}); }
 function openRaffleShare(r,variant){ lsSet('vein.didShare',true); const v=variant||(r.drawn?'result':'invite');
-  return shareFmts({title:v==='win'?'分享我中獎了':v==='result'?'分享得獎名單':'轉發抽獎',url:raffleUrl(r),file:'raffle-'+r.id+'-'+v,draw:f=>rafPoster(r,f,v),text:f=>rafText(r,f,v),
+  return shareFmts({title:v==='win'?'分享我中獎了':v==='result'?'分享得獎名單':'轉發抽獎',url:raffleUrl(r),file:'raffle-'+r.id+'-'+v,draw:(f,st)=>MAGK.has(st)?(async()=>{ const rp=!r.img&&S.plants.get(r.plantId); const im=(rp?await sdImg(await hiPhoto(rp)):null)||(await sdImg(rImg(r))); return magPoster(f,st,{imgs:[im],caps:[{t:r.prize||'',s:''}],title:r.title||'',sub:'🎁 '+(r.prize||''),lines:['主辦 '+shopName(r.shop)],price:'',kicker:v==='win'?'我中獎了':v==='result'?'得獎名單':'免費抽獎',brand:'VEIN',mast:rp?magGenus([rp]):'',url:raffleUrl(r),acc:'#D2FF00'}); })():rafPoster(r,f,v),styles:[['std','原版'],...MAG_TPL],text:f=>rafText(r,f,v),
     lead:v==='invite'?'圖上會放獎品、截止時間、參加資格和 QR code，朋友掃了就能參加。':v==='result'?'得獎名單公開透明，分享出去讓大家知道。':'恭喜！把好消息分享出去，也謝謝主辦的賣家。'}); }
-function openShopShare(uid){ return shareFmts({title:'轉發賣場',url:shopUrl(uid),file:'shop-'+shopCode(uid),draw:f=>gridPoster(shopPosterData(uid),f),text:f=>shopText(uid,f),lead:'會用賣場裡在售的植物拼成一張圖，附上 QR code。'}); }
-function openGroupShare(key){ return shareFmts({title:'轉發這個群組',url:groupUrl(key),file:'group-'+key.split('~')[1],draw:f=>gridPoster(groupPosterData(key),f),text:f=>groupText(key,f),lead:'用同一批的植株拼成一張圖，朋友掃 QR code 就能挑編號。'}); }
+function openShopShare(uid){ return shareFmts({title:'轉發賣場',url:shopUrl(uid),file:'shop-'+shopCode(uid),draw:(f,st)=>MAGK.has(st)?magFromGrid(shopPosterData(uid),6,all().filter(p=>p.shop===uid&&onSale(p))).then(o=>magPoster(f,st,{...o,kicker:'SHOP'})):gridPoster(shopPosterData(uid),f),styles:[['std','原版拼貼'],...MAG_TPL],text:f=>shopText(uid,f),lead:'會用賣場裡在售的植物拼成一張圖，附上 QR code；也可以選雜誌封面。'}); }
+function openGroupShare(key){ return shareFmts({title:'轉發這個群組',url:groupUrl(key),file:'group-'+key.split('~')[1],draw:(f,st)=>MAGK.has(st)?magFromGrid(groupPosterData(key),6,groupMembers(key,key.split('~')[0]===S.me)).then(o=>magPoster(f,st,{...o,kicker:'同一批'})):gridPoster(groupPosterData(key),f),styles:[['std','原版拼貼'],...MAG_TPL],text:f=>groupText(key,f),lead:'用同一批的植株拼成一張圖，朋友掃 QR code 就能挑編號。'}); }
 // 轉發：先給「文字＋連結」的快速分享（LINE 收到的是一段字和網址，不是檔案）；要圖片再進分享圖工具
 function quickShare(o){ lsSet('vein.didShare',true);
   const text=o.text, url=o.url, canSys=!!navigator.share;
@@ -16136,7 +16288,7 @@ function admGuard(m){
   draw();
 }
 if (location.hostname==='localhost') window.__lvDbg=()=>{ const e=LV.ev; if(!e) return null; if(e.phase==='done') return {done:true}; const c=e.cur; if(!c) return null; return {lid:c.lid,i:c.i||0,left:c.endsAt-lvNow(),pv:!!lvPrev(c),gap:!!c.gapUntil,top:c.top?.uid||null,me:S.me}; };
-if (location.hostname==='localhost') window.__vein={S,saveSocial:x=>saveSocial(x),mySocial:()=>mySocial(),openPhone:r=>openPhone(r),openCart:()=>openCart(),openChat:(u,o)=>openChat(u,o),canVideo:u=>canVideo(u),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
+if (location.hostname==='localhost') window.__vein={S,openShare:(p,m)=>openShare(p,m),openShopShare:u=>openShopShare(u),saveSocial:x=>saveSocial(x),mySocial:()=>mySocial(),openPhone:r=>openPhone(r),openCart:()=>openCart(),openChat:(u,o)=>openChat(u,o),canVideo:u=>canVideo(u),openFriends:x=>openFriends(x),openMemberQR:()=>openMemberQR(),friendsOk:()=>friendsOk(),mqDraw:(...a)=>mqDraw(...a),rA:()=>renderAdmin(true),custSheet:p=>custSheet(p),CU,plantMore:p=>plantMoreBtns(p),rgSheet:(...a)=>rgSheet(...a),plantQuick:p=>plantQuick(p,()=>{}),FD:()=>FD,rs:()=>renderShop(true),pushCard:n=>pushCard(n),admPhonePanel:(u,p)=>admPhonePanel(u,p),vwFlush:()=>vwFlush(),admViews:u=>admViews(u),ghPoster:(...a)=>ghPoster(...a),placeBid:(i,a)=>placeBid(i,a),ezEgg:i=>ezEgg(i),editPlant:(i,t)=>editPlant(i,t),bidsFor:id=>bidsFor(id),sdRender,SD_DEF,openShare,canVideo:u=>canVideo(u),rateOK,listed,lsGet,abuseReport,renderAll,live,memberOK,eligCheck,bidsFor,openVerify,smsTake,aucPoster,rafPoster,gridPoster,shopPosterData,groupPosterData,openAucShare,openRaffleShare,openShopShare,openGroupShare,get SF_COMP(){ return SF_COMP; },renderShop,shareBatch,batchKeyOf,prepareMedia,videoDuration,videoPoster};
 /* ================= 加到主畫面（像 App 一樣）＋手機推播 ================= */
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
@@ -19189,6 +19341,7 @@ function gcRules(g){ gcHelp(g); }
 const GS_TH={neon:['#0C0E0D','#1B2116','#D2FF00','#FFFFFF'],retro:['#7A0C1C','#B3122A','#FFE08A','#FFF6E0'],washi:['#F4EEE2','#E9DCC9','#C2410C','#2A2620'],jungle:['#0B2416','#1F5C42','#8CF5C0','#F0FFF6'],candy:['#FF8FB1','#FFC2D4','#4A1D96','#2B0A3D'],noir:['#0B0B0B','#1E1A12','#D4AF37','#F5EBD3']};
 const GS_TC={r4:['#FFB31A','#111'],r3:['#A970FF','#fff'],r2:['#2FA8FF','#fff'],r1:['#3DDC84','#111']};
 const GS_TPL=[['hero','大獎主打'],['ticket','一番賞籤'],['board','獎項表'],['grid','獎品拼貼'],['odds','機率戰報'],['mag','雜誌封面']];
+GS_TPL.push(...MAG_TPL);
 const GS_ACC=['auto','#D2FF00','#FFB31A','#FF5A36','#FF8FB1','#7FD4FF','#8CF5C0','#FFFFFF'];
 const GS_MODES=[
   ['new','🆕','新機上架','剛開抽',{tpl:'hero',fmt:'post',kick:'NEW 新轉蛋機'}],
@@ -19216,6 +19369,9 @@ function gsText(g,mode,fmt){ const O=gcOdds(g), T=O.T||gTop(g), top=T[0], u=gcUr
 async function gsPoster(g,c,sc){ try{ await document.fonts?.ready; }catch(e){}
   const K=pkCanvas(c.fmt,sc), {g:x,W,H,F,L,R}=K, th=gsTheme(g,c), O=gcOdds(g), T=gTop(g), left=gLeft(g), tot=+g.total||0;
   const ims=await Promise.all(T.slice(0,6).map(t=>sdImg(imgOf(t.it)))), big=T[0], lastIt=g.last?.items?.[0];
+  if(MAGK.has(c.tpl)){ try{ await magDraw(x,W,H,c.tpl,{imgs:ims,caps:T.slice(0,6).map(t=>({t:t.k+' 賞 '+t.name,s:(c.showLeft?'剩 '+t.left+'/'+t.n:'')+(c.showVal&&t.val?(c.showLeft?' · ':'')+M$(t.val):'')})),title:c.title||g.title||'',
+    sub:'一番賞 · '+(c.showShop?shopName(g.shop):'')+(c.showLeft?' · 剩 '+left+'/'+tot+' 抽':''),lines:T.slice(0,4).map(t=>t.k+' 賞 · '+t.name+(c.showOdds?' '+pctTxt(t.n,tot):'')).concat(c.showLast&&lastIt?['最後賞 · '+(g.last.name||lastIt.name||'')]:[]),
+    price:c.showPrice?'每抽 '+M$(g.price):'',kicker:c.kick||'',brand:'VEIN',mast:magGenus(T.map(t=>t.it?.pid&&S.plants.get(t.it.pid)).filter(Boolean)),url:c.showQR?gcUrl(g):null,acc:th.acc,note:c.note}); }catch(e){ console.warn('gsMag',e); } return K; }
   const title=c.title||g.title||'', sub=hexA(th.fg,.68), ink=th.light?'#111':'#fff';
   const bg=()=>{ x.fillStyle=th.bg; x.fillRect(0,0,W,H); const rg=x.createRadialGradient(W*.8,H*.15,30,W*.8,H*.15,W*1.1); rg.addColorStop(0,hexA(th.acc,.22)); rg.addColorStop(1,hexA(th.acc,0)); x.fillStyle=rg; x.fillRect(0,0,W,H); };
   const head=(y)=>{ K.logo(L,y,44,th.fg); if(c.showShop) K.text(shopName(g.shop),R,y+32,'700 26px '+F,sub,'right'); return y+80; };
