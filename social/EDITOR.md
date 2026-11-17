@@ -43,6 +43,13 @@ feed 只會列出「開放報名（reg）／24 小時內開始（soon）／進�
   - 文案改成「植物分享」口吻：介紹品種特色、葉形葉脈、親本血統、成長紀錄，再帶到「目前在 VEIN 販售中／競標中」與連結。不要每天同一個開頭。
   - 紀錄 id 用 `share-{原id}-{YYYYMMDD}`，同一株 14 天內不要重複分享。
 
+- **轉蛋機（一番賞，type: gacha）**：feed 會帶 `phase`，id 已經把階段寫進去，照「沒發過的 id 就發」即可。
+  - `new`（新上架 3 天內）：立刻發 Threads（images 前 3 張，caption.threads）＋ IG 限動（item.story，只發圖）。
+  - `odds`（大獎還在、機率變好）：`odds.ok` 為 true 才會出現；id 會跟著「大獎剩幾個／剩幾抽」變，同一台一天最多發一次。文案重點寫 `odds.was% → odds.now%`、`odds.tierName` 還剩 `odds.bigL` 個、每抽價格與剩餘抽數。
+  - `last`（快完抽）：剩不到 15%（或 5 抽內）時發一次，剩 3 抽內會再出一個 `-final` 的 id。
+  - 可用欄位：`gachaTitle`、`shop`、`price`、`total`、`left`、`prizes[]`（k、name、n、left、tier、tierName、pct、val）、`lastPrize`、`odds`、`link`（分享頁）、`image`／`story`（含 QR 的整合圖）。
+  - 語氣同 Threads 規則：先講獎品（哪一賞是什麼植物、看起來怎樣），再講機率與剩幾抽，最後連結；不要寫「保證中」「必中」這種話，機率照 feed 數字寫。
+
 ## 3. 發文規則
 - **Threads 只放一個 hashtag：`#觀葉植物`**（放在最後；Threads 會把它變成「>觀葉植物」主題標籤，多放其他 hashtag 會搶掉主題）。IG 才放 5～8 個 hashtag。
 - **所有貼文的第一張圖和所有限動都要帶 QR**：

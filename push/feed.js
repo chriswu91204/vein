@@ -99,6 +99,44 @@ async function eventItems(base, now) {
   return out;
 }
 
+// ---------- 轉蛋機（一番賞）：新上架／大獎還在（機率變好）／快完抽 ----------
+const GTN = { r4: '極稀有', r3: '稀有', r2: '精選', r1: '常見' };
+const gTier = (n, t) => { const p = t ? n / t * 100 : 0; return p < 5 ? 'r4' : p < 10 ? 'r3' : p < 30 ? 'r2' : 'r1'; };
+function gPrizes(g) { const tot = +g.total || 0; return (g.prizes || []).map(p => { const it = (p.items || [])[0] || {}; const vals = (p.items || []).map(x => +x.val || 0).filter(Boolean);
+  return { k: p.k, name: p.name || it.name || '', n: +p.n || 0, left: +(g.left || {})[p.k] || 0, tier: gTier(+p.n || 0, tot), tierName: GTN[gTier(+p.n || 0, tot)], pct: tot ? Math.round((+p.n || 0) / tot * 1000) / 10 : 0, val: vals.length ? Math.max(...vals) : 0, img: it.img || '' }; }).filter(x => x.n > 0).sort((a, b) => a.n - b.n || String(a.k).localeCompare(String(b.k))); }
+function gOdds(g) { const P = gPrizes(g), tot = +g.total || 0, left = Math.max(0, tot - (+g.opened || 0)); const best = P.find(x => x.left > 0); if (!best || !left) return { ok: false, left };
+  const same = P.filter(x => x.tier === best.tier), bigN = same.reduce((a, x) => a + x.n, 0), bigL = same.reduce((a, x) => a + x.left, 0), now = bigL / left, was = tot ? bigN / tot : 0, boost = was ? now / was : 0;
+  return { ok: bigL > 0 && boost >= 1.5 && left <= tot * .8, left, tier: best.tier, tierName: GTN[best.tier], bigL, bigN, now: Math.round(now * 1000) / 10, was: Math.round(was * 1000) / 10, boost: Math.round(boost * 100) / 100, prize: best.name }; }
+async function gachaCard(id, story, tpl) {
+  const d = await db().doc('gacha/' + id).get(); const g = d.exists ? d.data() : null; if (!g || !['on', 'pause', 'done'].includes(g.status)) return null;
+  const P = gPrizes(g).filter(x => x.img), left = Math.max(0, (+g.total || 0) - (+g.opened || 0)); if (!P.length) return null;
+  const items = P.slice(0, 6).map(x => ({ url: x.img, name: x.k + ' 賞 ' + shortSp(x.name).replace(/^Anthurium\s+/i, ''), price: '剩 ' + x.left + '/' + x.n + (x.val ? '・' + money(x.val) : '') }));
+  const O = gOdds(g), sub = O.ok ? '🔥 ' + O.tierName + '還有 ' + O.bigL + ' 個・機率 ' + O.now + '%' : '一番賞轉蛋機・共 ' + g.total + ' 抽';
+  return strips({ title: g.title || '轉蛋機', items, more: Math.max(0, P.length - items.length), foot: '每抽 ' + money(g.price) + '・剩 ' + left + ' 抽', url: SITE + '/s/g/' + encodeURIComponent(id), story, sub, tpl });
+}
+async function gachaItems(base, now) {
+  const out = []; const s = await db().collection('gacha').where('status', '==', 'on').limit(30).get();
+  for (const d of s.docs) { const g = { id: d.id, ...d.data() }; if (g.startAt && g.startAt > now + 24 * 3600e3) continue;
+    let shopName = ''; try { const sd = await db().doc('shops/' + g.shop).get(); shopName = sd.exists ? sd.data().name || '' : ''; } catch (e) {}
+    const P = gPrizes(g), O = gOdds(g), left = O.left != null ? O.left : Math.max(0, (+g.total || 0) - (+g.opened || 0)), tot = +g.total || 0, pubAt = +g.pubAt || +g.startAt || ms(g.updatedAt) || now;
+    const link = base + '/s/g/' + g.id, img = base + '/img/g/' + g.id + '.jpg?tpl=' + tplToday() + '&v=' + IMG_V, story = img + '&fmt=story';
+    const phases = []; if (now - pubAt < 3 * 864e5) phases.push(['new', pubAt]); if (O.ok) phases.push(['odds', now]); if (left > 0 && left <= Math.max(5, Math.ceil(tot * .15)) && (+g.opened || 0) > 0) phases.push(['last', now]);
+    for (const [ph, at] of phases) {
+      const H = { new: '🎰 新轉蛋機開抽｜' + g.title, odds: '🔥 大獎還在｜' + g.title, last: '⏳ 快完抽｜' + g.title }[ph];
+      const lines = [H, '🏡 ' + (shopName || 'VEIN') + '・一番賞轉蛋機', '💰 每抽 ' + money(g.price) + '・共 ' + tot + ' 抽・剩 ' + left + ' 抽',
+        P.slice(0, 4).map(x => '・' + x.k + ' 賞 ' + x.name + (x.val ? '（' + money(x.val) + '）' : '') + ' 剩 ' + x.left + '/' + x.n).join('\n'),
+        ph === 'odds' ? '📈 ' + O.tierName + '還有 ' + O.bigL + ' 個，機率從 ' + O.was + '% 變成 ' + O.now + '%' : '', g.last && (g.last.items || [])[0] ? '👑 最後一抽另送最後賞：' + (g.last.name || g.last.items[0].name || '') : ''].filter(Boolean).join('\n');
+      const T = ['#VEIN', '#一番賞', '#轉蛋', '#觀葉植物', '#天南星', '#rareplants'].join(' ');
+      // odds／last 的 id 帶「剩幾抽」：機率又變好、或又少了很多抽時才會是新的 id，不會一直重發
+      const key = ph === 'new' ? 'new' : ph + '-' + (ph === 'odds' ? O.bigL + '-' + Math.ceil(left / 5) * 5 : left <= 3 ? 'final' : 'n');
+      out.push({ id: 'g-' + g.id + '-' + key, type: 'gacha', phase: ph, title: H, gachaTitle: g.title || '', shop: shopName, shopId: g.shop, price: +g.price || 0, total: tot, left, opened: +g.opened || 0,
+        prizes: P.map(({ img, ...x }) => x), lastPrize: g.last && (g.last.items || [])[0] ? (g.last.name || g.last.items[0].name || '') : null, odds: O, link, gachaUrl: SITE + '/#/gacha/' + g.id,
+        image: img, images: [img, ...P.filter(x => x.img).slice(0, 5).map((x, i) => base + '/img/g/' + g.id + '.jpg?raw=' + i)], story, publishedAt: new Date(at).toISOString(),
+        caption: { instagram: lines + '\n\n👉 來撕：' + link.replace(/^https:\/\//, '') + '\n\n' + T, threads: lines + '\n\n👉 ' + link + '\n\n#觀葉植物' } });
+    } }
+  return out;
+}
+
 async function buildFeed(req) {
   const base = SITE, now = Date.now(), q = req.query || {};
   const shops = await resolveShop(q.shop), days = Math.min(90, +q.days || 30), lim = Math.min(100, +q.limit || 40);
@@ -110,6 +148,7 @@ async function buildFeed(req) {
     for (const d of ps.docs) { const p = { id: d.id, ...d.data() }; if (!pub(p) || !photos(p).length) continue; const it0 = plantItem(p, shop, base); if (it0.publishedAt && now - Date.parse(it0.publishedAt) > days * 864e5 && q.all !== '1') continue; try { p._par = await parentsOf(p, sid); } catch (e) {} items.push(plantItem(p, shop, base)); }
   }
   if (q.events !== '0') { try { items.push(...await eventItems(base, now)); } catch (x) { logger.warn('feed events', String(x)); } }
+  if (q.gacha !== '0') { try { items.push(...await gachaItems(base, now)); } catch (x) { logger.warn('feed gacha', String(x)); } }
   items.sort((a, b) => Date.parse(b.publishedAt || 0) - Date.parse(a.publishedAt || 0));
   return { updatedAt: new Date(now).toISOString(), site: SITE, shop: shops && shops.length === 1 ? shops[0] : (shops ? shops : 'all'), count: Math.min(lim, items.length), items: items.slice(0, lim),
     howToUse: {
@@ -398,6 +437,16 @@ module.exports = onRequest({ memory: '512MiB', timeoutSeconds: 60, cors: true, i
       let out; if (req.query.lot != null) out = await igJpg(await getImg(U[Math.max(0, Math.min(U.length - 1, +req.query.lot || 0))]));
       else { try { if (font()) out = await eventCard(m[1], decodeURIComponent(m[2]), req.query.fmt === 'story', req.query.shop ? String(req.query.shop) : null, tplOf(req.query)); } catch (e) { logger.warn('strips', String(e)); } if (!out) out = U.length ? await collage(U) : await igJpg(await getImg(SITE + '/og.png')); }
       res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800').type('image/jpeg').send(out); return;
+    }
+    if ((m = path.match(/^\/img\/g\/([^/]+?)(?:\.jpg)?$/))) {
+      const id = decodeURIComponent(m[1]); let out = null;
+      if (req.query.raw != null) { const d = await db().doc('gacha/' + id).get(); const P = d.exists ? gPrizes(d.data()).filter(x => x.img) : []; const x = P[Math.max(0, Math.min(P.length - 1, +req.query.raw || 0))]; if (x) out = await igJpg(await getImg(x.img)); }
+      else { try { if (font()) out = await gachaCard(id, req.query.fmt === 'story', tplOf(req.query)); } catch (e) { logger.warn('gachaCard', String(e)); } }
+      if (!out) { res.status(404).send('not found'); return; } res.set('Cache-Control', 'public, max-age=900, s-maxage=900').type('image/jpeg').send(out); return;
+    }
+    if ((m = path.match(/^\/s\/g\/([^/]+)$/))) {
+      const id = decodeURIComponent(m[1]); const d = await db().doc('gacha/' + id).get(); const g = d.exists ? d.data() : {}; const left = Math.max(0, (+g.total || 0) - (+g.opened || 0));
+      res.set('Cache-Control', 'public, max-age=600'); res.type('html').send(sharePage({ title: '🎰 ' + (g.title || '轉蛋機') + '｜VEIN 一番賞', desc: '每抽 ' + money(g.price) + '・共 ' + (g.total || 0) + ' 抽・剩 ' + left + ' 抽', img: SITE + '/img/g/' + encodeURIComponent(id) + '.jpg', url: SITE + req.originalUrl, to: SITE + '/#/gacha/' + encodeURIComponent(id) })); return;
     }
     if (path === '/img/c.jpg' || path === '/img/c') {
       const ids = String(req.query.ids || '').split(',').filter(Boolean); const out = (font() && ids.length) ? await multiCard(ids, String(req.query.t || ''), String(req.query.foot || ''), req.query.fmt === 'story', tplOf(req.query)) : null;

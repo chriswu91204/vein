@@ -8,7 +8,8 @@ const crypto = require('crypto');
 module.exports = ctx => {
   const { db, push, displayName, logger, ordAct, nt, onDocumentCreated, onDocumentWritten, onSchedule, HOT } = ctx;
   const hasPhone = ctx.hasPhone || (async () => false);
-  const LATER_V = 1; // 先抽再付契約條款版本
+  const LATER_V = 2; // 先抽再付契約條款版本（2：撕多少算多少）
+  const capOf = g => Math.max(1, Math.min(+g.maxPer || 10, 50));
   const T = {};
   const LET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const PAY_H = 48;                       // 抽獎券訂單幾小時沒付款就自動取消、名額放回去
@@ -134,21 +135,29 @@ module.exports = ctx => {
         else if (g.status !== 'on') why = g.status === 'pause' ? '賣家暫停販售中' : '已經停止販售';
         else if (g.startAt && g.startAt > now) why = '還沒開賣';
         else if (buyer === shop) why = '不能買自己的轉蛋機';
-        else if (!int(n, 1, +g.maxPer || 10)) why = '每次最多買 ' + (+g.maxPer || 10) + ' 抽';
+        else if (!later && !int(n, 1, +g.maxPer || 10)) why = '每次最多買 ' + (+g.maxPer || 10) + ' 抽';
         else if (later && !phoneOK) why = '先抽再付要先完成手機驗證';
         else if (later && !agreeOK) why = '先抽再付要先同意契約條款';
-        else if ((+g.sold || 0) + n > (+g.total || 0)) why = (+g.total || 0) - (+g.sold || 0) > 0 ? '只剩 ' + ((+g.total || 0) - (+g.sold || 0)) + ' 抽可以買' : '抽獎券已經賣完';
-        const base = { buyer, items: [], total: g ? g.price * (n || 0) : 0, note: String(o.note || '').slice(0, 120), at: o.at || now, payMethod: o.payMethod || 'transfer', src: 'gacha', gacha: { id: gid, n: n || 0, price: g ? g.price : 0, title: g ? String(g.title || '').slice(0, 40) : '' }, updatedAt: now, auto: true, ...(later ? { later: true, agree: { v: LATER_V, at: now, buyerAt: +(o.agree || {}).at || now } } : {}) };
+        else if (later && (+g.sold || 0) >= (+g.total || 0)) why = '抽獎券已經賣完';
+        let t0 = null; if (!why && later) { t0 = await tx.get(db.doc(`gTix/${buyer}_${gid}`)); const lt = t0.exists ? t0.data().lt : null; if (lt && ['apply', 'on'].includes(lt.st)) why = lt.st === 'apply' ? '你在這台已經有先抽再付申請' : '你在這台已經是先抽再付'; }
+        if (!why && !later && (+g.sold || 0) + n > (+g.total || 0)) why = (+g.total || 0) - (+g.sold || 0) > 0 ? '只剩 ' + ((+g.total || 0) - (+g.sold || 0)) + ' 抽可以買' : '抽獎券已經賣完';
+        const base = { buyer, items: [], total: later ? 0 : (g ? g.price * (n || 0) : 0), note: String(o.note || '').slice(0, 120), at: o.at || now, payMethod: o.payMethod || 'transfer', src: 'gacha', gacha: { id: gid, n: later ? 0 : (n || 0), price: g ? g.price : 0, title: g ? String(g.title || '').slice(0, 40) : '', ...(later && g ? { cap: capOf(g) } : {}) }, updatedAt: now, auto: true, ...(later ? { later: true, agree: { v: LATER_V, at: now, buyerAt: +(o.agree || {}).at || now } } : {}) };
         if (why) { tx.set(oref, { ...base, status: 'cancelled', cancelledAt: now, cancelWhy: why }); return { r: 'cancel', why }; }
-        tx.update(gs.ref, { sold: (+g.sold || 0) + n, updatedAt: now });
-        tx.set(db.doc(`gRes/${shop}_${oid}`), { uid: buyer, shop, oid, gid, n, st: 'held', at: now, ...(later ? { later: true } : {}) });
-        tx.set(oref, later ? { ...base, status: 'apply', applyAt: now } : { ...base, status: 'confirmed', confirmedAt: now });
+        if (later) {
+          tx.set(db.doc(`gTix/${buyer}_${gid}`), { uid: buyer, gid, shop, ...(t0.exists ? {} : { n: 0, got: 0 }), lt: { st: 'apply', shop, oid }, title: String(g.title || '').slice(0, 40), updatedAt: now }, { merge: true });
+          tx.set(db.doc(`gRes/${shop}_${oid}`), { uid: buyer, shop, oid, gid, n: 0, st: 'apply', later: true, at: now });
+          tx.set(oref, { ...base, status: 'apply', applyAt: now });
+        } else {
+          tx.update(gs.ref, { sold: (+g.sold || 0) + n, updatedAt: now });
+          tx.set(db.doc(`gRes/${shop}_${oid}`), { uid: buyer, shop, oid, gid, n, st: 'held', at: now });
+          tx.set(oref, { ...base, status: 'confirmed', confirmedAt: now });
+        }
         return { r: 'ok', g };
       });
     } catch (e) { logger.warn('ticketOrder', oid, e.message); return { r: 'err' }; }
     if (res.r === 'ok' && later) {
       await ordAct(buyer, shop, oid, 'upd');
-      await push(shop, '📝 先抽再付申請', (await displayName(buyer)) + ' 申請先抽 ' + n + ' 抽「' + res.g.title + '」再付 ' + nt(res.g.price * n) + '，請到後台同意或拒絕', '/#admin/gacha', 'gord-' + oid);
+      await push(shop, '📝 先抽再付申請', (await displayName(buyer)) + ' 申請「' + res.g.title + '」先抽再付（撕多少付多少，最多 ' + capOf(res.g) + ' 抽），請到後台同意或拒絕', '/#admin/gacha', 'gord-' + oid);
     } else if (res.r === 'ok') {
       try { const bank = await db.doc(`data/users/${shop}/bank`).get(); await db.doc(`deals/${shop}_${oid}`).set({ seller: shop, buyer, orderId: oid, payMethod: o.payMethod || 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true }); } catch (e) { logger.warn('gDeal', e.message); }
       await ordAct(buyer, shop, oid, 'upd');
@@ -170,24 +179,34 @@ module.exports = ctx => {
       await ordAct(x.buyer, r.uid, oid, 'upd'); return null;
     }
     const ok = await db.runTransaction(async tx => { const s = await tx.get(oref); if (!s.exists || s.data().status !== 'apply') return false;
-      tx.update(oref, { status: 'confirmed', confirmedAt: now, agree: { ...(s.data().agree || {}), sellerAt: now }, updatedAt: now }); return true; });
+      const tref = db.doc(`gTix/${x.buyer}_${r.gid}`), t = await tx.get(tref), cap = +(s.data().gacha || {}).cap || 10;
+      tx.update(oref, { status: 'confirmed', confirmedAt: now, granted: true, grantAt: now, agree: { ...(s.data().agree || {}), sellerAt: now }, updatedAt: now });
+      tx.set(tref, { uid: x.buyer, gid: r.gid, shop: r.uid, lt: { st: 'on', shop: r.uid, oid, cap, used: 0 }, news: { n: cap, at: now, later: true }, updatedAt: now }, { merge: true });
+      tx.set(db.doc(`gRes/${r.uid}_${oid}`), { st: 'open', grantAt: now }, { merge: true }); return cap; });
     if (!ok) return '已經處理過了';
     try { const bank = await db.doc(`data/users/${r.uid}/bank`).get(); await db.doc(`deals/${r.uid}_${oid}`).set({ seller: r.uid, buyer: x.buyer, orderId: oid, payMethod: x.payMethod || 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true }); } catch (e) { logger.warn('gDeal', e.message); }
-    const g = await grant(r.uid, oid);
-    if (g) await push(x.buyer, '🎟 先抽再付通過：獲得 ' + g.n + ' 張抽獎券', '可以馬上撕了！撕完記得付款 ' + nt(x.total) + '（契約已成立）', '/#/gacha/' + r.gid, 'gtix-' + r.gid);
+    await push(x.buyer, '🎟 先抽再付通過！', '最多可以先撕 ' + ok + ' 張，撕多少算多少，撕完到訂單付款（契約已成立）', '/#/gacha/' + r.gid, 'gtix-' + r.gid);
     await ordAct(x.buyer, r.uid, oid, 'upd'); return null;
   }
   // 取消（買家取消、賣家取消、逾時）→ 名額放回去；已經發券的不會收回
   async function release(shop, oid, why) {
     const rref = db.doc(`gRes/${shop}_${oid}`);
     return db.runTransaction(async tx => {
-      const r = await tx.get(rref); if (!r.exists || r.data().st !== 'held') return false; const x = r.data();
+      const r = await tx.get(rref); if (!r.exists) return false; const x = r.data();
+      if (x.later) { if (!['apply', 'open'].includes(x.st)) return false;
+        const tref = db.doc(`gTix/${x.uid}_${x.gid}`), t = await tx.get(tref), lt = t.exists ? t.data().lt : null;
+        if (why === 'buyer' && lt && +lt.used > 0) return false;
+        if (lt && lt.oid === oid) tx.update(tref, { lt: null, updatedAt: Date.now() });
+        tx.update(rref, { st: 'rel', relAt: Date.now(), why: why || '' }); return true; }
+      if (x.st !== 'held') return false;
       const gs = await tx.get(db.doc('gacha/' + x.gid));
       if (gs.exists) tx.update(gs.ref, { sold: Math.max(0, (+gs.data().sold || 0) - x.n), updatedAt: Date.now() });
       tx.update(rref, { st: 'rel', relAt: Date.now(), why: why || '' }); return true;
     });
   }
   T.release = release;
+  async function laterEnd(shop, oid) { const rref = db.doc(`gRes/${shop}_${oid}`); await db.runTransaction(async tx => { const r = await tx.get(rref); if (!r.exists || r.data().st !== 'open') return;
+    const x = r.data(), tref = db.doc(`gTix/${x.uid}_${x.gid}`), t = await tx.get(tref); if (t.exists && t.data().lt && t.data().lt.oid === oid) tx.update(tref, { lt: null, updatedAt: Date.now() }); tx.update(rref, { st: 'paid', paidAt: Date.now() }); }); }
   // 賣家確認收款（訂單變 preparing／shipped／done）→ 發券；券只屬於這台機台
   async function grant(shop, oid) {
     const rref = db.doc(`gRes/${shop}_${oid}`);
@@ -206,7 +225,7 @@ module.exports = ctx => {
     const a = ev.data.after.exists ? ev.data.after.data() : null, b = ev.data.before.exists ? ev.data.before.data() : null; if (!a) return;
     const { shop, oid } = ev.params;
     if (a.src === 'gacha') {
-      if (a.later && a.granted && ['preparing', 'shipped'].includes(a.status)) { try { await db.doc(`shops/${shop}/orders/${oid}`).update({ status: 'done', doneAt: Date.now(), updatedAt: Date.now() }); await push(a.buyer, '✅ 先抽再付已結清', '「' + (await displayName(shop)) + '」已確認收到 ' + nt(a.total), '/#/me/orders', 'gord-' + oid); } catch (e) { logger.warn('laterDone', e.message); } }
+      if (a.later && a.granted && ['preparing', 'shipped'].includes(a.status)) { try { await db.doc(`shops/${shop}/orders/${oid}`).update({ status: 'done', doneAt: Date.now(), updatedAt: Date.now() }); await laterEnd(shop, oid); await push(a.buyer, '✅ 先抽再付已結清', '「' + (await displayName(shop)) + '」已確認收到 ' + nt(a.total), '/#/me/orders', 'gord-' + oid); } catch (e) { logger.warn('laterDone', e.message); } }
       else if (a.later && !a.granted && !['apply', 'cancelled', 'confirmed'].includes(a.status)) { /* 先抽再付只能由賣家同意發券 */ try { await db.doc(`shops/${shop}/orders/${oid}`).update({ status: 'apply', updatedAt: Date.now() }); } catch (e) {} }
       else if (a.later && !a.granted) { /* 等賣家同意 */ }
       else if (['preparing', 'shipped', 'done'].includes(a.status) && !a.granted) { try { const g = await grant(shop, oid); if (g) await push(g.uid, '🎟 獲得 ' + g.n + ' 張抽獎券', '「' + (await displayName(shop)) + '」已確認收款，快去撕「' + g.title + '」', '/#/gacha/' + g.gid, 'gtix-' + g.gid); } catch (e) { logger.warn('grant', e.message); } }
@@ -231,7 +250,12 @@ module.exports = ctx => {
         const gref = db.doc('gacha/' + d.gid), gs = await tx.get(gref); if (!gs.exists) return { err: '找不到這台轉蛋機' }; const g = gs.data();
         if (!['on', 'pause'].includes(g.status)) return { err: '這台已經結束了' };
         const tref = db.doc(`gTix/${d.uid}_${d.gid}`), t = await tx.get(tref); const have = t.exists ? +t.data().n || 0 : 0;
-        if (have < slots.length) return { err: have ? '你只有 ' + have + ' 張券' : '你沒有這台的抽獎券' };
+        const lt = t.exists && t.data().lt && t.data().lt.st === 'on' ? t.data().lt : null; let credit = lt ? Math.max(0, +lt.cap - (+lt.used || 0)) : 0;
+        const useC = Math.max(0, slots.length - have); let lo = null, lref = null;
+        if (useC > 0 && lt) { lref = db.doc(`shops/${lt.shop}/orders/${lt.oid}`); const os = await tx.get(lref), ds = await tx.get(db.doc(`deals/${lt.shop}_${lt.oid}`));
+          lo = os.exists ? os.data() : null; if (!lo || lo.status !== 'confirmed' || (ds.exists && ds.data().pay)) credit = 0; }
+        if (have + credit < slots.length) return { err: lt && credit === 0 && lo ? '已經送出付款，先抽再付已結算' : (have + credit) ? (lt ? '你只能再撕 ' + (have + credit) + ' 張' : '你只有 ' + have + ' 張券') : '你沒有這台的抽獎券' };
+        if (useC > 0 && (+g.sold || 0) + useC > (+g.total || 0)) return { err: '抽獎券剩 ' + Math.max(0, (+g.total || 0) - (+g.sold || 0)) + ' 張可以先抽' };
         const open = { ...(g.open || {}) }, taken = slots.filter(s => s < 1 || s > g.total || open[s]);
         if (taken.length) return { err: '有獎單剛被別人撕走了，請重新挑', taken };
         const sec = await tx.get(db.doc('gSec/' + d.gid)); if (!sec.exists) return { err: '系統錯誤' }; const map = sec.data().map;
@@ -243,7 +267,10 @@ module.exports = ctx => {
         let last = null;
         if (opened >= g.total) { up.status = 'done'; up.doneAt = now; up.reveal = { ks: map.map(e => e.k), salt: sec.data().salt }; up.lastWin = { uid: d.uid, at: now };
           if (g.last && (g.last.items || [])[0]) { last = mk(g.last.items[0], 0, 'LAST'); } }
-        tx.update(gref, up); tx.update(tref, { n: have - slots.length, updatedAt: now });
+        if (useC > 0) { up.sold = (+g.sold || 0) + useC; const used = (+lt.used || 0) + useC, price = +(lo.gacha || {}).price || +g.price || 0;
+          tx.update(lref, { gacha: { ...(lo.gacha || {}), n: used }, total: used * price, ...(lo.lFirst ? {} : { lFirst: now }), updatedAt: now });
+          tx.set(db.doc(`gRes/${lt.shop}_${lt.oid}`), { n: used, ...(lo.lFirst ? {} : { lFirst: now }) }, { merge: true }); }
+        tx.update(gref, up); tx.update(tref, { n: have - (slots.length - useC), ...(useC > 0 ? { lt: { ...lt, used: (+lt.used || 0) + useC }, got: (+t.data().got || 0) + useC } : {}), updatedAt: now });
         tx.set(ref, { st: 'ok', res, ...(last ? { last } : {}), doneAt: now }, { merge: true });
         return { ok: true, g, n: res.length, last };
       });
@@ -262,7 +289,7 @@ module.exports = ctx => {
     if (!Array.isArray(ids) || !ids.length || ids.length > 50) return { err: '一次出貨 1–50 件' };
     const sh = await db.doc('shops/' + shop).get(); const opts = (sh.exists && Array.isArray(sh.data().shipOpts) && sh.data().shipOpts.length) ? sh.data().shipOpts : SHIP_DEF;
     const opt = opts.find(x => x && ship && x.n === ship.n && (x.k || 'home') === (ship.k || 'home')); if (!opt) return { err: '請重新選寄送方式' };
-    try { const ow = await db.collection(`shops/${shop}/orders`).where('buyer', '==', uid).where('later', '==', true).get(); if (ow.docs.some(d => d.data().granted && d.data().status === 'confirmed')) return { err: '先抽再付還沒結清，賣家確認收款後才能出貨' }; } catch (e) { logger.warn('oweChk', e.message); }
+    try { const ow = await db.collection(`shops/${shop}/orders`).where('buyer', '==', uid).where('later', '==', true).get(); if (ow.docs.some(d => d.data().granted && d.data().status === 'confirmed' && +d.data().total > 0)) return { err: '先抽再付還沒結清，賣家確認收款後才能出貨' }; } catch (e) { logger.warn('oweChk', e.message); }
     const merge = await hasUnshipped(uid, shop);
     const oid = 'gs-' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex'), now = Date.now();
     const r = await db.runTransaction(async tx => {
@@ -306,20 +333,24 @@ module.exports = ctx => {
     const held = await db.collection('gRes').where('st', '==', 'held').get();
     for (const d of held.docs) { const x = d.data(); if (now - x.at < PAY_H * 36e5) continue;
       try { const o = await db.doc(`shops/${x.shop}/orders/${x.oid}`).get(); const st = o.exists ? o.data().status : '';
-        if (x.later) { if (st !== 'apply') continue;
-          await db.doc(`shops/${x.shop}/orders/${x.oid}`).set({ status: 'cancelled', cancelledAt: now, cancelWhy: '賣家 ' + PAY_H + ' 小時內沒有回覆', updatedAt: now }, { merge: true });
-          await release(x.shop, x.oid, 'timeout'); await push(x.uid, '先抽再付申請已失效', '賣家 ' + PAY_H + ' 小時內沒有回覆，名額已經放回去', '/#/gacha/' + x.gid, 'gord-' + x.oid); continue; }
         if (o.exists && st !== 'confirmed') continue;
         await db.doc(`shops/${x.shop}/orders/${x.oid}`).set({ status: 'cancelled', cancelledAt: now, cancelWhy: '超過 ' + PAY_H + ' 小時沒付款', updatedAt: now }, { merge: true });
         await release(x.shop, x.oid, 'timeout'); await push(x.uid, '抽獎券訂單已取消', '超過 ' + PAY_H + ' 小時沒付款，名額已經放回去', '/#/me/orders', 'gord-' + x.oid); } catch (e) { logger.warn('gTimeout', e.message); } }
-    // 先抽再付：發券後沒付款 → 每 24 小時提醒買家一次（最多 3 次），第 3 次同時通知賣家
-    const owe = await db.collection('gRes').where('st', '==', 'granted').where('later', '==', true).get();
-    for (const d of owe.docs) { const x = d.data(), k = +x.rem || 0; if (k >= 3 || now - (x.grantAt || x.at) < (k + 1) * 864e5) continue;
-      try { const o = await db.doc(`shops/${x.shop}/orders/${x.oid}`).get(); if (!o.exists || o.data().status !== 'confirmed') { await d.ref.update({ rem: 9 }); continue; }
+    // 先抽再付：賣家 48 小時沒回 → 申請失效
+    const apl = await db.collection('gRes').where('st', '==', 'apply').get();
+    for (const d of apl.docs) { const x = d.data(); if (now - x.at < PAY_H * 36e5) continue;
+      try { await db.doc(`shops/${x.shop}/orders/${x.oid}`).set({ status: 'cancelled', cancelledAt: now, cancelWhy: '賣家 ' + PAY_H + ' 小時內沒有回覆', updatedAt: now }, { merge: true });
+        await release(x.shop, x.oid, 'timeout'); await push(x.uid, '先抽再付申請已失效', '賣家 ' + PAY_H + ' 小時內沒有回覆，可以改用先付再抽', '/#/gacha/' + x.gid, 'gord-' + x.oid); } catch (e) { logger.warn('gApplyTo', e.message); } }
+    // 先抽再付：第一次撕之後沒付款 → 每 24 小時提醒買家一次（最多 3 次），第 3 次同時通知賣家；通過 7 天都沒撕 → 自動結束
+    const owe = await db.collection('gRes').where('st', '==', 'open').get();
+    for (const d of owe.docs) { const x = d.data(), k = +x.rem || 0;
+      try { if (!(+x.n > 0)) { if (now - (x.grantAt || x.at) > 7 * 864e5) { await db.doc(`shops/${x.shop}/orders/${x.oid}`).set({ status: 'cancelled', cancelledAt: now, cancelWhy: '通過 7 天都沒有撕，先抽再付自動結束', updatedAt: now }, { merge: true }); await release(x.shop, x.oid, 'idle'); } continue; }
+        if (k >= 3 || now - (x.lFirst || x.grantAt || x.at) < (k + 1) * 864e5) continue;
+        const o = await db.doc(`shops/${x.shop}/orders/${x.oid}`).get(); if (!o.exists || o.data().status !== 'confirmed') continue;
         const dl = await db.doc(`deals/${x.shop}_${x.oid}`).get(); if (dl.exists && dl.data().pay) continue;
         await d.ref.update({ rem: k + 1 });
-        await push(x.uid, '⚠️ 先抽再付還沒付款', '你已經先抽了 ' + x.n + ' 抽，請盡快付款 ' + nt(o.data().total) + '。契約已成立，未付款須自負法律責任', '/#/me/orders', 'glate-' + x.oid);
-        if (k + 1 >= 3) await push(x.shop, '⚠️ 先抽再付買家尚未付款', (await displayName(x.uid)) + ' 抽了 ' + x.n + ' 抽，已 3 天沒付款', '/#admin/gacha', 'glate-' + x.oid); } catch (e) { logger.warn('gLate', e.message); } }
+        await push(x.uid, '⚠️ 先抽再付還沒付款', '你已經先撕了 ' + x.n + ' 張，請盡快付款 ' + nt(o.data().total) + '。契約已成立，未付款須自負法律責任', '/#/me/orders', 'glate-' + x.oid);
+        if (k + 1 >= 3) await push(x.shop, '⚠️ 先抽再付買家尚未付款', (await displayName(x.uid)) + ' 先撕了 ' + x.n + ' 張（' + nt(o.data().total) + '），已 3 天沒付款', '/#admin/gacha', 'glate-' + x.oid); } catch (e) { logger.warn('gLate', e.message); } }
     const box = await db.collection('gbi').where('st', '==', 'box').get(); const due = new Map();
     for (const d of box.docs) { const x = d.data();
       if (x.exp - now < 3 * 864e5 && x.exp > now && !x.rem3) { try { await d.ref.update({ rem3: true }); await push(x.uid, '⏳ 轉蛋獎品快到期', '「' + x.name + '」3 天內到期，到期會自動寄出', '/#/me/gacha', 'gexp-' + x.uid); } catch (e) {} }

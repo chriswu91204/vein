@@ -11883,9 +11883,9 @@ const groupUrl=k=>siteUrl()+'#/group/'+encodeURIComponent(k);
 const fmtMD=ms=>{ const d=new Date(ms); return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
 const fmtLeftZh=ms=>{ if(ms<=0) return '已結束'; const m=Math.floor(ms/6e4), d=Math.floor(m/1440), hh=Math.floor(m%1440/60), mm=m%60; return d?d+' 天 '+hh+' 小時':hh?hh+' 小時 '+mm+' 分':Math.max(1,mm)+' 分鐘'; };
 const pName=p=>(short(p.species)+(p.cultivar?' '+p.cultivar:'')).replace(/^./,c=>c.toUpperCase());
-function pkCanvas(fmt){
+function pkCanvas(fmt,sc){
   // 以 1080 寬排版，但實際用 2 倍解析度輸出（2160px），手機 Retina 螢幕上文字和照片才清楚
-  const W=1080, H=fmt==='story'?1920:fmt==='square'?1080:1350, SC=2, cv=document.createElement('canvas'); cv.width=W*SC; cv.height=H*SC; const g=cv.getContext('2d'); g.scale(SC,SC); g.imageSmoothingQuality='high';
+  const W=1080, H=fmt==='story'?1920:fmt==='square'?1080:1350, SC=sc||2, cv=document.createElement('canvas'); cv.width=W*SC; cv.height=H*SC; const g=cv.getContext('2d'); g.scale(SC,SC); g.imageSmoothingQuality='high';
   const F='"PingFang TC","Noto Sans TC","Noto Sans CJK TC","Inter",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,Menlo,monospace', INK='#050605';
   const K={cv,g,W,H,F,MONO,INK,fmt,story:fmt==='story',sq:fmt==='square',T:fmt==='story'?230:56,B:fmt==='story'?H-270:H-56,L:56,R:W-56};
   K.wrap=(txt,maxW,font,maxLines)=>{ g.font=font; const out=[]; let line=''; const T=String(txt||''); for(const ch of T){ if(ch==='\n'){ out.push(line); line=''; if(out.length===maxLines) break; continue; } if(g.measureText(line+ch).width>maxW&&line){ out.push(line); line=ch; if(out.length===maxLines) break; } else line+=ch; } if(out.length<maxLines&&line) out.push(line);
@@ -18536,12 +18536,32 @@ body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:calc(160px + env(saf
 .gc-empty{text-align:center;padding:40px 16px;color:var(--fg2)}.gc-empty b{font-size:44px;display:block}.gc-empty h3{color:var(--fg);margin:6px 0}
 /* 大獎展示（取代轉蛋機圖案） */
 .gc-show{position:relative;height:310px;display:flex;justify-content:center;align-items:center;margin-top:4px}
-.gc-show .gk-c{position:absolute;width:196px;height:250px;border-radius:26px;overflow:hidden;background:#fff;padding:5px;box-shadow:0 24px 40px -14px rgba(0,0,0,.6)}
+.gc-show .gk-c{position:absolute;width:196px;height:250px;border-radius:26px;overflow:hidden;background:#fff;padding:5px;box-shadow:0 24px 40px -14px rgba(0,0,0,.6);border:0;cursor:pointer;transition:transform .45s cubic-bezier(.2,.8,.2,1),filter .3s,opacity .3s;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.gc-show .gk-c[data-d="0"]{z-index:3;transform:translateX(var(--dx,0px)) rotate(calc(var(--dx,0px) / 20px * 1deg))}
+.gc-show .gk-c[data-d="-1"]{transform:translateX(calc(-104px + var(--dx,0px)*.6)) rotate(-11deg) scale(.78);filter:brightness(.78);z-index:2}
+.gc-show .gk-c[data-d="1"]{transform:translateX(calc(104px + var(--dx,0px)*.6)) rotate(11deg) scale(.78);filter:brightness(.78);z-index:2}
+.gc-show .gk-c[data-d="-2"]{transform:translateX(-170px) rotate(-18deg) scale(.6);opacity:0;pointer-events:none;z-index:1}
+.gc-show .gk-c[data-d="2"]{transform:translateX(170px) rotate(18deg) scale(.6);opacity:0;pointer-events:none;z-index:1}
+.gc-show .gk-c .gk-cap,.gc-show .gk-c .gk-more{transition:opacity .3s}.gc-show .gk-c:not([data-d="0"]) .gk-cap,.gc-show .gk-c:not([data-d="0"]) .gk-more{opacity:0}
+.gc-show .gk-more{position:absolute;right:12px;top:12px;font:800 10.5px var(--f-display);background:rgba(0,0,0,.6);color:#fff;padding:4px 8px;border-radius:99px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.gc-show .gk-dots{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:4}
+.gc-show .gk-dots button{width:7px;height:7px;border-radius:99px;border:0;padding:0;background:rgba(255,255,255,.35);transition:width .25s,background .25s}.gc-show .gk-dots button.on{width:20px;background:var(--t-acc)}
+.gc-show .gk-lbl.sm{background:#fff}
+.gc-prize-sh .gp-pw{position:relative;margin:4px -4px 12px}
+.gc-prize-sh .gp-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:22px;scrollbar-width:none;background:#0C0E0D}.gc-prize-sh .gp-strip::-webkit-scrollbar{display:none}
+.gc-prize-sh .gp-ph{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:1/1;max-height:52vh}.gc-prize-sh .gp-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.gc-prize-sh .gp-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px}.gc-prize-sh .gp-dots i{width:6px;height:6px;border-radius:99px;background:rgba(255,255,255,.5);transition:width .2s}.gc-prize-sh .gp-dots i.on{width:18px;background:#D2FF00}
+.gc-prize-sh .gp-tg{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.gc-prize-sh .gp-tg .gc-tc{position:static;height:30px;min-width:40px;font-size:16px;border-radius:10px}
+.gc-prize-sh .gp-tg .gk-tg{font:800 12px var(--f-display);padding:4px 10px;border-radius:99px}
+.gc-prize-sh .gp-left{margin-left:auto;font:800 13px var(--f-mono);background:#0C0E0D;color:#D2FF00;padding:4px 10px;border-radius:99px}.gc-prize-sh .gp-left.z{background:#E5E5E0;color:#888}
+.gc-prize-sh h3{margin:10px 0 2px;font:900 21px/1.25 var(--f-display)}.gc-prize-sh .gp-sub{font-size:12.5px;opacity:.65;margin-top:2px}
+.gc-prize-sh .gp-val{display:inline-block;margin-top:8px;background:#D2FF00;color:#000;border-radius:10px;padding:4px 10px;font-size:13px}.gc-prize-sh .gp-val b{font:900 15px var(--f-mono)}
+.gc-prize-sh .gp-list{margin:12px 0 4px;display:flex;flex-direction:column;gap:6px}.gc-prize-sh .gp-lh{font:800 12px var(--f-display);opacity:.6}
+.gc-prize-sh .gp-row{display:flex;gap:10px;align-items:center;text-align:left;border:2px solid transparent;background:#F1F2EE;border-radius:14px;padding:6px;color:inherit}.gc-prize-sh .gp-row[aria-pressed=true]{border-color:#0C0E0D;background:#fff}
+.gc-prize-sh .gp-row img{width:44px;height:44px;border-radius:10px;object-fit:cover}.gc-prize-sh .gp-row span{display:flex;flex-direction:column}.gc-prize-sh .gp-row b{font:800 13.5px var(--f-display)}.gc-prize-sh .gp-row small{font-size:11.5px;opacity:.6}
+.gc-pz,.gc-sk,.gc-last>div{cursor:pointer}
 .gc-show .gk-c img{width:100%;height:100%;object-fit:cover;border-radius:21px;display:block}
 .gc-show .gk-c>.gc-tc{position:absolute;left:12px;top:12px;height:30px;min-width:38px;font-size:16px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,.35)}
-.gc-show .s1{transform:translateX(-104px) rotate(-11deg) scale(.78);filter:brightness(.82);z-index:1}
-.gc-show .s2{transform:translateX(104px) rotate(11deg) scale(.78);filter:brightness(.82);z-index:1}
-.gc-show .gk-main{z-index:3;animation:gcFloat 4s ease-in-out infinite}
 @keyframes gcFloat{50%{transform:translateY(-6px)}}
 .gc-show .gk-cap{position:absolute;left:5px;right:5px;bottom:5px;border-radius:0 0 21px 21px;padding:34px 12px 11px;background:linear-gradient(transparent,rgba(0,0,0,.82));color:#fff;text-align:left}
 .gc-show .gk-cap .gk-tg{display:inline-block;font:800 10.5px var(--f-display);padding:2px 8px;border-radius:99px;margin-bottom:4px}
@@ -18549,7 +18569,7 @@ body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:calc(160px + env(saf
 .gc-show .gk-cap .gk-ln{display:flex;justify-content:space-between;align-items:center;margin-top:3px;font:700 11.5px var(--f-mono);opacity:.95}
 .gc-show .gk-cap em{font-style:normal;background:#D2FF00;color:#000;padding:1px 7px;border-radius:7px;font-weight:800}
 .gc-show .gk-lbl{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;font:900 12px var(--f-display);letter-spacing:.1em;background:var(--t-acc);color:#000;padding:4px 12px;border-radius:99px;box-shadow:0 6px 14px rgba(0,0,0,.3)}
-@media (prefers-reduced-motion:reduce){.gc-show .gk-main{animation:none}}
+@media (prefers-reduced-motion:reduce){.gc-show .gk-c{transition:none}}
 /* 後台卡片 */
 .gc-am2{background:#fff;border-radius:26px;overflow:hidden;margin-bottom:12px;border:1px solid var(--line);box-shadow:0 10px 24px -18px rgba(0,0,0,.4)}
 .gc-am2 .hd{position:relative;isolation:isolate;background:var(--t-bg);color:var(--t-fg);padding:14px 14px 16px;min-height:118px}
@@ -18582,6 +18602,8 @@ body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:calc(160px + env(saf
 .gc-tp .sw1{height:10px;width:70%;border-radius:5px;background:var(--t-fg);opacity:.85}.gc-tp .sw3{height:8px;width:45%;border-radius:4px;background:var(--t-fg);opacity:.4}
 .gc-tp .sw2{align-self:flex-start;font:800 12px var(--f-mono);background:var(--t-acc);color:#000;padding:1px 6px;border-radius:6px}
 /* 玩法說明 */
+.gc-shb{position:absolute;right:62px;top:14px;z-index:5;height:40px;padding:0 14px 0 12px;border-radius:99px;border:0;background:rgba(0,0,0,.55);color:#fff;font:800 14px var(--f-display);display:flex;align-items:center;gap:6px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.3);cursor:pointer}
+.gc-shb i{font-style:normal;color:var(--t-acc)}
 .gc-q{position:absolute;right:14px;top:14px;z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:var(--t-acc);color:#000;font:900 20px var(--f-display);box-shadow:0 6px 16px rgba(0,0,0,.35);cursor:pointer;animation:gcQ 2.4s ease-in-out 3}
 @keyframes gcQ{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 .gc-helpln{display:flex;align-items:center;gap:12px;width:100%;margin-top:16px;background:#fff;border:0;border-radius:20px;padding:14px;text-align:left;font:inherit;cursor:pointer}
@@ -18721,6 +18743,9 @@ body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:calc(160px + env(saf
 .gc-ctr .ctr-ck{display:flex;gap:10px;align-items:flex-start;background:#0C0E0D;color:#fff;border-radius:14px;padding:12px;font:700 13px/1.5 var(--f-display);margin-bottom:6px}
 .gc-ctr .ctr-ck input{width:22px;height:22px;flex:none;accent-color:#D2FF00;margin:0}
 .gc-ctr .gc-cta:not(:disabled):not(.ghost){background:#C2410C}
+.gc-ltbar{display:flex;align-items:center;gap:10px;width:100%;margin:8px 0 10px;padding:10px 12px;border-radius:16px;border:1px solid #FF7A00;background:linear-gradient(135deg,#2A0A00,#5A1600);color:#fff;text-align:left}
+.gc-ltbar .k{font:800 11px var(--f-display);background:#FF7A00;color:#000;border-radius:99px;padding:3px 8px;flex:none}.gc-ltbar .v{flex:1;display:flex;flex-direction:column}.gc-ltbar .v b{font:800 15px var(--f-display)}.gc-ltbar .v small{font-size:11.5px;opacity:.8}
+.gc-ltbar .go{font:800 12.5px var(--f-display);background:#D2FF00;color:#000;border-radius:99px;padding:7px 11px;flex:none}
 .gc-o2-later{background:linear-gradient(135deg,#2A0A00,#5A1600);color:#fff;border-radius:18px;padding:13px 14px;margin-top:12px;font-size:12.5px;line-height:1.55;border:1px solid #FF7A00}.gc-o2-later b{display:block;font:800 14px var(--f-display);color:#FFB27A;margin-bottom:3px}
 .gc-oc .gk-tag.gk-l{background:#C2410C;color:#fff}.gc-note.r{background:#FFE9E3;color:#9b2a00}
 .gc-cta{width:100%;height:54px;border-radius:18px;background:#0C0E0D;color:#fff;font:800 16px var(--f-display);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer}
@@ -19066,10 +19091,38 @@ function gTop(g){ const P=(g.prizes||[]).map((p,i)=>{ const k=p.k||LET[i]; const
     const nm=p.name||it?.name||(it?.pid?(S.plants.get(it.pid)?.species||''):(S.plants.get(p.gid)?.gname||''));
     return {k,n,tot,left:g.total?(+g.left?.[k]||0):n,it,name:nm,val,t:tierOf(n,tot)}; }).filter(x=>x.n>0);
   return P.sort((a,b)=>a.n-b.n||a.k.localeCompare(b.k)); }
-function gShow(g){ const T=gTop(g).slice(0,3); if(!T.length) return null; const [a,b,c]=T;
-  const card=(x,cls)=>h('div',{class:'gk-c '+cls}, h('img',{src:imgOf(x.it),alt:'',loading:'lazy'}), h('span',{class:'gc-tc gc'+x.t+(x.t==='r4'?' gc-shine':'')}, x.k, h('small',{text:'賞'})),
-    cls==='gk-main'?h('div',{class:'gk-cap'}, h('span',{class:'gk-tg gc'+x.t,text:TN[x.t]+' · '+pctTxt(x.n,x.tot)}), h('b',{text:x.name}), h('div',{class:'gk-ln'}, h('span',{text:'剩 '+x.left+' / '+x.n}), x.val?h('em',{text:M$(x.val)}):null)):null);
-  return h('div',{class:'gc-show'}, b?card(b,'s1'):null, c?card(c,'s2'):null, card(a,'gk-main'), h('div',{class:'gk-lbl',text:'🏆 大獎'})); }
+// 獎品展示：可以左右滑、點旁邊的卡切過去、點中間那張看獎品詳情
+function gShow(g){ const T=gTop(g); if(!T.length) return null; let idx=0;
+  const lbl=h('div',{class:'gk-lbl'}), dots=h('div',{class:'gk-dots'}, ...T.map((x,i)=>h('button',{type:'button','aria-label':x.k+' 賞',onclick:e=>{ e.stopPropagation(); set(i); }})));
+  const cards=T.map((x,i)=>h('button',{type:'button',class:'gk-c','aria-label':x.k+' 賞 '+x.name,onclick:e=>{ if(moved) return; const d=i-idx; if(d===0) gcPrize(g,x.k); else set(i); }}, h('img',{src:imgOf(x.it),alt:'',loading:i<3?'eager':'lazy',draggable:'false'}), h('span',{class:'gc-tc gc'+x.t+(x.t==='r4'?' gc-shine':'')}, x.k, h('small',{text:'賞'})),
+    h('div',{class:'gk-cap'}, h('span',{class:'gk-tg gc'+x.t,text:TN[x.t]+' · '+pctTxt(x.n,x.tot)}), h('b',{text:x.name}), h('div',{class:'gk-ln'}, h('span',{text:'剩 '+x.left+' / '+x.n}), x.val?h('em',{text:M$(x.val)}):null)), h('span',{class:'gk-more',text:'點我看獎品'})));
+  const set=i=>{ idx=Math.max(0,Math.min(T.length-1,i)); cards.forEach((c,j)=>{ const d=j-idx; c.dataset.d=String(Math.max(-2,Math.min(2,d))); c.tabIndex=d===0?0:-1; }); [...dots.children].forEach((d,j)=>d.classList.toggle('on',j===idx));
+    lbl.textContent=idx===0?'🏆 大獎':T[idx].k+' 賞 · '+TN[T[idx].t]; lbl.className='gk-lbl'+(idx===0?'':' sm'); };
+  const box=h('div',{class:'gc-show'+(T.length>1?' swipe':'')}, ...cards, lbl, T.length>1?dots:null);
+  let x0=null, y0=0, moved=false;
+  box.addEventListener('pointerdown',e=>{ x0=e.clientX; y0=e.clientY; moved=false; });
+  box.addEventListener('pointermove',e=>{ if(x0==null) return; const dx=e.clientX-x0; if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(e.clientY-y0)){ moved=true; box.style.setProperty('--dx',Math.max(-80,Math.min(80,dx))+'px'); } });
+  const end=e=>{ if(x0==null) return; const dx=(e.clientX??x0)-x0; box.style.setProperty('--dx','0px'); if(moved&&Math.abs(dx)>40){ set(idx+(dx<0?1:-1)); vibe(6); } x0=null; setTimeout(()=>{ moved=false; },30); };
+  box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end); box.addEventListener('pointerleave',e=>{ if(x0!=null) end(e); });
+  box.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') set(idx+1); else if(e.key==='ArrowLeft') set(idx-1); });
+  set(0); return box; }
+// 獎品詳情：照片可以左右滑、這一賞有哪些植物／周邊、點進商品頁
+function gcPrize(g,k){ const P=(g.prizes||[]).find(p=>p.k===k)||(k==='LAST'&&g.last?{...g.last,k:'最後'}:null); if(!P) return; const tot=+g.total||0, n=+P.n||(P.items||[]).length||1, left=k==='LAST'?(g.lastWin?0:1):(+g.left?.[k]||0), t=k==='LAST'?'r4':tierOf(n,tot);
+  const items=P.items||[]; let cur=0;
+  const photosOf=it=>{ const pp=S.plants.get(it.pid||it.gid||it.goods); const L=[]; if(pp){ (sdPhotos(pp)||[]).forEach(u=>{ if(u&&!L.includes(u)) L.push(u); }); (pp.imgs||[]).forEach(x=>{ const u=x&&(x.f||x.t); if(u&&!L.includes(u)) L.push(u); }); } if(!L.length) L.push(imgOf(it)); return L.slice(0,10); };
+  const strip=h('div',{class:'gp-strip'}), dots=h('div',{class:'gp-dots'}), info=h('div',{class:'gp-info'}), list=h('div',{class:'gp-list'}), goBtn=h('button',{type:'button',class:'gc-cta v'});
+  const paint=()=>{ const it=items[cur]||{}, L=photosOf(it), pp=S.plants.get(it.pid||it.gid||it.goods);
+    strip.replaceChildren(...L.map(u=>h('div',{class:'gp-ph'}, h('img',{src:u,alt:'',loading:'lazy'})))); strip.scrollLeft=0; dots.replaceChildren(...(L.length>1?L.map((_,i)=>h('i',{class:i?'':'on'})):[]));
+    const sp=pp&&!isGoods(pp)?[pp.code,({mother:'母株',pup:'側芽',seedling:'實生苗'})[pp.kind]].filter(Boolean).join(' · '):'';
+    info.replaceChildren(h('div',{class:'gp-tg'}, h('span',{class:'gc-tc gc'+t,text:k==='LAST'?'LAST':k}, k==='LAST'?null:h('small',{text:'賞'})), h('span',{class:'gk-tg gc'+t,text:k==='LAST'?'最後一抽另送':TN[t]+' · '+pctTxt(n,tot)}), h('span',{class:'gp-left'+(left?'':' z'),text:k==='LAST'?(left?'還在':'已送出'):'剩 '+left+' / '+n})),
+      h('h3',{text:it.name||P.name||''}), it.vn?h('div',{class:'gp-sub',text:'規格：'+it.vn}):null, sp?h('div',{class:'gp-sub mono',text:sp}):null, it.val?h('div',{class:'gp-val'}, '價值 ', h('b',{text:M$(it.val)})):null);
+    const gd=it.kind==='goods'||!!it.gid||!!it.goods||isGoods(pp); goBtn.textContent=gd?'看商品頁 →':'看植物履歷 →'; goBtn.disabled=!(it.pid||it.gid||it.goods);
+    [...list.children].forEach((r,i)=>r.setAttribute('aria-pressed',String(i===cur))); };
+  strip.addEventListener('scroll',()=>{ const i=Math.round(strip.scrollLeft/Math.max(1,strip.clientWidth)); [...dots.children].forEach((d,j)=>d.classList.toggle('on',j===i)); },{passive:true});
+  if(items.length>1) list.append(h('div',{class:'gp-lh',text:'這一賞有 '+items.length+' 個，抽到其中一個'}), ...items.map((it,i)=>h('button',{type:'button',class:'gp-row',onclick:()=>{ cur=i; paint(); }}, h('img',{src:imgOf(it),alt:''}), h('span',{}, h('b',{text:it.name||''}), h('small',{text:[it.vn,it.val?M$(it.val):''].filter(Boolean).join(' · ')})))));
+  goBtn.onclick=()=>{ const it=items[cur]||{}, id=it.pid||it.gid||it.goods; if(!id) return; close(); setTimeout(()=>go(isGoods(S.plants.get(id))||it.kind==='goods'?'#/goods/'+encodeURIComponent(id):'#/plant/'+encodeURIComponent(id)),60); };
+  const close=ov(h('div',{class:'gc-sheet gc-prize-sh '+tplCls(g)}, h('div',{class:'gr'}), h('div',{class:'gp-pw'}, strip, dots), info, list, goBtn, h('button',{type:'button',class:'gc-cta ghost',onclick:()=>close(),text:'關閉'})),'gcprize');
+  paint(); }
 function confetti(n){ const C=['#D2FF00','#FFD23F','#A970FF','#2FA8FF','#3DDC84','#FF6B8A','#fff']; if((typeof REDUCE!=="undefined"&&REDUCE)) return; for(let i=0;i<(n||70);i++){ const e=h('i',{class:'gc-cf'}); e.style.left=Math.random()*innerWidth+'px'; e.style.background=C[i%C.length]; document.body.append(e);
   e.animate([{transform:'translateY(0) rotate(0)'},{transform:`translate(${Math.random()*80-40}px,${innerHeight+80}px) rotate(${Math.random()*900}deg)`}],{duration:1800+Math.random()*1400,delay:Math.random()*500,easing:'cubic-bezier(.2,.6,.4,1)',fill:'forwards'}).onfinish=()=>e.remove(); } }
 function ov(node,id,onClose){ const o=h('div',{class:'gc gc-ov'}); o.append(node); const close=()=>{ if(!o.isConnected) return; o.remove(); blDone(id); onClose&&onClose(); }; o.addEventListener('click',e=>{ if(e.target===o) close(); }); document.body.append(o); blPush(id,()=>{ o.remove(); onClose&&onClose(); }); return close; }
@@ -19091,7 +19144,11 @@ let rfT=0; function gcRefresh(){ if(rfT) return; rfT=requestAnimationFrame(()=>{
 const gList=()=>[...GC.pub.values()].filter(g=>['on','pause','done'].includes(g.status)&&(approved(g.shop)||g.shop===S.me));
 const gLeft=g=>Math.max(0,(+g.total||0)-(+g.opened||0));
 const gSellLeft=g=>Math.max(0,(+g.total||0)-(+g.sold||0));
-const myTix=gid=>+(GC.tix.get(S.me+'_'+gid)?.n||0);
+// 先抽再付額度：賣家同意後開通，撕多少算多少；送出付款就結算
+function myLt(gid){ const t=GC.tix.get(S.me+'_'+gid), lt=t?.lt; if(!lt||lt.st!=='on') return null; const o=myTicketOrders().find(o=>o.id===lt.oid&&o.shop===lt.shop);
+  const paid=!!(o?.deal?.pay)||['paid','preparing','shipped','done'].includes(o?.status), used=+lt.used||0, pr=+(ordSo(o||{})?.gacha?.price||gget(gid)?.price||0);
+  return {...lt, used, price:pr, owe:used*pr, paid, left:paid?0:Math.max(0,(+lt.cap||0)-used)}; }
+const myTix=gid=>+(GC.tix.get(S.me+'_'+gid)?.n||0)+(myLt(gid)?.left||0);
 const myTicketOrders=()=>{ try{ return buyerOrders(S.me).filter(o=>o.src==='gacha'||ordSo(o)?.src==='gacha'); }catch(e){ return []; } };
 const tOrdG=o=>(ordSo(o)?.gacha)||o.gacha||{};
 const gcOpenN=()=>gList().filter(g=>g.status==='on').length;
@@ -19128,6 +19185,146 @@ const HELP=[
   ['開賣前就鎖好','每張背後是什麼，賣家也看不到，完抽後公開驗證',()=>h('div',{class:'hpx hpx7'}, h('i',{text:'🔒'}), h('code',{text:'5e5e8d45…2632'}))]];
 
 function gcRules(g){ gcHelp(g); }
+/* ---------------- 轉蛋分享圖：6 種版型 × 貼文／限動／方形，可自訂 ---------------- */
+const GS_TH={neon:['#0C0E0D','#1B2116','#D2FF00','#FFFFFF'],retro:['#7A0C1C','#B3122A','#FFE08A','#FFF6E0'],washi:['#F4EEE2','#E9DCC9','#C2410C','#2A2620'],jungle:['#0B2416','#1F5C42','#8CF5C0','#F0FFF6'],candy:['#FF8FB1','#FFC2D4','#4A1D96','#2B0A3D'],noir:['#0B0B0B','#1E1A12','#D4AF37','#F5EBD3']};
+const GS_TC={r4:['#FFB31A','#111'],r3:['#A970FF','#fff'],r2:['#2FA8FF','#fff'],r1:['#3DDC84','#111']};
+const GS_TPL=[['hero','大獎主打'],['ticket','一番賞籤'],['board','獎項表'],['grid','獎品拼貼'],['odds','機率戰報'],['mag','雜誌封面']];
+const GS_ACC=['auto','#D2FF00','#FFB31A','#FF5A36','#FF8FB1','#7FD4FF','#8CF5C0','#FFFFFF'];
+const GS_MODES=[
+  ['new','🆕','新機上架','剛開抽',{tpl:'hero',fmt:'post',kick:'NEW 新轉蛋機'}],
+  ['odds','🔥','大獎還在','機率變好',{tpl:'odds',fmt:'story',kick:'大獎還在！'}],
+  ['last','⏳','快完抽','剩沒幾抽',{tpl:'board',fmt:'post',kick:'快完抽'}],
+  ['story','📲','分享限動','IG 9:16',{tpl:'ticket',fmt:'story',kick:''}],
+  ['normal','💬','一般轉發','LINE・訊息',{tpl:'grid',fmt:'square',kick:''}]];
+const GS_DEF={fmt:'post',tpl:'hero',th:'auto',acc:'auto',title:'',kick:'',note:'',showPrice:true,showLeft:true,showOdds:true,showVal:true,showQR:true,showShop:true,showLast:true};
+const GS_KEEP=['fmt','tpl','th','acc','showPrice','showLeft','showOdds','showVal','showQR','showShop','showLast'];
+const gcUrl=g=>location.origin+location.pathname+'#/gacha/'+g.id;
+const hexA=(hx,a)=>{ const m=String(hx).replace('#',''); const n=parseInt(m.length===3?m.split('').map(x=>x+x).join(''):m,16); return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'; };
+// 機率好不好：最稀有那一級還剩多少／剩幾抽，跟開賣時比
+function gcOdds(g){ const T=gTop(g), left=gLeft(g), tot=+g.total||0; if(!T.length||!left) return {ok:false,left,T};
+  const best=T.find(x=>x.left>0)||T[0], tier=best.t, bigN=T.filter(x=>x.t===tier).reduce((a,x)=>a+x.n,0), bigL=T.filter(x=>x.t===tier).reduce((a,x)=>a+x.left,0);
+  const now=left?bigL/left:0, was=tot?bigN/tot:0, boost=was?now/was:0;
+  return {ok:bigL>0&&boost>=1.5&&left<=tot*.8,left,tot,best,tier,bigL,bigN,now,was,boost,T}; }
+function gsTheme(g,c){ const t=GS_TH[c.th==='auto'?(GS_TH[g.tpl]?g.tpl:'neon'):c.th]||GS_TH.neon; return {bg:t[0],bg2:t[1],acc:c.acc==='auto'?t[2]:c.acc,fg:t[3],light:/^#[e-f]/i.test(t[0])||t[0]==='#FF8FB1'}; }
+function gsText(g,mode,fmt){ const O=gcOdds(g), T=O.T||gTop(g), top=T[0], u=gcUrl(g), sn=shopName(g.shop);
+  const head={new:'🆕 新轉蛋機開抽！',odds:'🔥 大獎還在，機率變好了！',last:'⏳ 快完抽！只剩 '+gLeft(g)+' 抽',normal:'🎰 一番賞轉蛋機'}[mode]||'🎰 一番賞轉蛋機';
+  if(fmt==='story') return head+'\n「'+g.title+'」\n👉 '+u;
+  return [head, '「'+g.title+'」by '+sn, '💰 每抽 '+M$(g.price)+'・共 '+g.total+' 抽・剩 '+gLeft(g)+' 抽',
+    T.slice(0,4).map(x=>'・'+x.k+' 賞 '+x.name+(x.val?'（'+M$(x.val)+'）':'')+' 剩 '+x.left+'/'+x.n).join('\n'),
+    mode==='odds'&&O.bigL?'🏆 '+TN[O.tier]+'還有 '+O.bigL+' 個，現在機率 '+(O.now*100).toFixed(1)+'%（開賣時 '+(O.was*100).toFixed(1)+'%）':'',
+    g.last?.items?.[0]?'👑 最後一抽另送最後賞：'+(g.last.name||g.last.items[0].name||''):'', '', '👉 來撕：'+u, '', '#VEIN #一番賞 #轉蛋'].filter((x,i,a)=>x!==''||(i>0&&a[i-1]!=='')).join('\n'); }
+async function gsPoster(g,c,sc){ try{ await document.fonts?.ready; }catch(e){}
+  const K=pkCanvas(c.fmt,sc), {g:x,W,H,F,L,R}=K, th=gsTheme(g,c), O=gcOdds(g), T=gTop(g), left=gLeft(g), tot=+g.total||0;
+  const ims=await Promise.all(T.slice(0,6).map(t=>sdImg(imgOf(t.it)))), big=T[0], lastIt=g.last?.items?.[0];
+  const title=c.title||g.title||'', sub=hexA(th.fg,.68), ink=th.light?'#111':'#fff';
+  const bg=()=>{ x.fillStyle=th.bg; x.fillRect(0,0,W,H); const rg=x.createRadialGradient(W*.8,H*.15,30,W*.8,H*.15,W*1.1); rg.addColorStop(0,hexA(th.acc,.22)); rg.addColorStop(1,hexA(th.acc,0)); x.fillStyle=rg; x.fillRect(0,0,W,H); };
+  const head=(y)=>{ K.logo(L,y,44,th.fg); if(c.showShop) K.text(shopName(g.shop),R,y+32,'700 26px '+F,sub,'right'); return y+80; };
+  const kick=(y,rot)=>{ if(!c.kick) return y; K.sticker(L,y,c.kick,36,rot??-.04,th.acc,th.light?'#fff':'#111'); return y+82; };
+  const ttl=(y,max,col)=>{ const ts=K.fitSize(title,R-L,'900',max||72,38); const ls=K.wrap(title,R-L,'900 '+ts+'px '+F,2); ls.forEach((l,i)=>K.text(l,L,y+ts+i*(ts+8),'900 '+ts+'px '+F,col||th.fg)); return y+ls.length*(ts+8)+12; };
+  const tierPill=(x0,y0,t,size,right)=>{ const [b,f]=GS_TC[t.t]||GS_TC.r1; K.pill(x0,y0,t.k+' 賞'+(c.showOdds?' · '+TN[t.t]+' '+pctTxt(t.n,tot):''),b,f,size||26,right); };
+  const stats=(y,h0)=>{ const S0=[c.showPrice?['每抽',M$(g.price)]:null,c.showLeft?['剩餘',left+' / '+tot]:null,c.showOdds&&O.best?[TN[O.tier]+'剩',O.bigL+' 個']:null].filter(Boolean); if(!S0.length) return y; const gap=14, w=(R-L-gap*(S0.length-1))/S0.length;
+    S0.forEach(([l,v],i)=>{ const X=L+i*(w+gap); x.fillStyle=hexA(th.fg,.08); x.beginPath(); x.roundRect(X,y,w,h0||118,18); x.fill(); x.fillStyle=th.acc; x.fillRect(X+20,y,44,5); K.text(l,X+20,y+44,'700 24px '+F,sub); const vs=K.fitSize(v,w-40,'900',44,24); K.text(v,X+20,y+(h0||118)-24,'900 '+vs+'px '+F,th.fg); }); return y+(h0||118)+18; };
+  const foot=async(col,qbg,qfg)=>{ const QS=K.sq?150:180; if(c.showQR){ const ok=await K.qr(gcUrl(g),R-QS,K.B-QS,QS,qbg||'#fff',qfg||'#111'); if(ok) K.text('掃描來抽',R-QS/2,K.B-QS-12,'800 22px '+F,col||th.fg,'center'); }
+    if(c.note) K.text(K.wrap(c.note,R-L-(c.showQR?QS+30:0),'800 30px '+F,1)[0],L,K.B-50,'800 30px '+F,th.acc);
+    K.text(location.host+'/#/gacha',L,K.B-6,'600 24px '+F,hexA(col||th.fg,.6)); return c.showQR?QS:0; };
+  const lastLine=(y,col)=>{ if(!(c.showLast&&lastIt)) return y; K.pill(L,y,'👑 最後賞 · '+(g.last.name||lastIt.name||''),hexA(th.acc,.18),col||th.fg,24); return y+60; };
+
+  if(c.tpl==='hero'){ bg(); let y=head(K.T); y=kick(y); y=ttl(y,K.sq?60:72);
+    const QS=c.showQR?(K.sq?150:180):0, sH=118+18, small=K.story&&T.length>1?240:0, bot=K.B-Math.max(QS+20,c.note?80:50)-sH-(small?small+16:0)-(c.showLast&&lastIt?60:0), ph=Math.max(220,bot-y);
+    K.img(ims[0],L,y,R-L,ph,32); const gr=x.createLinearGradient(0,y+ph*.5,0,y+ph); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,.72)'); x.save(); x.beginPath(); x.roundRect(L,y,R-L,ph,32); x.clip(); x.fillStyle=gr; x.fillRect(L,y,R-L,ph); x.restore();
+    if(big){ tierPill(L+20,y+20,big,28); K.text(K.wrap(big.name,R-L-60,'900 44px '+F,1)[0]||'',L+28,y+ph-(c.showVal&&big.val?82:30),'900 44px '+F,'#fff'); if(c.showVal&&big.val) K.pill(L+24,y+ph-66,'價值 '+M$(big.val),th.acc,th.light?'#fff':'#111',26); K.pill(R-20,y+20,'剩 '+big.left+' / '+big.n,'rgba(0,0,0,.6)','#fff',26,true); }
+    y+=ph+16; if(small){ const n=Math.min(3,T.length-1), gp=14, cw=(R-L-gp*(n-1))/n; for(let i=0;i<n;i++){ const t=T[i+1], X=L+i*(cw+gp); K.img(ims[i+1],X,y,cw,small,22); tierPill(X+12,y+12,{...t},22); } y+=small+16; }
+    y=lastLine(y); stats(y); await foot(); }
+  else if(c.tpl==='ticket'){ bg(); x.save(); x.strokeStyle=hexA(th.acc,.08); x.lineWidth=18; for(let i=-H;i<W+H;i+=70){ x.beginPath(); x.moveTo(i,0); x.lineTo(i+H,H); x.stroke(); } x.restore();
+    const px=L-8, py=K.T+(K.story?20:0), pw=R-L+16, pb=K.B-(c.note?70:30), paper='#FBFAF4', ph0=pb-py, cut=py+ph0*(K.sq?.72:.78);
+    x.save(); x.shadowColor='rgba(0,0,0,.35)'; x.shadowBlur=40; x.shadowOffsetY=14; x.fillStyle=paper; x.beginPath(); x.roundRect(px,py,pw,ph0,30); x.fill(); x.restore();
+    const band=K.sq?130:160; x.save(); x.beginPath(); x.roundRect(px,py,pw,band,[30,30,0,0]); x.clip(); x.fillStyle=th.acc; x.fillRect(px,py,pw,band); x.restore();
+    x.fillStyle=paper; for(let i=0;i<pw/36;i++){ x.beginPath(); x.moveTo(px+i*36,py+band+1); x.lineTo(px+i*36+18,py+band-16); x.lineTo(px+i*36+36,py+band+1); x.fill(); }
+    const tc=th.light?'#fff':'#111'; K.text('一番賞 · '+(c.kick||'GACHA'),px+36,py+48,'800 24px '+K.MONO,hexA(tc,.75)); const ts=K.fitSize(title,pw-72,'900',58,32); K.text(K.wrap(title,pw-72,'900 '+ts+'px '+F,1)[0],px+36,py+48+ts+18,'900 '+ts+'px '+F,tc);
+    let y=py+band+34; const rows=Math.max(1,Math.min(T.length,Math.floor((cut-y-30)/ (K.story?92:78))));
+    { const rr=K.story?92:78, nr=Math.min(T.length,K.story?7:5), sp=cut-y-30-nr*rr; if(big&&sp>200){ const s0=Math.min(sp-24,K.story?520:380); K.img(ims[0],px+36,y,pw-72,s0,24); tierPill(px+52,y+16,big,26); if(c.showVal&&big.val) K.pill(px+pw-52,y+s0-58,M$(big.val),'#111','#fff',24,true); y+=s0+24; } }
+    const rh=Math.min(K.story?92:78,(cut-y-24)/Math.max(1,Math.min(T.length,rows)));
+    T.slice(0,Math.max(1,Math.floor((cut-y-20)/rh))).forEach((t,i)=>{ const yy=y+i*rh, [b,f]=GS_TC[t.t]; x.fillStyle=b; x.beginPath(); x.arc(px+66,yy+rh/2,rh*.36,0,7); x.fill(); K.text(t.k,px+66,yy+rh/2+12,'900 32px '+F,f,'center');
+      K.text(K.wrap(t.name,pw-360,'800 30px '+F,1)[0]||'',px+120,yy+rh/2+(c.showVal&&t.val?-2:10),'800 30px '+F,'#1A1A1A'); if(c.showVal&&t.val) K.text(M$(t.val),px+120,yy+rh/2+30,'700 22px '+F,'#8A8577');
+      K.text((c.showLeft?'剩 '+t.left+'/'+t.n:'')+(c.showOdds?'  '+pctTxt(t.n,tot):''),px+pw-36,yy+rh/2+10,'800 26px '+K.MONO,t.left?'#1A1A1A':'#B8B3A6','right'); x.fillStyle='#EAE6DA'; x.fillRect(px+120,yy+rh-1,pw-156,1); });
+    x.fillStyle=th.bg; x.beginPath(); x.arc(px,cut,26,0,7); x.arc(px+pw,cut,26,0,7); x.fill(); x.save(); x.setLineDash([12,10]); x.strokeStyle='#CFC9B8'; x.lineWidth=3; x.beginPath(); x.moveTo(px+34,cut); x.lineTo(px+pw-34,cut); x.stroke(); x.restore();
+    const sy=cut+30, QS=Math.min(K.sq?120:170,pb-sy-30); if(c.showPrice){ K.text('每抽',px+36,sy+30,'700 24px '+F,'#8A8577'); K.text(M$(g.price),px+36,sy+90,'900 60px '+F,'#111'); }
+    if(c.showLeft) K.text('剩 '+left+' / '+tot+' 抽',px+36,sy+136,'800 26px '+F,'#C2410C'); if(c.showLast&&lastIt) K.text('👑 最後賞 '+(g.last.name||lastIt.name||''),px+36,Math.min(pb-26,sy+178),'700 24px '+F,'#6B6455');
+    if(c.showQR&&QS>60) await K.qr(gcUrl(g),px+pw-36-QS,sy,QS,paper,'#111');
+    if(c.note) K.text(K.wrap(c.note,R-L,'800 30px '+F,1)[0],L,K.B-8,'800 30px '+F,th.acc); }
+  else if(c.tpl==='board'){ bg(); let y=head(K.T); y=kick(y,-.03); y=ttl(y,K.sq?54:64); const QS=c.showQR?(K.sq?140:170):0, bot=K.B-Math.max(QS+20,c.note?90:50)-(c.showPrice||c.showLeft?110:0);
+    const n=Math.min(T.length,K.story?6:K.sq?2:4), rh=Math.min(K.story?190:170,(bot-y-(c.showLast&&lastIt?60:0))/Math.max(1,n));
+    T.slice(0,n).forEach((t,i)=>{ const yy=y+i*rh, ch=rh-14, [b,f]=GS_TC[t.t]; x.fillStyle=hexA(th.fg,.07); x.beginPath(); x.roundRect(L,yy,R-L,ch,22); x.fill(); K.img(ims[i],L+12,yy+12,ch-24,ch-24,16);
+      x.fillStyle=b; x.beginPath(); x.roundRect(L+ch+4,yy+16,70,46,12); x.fill(); K.text(t.k,L+ch+39,yy+50,'900 32px '+F,f,'center'); if(c.showOdds) K.text(TN[t.t]+' '+pctTxt(t.n,tot),L+ch+88,yy+48,'700 22px '+F,sub);
+      K.text(K.wrap(t.name,R-L-ch-190,'800 32px '+F,1)[0]||'',L+ch+4,yy+ch-(c.showVal&&t.val?52:24),'800 32px '+F,th.fg); if(c.showVal&&t.val) K.text(M$(t.val),L+ch+4,yy+ch-18,'800 26px '+F,th.acc);
+      if(c.showLeft){ K.text(String(t.left),R-24,yy+ch/2+6,'900 52px '+F,t.left?th.fg:hexA(th.fg,.3),'right'); K.text('/ '+t.n,R-24,yy+ch/2+38,'700 22px '+F,sub,'right'); } });
+    y+=n*rh; y=lastLine(y+6); const by=K.B-Math.max(QS+20,c.note?90:50)-90; if(c.showPrice||c.showLeft){ K.text([c.showPrice?'每抽 '+M$(g.price):'',c.showLeft?'剩 '+left+' 抽':''].filter(Boolean).join('  ·  '),L,by+60,'900 44px '+F,th.acc); } await foot(); }
+  else if(c.tpl==='grid'){ x.fillStyle='#0E1110'; x.fillRect(0,0,W,H); const band=K.sq?250:K.story?420:300, AH=H-band, gap=8, n=Math.min(ims.length,K.story?5:4)||1, cells=[];
+    if(n===1) cells.push([0,0,W,AH]); else if(n===2) cells.push([0,0,W,AH*.6],[0,AH*.6,W,AH*.4]); else if(n===3) cells.push([0,0,W*.62,AH],[W*.62,0,W*.38,AH/2],[W*.62,AH/2,W*.38,AH/2]); else if(n===4) cells.push([0,0,W*.62,AH*.62],[W*.62,0,W*.38,AH*.62],[0,AH*.62,W*.5,AH*.38],[W*.5,AH*.62,W*.5,AH*.38]); else cells.push([0,0,W,AH*.45],[0,AH*.45,W/2,AH*.3],[W/2,AH*.45,W/2,AH*.3],[0,AH*.75,W/2,AH*.25],[W/2,AH*.75,W/2,AH*.25]);
+    cells.forEach(([cx,cy,cw,chh],i)=>{ K.img(ims[i],cx+gap/2,cy+gap/2,cw-gap,chh-gap,12); const t=T[i]; if(t){ tierPill(cx+gap+12,cy+gap+12,t,i?22:28); if(c.showVal&&t.val) K.pill(cx+cw-gap-12,cy+chh-gap-56,M$(t.val),th.acc,th.light?'#fff':'#111',i?22:26,true); } });
+    x.fillStyle=th.acc; x.fillRect(0,AH,W,band); const fg=th.light?'#fff':'#111', QS=c.showQR?band-90:0; K.logo(L,AH+28,36,fg); if(c.kick) K.text(c.kick,R-(QS?QS+20:0),AH+58,'900 28px '+F,fg,'right');
+    const ts=K.fitSize(title,R-L-(QS?QS+30:0),'900',K.story?72:58,30); K.text(K.wrap(title,R-L-(QS?QS+30:0),'900 '+ts+'px '+F,1)[0],L,AH+90+ts,'900 '+ts+'px '+F,fg);
+    K.text([c.showPrice?'每抽 '+M$(g.price):'',c.showLeft?'剩 '+left+'/'+tot+' 抽':'',c.showLast&&lastIt?'＋最後賞':''].filter(Boolean).join(' · '),L,AH+90+ts+50,'800 30px '+F,fg);
+    if(c.note) K.text(K.wrap(c.note,R-L-(QS?QS+30:0),'700 26px '+F,1)[0],L,AH+90+ts+96,'700 26px '+F,hexA(fg,.75));
+    if(QS) await K.qr(gcUrl(g),R-QS,AH+50,QS,fg==='#fff'?'#111':'#fff',fg==='#fff'?'#fff':'#111'); }
+  else if(c.tpl==='odds'){ bg(); let y=head(K.T); y=kick(y,-.05); const o=O.best?O:{now:0,was:0,bigL:0,tier:'r1',best:big};
+    K.text(TN[o.tier]+'獎機率',L,y+40,'800 34px '+F,sub); const pt=(o.now*100).toFixed(o.now<.1?1:0)+'%', ps=K.fitSize(pt,R-L,'900',K.story?260:K.sq?170:220,90); K.text(pt,L-6,y+40+ps*.92,'900 '+ps+'px '+F,th.acc); y+=40+ps+10;
+    if(o.was) { K.text('開賣時 '+(o.was*100).toFixed(1)+'%  →  現在 '+(o.now*100).toFixed(1)+'%',L,y+30,'800 32px '+F,th.fg); y+=60; }
+    const bw=R-L; x.fillStyle=hexA(th.fg,.12); x.beginPath(); x.roundRect(L,y,bw,22,11); x.fill(); x.fillStyle=th.acc; x.beginPath(); x.roundRect(L,y,Math.max(22,bw*Math.min(1,o.boost?o.boost/3:0)),22,11); x.fill(); y+=60;
+    const QS=c.showQR?(K.sq?140:170):0, bot=K.B-Math.max(QS+30,c.note?90:50), cs=Math.min(bot-y-(K.sq?0:150),R-L-(K.sq?QS+40:0),K.story?560:420);
+    if(cs>120&&o.best){ const cx=K.sq?L+cs/2:W/2, cy=y+cs/2; x.save(); x.beginPath(); x.arc(cx,cy,cs/2,0,7); x.clip(); const im=ims[Math.max(0,T.findIndex(t=>t.k===o.best.k))]||ims[0]; K.img(im,cx-cs/2,cy-cs/2,cs,cs,0); x.restore(); x.strokeStyle=th.acc; x.lineWidth=10; x.beginPath(); x.arc(cx,cy,cs/2+10,0,7); x.stroke();
+      tierPill(cx-cs*.3,cy+cs/2-16,o.best,26); y+=cs+40; if(!K.sq){ K.text(K.wrap(o.best.name,R-L,'900 40px '+F,1)[0]||'',W/2,y+40,'900 40px '+F,th.fg,'center'); y+=70; } }
+    if(!K.sq) K.text([c.showLeft?'剩 '+o.left+' 抽':'',o.bigL?TN[o.tier]+'還有 '+o.bigL+' 個':'',c.showPrice?'每抽 '+M$(g.price):''].filter(Boolean).join(' · '),W/2,Math.min(y+20,bot-10),'800 30px '+F,sub,'center');
+    K.text(K.wrap(title,R-L-(QS?QS+30:0),'800 30px '+F,1)[0],L,K.B-(c.note?96:50),'800 30px '+F,th.fg); await foot(); }
+  else { /* mag */ K.img(ims[0],0,0,W,H,0); K.grad(0,H*.42,'rgba(0,0,0,.6)','rgba(0,0,0,0)'); K.grad(H*.42,H,'rgba(0,0,0,0)','rgba(0,0,0,.88)');
+    const mh=K.story?200:K.sq?130:170; x.save(); x.font='900 '+mh+'px "Didot","Bodoni 72",Georgia,serif'; x.fillStyle='#fff'; x.textAlign='center'; x.fillText('GACHA',W/2,K.T+mh*.82); x.restore();
+    K.text('一番賞 · '+shopName(g.shop),W/2,K.T+mh+24,'800 26px '+F,th.acc,'center'); if(c.kick) K.sticker(R-300,K.T+mh+60,c.kick,32,.07,th.acc,'#111');
+    const QS=c.showQR?(K.sq?140:170):0; let y=K.B-(K.sq?300:K.story?520:430); const ts=K.fitSize(title,R-L,'900',K.sq?56:72,34); K.text(K.wrap(title,R-L,'900 '+ts+'px '+F,1)[0],L,y,'900 '+ts+'px '+F,'#fff'); y+=20;
+    T.slice(0,K.sq?2:K.story?5:3).forEach((t,i)=>{ const [b]=GS_TC[t.t]; x.fillStyle=b; x.fillRect(L,y+22+i*50,8,32); K.text(t.k+' 賞  '+K.wrap(t.name,R-L-(QS?QS+60:40)-140,'700 30px '+F,1)[0]+(c.showVal&&t.val?'  '+M$(t.val):''),L+22,y+48+i*50,'700 30px '+F,'rgba(255,255,255,.92)'); });
+    if(c.showPrice) K.sticker(L,K.B-(c.note?150:110),'每抽 '+M$(g.price)+(c.showLeft?' · 剩 '+left:''),30,-.03,th.acc,'#111');
+    if(QS&&await K.qr(gcUrl(g),R-QS,K.B-QS,QS,'#fff','#111')) K.text('SCAN',R-QS/2,K.B-QS-12,'800 22px '+K.MONO,'#fff','center'); if(c.note) K.text(K.wrap(c.note,R-L-QS-30,'800 28px '+F,1)[0],L,K.B-44,'800 28px '+F,th.acc); K.text(location.host,L,K.B-6,'600 24px '+F,'rgba(255,255,255,.7)'); }
+  return K; }
+function gsLoad(){ try{ return JSON.parse(localStorage.getItem('vein.gs')||'{}'); }catch(e){ return {}; } }
+function gsSave(st){ try{ localStorage.setItem('vein.gs',JSON.stringify(st)); }catch(e){} }
+function openGcShare(g,start){ lsSet('vein.didShare',true); const store=gsLoad(); store.m=store.m||{};
+  const O=gcOdds(g), MODES=GS_MODES; let mode=start||(O.ok?'odds':gLeft(g)<=Math.max(5,(+g.total||0)*.15)?'last':(Date.now()-(+g.pubAt||+g.startAt||0)<3*864e5)?'new':(store.last||'normal'));
+  const md=k=>MODES.find(m=>m[0]===k)||MODES[4];
+  const build=k=>({...GS_DEF,...md(k)[4],...(store.m[k]||{}),title:'',note:''});
+  let c=build(mode); const cv=h('canvas',{class:'sd-cv'}), prev=h('div',{class:'sd-prev'}, cv), txt=h('textarea',{class:'sh-txt',rows:6}), saved=h('span',{class:'sd-saved'});
+  txt.value=gsText(g,mode,c.fmt);
+  let tk=0, rt=0, tt=0; const redraw=async()=>{ const my=++tk; prev.classList.toggle('st',c.fmt==='story'); const K=await gsPoster(g,c,.5); if(my!==tk) return; cv.width=K.cv.width; cv.height=K.cv.height; cv.getContext('2d').drawImage(K.cv,0,0); };
+  const persist=()=>{ const keep={}; GS_KEEP.forEach(k=>keep[k]=c[k]); store.m[mode]=keep; store.last=mode; gsSave(store); saved.textContent='✓ 已記住「'+md(mode)[2]+'」的設定'; };
+  const tplBox=h('div',{class:'sd-tpls'});
+  const thumbs=()=>{ tplBox.replaceChildren(...GS_TPL.map(([k,l])=>{ const tc=h('canvas'); const b=h('button',{type:'button',class:'sd-tp'+(c.tpl===k?' on':''),'data-k':k,'aria-label':l,onclick:()=>{ c.tpl=k; tplBox.querySelectorAll('.sd-tp').forEach(x=>x.classList.toggle('on',x===b)); soon(); }}, tc, h('small',{text:l}));
+    gsPoster(g,{...c,tpl:k,showQR:false},.16).then(K=>{ tc.width=K.cv.width; tc.height=K.cv.height; tc.getContext('2d').drawImage(K.cv,0,0); }).catch(()=>{}); return b; })); };
+  const soon=th=>{ clearTimeout(rt); rt=setTimeout(redraw,60); persist(); if(th){ clearTimeout(tt); tt=setTimeout(thumbs,260); } };
+  const seg=(opts,key,th)=>{ const box=h('div',{class:'sd-seg sm'}, ...opts.map(([v,l])=>h('button',{type:'button','aria-pressed':String(c[key]===v),onclick:()=>{ c[key]=v; box.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(opts[i][0]===v))); if(key==='fmt') txt.value=gsText(g,mode,c.fmt); soon(th); },text:l}))); return box; };
+  const tog=(k,l)=>h('button',{type:'button',class:'chip','aria-pressed':String(!!c[k]),onclick:e=>{ c[k]=!c[k]; e.currentTarget.setAttribute('aria-pressed',String(c[k])); soon(true); }},l);
+  const sw=(key,list,lab)=>{ const box=h('div',{class:'dz-sw'}, ...list.map(col=>h('button',{type:'button','aria-label':col==='auto'?'跟機台一樣':(lab?lab(col):col),style:col==='auto'?'background:conic-gradient(#D2FF00,#FF8FB1,#7FD4FF,#D2FF00)':'background:'+(GS_TH[col]?GS_TH[col][0]+';box-shadow:inset 0 0 0 6px '+GS_TH[col][2]:col),'aria-pressed':String(c[key]===col),onclick:e=>{ c[key]=col; box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget))); soon(true); }}))); return box; };
+  const inp=(key,ph,max)=>{ const i=h('input',{maxlength:max||40,placeholder:ph,value:c[key]||''}); i.addEventListener('input',()=>{ c[key]=i.value.trim(); soon(key==='kick'); }); return i; };
+  const modesBox=h('div',{class:'sd-modes'}), panel=h('div',{class:'sd-panel'});
+  const sec=(num,title,body)=>h('section',{class:'sd-sec fixed'}, h('div',{class:'sd-sh'}, h('i',{text:num}), h('b',{text:title})), h('div',{class:'sd-sb'}, ...body));
+  const drawPanel=()=>{ modesBox.replaceChildren(...MODES.map(([k,ic,l,sub])=>h('button',{type:'button','data-k':k,'aria-pressed':String(mode===k),onclick:()=>{ if(k===mode) return; mode=k; c=build(k); txt.value=gsText(g,mode,c.fmt); drawPanel(); }}, h('i',{text:ic}), h('b',{text:l}), h('small',{text:k==='odds'&&O.bigL?TN[O.tier]+' '+(O.now*100).toFixed(1)+'%':sub}))));
+    panel.replaceChildren(sec('1','用途',[modesBox, mode==='odds'&&!O.ok?h('p',{class:'hint',text:O.best?'目前'+TN[O.tier]+'機率 '+(O.now*100).toFixed(1)+'%（開賣時 '+(O.was*100).toFixed(1)+'%），還不算特別好，也可以照樣分享。':'目前沒有剩下的大獎。'}):null].filter(Boolean)),
+      sec('2','尺寸與版型',[h('div',{class:'sd-g'}, seg([['post','貼文 4:5'],['story','限動 9:16'],['square','方形 1:1']],'fmt',true)), tplBox]),
+      sec('3','文字',[h('div',{class:'sd-g'}, h('b',{text:'標題'}), inp('title','留空＝'+g.title,40)), h('div',{class:'sd-g'}, h('b',{text:'標語貼紙'}), inp('kick','例如：大獎還在！、今晚完抽',16)), h('div',{class:'sd-g'}, h('b',{text:'加一句話'}), inp('note','例如：滿 3 抽送小禮、週六面交',30))]),
+      sec('4','圖上要放什麼',[h('div',{class:'chips'}, tog('showPrice','每抽價格'), tog('showLeft','剩餘抽數'), tog('showOdds','機率'), tog('showVal','獎品價值'), tog('showLast','最後賞'), tog('showShop','賣家名'), tog('showQR','QR code'))]),
+      sec('5','配色',[h('div',{class:'sd-g'}, h('b',{text:'底色主題'}), sw('th',['auto',...Object.keys(GS_TH)],k=>TPL.find(t=>t[0]===k)?.[1]||k)), h('div',{class:'sd-g'}, h('b',{text:'強調色'}), sw('acc',GS_ACC))]),
+      sec('6','一起傳出去的文字',[txt]),
+      h('div',{class:'sd-foot'}, saved, h('button',{type:'button',class:'bf-lk',onclick:()=>{ delete store.m[mode]; gsSave(store); c=build(mode); drawPanel(); toast('已恢復預設'); },text:'↺ 恢復這個用途的預設'})));
+    thumbs(); redraw(); };
+  const exportBlob=async()=>{ const K=await gsPoster(g,c,2); return K.done(); };
+  const busy=async(b,fn)=>{ if(b.disabled) return; b.disabled=true; b.classList.add('busy'); try{ await fn(); } finally{ b.disabled=false; b.classList.remove('busy'); } };
+  const doShare=async()=>{ const blob=await exportBlob(); if(!blob){ toast('圖片產生失敗，先幫你複製文字'); copyText(txt.value); return; } const file=new File([blob],vfn(),{type:'image/jpeg',lastModified:Date.now()}), story=c.fmt==='story';
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ quietCopy(story?gcUrl(g):txt.value,story?'網址已複製，可以貼到限動連結':'文字已複製，傳出圖片後可以直接貼上'); try{ await navigator.share({files:[file]}); }catch(e){} } else { copyText(txt.value); saveImg(blob); } };
+  const btns=h('div',{class:'sh-btns'}, h('button',{class:'btn volt lg sh-main',type:'button',onclick:e=>busy(e.currentTarget,doShare)},'📤 分享圖片'),
+    h('div',{class:'sh-sub'}, h('button',{class:'btn soft sm',type:'button',onclick:e=>busy(e.currentTarget,async()=>{ const b=await exportBlob(); if(b) saveImg(b); else toast('圖片產生失敗'); })}, h('i',{text:'⬇'}), h('span',{text:saveLabel()})),
+      h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(txt.value)}, h('i',{text:'📋'}), h('span',{text:'複製文字'})),
+      h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(gcUrl(g))}, h('i',{text:'🔗'}), h('span',{text:'複製連結'})),
+      h('a',{class:'btn line sm',href:'#',target:'_blank',rel:'noopener',onclick:e=>{ e.currentTarget.href='https://line.me/R/share?text='+encodeURIComponent(txt.value); }}, h('span',{text:'LINE'}))));
+  openDialog('轉發轉蛋機', h('div',{class:'sd sd2 gs'}, h('div',{class:'sd-main'}, h('div',{class:'sd-left'}, h('div',{class:'sd-pw'}, prev), h('div',{class:'sd-act'}, btns, h('p',{class:'hint sh-note',text:'手機按「分享圖片」可以直接選 IG、FB、LINE。'}))), h('div',{class:'sd-right'}, panel))), false);
+  drawPanel(); setTimeout(()=>modesBox.querySelector('[aria-pressed="true"]')?.scrollIntoView({inline:'center',block:'nearest'}),50); }
+
 function gcHelp(g){ let k=0, tm=0; const D=3800;
   const bars=h('div',{class:'hp-bars'}, ...HELP.map(()=>h('i',{}, h('u')))), stage=h('div',{class:'hp-stage'}), cap=h('div',{class:'hp-cap'});
   const show=n=>{ k=(n+HELP.length)%HELP.length; const [t,sub,mk]=HELP[k]; stage.replaceChildren(mk()); cap.replaceChildren(h('small',{text:(k+1)+' / '+HELP.length}), h('b',{text:t}), h('p',{text:sub}));
@@ -19155,13 +19352,13 @@ function gcRender(force){ const box=$('#gachaPage'); if(!box) return; const [gid
   gcMachine(box,g); }
 function gcMachine(box,g){ const T=g.prizes||[], left=gLeft(g), r4=T.filter(p=>tierOf(p.n,g.total)==='r4').reduce((a,p)=>a+(+g.left?.[p.k]||0),0);
   const pend=myTicketOrders().filter(o=>tOrdG(o).id===g.id&&(o.status==='apply'||(['confirmed','paid'].includes(o.status)&&!ordSo(o)?.granted)));
-  const hero=h('div',{class:'gc-hero'}, h('div',{class:'glow'}), h('button',{type:'button',class:'gc-q','aria-label':'怎麼玩',onclick:()=>gcHelp(g),text:'?'}), gShow(g), h('h1',{text:g.title}), h('div',{class:'who'}, avatar(g.shop,22), h('a',{href:'#/seller/'+g.shop,style:'color:inherit',text:shopName(g.shop)}), isVerified(g.shop)?h('span',{class:'vf',text:'認證賣家'}):null),
+  const hero=h('div',{class:'gc-hero'}, h('div',{class:'glow'}), h('button',{type:'button',class:'gc-q','aria-label':'怎麼玩',onclick:()=>gcHelp(g),text:'?'}), g.status!=='draft'?h('button',{type:'button',class:'gc-shb','aria-label':'轉發',onclick:()=>openGcShare(g)}, h('i',{text:'↗'}), '轉發'):null, gShow(g), h('h1',{text:g.title}), h('div',{class:'who'}, avatar(g.shop,22), h('a',{href:'#/seller/'+g.shop,style:'color:inherit',text:shopName(g.shop)}), isVerified(g.shop)?h('span',{class:'vf',text:'認證賣家'}):null),
     g.desc?h('div',{class:'desc',text:g.desc}):null,
     h('div',{class:'gc-hst'}, h('div',{}, h('b',{text:String(left)}), h('small',{text:'剩餘抽數'})), h('div',{}, h('b',{text:'$'+g.price}), h('small',{text:'每抽'})), h('div',{}, h('b',{text:String(r4)}), h('small',{text:'極稀有還在'}))),
     h('div',{class:'gc-bar'}, h('i',{style:'width:'+(left/g.total*100)+'%'})));
   const leg=h('div',{class:'gc-leg'}, ...[['r4','極稀有','< 5%'],['r3','稀有','5–10%'],['r2','精選','10–30%'],['r1','常見','30%+']].map(([c,n,r])=>h('div',{class:'gc'+c}, n, h('small',{text:r}))));
   const pz=T.map(p=>{ const t=tierOf(p.n,g.total), l=+g.left?.[p.k]||0, it=(p.items||[])[0], v=prizeVal(p);
-    return h('div',{class:'gc-pz'+(l?'':' out')}, h('div',{class:'lt gc'+t+(t==='r4'?' gc-shine':'')}, p.k, h('small',{text:'賞'})), h('div',{class:'gk-ph'}, h('img',{src:imgOf(it),alt:'',loading:'lazy'}), p.items.length>1&&p.kind==='plant'?h('span',{class:'gk-n',text:p.items.length+' 株'}):null),
+    return h('div',{class:'gc-pz'+(l?'':' out'),role:'button',tabindex:'0',onclick:()=>gcPrize(g,p.k)}, h('div',{class:'lt gc'+t+(t==='r4'?' gc-shine':'')}, p.k, h('small',{text:'賞'})), h('div',{class:'gk-ph'}, h('img',{src:imgOf(it),alt:'',loading:'lazy'}), p.items.length>1&&p.kind==='plant'?h('span',{class:'gk-n',text:p.items.length+' 株'}):null),
       h('div',{class:'in'}, h('b',{text:p.name||it?.name||''}), h('div',{class:'gk-m'}, h('span',{class:'gk-pc gc'+t,text:pctTxt(p.n,g.total)+' · '+TN[t]})), h('div',{class:'gk-m'}, h('span',{class:'gk-lf',text:'剩 '+l+' / '+p.n}), v?h('span',{class:'val',text:v}):h('span',{class:'vs',text:'未標價'})))); });
   const lp=g.last?.items?.[0];
   const sh=g.ship||{};
@@ -19169,7 +19366,7 @@ function gcMachine(box,g){ const T=g.prizes||[], left=gLeft(g), r4=T.filter(p=>t
     h('div',{}, h('i',{style:'font-style:normal',text:'🚚'}), h('span',{text:sh.mode==='incl'?'抽獎券已含運，獎品出貨一律免運':(sh.free?'出貨滿 '+M$(sh.free)+'（獎品價格）免運；':'')+'這家還有沒寄出的訂單時也免運'})), h('div',{}, h('i',{style:'font-style:normal',text:'⏳'}), h('span',{text:'倉庫保管 '+(sh.keep||30)+' 天，到期自動用你上次的寄送方式出貨'})), h('div',{}, h('i',{style:'font-style:normal',text:'🎰'}), h('span',{text:'券只能用在這一台；每次最多買 '+(g.maxPer||10)+' 抽'})));
   const fair=h('div',{class:'gc-fair'}, h('span',{text:'🔒'}), h('span',{}, g.reveal?'已公開所有獎單：':'開賣前已鎖定所有獎單，賣家也看不到。公平驗證碼 ', h('code',{text:String(g.commit||'').slice(0,8)+'…'+String(g.commit||'').slice(-4)}), g.reveal?h('button',{type:'button',class:'bf-lk',onclick:()=>gcVerify(g),text:' 驗證'}):'，完抽後公開'));
   box.replaceChildren(h('div',{class:'gc gc-pg '+tplCls(g)}, hero, h('div',{class:'gc-sec',text:'機率顏色'}), leg, h('div',{class:'gc-sec'}, '賞一覽', h('em',{text:T.length+' 種 · 共 '+g.total+' 抽'})), ...pz,
-    lp?h('div',{class:'gc-sec',text:'🏆 最後賞'}):null, lp?h('div',{class:'gc-last'}, h('div',{}, h('img',{src:imgOf(lp),alt:''}), h('div',{}, h('span',{class:'gk-lb',text:'LAST ONE'}), h('b',{text:g.last.name||lp.name}), h('p',{text:g.lastWin?'已經被 '+nameOf(g.lastWin.uid)+' 拿走':'撕到最後一張的人，另外加送'+(lp.val?'（價值 '+M$(lp.val)+'）':'')})))):null,
+    lp?h('div',{class:'gc-sec',text:'🏆 最後賞'}):null, lp?h('div',{class:'gc-last'}, h('div',{role:'button',onclick:()=>gcPrize(g,'LAST')}, h('img',{src:imgOf(lp),alt:''}), h('div',{}, h('span',{class:'gk-lb',text:'LAST ONE'}), h('b',{text:g.last.name||lp.name}), h('p',{text:g.lastWin?'已經被 '+nameOf(g.lastWin.uid)+' 拿走':'撕到最後一張的人，另外加送'+(lp.val?'（價值 '+M$(lp.val)+'）':'')})))):null,
     h('button',{type:'button',class:'gc-helpln',onclick:()=>gcHelp(g)}, h('span',{text:'❓'}), h('span',{}, h('b',{text:'怎麼玩、運費、公平驗證'}), h('small',{text:'看 30 秒動畫教學'})), h('em',{text:'›'}))));
   if(!lsGet('vein.gcHelp',0)) setTimeout(()=>{ if(PAGE==='gacha'&&!document.querySelector('.gc-ov')) gcHelp(g); },700);
   // 底部購買列
@@ -19191,35 +19388,36 @@ function gcVerify(g){ const ks=g.reveal?.ks||[]; const salt=g.reveal?.salt||''; 
 
 /* ---------------- 買抽獎券 ---------------- */
 function gcBuySheet(g,q0){ if(needLogin()||needPhone()) return; let q=q0, md='pay'; const sl=()=>Math.min(gSellLeft(g),g.maxPer||10);
-  const qEl=h('b',{text:String(q)}), tot=h('b',{style:'font-size:22px'}), totL=h('span',{text:'應付'});
+  const qEl=h('b',{text:String(q)}), tot=h('b',{style:'font-size:22px'}), totL=h('span',{text:'應付'}), cap=Math.max(1,Math.min(+g.maxPer||10,50));
   const sh=g.ship||{}, btn=h('button',{type:'button',class:'gc-cta v',text:'確認下單'});
   const mdB=[['pay','💸','先付再抽','付款後發券'],['later','🎟','先抽再付','手機驗證 · 賣家同意']].map(([k,i,t,sub])=>h('button',{type:'button','data-md':k,onclick:()=>{ md=k; paint(); }}, h('i',{text:i}), h('b',{text:t}), h('small',{text:sub})));
   const nPay=h('div',{class:'gc-note g'}, h('span',{text:'🎰'}), h('span',{text:'這些券只能用在「'+g.title+'」。下單後名額先保留給你，48 小時內沒付款會自動取消。'}));
   const phOK=()=>!!S.meInfo?.phoneVerified;
-  const nLater=h('div',{class:'gc-law'}, h('b',{text:'⚖️ 先抽再付 = 契約成立'}), h('p',{text:'賣家同意後馬上發券，你可以先撕再付款。抽了不付款屬於違約，須自負法律責任；平台不負任何責任。'}), h('div',{class:'ph'}));
-  const paint=()=>{ qEl.textContent=String(q); tot.textContent=M$(q*g.price); mdB.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.md===md)));
-    nPay.hidden=md!=='pay'; nLater.hidden=md!=='later'; totL.textContent=md==='later'?'撕完後付款':'應付';
+  const nLater=h('div',{class:'gc-law'}, h('b',{text:'⚖️ 先抽再付 = 契約成立'}), h('p',{text:'不用先選張數：賣家同意後就能直接撕，撕一張記一張（最多 '+cap+' 張），撕完到訂單付款。抽了不付款屬於違約，須自負法律責任；平台不負任何責任。'}), h('div',{class:'ph'}));
+  const qRow=h('div',{class:'gc-row'}, h('span',{text:'抽數'}), h('div',{class:'gc-step'}, h('button',{type:'button',onclick:()=>{ q=Math.max(1,q-1); paint(); },text:'−'}), qEl, h('button',{type:'button',onclick:()=>{ q=Math.min(sl(),q+1); paint(); },text:'＋'})));
+  const paint=()=>{ qEl.textContent=String(q); tot.textContent=md==='later'?M$(g.price)+' × 撕的張數':M$(q*g.price); qRow.hidden=md==='later'; mdB.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.md===md)));
+    nPay.hidden=md!=='pay'; nLater.hidden=md!=='later'; totL.textContent=md==='later'?'撕多少付多少':'應付';
     nLater.querySelector('.ph').replaceChildren(phOK()?h('span',{class:'ok',text:'✓ 手機已驗證'}):h('button',{type:'button',onclick:()=>{ try{ openPhone('先抽再付需要手機驗證'); }catch(e){ toast('請先到「我的」完成手機驗證'); } },text:'📱 先完成手機驗證 →'}));
     btn.textContent=md==='later'?(phOK()?'送出先抽再付申請':'先完成手機驗證'):'確認下單'; };
   const close=ov(h('div',{class:'gc-sheet'}, h('div',{class:'gr'}), h('h3',{text:'買抽獎券'}),
     h('div',{class:'gc-md'}, ...mdB),
-    h('div',{class:'gc-row'}, h('span',{text:'抽數'}), h('div',{class:'gc-step'}, h('button',{type:'button',onclick:()=>{ q=Math.max(1,q-1); paint(); },text:'−'}), qEl, h('button',{type:'button',onclick:()=>{ q=Math.min(sl(),q+1); paint(); },text:'＋'}))),
+    qRow,
     h('div',{class:'gc-row'}, h('span',{text:'每抽'}), h('b',{text:M$(g.price)})),
     h('div',{class:'gc-note'}, h('span',{text:'📦'}), h('span',{text:sh.mode==='incl'?'抽獎券已含運，獎品出貨不用再付運費。':'獎品先放進轉蛋倉庫，現在不用付運費。'+(sh.free?'出貨滿 '+M$(sh.free)+' 免運。':'')})),
     nPay, nLater,
     h('div',{class:'gc-row',style:'background:#0C0E0D;color:#fff'}, totL, tot), btn),'gcbuy');
   paint();
   const send=async(later,agree)=>{ btn.disabled=true; btn.textContent='送出中…'; const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-    try{ await saveSocial({orders:{...mySocial().orders,[id]:{seller:g.shop,src:'gacha',gacha:{id:g.id,n:q},items:[],total:q*g.price,payMethod:'transfer',at:Date.now(),...(later?{later:true,agree}:{})}}}); close(); vibe(30);
+    try{ await saveSocial({orders:{...mySocial().orders,[id]:{seller:g.shop,src:'gacha',gacha:{id:g.id,n:later?0:q},items:[],total:later?0:q*g.price,payMethod:'transfer',at:Date.now(),...(later?{later:true,agree}:{})}}}); close(); vibe(30);
       setTimeout(()=>go('#/gacha/'+g.id+'/o/'+g.shop+'~'+id),later?300:900); }catch(e){ btn.disabled=false; paint(); toast('送出失敗，請再試一次'); } };
   btn.onclick=async()=>{ if(!rateOK('order')) return;
     if(md!=='later') return send(false);
     if(!phOK()){ try{ openPhone('先抽再付需要手機驗證'); }catch(e){ toast('請先到「我的」完成手機驗證'); } return; }
-    if(await gcContract('buyer',{g,n:q,tot:q*g.price})) send(true,{v:1,ok:true,at:Date.now()}); }; }
+    if(await gcContract('buyer',{g,n:cap})) send(true,{v:2,ok:true,at:Date.now()}); }; }
 // 先抽再付契約：買賣雙方都要看完、勾選才能送出
-function gcContract(role,{g,n,tot,who}){ return new Promise(res=>{ let done=false; const fin=v=>{ if(done) return; done=true; res(v); };
-  const L=role==='buyer'?[['🤝','賣家同意後，契約即成立，你會先拿到 '+n+' 張「'+g.title+'」抽獎券。'],['💸','撕完後須付款 '+M$(tot)+' 給賣家；撕開的券不能退。'],['⚠️','抽了不付款屬於違約，賣家可依法追討，相關法律責任由你自行負擔。'],['🏛','本平台只提供媒合與資訊服務，不是交易當事人，對付款、履約與任何糾紛不負任何責任。'],['📦','付清之前，抽到的獎品不能申請出貨。']]
-    :[['🤝','同意後契約即成立，會馬上發 '+n+' 張券給 '+(who||'買家')+'，對方可以先撕再付 '+M$(tot)+'。'],['📱','對方已完成手機驗證。'],['⚠️','對方未付款時，請自行聯繫或依法追討；買家須自負違約法律責任。'],['🏛','本平台只提供媒合與資訊服務，不代收、不擔保、不追討，對付款、履約與任何糾紛不負任何責任。'],['📦','對方付清前，抽到的獎品不能申請出貨。']];
+function gcContract(role,{g,n,who}){ const pr=M$(+g.price||0); return new Promise(res=>{ let done=false; const fin=v=>{ if(done) return; done=true; res(v); };
+  const L=role==='buyer'?[['🤝','賣家同意後契約即成立，你可以直接在「'+g.title+'」撕獎單，最多 '+n+' 張。'],['💸','每撕一張 '+pr+'，即時記在訂單上；撕完到訂單付款，撕開的不能退。'],['🧾','送出付款後就結算，不能再先撕。'],['⚠️','抽了不付款屬於違約，賣家可依法追討，相關法律責任由你自行負擔。'],['🏛','本平台只提供媒合與資訊服務，不是交易當事人，對付款、履約與任何糾紛不負任何責任。'],['📦','付清之前，抽到的獎品不能申請出貨。']]
+    :[['🤝','同意後契約即成立，'+(who||'買家')+' 可以直接撕，最多 '+n+' 張，每張 '+pr+'，撕多少算多少。'],['📱','對方已完成手機驗證。'],['⚠️','對方未付款時，請自行聯繫或依法追討；買家須自負違約法律責任。'],['🏛','本平台只提供媒合與資訊服務，不代收、不擔保、不追討，對付款、履約與任何糾紛不負任何責任。'],['📦','對方付清前，抽到的獎品不能申請出貨。']];
   const ck=h('input',{type:'checkbox'}), go2=h('button',{type:'button',class:'gc-cta',disabled:true,onclick:()=>{ fin(true); close(); },text:role==='buyer'?'同意並送出申請':'同意，發券給買家'});
   ck.onchange=()=>{ go2.disabled=!ck.checked; };
   const close=ov(h('div',{class:'gc-sheet gc-ctr'}, h('div',{class:'gr'}), h('div',{class:'ctr-hd'}, h('span',{text:'⚖️'}), h('div',{}, h('small',{text:'請完整閱讀'}), h('h3',{text:'先抽再付契約'}))),
@@ -19229,9 +19427,9 @@ function gcContract(role,{g,n,tot,who}){ return new Promise(res=>{ let done=fals
 
 /* ---------------- 抽獎券訂單頁 ---------------- */
 function gcOrdFind(x){ const [shop,oid]=String(x||'').split('~'); let o=null; try{ o=buyerOrders(S.me).find(y=>y.id===oid&&y.shop===shop)||null; }catch(e){} return {shop,oid,o,so:S.sorders.get(shop+'/'+oid)||null,deal:S.deals?.get(shop+'_'+oid)||null}; }
-function gcOrdSig(x){ const r=gcOrdFind(x); return JSON.stringify([r.o?.status,r.so?.status,r.so?.granted,!!r.deal?.bank,r.deal?.pay?.at,r.so?.gacha?.id?myTix(r.so.gacha.id):0]); }
+function gcOrdSig(x){ const r=gcOrdFind(x); return JSON.stringify([r.o?.status,r.so?.status,r.so?.granted,r.so?.total,!!r.deal?.bank,r.deal?.pay?.at,r.so?.gacha?.id?myTix(r.so.gacha.id):0]); }
 function gcOrderPage(box,g,x){ const {shop,oid,o,so,deal}=gcOrdFind(x); const st=o?.status||'pending', G=so?.gacha||o?.gacha||{}, n=G.n||0, tot=so?.total??(n*g.price);
-  const later=!!(so?.later||o?.later), owe=later&&so?.granted&&['confirmed','paid'].includes(st), apply=st==='apply';
+  const later=!!(so?.later||o?.later), owe=later&&so?.granted&&['confirmed','paid'].includes(st), apply=st==='apply', zero=later&&!(+tot>0);
   const cancelled=st==='cancelled', done=later?['preparing','shipped','done'].includes(st):(['preparing','shipped','done'].includes(st)||so?.granted);
   const lab=cancelled?['gk-no','已取消']:done?['gk-ok',later?'已結清':'已發券']:apply?['','等賣家同意']:owe?['gk-ok',st==='paid'?'已付款 · 等賣家確認':'券已發 · 待付款']:st==='paid'?['','已付款 · 等賣家確認']:st==='pending'?['','成立中…']:['','待付款'];
   const left=so?Math.max(0,(so.confirmedAt||so.at||Date.now())+48*36e5-Date.now()):0;
@@ -19249,13 +19447,16 @@ function gcOrderPage(box,g,x){ const {shop,oid,o,so,deal}=gcOrdFind(x); const st
   const law=h('div',{class:'gc-o2-later'}, h('b',{text:'⚖️ 先抽再付契約'}), apply?'賣家同意後契約即成立。':'買賣雙方已同意，契約成立。', '抽了不付款屬於違約，須自負法律責任；平台不負任何責任。');
   if(apply){ kids.push(law, h('div',{class:'row',style:'gap:8px;margin-top:12px'}, h('button',{type:'button',class:'gc-cta ghost',style:'flex:1;background:#fff',onclick:()=>{ const oo=buyerOrders(S.me).find(y=>y.id===oid); if(oo) openOrder(oo); },text:'聊聊'}), h('button',{type:'button',class:'gc-cta ghost',style:'flex:1;background:#fff;color:#c33',onclick:async()=>{ if(!confirm('撤回先抽再付申請？')) return; const oo=buyerOrders(S.me).find(y=>y.id===oid); if(oo) await cancelOrder(oo); },text:'撤回申請'})));
     box.replaceChildren(h('div',{class:'gc gc-pg '+tplCls(g)}, ...kids)); return; }
-  if(owe){ const tx=myTix(g.id); kids.push(tx>0?h('button',{type:'button',class:'gc-cta v',style:'margin-top:14px',onclick:()=>go('#/gacha/'+g.id+'/b'),text:'🎟 還有 '+tx+' 張 · 去撕獎單 →'}):null, law); }
+  if(owe){ const tx=myTix(g.id); kids.push(tx>0&&st==='confirmed'?h('button',{type:'button',class:'gc-cta v',style:'margin-top:14px',onclick:()=>go('#/gacha/'+g.id+'/b'),text:'🎟 還能撕 '+tx+' 張 · 去撕獎單 →'}):null, law);
+    if(zero&&st==='confirmed'){ kids.push(h('div',{class:'gc-note',style:'margin-top:12px'}, h('span',{text:'🎟'}), h('span',{text:'還沒撕，所以還不用付錢。撕一張記一張，撕完再回來付款。'})), h('button',{type:'button',class:'gc-cta ghost',style:'background:#fff;color:#c33;margin-top:8px',onclick:async()=>{ if(!confirm('不抽了，結束先抽再付？')) return; const oo=buyerOrders(S.me).find(y=>y.id===oid); if(oo) await cancelOrder(oo); },text:'不抽了，結束先抽再付'}));
+      box.replaceChildren(h('div',{class:'gc gc-pg '+tplCls(g)}, ...kids)); return; } }
   if(!cancelled&&!done){
     if(deal?.bank&&st==='confirmed'){ const b=deal.bank; const acct=String(b.account||b.acct||b.no||'');
       const five=h('input',{inputmode:'numeric',maxlength:5,placeholder:'12345'});
       kids.push(h('div',{class:'gc-bank'}, h('div',{class:'bt'}, h('span',{text:[b.bankCode||b.code,b.bank||b.bankName].filter(Boolean).join(' ')||'匯款帳號'}), h('span',{class:'gk-chip'})), h('div',{class:'acc'}, h('span',{text:acct||'（賣家還沒填帳號，請聊聊詢問）'}), acct?h('button',{type:'button',onclick:()=>copyText(acct),text:'複製'}):null), h('div',{class:'who2'}, h('span',{text:b.name||b.holder||shopName(g.shop)}), h('span',{text:'金額 '+M$(tot)}))),
+        owe?h('div',{class:'gc-note r',style:'margin-top:10px'}, h('span',{text:'🧾'}), h('span',{text:'送出付款就結算 '+n+' 張 '+M$(tot)+'，之後不能再先撕；還想撕的話先去撕再付款。'})):null,
         h('div',{class:'gc-five'}, h('label',{text:'匯款帳號末五碼'}), five),
-        h('button',{type:'button',class:'gc-cta v',style:'margin-top:12px',onclick:async e=>{ const v=five.value.trim(); if(!/^\d{3,5}$/.test(v)){ toast('請填帳號末五碼'); five.focus(); return; } e.target.disabled=true; await updDeal({shop,id:oid},{pay:{method:'transfer',last5:v,amount:tot,time:new Date().toISOString().slice(0,16),note:'',at:Date.now()}},'已通知賣家，等他對帳'); e.target.disabled=false; },text:'我已付款，通知賣家'}),
+        h('button',{type:'button',class:'gc-cta v',style:'margin-top:12px',onclick:async e=>{ const v=five.value.trim(); if(!/^\d{3,5}$/.test(v)){ toast('請填帳號末五碼'); five.focus(); return; } if(owe&&!confirm('送出後就結算 '+n+' 張 '+M$(tot)+'，不能再先撕。確定？')) return; e.target.disabled=true; await updDeal({shop,id:oid},{pay:{method:'transfer',last5:v,amount:tot,time:new Date().toISOString().slice(0,16),note:'',at:Date.now()}},'已通知賣家，等他對帳'); e.target.disabled=false; },text:'我已付款，通知賣家'}),
         h('div',{class:'gc-fine',text:owe?'賣家確認收款後，這筆就結清了':'賣家確認收款後，你打開網站就會收到抽獎券'})); }
     else if(st==='paid') kids.push(h('div',{class:'gc-note g',style:'margin-top:14px'}, h('span',{text:'✅'}), h('span',{text:'已送出匯款資訊（末五碼 '+(deal?.pay?.last5||'')+'），賣家對帳後'+(owe?'就結清':'就會發券')+'，會推播通知你。'})));
     else kids.push(h('div',{class:'gc-note',style:'margin-top:14px'}, h('span',{text:'⏳'}), h('span',{text:'訂單成立中，幾秒後會顯示匯款帳號…'})));
@@ -19269,7 +19470,7 @@ function gcWinCheck(){ if(!S.me||document.querySelector('.gc-win')||document.que
   const t=[...GC.tix.values()].find(t=>t.news&&t.news.at>(+t.seen||0)&&!GC.shown.has(t.id+t.news.at)); if(!t) return; GC.shown.add(t.id+t.news.at);
   const g=gget(t.gid); const cls=tplCls(g); const n=t.news.n;
   const cnt=h('div',{class:'cnt',text:'×0'});
-  const w=h('div',{class:'gc gc-win '+cls}, h('div',{class:'wc'}, h('div',{class:'fan'}, h('div',{class:'gk-ft'}), h('div',{class:'gk-ft'}), h('div',{class:'gk-ft'})), h('h2',{text:'獲得抽獎券'}), cnt, h('p',{text:shopName(t.shop)+' 已確認收款 · '+(g?.title||t.title||'')}),
+  const w=h('div',{class:'gc gc-win '+cls}, h('div',{class:'wc'}, h('div',{class:'fan'}, h('div',{class:'gk-ft'}), h('div',{class:'gk-ft'}), h('div',{class:'gk-ft'})), h('h2',{text:t.news.later?'先抽再付開通':'獲得抽獎券'}), cnt, h('p',{text:t.news.later?'最多可先撕 '+n+' 張 · 撕多少算多少':shopName(t.shop)+' 已確認收款 · '+(g?.title||t.title||'')}),
     h('button',{type:'button',class:'gc-cta v',onclick:()=>{ close(); go('#/gacha/'+t.gid+'/b'); },text:'去撕獎單 →'}), h('button',{type:'button',class:'gc-cta ghost',style:'color:#fff',onclick:()=>close(),text:'稍後再抽'})));
   const close=()=>{ w.remove(); blDone('gcwin'); try{ S.db.doc('gTix/'+t.id).update({seen:t.news.at}); }catch(e){} };
   document.body.append(w); blPush('gcwin',()=>{ w.remove(); try{ S.db.doc('gTix/'+t.id).update({seen:t.news.at}); }catch(e){} }); confetti(70); vibe([30,40,30]);
@@ -19279,7 +19480,7 @@ function gcWinCheck(){ if(!S.me||document.querySelector('.gc-win')||document.que
 const rot=i=>((i*73)%9-4)*.55;
 function gcBoard(box,g){ const tix=myTix(g.id), sel=GC.bSel.L=GC.bSel.L.filter(s=>!(g.open||{})[s]).slice(0,tix); const open=g.open||{};
   if(!S.me){ box.replaceChildren(h('div',{class:'gc gc-empty'}, h('h3',{text:'請先登入'}))); return; }
-  const stock=h('div',{class:'gc-stock'}, ...(g.prizes||[]).map(p=>{ const l=+g.left?.[p.k]||0, t=tierOf(p.n,g.total), v=prizeVal(p); return h('div',{class:'gc-sk'+(l?'':' z')}, h('div',{class:'im'}, h('img',{src:imgOf(p.items?.[0]),alt:''}), tc(p.k,t)), h('div',{class:'gk-ct'}, h('b',{text:'剩 '+l}), h('span',{text:'/ '+p.n})), v?h('div',{class:'pv',text:v}):h('div',{class:'pv nv',text:'未標價'}), h('div',{class:'gk-sb'}, h('u',{class:'gc'+t,style:'width:'+(l/p.n*100)+'%'}))); }));
+  const stock=h('div',{class:'gc-stock'}, ...(g.prizes||[]).map(p=>{ const l=+g.left?.[p.k]||0, t=tierOf(p.n,g.total), v=prizeVal(p); return h('div',{class:'gc-sk'+(l?'':' z'),role:'button',onclick:()=>gcPrize(g,p.k)}, h('div',{class:'im'}, h('img',{src:imgOf(p.items?.[0]),alt:''}), tc(p.k,t)), h('div',{class:'gk-ct'}, h('b',{text:'剩 '+l}), h('span',{text:'/ '+p.n})), v?h('div',{class:'pv',text:v}):h('div',{class:'pv nv',text:'未標價'}), h('div',{class:'gk-sb'}, h('u',{class:'gc'+t,style:'width:'+(l/p.n*100)+'%'}))); }));
   const grid=h('div',{class:'gc-grid'+(GC.dim?' dim':'')});
   const paintSel=()=>{ grid.querySelectorAll('.gc-t:not(.op)').forEach(b=>{ const k=sel.indexOf(+b.dataset.n); b.setAttribute('aria-pressed',String(k>=0)); b.querySelector('.od').textContent=k>=0?String(k+1):''; }); trayPaint(); };
   for(let i=1;i<=g.total;i++){ const o=open[i]; const b=h('button',{type:'button',class:'gc-t'+(o?' op':''),'data-n':String(i),'aria-label':o?'第 '+i+' 張，已撕，'+o+' 賞':'第 '+i+' 張',style:'--rt:'+(o?0:rot(i))+'deg'}, h('span',{class:'gk-pp'}));
@@ -19292,6 +19493,7 @@ function gcBoard(box,g){ const tix=myTix(g.id), sel=GC.bSel.L=GC.bSel.L.filter(s
   box.replaceChildren(h('div',{class:'gc '+tplCls(g)}, h('div',{class:'gc-board'},
     h('div',{class:'row',style:'justify-content:space-between;padding:6px 0'}, h('button',{type:'button',class:'btn soft sm',onclick:()=>go('#/gacha/'+g.id),text:'‹ '+g.title})),
     h('div',{class:'gc-b2h'}, h('div',{}, h('h2',{}, tix?['挑 ',h('em',{text:String(tix)}),' 張',h('br'),'撕開看看']:['獎單牆']), h('p',{text:tix?'每張背後的獎，開賣前就鎖好了':g.status==='done'?'已經完抽':'買抽獎券後就能來撕'})), h('div',{class:'gc-stub'}, h('b',{text:String(tix)}), h('small',{text:'TICKETS'}))),
+    (()=>{ const L=myLt(g.id); return L?h('button',{type:'button',class:'gc-ltbar',onclick:()=>go('#/gacha/'+g.id+'/o/'+L.shop+'~'+L.oid)}, h('span',{class:'k',text:'先抽再付'}), h('span',{class:'v'}, h('b',{text:'已撕 '+L.used+' 張'}), h('small',{text:'累計 '+M$(L.owe)+(L.paid?' · 已送出付款':' · 還能撕 '+L.left+' 張')})), h('span',{class:'go',text:L.used?'去付款 →':'看訂單 →'})):null; })(),
     stock,
     h('div',{class:'gc-wall'}, h('div',{class:'gk-wh'}, h('b',{}, '獎單牆', h('small',{text:'剩 '+gLeft(g)+' / '+g.total})), tix?rnd:null), h('div',{class:'gc-wk'}, h('span',{}, h('i',{class:'gk-a'}), '還沒撕'), h('span',{}, h('i',{class:'b'}), '已撕開'), h('label',{}, '淡化已撕', sw)), grid))));
   // 底部選號列
@@ -19412,6 +19614,7 @@ function gcAdmDraw(){ const m=ADM; if(!m||!m.isConnected) return; if(GC.edit){ r
         :g.status==='on'?[h('button',{type:'button',onclick:()=>go('#/gacha/'+g.id+'/b'),text:'獎單牆'}), h('button',{type:'button',onclick:()=>gcReq(g.id,'pause'),text:'暫停販售'}), h('button',{type:'button',class:'gk-k',onclick:()=>go('#/gacha/'+g.id),text:'看前台'})]
         :g.status==='pause'?[h('button',{type:'button',onclick:()=>gcReq(g.id,'resume'),text:'恢復販售'}), h('button',{type:'button',onclick:()=>{ if(confirm('結束這台轉蛋機？沒抽出的植物會解鎖、周邊庫存會還回去。（還有沒處理的訂單或沒撕的券時不能結束）')) gcReq(g.id,'end'); },text:'結束'}), h('button',{type:'button',class:'gk-k',onclick:()=>go('#/gacha/'+g.id),text:'看前台'})]
         :[h('button',{type:'button',onclick:()=>go('#/gacha/'+g.id),text:'看前台'}), g.reveal?h('button',{type:'button',onclick:()=>gcVerify(g),text:'公平驗證'}):null, h('button',{type:'button',class:'gk-k',onclick:()=>{ const d=JSON.parse(JSON.stringify(g)); ['id','status','total','left','sold','opened','open','commit','reveal','pubAt','lastWin','doneAt','endAt'].forEach(k=>delete d[k]); d.title=(d.title||'')+' 再一台'; d.prizes=(d.prizes||[]).map(p=>({kind:p.kind,name:p.name||'',pids:p.kind==='plant'?[]:undefined,gid:p.kind==='goods'?p.items?.[0]?.gid:undefined,var:p.items?.[0]?.var,n:p.kind==='goods'?p.n:undefined})); d.last=null; GC.edit={id:null,d:{...gcNewDraft(),...d,status:'draft'}}; gcAdmDraw(); },text:'再開一台'})];
+      if(g.status!=='draft') acts.unshift(h('button',{type:'button',class:'gk-sh',onclick:()=>openGcShare(g),text:'↗ 轉發'}));
       const top=gTop(g)[0], nT=(g.prizes||[]).length, tot0=g.total||(top?top.tot:0);
       out.append(h('div',{class:'gc-am2 '+tplCls(g)},
         h('div',{class:'hd'}, top?h('div',{class:'hv'}, h('img',{src:imgOf(top.it),alt:''})):null, h('span',{class:'gc-stt '+ST[0]}, h('i'), ST[1]), h('h3',{text:g.title||'（未命名）'}), h('div',{class:'gk-sub',text:'$'+(g.price||0)+' / 抽 · '+(tot0||0)+' 抽 · '+nT+' 種獎'+(g.last?' · 有最後賞':'')})),
@@ -19439,13 +19642,13 @@ function gcAdmDraw(){ const m=ADM; if(!m||!m.isConnected) return; if(GC.edit){ r
   m.replaceChildren(out); }
 function gcTOrdCard(o){ const so=ordSo(o)||{}, G=so.gacha||o.gacha||{}, g=gget(G.id); const paid=o.status==='paid', d=o.deal||{}, apply=o.status==='apply', later=!!so.later, owe=later&&so.granted;
   const acts=apply?[h('button',{type:'button',onclick:async()=>{ if(!confirm('拒絕這筆先抽再付申請？名額會放回去。')) return; gcReq(G.id,'lno',o.id); },text:'拒絕'}),
-      h('button',{type:'button',class:'v',onclick:async()=>{ if(await gcContract('seller',{g:g||{title:G.title},n:G.n,tot:so.total??o.total,who:nameOf(o.buyer)})) gcReq(G.id,'lok',o.id); },text:'同意 · 發 '+(G.n||'')+' 張券'})]
+      h('button',{type:'button',class:'v',onclick:async()=>{ if(await gcContract('seller',{g:g||{title:G.title,price:G.price},n:G.cap,who:nameOf(o.buyer)})) gcReq(G.id,'lok',o.id); },text:'同意 · 開通先抽（最多 '+(G.cap||'')+' 張）'})]
     :[h('button',{type:'button',onclick:async()=>{ if(!confirm(owe?'取消這筆先抽再付？券已經發出，取消等於不收這筆錢。':'取消這筆抽獎券訂單？名額會放回去。')) return; try{ await setOrder(o,'cancelled',{cancelledAt:Date.now(),cancelWhy:'賣家取消'}); toast(owe?'已取消':'已取消，名額放回去了'); }catch(e){ toast('操作失敗'); } },text:'取消'}),
       h('button',{type:'button',class:'v',onclick:async e=>{ if(!paid&&!confirm(owe?'買家還沒回報匯款。確定已經收到 '+M$(so.total??o.total)+'？':'買家還沒回報匯款。確定已經收到錢、要發 '+(G.n||'')+' 張券？')) return; e.target.disabled=true; e.target.textContent=owe?'處理中…':'發券中…'; try{ await setOrder(o,'preparing'); toast(owe?'✅ 已確認收款，結清':'🎟 已發 '+(G.n||'')+' 張券給 '+nameOf(o.buyer)); }catch(x){ e.target.disabled=false; toast('操作失敗'); } },text:owe?(paid?'確認收款 · 結清':'已收款 · 結清'):(paid?'確認收款 · 發 ':'已收款 · 發 ')+(G.n||'')+' 張券'})];
   return h('div',{class:'gc-oc'+(apply?' gk-ap':'')}, h('div',{class:'tp'}, h('span',{class:'gk-tag '+(later?'gk-l':'gk-k'),text:later?'📝 先抽再付':'🎟 抽獎券'}), h('small',{text:o.id+' · '+fmtWhen(o.at)})),
-    h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(o.buyer,34), h('div',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:apply?'📱 已手機驗證 · 申請先抽再付':owe?(paid?'券已發 · 已匯款，請對帳':'券已發 · 等買家付款'):paid?'已匯款，請對帳':'等買家付款（48 小時內）'})), h('div',{class:'amt'}, h('b',{text:M$(so.total??o.total)}))),
-      h('div',{class:'tkx '+tplCls(g)}, h('span',{text:G.title||g?.title||''}), h('b',{text:'×'+(G.n||'')})),
-      apply||owe?h('div',{class:'gc-note r',style:'margin:8px 0 0'}, h('span',{text:'⚖️'}), h('span',{text:apply?'同意＝契約成立，馬上發券，對方可先撕再付。未付款由對方自負法律責任，平台不負任何責任。':'先抽再付：付清前，對方的獎品不能申請出貨。'})):null,
+    h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(o.buyer,34), h('div',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:apply?'📱 已手機驗證 · 申請先抽再付（撕多少付多少）':owe?(paid?'已撕 '+(G.n||0)+' 張 · 已匯款，請對帳':'已撕 '+(G.n||0)+' 張 · 還在撕／等付款'):paid?'已匯款，請對帳':'等買家付款（48 小時內）'})), h('div',{class:'amt'}, h('b',{text:M$(so.total??o.total)}))),
+      h('div',{class:'tkx '+tplCls(g)}, h('span',{text:G.title||g?.title||''}), h('b',{text:later&&!owe?'≤'+(G.cap||''):'×'+(G.n||0)})),
+      apply||owe?h('div',{class:'gc-note r',style:'margin:8px 0 0'}, h('span',{text:'⚖️'}), h('span',{text:apply?'同意＝契約成立，對方可以直接撕、撕多少付多少。未付款由對方自負法律責任，平台不負任何責任。':'先抽再付：付清前，對方的獎品不能申請出貨。'})):null,
       paid?h('div',{class:'f5'}, '客人回報末五碼 ', h('code',{text:d.pay?.last5||''}), ' · '+M$(d.pay?.amount||0)+(d.pay?.time?' · '+String(d.pay.time).replace('T',' '):'')):null),
     h('div',{class:'acts2'}, ...acts)); }
 function gcSOrdCard(o){ const so=ordSo(o)||{}, gs=so.gship||{}, f=gs.free; const fee=so.ship?.fee;
