@@ -19280,10 +19280,10 @@ function confetti(n){ const C=['#D2FF00','#FFD23F','#A970FF','#2FA8FF','#3DDC84'
 function ov(node,id,onClose){ const o=h('div',{class:'gc gc-ov'}); o.append(node); const close=()=>{ if(!o.isConnected) return; o.remove(); blDone(id); onClose&&onClose(); }; o.addEventListener('click',e=>{ if(e.target===o) close(); }); document.body.append(o); blPush(id,()=>{ o.remove(); onClose&&onClose(); }); return close; }
 
 /* ---------------- 資料 ---------------- */
-function gcSync(){ if(!S.db) return; const me=S.me||null; if(GC.uid===me) return;
+let gcSyncT=0; function gcSync(){ if(!S.db){ if(!gcSyncT) gcSyncT=setTimeout(()=>{ gcSyncT=0; gcSync(); if(PAGE==='gacha') gcRender(true); },400); return; } const me=S.me||null; if(GC.uid===me) return;
   GC.subs.forEach(f=>{ try{ f(); }catch(e){} }); GC.subs=[]; GC.uid=me; [GC.mine,GC.tix,GC.box,GC.res,GC.sbox,GC.stix].forEach(m=>m.clear()); GC.boxDoc=null;
-  const sub=(q,map,filt)=>GC.subs.push(q.onSnapshot(sn=>{ map.clear(); sn.docs.forEach(d=>{ const x={id:d.id,...d.data()}; if(!filt||filt(x)) map.set(d.id,x); }); gcRefresh(); },e=>console.warn('gacha',e&&e.code)));
-  sub(S.db.collection('gacha').where('pubAt','>',0),GC.pub);
+  const sub=(q,map,filt,done)=>GC.subs.push(q.onSnapshot(sn=>{ map.clear(); sn.docs.forEach(d=>{ const x={id:d.id,...d.data()}; if(!filt||filt(x)) map.set(d.id,x); }); done&&done(); gcRefresh(); },e=>{ console.warn('gacha',e&&e.code); done&&done(); gcRefresh(); }));
+  sub(S.db.collection('gacha').where('pubAt','>',0),GC.pub,null,()=>{ GC.pubOK=true; });
   if(me){ sub(S.db.collection('gacha').where('shop','==',me),GC.mine); sub(S.db.collection('gTix').where('uid','==',me),GC.tix); sub(S.db.collection('gbi').where('uid','==',me),GC.box);
     sub(S.db.collection('gRes').where('shop','==',me),GC.res); sub(S.db.collection('gbi').where('shop','==',me),GC.sbox); sub(S.db.collection('gTix').where('shop','==',me),GC.stix);
     GC.subs.push(S.db.doc('gBox/'+me).onSnapshot(d=>{ GC.boxDoc=d.exists?d.data():null; },()=>{})); }
@@ -19499,11 +19499,13 @@ function gcHelp(g){ let k=0, tm=0; const D=3800;
 
 /* ---------------- 頁面路由：#/gacha/ID、#/gacha/ID/b（撕獎單）、#/gacha/ID/o/SHOP~OID（抽獎券訂單） ---------------- */
 window.gcRoute=function(arg){ gcCss(); gcSync(); GC.route=String(arg||''); GC.bSel=GC.bSel&&GC.bSel.gid===GC.route.split('/')[0]?GC.bSel:{gid:GC.route.split('/')[0],L:[]}; gcRender(true); scrollTo(0,0); };
+// 直接開分享連結（#/gacha/…）時，第一次 route() 比轉蛋模組早跑，這裡補跑一次
+{ const m0=(location.hash||'').match(/^#\/gacha\/(.+)$/); if(m0) setTimeout(()=>{ try{ if(/^#\/gacha\//.test(location.hash)) gcRoute(decodeURIComponent(m0[1])); }catch(e){ console.warn('gcBoot',e); } },0); }
 function gcRender(force){ const box=$('#gachaPage'); if(!box) return; const [gid,mode,x]=GC.route.split('/'); const g=gget(gid);
-  const sig=JSON.stringify([GC.route,g&&[g.status,g.sold,g.opened,g.updatedAt],myTix(gid),S.me,mode==='o'?gcOrdSig(x):'',myTicketOrders().map(o=>o.id+o.status).join()]);
+  const sig=JSON.stringify([GC.route,!!GC.pubOK,g&&[g.status,g.sold,g.opened,g.updatedAt],myTix(gid),S.me,mode==='o'?gcOrdSig(x):'',myTicketOrders().map(o=>o.id+o.status).join()]);
   if(!force&&sig===GC.sig&&box.firstChild) return; if(!force&&mode==='b'&&box.firstChild&&GC.drawing) return; GC.sig=sig;
   $('.gc-buy')?.remove(); $('.gc-tray')?.remove();
-  if(!g){ box.replaceChildren(h('div',{class:'gc gc-empty'}, h('b',{text:'🎰'}), h('h3',{text:GC.pub.size||GC.loaded?'找不到這台轉蛋機':'載入中…'}), h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}))); GC.loaded=true; return; }
+  if(!g){ box.replaceChildren(h('div',{class:'gc gc-empty'}, h('b',{text:'🎰'}), h('h3',{text:GC.pubOK?'找不到這台轉蛋機':'載入中…'}), GC.pubOK?h('a',{class:'btn soft',href:'#/raffle',text:'回限時'}):null)); return; }
   if(mode==='b') return gcBoard(box,g); if(mode==='o') return gcOrderPage(box,g,x);
   gcMachine(box,g); }
 function gcMachine(box,g){ const T=g.prizes||[], left=gLeft(g), r4=T.filter(p=>tierOf(p.n,g.total)==='r4').reduce((a,p)=>a+(+g.left?.[p.k]||0),0);
