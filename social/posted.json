@@ -570,6 +570,15 @@
       "id": "p-ds4K6VFCGq1drFE1T3ZV",
       "at": "2026-11-18T11:10+08:00",
       "note": "skipped: 直購價格 0"
+    },
+    {
+      "id": "share-p-lFg1A4FdiFux4ZmQnFqK-20261118",
+      "at": "2026-11-18T20:15+08:00",
+      "note": "每日植物分享（20:15 排程）：'(Green Velvet x Dressleri) x Antolakii' 斑葉實生（AN-MXR-00190，NT$3,000）— Threads＋限動",
+      "metricool": {
+        "threads": 432716251,
+        "story": 432716326
+      }
     }
   ]
 }
