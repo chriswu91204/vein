@@ -4,6 +4,12 @@ name: Deploy to Firebase
 on:
   push:
     branches: [main]
+    # 小編發文只會改 social/posted.json（發文紀錄），不用重新部署網站／Functions（省錢、也不會讓大家的頁面跳更新）
+    paths-ignore:
+      - 'social/**'
+      - '**/*.md'
+      - 'tools/diag/**'
+      - '.github/workflows/diag.yml'
   pull_request:
 permissions:
   contents: read
