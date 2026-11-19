@@ -7016,7 +7016,7 @@ function combo(o){
 const taxaItems=()=>TAXA.map(t=>({v:t.sci,label:t.sci,sub:t.zh}));
 
 /* 標籤 */
-const TAG_PRESETS=['實生苗','組培苗','扦插苗','國外進口','台灣培育','已發根','已馴化','斑葉','雜交選育','稀有品種','新手友善','大株','小苗','含盆出貨','裸根出貨'];
+const TAG_PRESETS=['實生苗','組培苗','扦插苗','海外品種','台灣培育','已發根','已馴化','斑葉','雜交選育','稀有品種','新手友善','大株','小苗','含盆出貨','裸根出貨'];
 const cleanTag=t=>String(t||'').replace(/^#/,'').replace(/[,，#]/g,'').trim().slice(0,12);
 function tagInput(init){
   let tags=[...new Set((init||[]).map(cleanTag).filter(Boolean))].slice(0,8);
