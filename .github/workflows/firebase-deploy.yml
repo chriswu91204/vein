@@ -9,6 +9,7 @@ on:
       - 'social/**'
       - '**/*.md'
       - 'tools/diag/**'
+      - 'tools/test/**'
       - '.github/workflows/diag.yml'
   pull_request:
 permissions:

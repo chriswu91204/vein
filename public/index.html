@@ -7159,7 +7159,7 @@ const OST={apply:'等賣家同意（先抽再付）',pending:'訂單成立中',c
 const OK_ST=['confirmed','preparing','shipped','done'];
 const AUTO_DONE=14*864e5;
 // 訂單狀態：賣家文件（shops/{賣家}/orders）＋私密交易文件（deals，只有買賣雙方看得到：匯款帳號、匯款資訊、物流、收貨）
-function ordState(o){ const b=o.base||'pending'; if(b==='cancelled') return 'cancelled'; if(b==='apply') return 'apply'; if(o.deal?.receivedAt||b==='done') return 'done';
+function ordState(o){ const b=o.base||'pending'; if(b==='cancelled') return 'cancelled'; if(b==='apply') return 'apply'; { const so=S.sorders.get(o.shop+'/'+o.id); if(o.src==='gacha'&&so&&!so.later&&(b==='preparing'||b==='shipped')) return 'done'; } if(o.deal?.receivedAt||b==='done') return 'done';
   if (b==='shipped') return Date.now()-(o.shippedAt||0)>AUTO_DONE?'done':'shipped'; if(b==='preparing') return 'preparing'; if(b==='confirmed') return o.deal?.pay?'paid':'confirmed'; return 'pending'; }
 function fillOrder(o){ const so=S.sorders.get(o.shop+'/'+o.id), deal=S.deals.get(o.shop+'_'+o.id); const x={...o,base:((o.cancelled||S.social.get(o.buyer)?.orders?.[o.id]?.cancelled)&&!(so?.later&&so?.granted))?'cancelled':(so?.status||'pending'),shippedAt:so?.shippedAt||so?.updatedAt||null,deal,payMethod:o.payMethod||so?.payMethod||'transfer',src:so?.src||o.src}; x.status=ordState(x); return x; }
 function buyerOrders(uid){ const d=S.social.get(uid)?.orders||{}, map=new Map();
@@ -17683,6 +17683,7 @@ async function setShip(o,x){ const sel={n:x.n,fee:x.fee??null,k:x.k||'home',at:D
 let ODET=null;
 function ordDetRefresh(){ if(ODET) setTimeout(()=>ODET&&ODET.paint(),60); }
 function openOrder(o0,k0){ if(!S.me) return;
+  { const sh0=o0?.shop||k0?.[0], id0=o0?.id||k0?.[1], x0=ordFind(sh0,id0)||o0, s0=x0&&((ordSo(x0)||{}).src||x0.src); if(s0==='gacha'){ const G=(ordSo(x0)||{}).gacha||x0.gacha||{}; if(x0.shop===S.me&&x0.buyer!==S.me){ S.gcATab='todo'; go('#admin/gacha'); } else go('#/gacha/'+(G.id||'')+'/o/'+x0.shop+'~'+x0.id); return; } }
   if (ODET) ODET.close(true);
   const shop=o0?.shop||k0?.[0], oid=o0?.id||k0?.[1]; const get=()=>ordFind(shop,oid)||o0;
   let o=get(); if(!o){ toast('找不到這筆訂單'); return; }
@@ -17711,7 +17712,8 @@ function openOrder(o0,k0){ if(!S.me) return;
     } else recvS=sec('📮 收件資料', r?h('div',{class:'od2-recv'}, h('div',{}, h('small',{text:'收件人'}), h('b',{text:r.name||'—'})), h('div',{}, h('small',{text:'手機'}), h('b',{text:r.phone||'—'})), h('div',{}, h('small',{text:(RECV_L[r.k]||RL)[0]}), h('b',{text:r.place||'—'})), seller()?h('button',{class:'btn soft sm',type:'button',onclick:()=>copyText(recvTxt(r)),text:'複製'}):null):h('p',{class:'hint',text:'買家還沒填'}));
     const items=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean);
     const sum=sec('💰 金額', h('div',{class:'od2-sum'}, h('div',{}, h('span',{text:'商品 '+items.length+' 件'}), h('b',{text:money(o.total||0)})), h('div',{}, h('span',{text:'運費'+(x?'（'+x.n+'）':'')}), h('b',{text:x?(x.fee==null?'另計':money(+x.fee||0)):'—'})), h('div',{class:'t'}, h('span',{text:'合計'}), h('b',{text:money(ordGrand(o))}))));
-    info.replaceChildren(seller()?sellerOrdCard(o,true):orderCard(o,true), shipS, recvS, sum);
+    const gsL=(ordSo(o)?.gship||o.gship||{}).list||[], GX=window.__gcx; const gsS=gsL.length&&GX?sec('🎁 轉蛋獎品 '+gsL.length+' 件', h('div',{class:'gk-names'}, ...gsL.map(x=>h('div',{}, h('img',{src:GX.imgOf(x),alt:'',loading:'lazy'}), GX.tc(x.k==='LAST'?'LAST':x.k,x.k==='LAST'?'r4':'r1'), h('span',{text:(x.name||'')+(x.vn?'（'+x.vn+'）':'')}), x.val?h('small',{text:GX.M$(x.val)}):null)))):null;
+    info.replaceChildren(seller()?sellerOrdCard(o,true):orderCard(o,true), gsS, shipS, recvS, sum);
   };
   const MP='ordmsg/'+shop+'/o/'+oid+'/m';
   const paintMsgs=()=>{ const stick=msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<40;
@@ -17755,13 +17757,25 @@ const ORD_SEEN_K='vein.ordSeen';
 function ordSeenMap(){ try{ return JSON.parse(localStorage.getItem(ORD_SEEN_K)||'{}')||{}; }catch(e){ return {}; } }
 function ordSeen(key){ const a=S.ordAct?.[key]; if(!a) return; const m=ordSeenMap(); if((+m[key]||0)>=+a.at) return; m[key]=+a.at; try{ localStorage.setItem(ORD_SEEN_K,JSON.stringify(m)); }catch(e){} }
 function ordNew(o){ const key=(o.shop||o.seller||S.me)+'~'+o.id, a=S.ordAct?.[key]; if(!a) return null; if((+ordSeenMap()[key]||0)>=+a.at) return null; if(a.k!=='msg'&&o.status==='cancelled') return null; return a.k==='msg'?'msg':'upd'; }
-function ordNext(o,side){ const st=o.status, cr=cancelReqOf(o);
+function ordNext(o,side){ const st=o.status, cr=cancelReqOf(o); { const so=ordSo(o)||{}, src=so.src||o.src; if(src==='gacha'){ if(side==='seller') return st==='paid'?['確認發券',1]:st==='apply'?['回覆申請',1]:['',0]; return st==='confirmed'&&!(so.later&&so.granted)?['去付款',1]:['',0]; } }
   if(cr&&cr.by!==side) return ['回覆取消申請',1];
   if(cr) return ['取消申請中',0];
   if(side==='buyer'){ if(st==='pending') return ['訂單成立中',0]; if(st==='confirmed'&&ordNeedRecv(o)) return ['填收件資料',1]; if(st==='confirmed') return [o.payMethod==='transfer'?'去匯款':'跟賣家約付款',1];
     if(st==='paid') return ['等賣家對帳',0]; if(st==='preparing') return ['賣家備貨中',0]; if(st==='shipped') return ['確認收到貨',1]; if(st==='done') return mySocial().reviews?.[o.id]?['已完成',0]:['給評價',1]; return ['已取消',0]; }
   if(st==='pending') return ['成立中',0]; if(st==='confirmed') return ['等買家付款',0]; if(st==='paid') return ['確認收款',1]; if(st==='preparing') return ['出貨',1]; if(st==='shipped') return ['等買家收貨',0]; if(st==='done') return ['已完成',0]; return ['已取消',0]; }
-function ordRow(o,side){ const ps=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), [nx,me]=ordNext(o,side), st=o.status, si=OSTEPS.findIndex(x=>x[0]===st), who=side==='buyer'?o.shop:o.buyer;
+function ordRowGc(o,side){ const X=window.__gcx||{imgOf:x=>x?.img||'',gget:()=>null,gTop:()=>[]}; const so=ordSo(o)||{}, src=so.src||o.src, G=so.gacha||o.gacha||{}, gs=so.gship||{}, g=X.gget(G.id||gs.list?.[0]?.gid), st=o.status, who=side==='buyer'?o.shop:o.buyer, nw=ordNew(o);
+  const imgs=src==='gship'?(gs.list||[]).slice(0,3).map(x=>X.imgOf(x)):[(()=>{ try{ const t=g?X.gTop(g)[0]:null; return t?X.imgOf(t.it):null; }catch(e){ return null; } })()];
+  const txt=src==='gship'?'🎁 轉蛋獎品出貨 '+(gs.list||[]).length+' 件'+((gs.list||[])[0]?' · '+gs.list[0].k+' 賞 '+(gs.list[0].name||''):''):(so.later?'📝 先抽再付 · 已撕 '+(G.n||0)+' 張':'🎟 抽獎券 ×'+(G.n||0))+' · '+(G.title||g?.title||'');
+  const lab=src==='gship'?({confirmed:'等補運費',paid:'待出貨',preparing:'待出貨',shipped:'已出貨',done:'已完成',cancelled:'已取消'}[st]):({apply:'等你同意',confirmed:so.later&&so.granted?'撕完再付':'等買家付款',paid:'待發券',preparing:'發券中',shipped:'已發券',done:so.later?'已結清':'已發券',cancelled:'已取消'}[st]);
+  const act=side==='seller'?(src==='gship'?['paid','preparing'].includes(st)&&'出貨 →':st==='paid'?'確認發券 →':st==='apply'?'回覆申請 →':''):(src==='gship'?'':st==='confirmed'&&!(so.later&&so.granted)?'去付款 →':'');
+  const open=()=>{ if(src==='gship'){ openOrder(o); return; } if(side==='seller'){ S.gcATab='todo'; go('#admin/gacha'); } else go('#/gacha/'+(G.id||'')+'/o/'+o.shop+'~'+o.id); };
+  return h('button',{type:'button',class:'or gcr'+(act?' me':'')+(st==='cancelled'?' off':'')+(nw?' nw':''),onclick:open}, nw?h('span',{class:'or-new'+(nw==='msg'?' m':''),text:nw==='msg'?'💬 新留言':'🔔 有更新'}):null,
+    h('span',{class:'or-im'}, ...imgs.map((u,i)=>u?h('img',{src:u,alt:'',style:'--i:'+i}):h('i',{text:'🎰'}))),
+    h('span',{class:'or-m'}, h('span',{class:'or-who'}, side==='buyer'?avatar(who,18):h('span',{class:'av',style:'width:18px;height:18px;font-size:9px',text:[...nameOf(who)].slice(-1).join('')}), h('b',{text:side==='buyer'?shopName(who):nameOf(who)}), h('small',{text:'#'+String(o.id).slice(-6)})),
+      h('span',{class:'or-it',text:txt}), h('span',{class:'or-st gc'+(st==='cancelled'?' x':''),text:'🎰 轉蛋 · '+(lab||OST[st]||'')})),
+    h('span',{class:'or-r'}, h('b',{class:'mono',text:money(src==='gship'?ordGrand(o):(so.total??o.total??0))}), h('span',{class:'or-nx'+(act?' go':''),text:act||lab||''}), h('small',{text:ago(o.at)}))); }
+function ordRow(o,side){ { const src0=ordSo(o)?.src||o.src; if(src0==='gacha'||src0==='gship') return ordRowGc(o,side); }
+  const ps=(o.items||[]).map(i=>S.plants.get(i)).filter(Boolean), [nx,me]=ordNext(o,side), st=o.status, si=OSTEPS.findIndex(x=>x[0]===st), who=side==='buyer'?o.shop:o.buyer;
   const qty=(o.items||[]).reduce((n,i)=>n+Math.max(1,+(o.qty?.[i])||1),0);
   const nw=ordNew(o);
   return h('button',{type:'button',class:'or'+(me?' me':'')+(st==='cancelled'?' off':'')+(nw?' nw':''),onclick:()=>openOrder(o)}, nw?h('span',{class:'or-new'+(nw==='msg'?' m':''),text:nw==='msg'?'💬 新留言':'🔔 有更新'}):null,
@@ -18914,7 +18928,29 @@ body:has(.gc-buy) #chDock,body:has(.gc-tray) #chDock{bottom:calc(160px + env(saf
 .gc-ltbar .k{font:800 11px var(--f-display);background:#FF7A00;color:#000;border-radius:99px;padding:3px 8px;flex:none}.gc-ltbar .v{flex:1;display:flex;flex-direction:column}.gc-ltbar .v b{font:800 15px var(--f-display)}.gc-ltbar .v small{font-size:11.5px;opacity:.8}
 .gc-ltbar .go{font:800 12.5px var(--f-display);background:#D2FF00;color:#000;border-radius:99px;padding:7px 11px;flex:none}
 .gc-o2-later{background:linear-gradient(135deg,#2A0A00,#5A1600);color:#fff;border-radius:18px;padding:13px 14px;margin-top:12px;font-size:12.5px;line-height:1.55;border:1px solid #FF7A00}.gc-o2-later b{display:block;font:800 14px var(--f-display);color:#FFB27A;margin-bottom:3px}
-.gc-oc .gk-tag.gk-l{background:#C2410C;color:#fff}.gc-note.r{background:#FFE9E3;color:#9b2a00}
+.gc-oc .gk-tag.gk-l{background:#C2410C;color:#fff}
+.or-st.gc{font:800 11.5px var(--f-display);color:#7A5A00;background:#FFF3C4;border-radius:99px;padding:2px 8px;align-self:flex-start}.or-st.gc.x{background:#EEE;color:#888}
+.gc-adm .tabs em.sf{background:#E5E5E0;color:#444}
+.gc-adm{padding-bottom:90px}
+@media (max-width:640px){body:has(.gc-adm) #chDock{display:none!important}}
+.gk-todo{background:#0C0E0D;color:#fff;border-radius:24px;padding:16px 14px 14px;margin-bottom:14px}
+.gk-todo .hd b{display:block;font:900 22px var(--f-display);color:#D2FF00}.gk-todo .hd small{display:block;font-size:12.5px;opacity:.65;margin-top:3px}
+.gk-todo .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.gk-todo .tl button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 4px 9px;border-radius:16px;border:0;background:rgba(255,255,255,.08);color:#fff;min-height:96px}
+.gk-todo .tl button i{font-style:normal;font-size:20px}.gk-todo .tl button b{font:900 24px var(--f-mono);line-height:1.1}.gk-todo .tl button span{font:800 12.5px var(--f-display)}.gk-todo .tl button small{font-size:10.5px;opacity:.6}
+.gk-todo .tl button.on{background:#D2FF00;color:#000}.gk-todo .tl button.on small{opacity:.7}.gk-todo .tl button:disabled{opacity:.45}.gk-todo .tl button.mute:not(:disabled){background:rgba(255,255,255,.14)}
+.gk-sec{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:16px 2px 8px;scroll-margin-top:70px}.gk-sec b{font:900 16.5px var(--f-display)}.gk-sec .n{min-width:22px;height:22px;border-radius:99px;background:#0C0E0D;color:#D2FF00;font:800 12px/22px var(--f-mono);text-align:center;padding:0 6px}
+.gk-sec small{flex-basis:100%;font-size:12px;color:var(--fg2)}.gk-sec .gk-all{margin-left:auto;order:2;height:36px;border-radius:12px;border:0;background:#D2FF00;color:#000;font:800 12.5px var(--f-display);padding:0 12px}
+.gk-chk{margin-top:6px;font:800 12.5px var(--f-display);padding:6px 10px;border-radius:10px;display:inline-block}.gk-chk.ok{background:#E7F5DF;color:#1F5C42}.gk-chk.no{background:#FFE9E3;color:#9b2a00}
+.gk-wl{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.gk-wr{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:9px 10px;min-height:60px}.gk-wr.x{opacity:.55}
+.gk-wr .m{flex:1;min-width:0;display:flex;flex-direction:column}.gk-wr .m b{font:800 14px var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gk-wr .m small{font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gk-wr .r{display:flex;flex-direction:column;align-items:flex-end}.gk-wr .r b{font-size:13.5px}.gk-wr .r small{font:700 11px var(--f-display);color:var(--fg2)}.gk-wr .r small.hot{color:#C2410C}
+.gk-cash{height:40px;min-width:64px;border-radius:12px;border:0;background:#0C0E0D;color:#fff;font:800 12.5px var(--f-display);padding:0 10px}.gk-cash.ghost{background:#F1F2EE;color:#111}
+.gk-names{display:flex;flex-direction:column;gap:5px;margin-top:10px}.gk-names>div{display:flex;align-items:center;gap:8px;background:#F6F6F2;border-radius:12px;padding:5px 8px 5px 5px;min-height:46px}
+.gk-names img{width:36px;height:36px;border-radius:9px;object-fit:cover;flex:none}.gk-names .gc-tc{position:static;flex:none;transform:none}.gk-names span{flex:1;min-width:0;font:700 13px var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gk-names small{font:700 11.5px var(--f-mono);color:var(--fg2)}.gk-names em{font-style:normal;font-size:12px}.gk-names .more{justify-content:center;font:800 12px var(--f-display);color:var(--fg2)}
+.gk-exp{margin-left:auto;font:800 11.5px var(--f-display);background:#F1F2EE;border-radius:99px;padding:5px 9px;white-space:nowrap}.gk-exp.hot{background:#FFE9E3;color:#9b2a00}.gc-note.r{background:#FFE9E3;color:#9b2a00}
 .gc-cta{width:100%;height:54px;border-radius:18px;background:#0C0E0D;color:#fff;font:800 16px var(--f-display);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer}
 .gc-cta.v{background:#D2FF00;color:#000}.gc-cta:disabled{opacity:.45}
 .gc-cta.ghost{background:transparent;color:inherit;height:44px;font-weight:600;font-size:14px;margin-top:2px}
@@ -19252,6 +19288,7 @@ const tc=(k,cls,sub)=>h('span',{class:'gc-tc '+(k==='LAST'?'lst':'gc'+cls)}, k==
 const tplCls=g=>'gt-'+(TPL.some(t=>t[0]===g?.tpl)?g.tpl:'neon');
 function prizeVal(pz){ const v=(pz.items||[]).map(x=>+x.val||0); if(!v.length||v.every(x=>!x)) return null; const lo=Math.min(...v), hi=Math.max(...v); return lo===hi?M$(lo):M$(lo)+' 起'; }
 // 大獎：最稀有的那個賞（數量最少）；草稿也能用
+window.__gcx={imgOf,tc,gget,gTop:g=>gTop(g),M$};
 function gTop(g){ const P=(g.prizes||[]).map((p,i)=>{ const k=p.k||LET[i]; const n=p.items?+p.n:(p.kind==='plant'?(p.pids||[]).length:(+p.n||0)); const it=p.items?p.items[0]:(p.kind==='plant'?{pid:(p.pids||[])[0]}:{goods:p.gid,kind:'goods'});
     const tot=g.total||(g.prizes||[]).reduce((a,q)=>a+(q.items?+q.n:(q.kind==='plant'?(q.pids||[]).length:(+q.n||0))),0);
     const val=p.items?+(it?.val||0):(it?.pid?+(S.plants.get(it.pid)?.price||0):+(S.plants.get(p.gid)?.price||0));
@@ -19768,14 +19805,35 @@ function gcWhShop(shop,L){ const sel=GC.whSel; const mine=L.filter(x=>sel.has(x.
 /* ---------------- 賣家後台 ---------------- */
 let ADM=null;
 window.gcAdmin=function(main){ gcCss(); gcSync(); ADM=main; gcAdmDraw(); };
+// 轉蛋賣家中心：待辦（發券、先抽申請、出貨）放最前面，一個畫面做完
+const GC_BUSY=new Map(); const gcBusy=id=>(GC_BUSY.get(id)||0)>Date.now(); const gcMarkBusy=id=>GC_BUSY.set(id,Date.now()+15000);
 function gcAdmDraw(){ const m=ADM; if(!m||!m.isConnected) return; if(GC.edit){ return gcEditor(m); }
-  const t=S.gcATab||'g'; const os=(()=>{ try{ return sellerOrders(S.me); }catch(e){ return []; } })();
+  const os=(()=>{ try{ return sellerOrders(S.me); }catch(e){ return []; } })();
   const tOrd=os.filter(o=>(ordSo(o)?.src||o.src)==='gacha'), sOrd=os.filter(o=>(ordSo(o)?.src||o.src)==='gship');
-  const needPay=tOrd.filter(o=>['apply','confirmed','paid'].includes(o.status)), needShip=sOrd.filter(o=>['confirmed','paid','preparing'].includes(o.status));
-  const tabs=h('div',{class:'tabs'}, ...[['g','轉蛋機'],['o','轉蛋訂單',needPay.filter(o=>o.status==='paid'||o.status==='apply').length+needShip.filter(o=>o.status!=='confirmed').length],['w','寄放倉庫']].map(([k,l,n])=>h('button',{type:'button','aria-pressed':String(t===k),onclick:()=>{ S.gcATab=k; gcAdmDraw(); }}, l, n?h('em',{text:String(n)}):null)));
-  const out=h('div',{class:'gc gc-adm'}, admTop('🎰 轉蛋機'), tabs);
+  const live=o=>!gcBusy(o.id);
+  const apply=tOrd.filter(o=>o.status==='apply'&&live(o)), paid=tOrd.filter(o=>o.status==='paid'&&live(o)), waitT=tOrd.filter(o=>o.status==='confirmed'&&live(o));
+  const shipTodo=sOrd.filter(o=>['paid','preparing'].includes(o.status)&&live(o)), shipFee=sOrd.filter(o=>o.status==='confirmed');
+  const needPay=[...apply,...paid,...waitT];
+  const B=[...GC.sbox.values()].filter(x=>x.st==='box'), todoN=apply.length+paid.length+shipTodo.length;
+  if(S.gcATab==='o') S.gcATab='todo'; const t=S.gcATab||(todoN?'todo':'g');
+  const tabs=h('div',{class:'tabs'}, ...[['todo','待辦',todoN],['g','轉蛋機'],['w','倉庫',B.length,1],['log','紀錄']].map(([k,l,n,soft])=>h('button',{type:'button','aria-pressed':String(t===k),'data-k':k,onclick:()=>{ S.gcATab=k; gcAdmDraw(); }}, l, n?h('em',{class:soft?'sf':'',text:String(n)}):null)));
+  const out=h('div',{class:'gc gc-adm'}, admTop('🎰 轉蛋'), tabs);
   if(!isVerified(S.me)) out.append(h('div',{class:'gc-note r'}, h('span',{text:'🔒'}), h('span',{text:'只有認證賣家可以上架轉蛋機。可以先建草稿，通過認證後再送出上架。'})));
-  if(t==='g'){ const L=[...GC.mine.values()].sort((a,b)=>({on:0,pause:1,draft:2,done:3,end:4}[a.status]-{on:0,pause:1,draft:2,done:3,end:4}[b.status])||(b.updatedAt||0)-(a.updatedAt||0));
+  if(t==='todo'){
+    const tiles=[['paid','💸','待發券',paid.length,'已匯款'],['apply','📝','先抽申請',apply.length,'等你同意'],['ship','📦','待出貨',shipTodo.length,'獎品出貨'],['wait','⏳','等付款',waitT.length+shipFee.length,'不用動作']];
+    out.append(h('div',{class:'gk-todo'}, h('div',{class:'hd'}, h('b',{text:todoN?'要你處理 '+todoN+' 件':'都處理完了 🎉'}), h('small',{text:todoN?'由上往下做：先發券、再回覆申請、最後出貨':'有新的匯款或出貨單會推播通知你'})),
+      h('div',{class:'tl'}, ...tiles.map(([k,ic,l,n,sub])=>h('button',{type:'button',class:(n&&k!=='wait'?'on':'')+(k==='wait'?' mute':''),disabled:!n,onclick:()=>document.getElementById('gks-'+k)?.scrollIntoView({behavior:'smooth',block:'start'})}, h('i',{text:ic}), h('b',{text:String(n)}), h('span',{text:l}), h('small',{text:sub}))))));
+    const sec=(k,title,hint,L,extra)=>{ if(!L.length) return; out.append(h('div',{class:'gk-sec',id:'gks-'+k}, h('b',{text:title}), h('span',{class:'n',text:String(L.length)}), hint?h('small',{text:hint}):null, extra||null)); };
+    if(paid.length){ const plain=paid.filter(o=>!ordSo(o)?.later), sum=plain.reduce((a,o)=>a+(+(ordSo(o)?.total??o.total)||0),0);
+      sec('paid','💸 已匯款 · 對帳後發券','核對末五碼和金額，確認就會立刻把券發給買家',paid, plain.length>1?h('button',{type:'button',class:'gk-all',onclick:async e=>{ if(!confirm('確認已收到這 '+plain.length+' 筆款項（共 '+M$(sum)+'），全部發券？')) return; e.target.disabled=true; let ok=0; for(const o of plain){ try{ gcMarkBusy(o.id); await setOrder(o,'preparing'); ok++; }catch(x){} } toast('🎟 已發券 '+ok+' 筆'); gcAdmDraw(); },text:'全部確認發券（'+plain.length+' 筆）'}):null);
+      paid.sort((a,b)=>a.at-b.at).forEach(o=>out.append(gcTOrdCard(o))); }
+    if(apply.length){ sec('apply','📝 先抽再付申請','同意＝契約成立，對方可以直接撕、撕多少付多少',apply); apply.sort((a,b)=>a.at-b.at).forEach(o=>out.append(gcTOrdCard(o))); }
+    if(shipTodo.length){ sec('ship','📦 獎品要出貨','買家從轉蛋倉庫申請寄出的獎品，填物流單號就完成',shipTodo); shipTodo.sort((a,b)=>a.at-b.at).forEach(o=>out.append(gcSOrdCard(o))); }
+    if(!todoN) out.append(h('div',{class:'gc-empty'}, h('b',{text:'✅'}), h('h3',{text:'目前沒有要處理的事'}), h('p',{text:'買家匯款、申請先抽、或從倉庫申請出貨時，會出現在這裡'})));
+    const wait=[...waitT,...shipFee];
+    if(wait.length){ sec('wait','⏳ 等買家付款','還沒匯款，不用動作；超過 48 小時會自動取消、名額放回去',wait); out.append(h('div',{class:'gk-wl'}, ...wait.sort((a,b)=>a.at-b.at).map(o=>gcWaitRow(o)))); }
+  }
+  else if(t==='g'){ const L=[...GC.mine.values()].sort((a,b)=>({on:0,pause:1,draft:2,done:3,end:4}[a.status]-{on:0,pause:1,draft:2,done:3,end:4}[b.status])||(b.updatedAt||0)-(a.updatedAt||0));
     const mon=new Date(); mon.setDate(1); mon.setHours(0,0,0,0); const gm=tOrd.filter(o=>ordSo(o)?.granted&&(ordSo(o)?.doneAt||0)>=+mon);
     out.append(h('div',{class:'gc-kpi'}, h('div',{class:'gk-a'}, h('small',{text:'本月賣出'}), h('b',{text:gm.reduce((a,o)=>a+(+ordSo(o).gacha?.n||0),0)+' 抽'})), h('div',{class:'b'}, h('small',{text:'本月營收'}), h('b',{text:'$'+gm.reduce((a,o)=>a+(+ordSo(o).total||0),0).toLocaleString()})), h('div',{class:'gk-c'}, h('small',{text:'待確認收款'}), h('b',{text:needPay.filter(o=>o.status==='paid').length+' 筆'}))),
       h('button',{type:'button',class:'gc-newg',onclick:()=>{ GC.edit={id:null,d:gcNewDraft()}; gcAdmDraw(); }}, '＋ 上架新轉蛋機'));
@@ -19798,38 +19856,49 @@ function gcAdmDraw(){ const m=ADM; if(!m||!m.isConnected) return; if(GC.edit){ r
         g.total?h('div',{class:'tl3'}, ...(g.prizes||[]).map(p=>tc(p.k,tierOf(p.n,g.total),(+g.left?.[p.k]||0)+'/'+p.n))):null,
         apl||pend||held?h('button',{type:'button',class:'pend',onclick:()=>{ S.gcATab='o'; gcAdmDraw(); }}, apl?'📝 '+apl+' 筆先抽再付申請，等你同意':pend?'💸 '+pend+' 筆已匯款，等你確認收款':'🧾 '+held+' 筆抽獎券等買家付款', h('em',{text:'去看'})):null,
         h('div',{class:'acts'}, ...acts))); }); }
-  else if(t==='o'){ const F=S.gcOF||'pay'; const shipFee=sOrd.filter(o=>o.status==='confirmed');
-    const fp=h('div',{class:'gc-fp'}, ...[['pay','待確認收款',needPay.length],['ship','待出貨',sOrd.filter(o=>['paid','preparing'].includes(o.status)).length],['fee','等補運費',shipFee.length],['done','已完成',0]].map(([k,l,n])=>h('button',{type:'button','aria-pressed':String(F===k),onclick:()=>{ S.gcOF=k; gcAdmDraw(); }}, l, n?h('em',{text:String(n)}):null)));
-    out.append(fp);
-    const L=F==='pay'?needPay:F==='ship'?sOrd.filter(o=>['paid','preparing'].includes(o.status)):F==='fee'?shipFee:[...tOrd,...sOrd].filter(o=>['shipped','done','cancelled'].includes(o.status)).slice(0,40);
-    if(!L.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:F==='pay'?'💸':'📦'}), h('h3',{text:F==='pay'?'沒有待確認的抽獎券':F==='fee'?'沒有等補運費的出貨單':'沒有待出貨的轉蛋獎品'})));
-    L.sort((a,b)=>(b.status==='apply')-(a.status==='apply')||(b.status==='paid')-(a.status==='paid')||b.at-a.at).forEach(o=>out.append((ordSo(o)?.src||o.src)==='gacha'?gcTOrdCard(o):gcSOrdCard(o))); }
-  else { const B=[...GC.sbox.values()].filter(x=>x.st==='box'); const val=B.reduce((a,x)=>a+(+x.val||0),0), soon=B.filter(x=>x.exp-Date.now()<7*864e5).length;
-    out.append(h('div',{class:'gc-wsum'}, h('div',{}, h('small',{text:'客人寄放中'}), h('b',{text:B.length+' 件'})), h('div',{}, h('small',{text:'價值'}), h('b',{text:'$'+(val>=1e4?(val/1e3).toFixed(0)+'k':val.toLocaleString())})), h('div',{}, h('small',{text:'7 天內到期'}), h('b',{style:'color:#FF9A4D',text:soon+' 件'})), h('div',{class:'gk-wn',text:'🔒 寄放中的植物已鎖定，不能另外賣 · 到期會用客人上次的寄送方式自動成立出貨單'})));
-    const byU=new Map(); B.forEach(x=>{ if(!byU.has(x.uid)) byU.set(x.uid,[]); byU.get(x.uid).push(x); });
-    if(!B.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'📦'}), h('h3',{text:'沒有寄放中的獎品'})));
-    [...byU].sort((a,b)=>Math.min(...a[1].map(x=>x.exp))-Math.min(...b[1].map(x=>x.exp))).forEach(([u,L])=>{ const e=Math.min(...L.map(x=>x.exp)), d=Math.max(0,Math.ceil((e-Date.now())/864e5)), v=L.reduce((a,x)=>a+(+x.val||0),0);
-      out.append(h('div',{class:'gc-oc'}, h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(u,34), h('div',{}, h('b',{text:nameOf(u)}), h('small',{text:L.length+' 件寄放中'})), h('div',{class:'amt'}, h('b',{text:'$'+v.toLocaleString()}))),
-        h('div',{class:'gc-pzs'}, ...L.slice(0,8).map(x=>h('div',{}, tc(x.k==='LAST'?'LAST':x.k,'r1'), h('img',{src:imgOf(x),alt:''}), x.kind==='plant'?h('span',{class:'lk',text:'🔒'}):null)), L.length>8?h('div',{style:'display:grid;place-items:center;background:#F1F2EE;font:800 12px var(--f-display)',text:'+'+(L.length-8)}):null),
-        h('div',{class:'gk-shp'}, h('span',{style:'color:'+(d<=7?'#B23A00':'var(--fg2)'),text:(d<=7?'⚠️':'⏳')+' 最早 '+d+' 天後到期'}), h('button',{type:'button',class:'btn soft sm',style:'margin-left:auto',onclick:()=>{ try{ openChatWith?openChatWith(u):go('#/chats'); }catch(e){ go('#/chats'); } },text:'聊聊'}))))); }); }
+  else if(t==='w'){ const mids=[...new Set(B.map(x=>x.gid))], F=S.gcWF&&mids.includes(S.gcWF)?S.gcWF:'all', BB=F==='all'?B:B.filter(x=>x.gid===F);
+    const val=BB.reduce((a,x)=>a+(+x.val||0),0), soon=BB.filter(x=>x.exp-Date.now()<7*864e5).length;
+    out.append(h('div',{class:'gc-wsum'}, h('div',{}, h('small',{text:'客人寄放中'}), h('b',{text:BB.length+' 件'})), h('div',{}, h('small',{text:'價值'}), h('b',{text:'$'+(val>=1e4?(val/1e3).toFixed(0)+'k':val.toLocaleString())})), h('div',{}, h('small',{text:'7 天內到期'}), h('b',{style:'color:#FF9A4D',text:soon+' 件'})), h('div',{class:'gk-wn',text:'🔒 寄放中的植物已鎖定不能另賣 · 客人申請出貨後會出現在「待辦」· 到期會用客人上次的寄送方式自動成立出貨單'})));
+    if(mids.length>1) out.append(h('div',{class:'gc-fp'}, ...[['all','全部',B.length],...mids.map(id=>[id,gget(id)?.title||'轉蛋機',B.filter(x=>x.gid===id).length])].map(([k,l,n])=>h('button',{type:'button','aria-pressed':String(F===k),onclick:()=>{ S.gcWF=k; gcAdmDraw(); }}, l, h('em',{text:String(n)})))));
+    const byU=new Map(); BB.forEach(x=>{ if(!byU.has(x.uid)) byU.set(x.uid,[]); byU.get(x.uid).push(x); });
+    if(!BB.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'📦'}), h('h3',{text:'沒有寄放中的獎品'}), h('p',{text:'客人抽到的獎品會先放這裡，等他湊免運或申請出貨'})));
+    [...byU].sort((a,b)=>Math.min(...a[1].map(x=>x.exp))-Math.min(...b[1].map(x=>x.exp))).forEach(([u,L])=>out.append(gcBoxCard(u,L))); }
+  else { const L=[...tOrd,...sOrd].filter(o=>['done','shipped','cancelled'].includes(o.status)).sort((a,b)=>(b.updatedAt||b.at)-(a.updatedAt||a.at)).slice(0,60);
+    if(!L.length) out.append(h('div',{class:'gc-empty'}, h('b',{text:'🗂'}), h('h3',{text:'還沒有紀錄'})));
+    else out.append(h('div',{class:'gk-wl'}, ...L.map(o=>gcWaitRow(o,true)))); }
   m.replaceChildren(out); }
+// 一行版訂單（等付款、紀錄）：誰、什麼、多少、還剩多久
+function gcWaitRow(o,log){ const so=ordSo(o)||{}, G=so.gacha||o.gacha||{}, gs=so.gship, g=gget(G.id), ship=(so.src||o.src)==='gship';
+  const left=48*36e5-(Date.now()-o.at), hrs=Math.max(0,Math.ceil(left/36e5));
+  const what=ship?'📦 獎品出貨 '+(gs?.list||[]).length+' 件'+(so.ship?.fee?' · 運費 '+M$(so.ship.fee):''):(so.later?'📝 先抽再付 · 已撕 '+(G.n||0)+' 張':'🎟 抽獎券 ×'+(G.n||0))+' · '+(G.title||g?.title||'');
+  const st=log?({done:ship?'已完成':'已發券',shipped:'已出貨',cancelled:'已取消'}[o.status]||OST[o.status]||''):ship?'等補運費':so.later?'撕完再付':(hrs?'剩 '+hrs+' 小時':'即將取消');
+  return h('div',{class:'gk-wr'+(o.status==='cancelled'?' x':'')}, avatar(o.buyer,30), h('div',{class:'m'}, h('b',{text:nameOf(o.buyer)}), h('small',{text:what})), h('div',{class:'r'}, h('b',{class:'mono',text:M$(ship?ordGrand(o):(so.total??o.total))}), h('small',{class:!log&&!ship&&!so.later&&hrs<=6?'hot':'',text:st})),
+    !log&&!ship?h('button',{type:'button',class:'gk-cash',title:'當面收現金時用',onclick:async e=>{ if(!confirm((so.later?'確定已經收到 ':'確定已經收到 ')+M$(so.total??o.total)+'（買家沒有線上回報匯款）？'+(so.later?'':'\n確認後會馬上發 '+(G.n||'')+' 張券。'))) return; e.target.disabled=true; gcMarkBusy(o.id); try{ await setOrder(o,'preparing'); toast(so.later?'✅ 已結清':'🎟 已發券'); }catch(x){ toast('操作失敗'); } gcAdmDraw(); },text:'已收款'}):h('button',{type:'button',class:'gk-cash ghost',onclick:()=>ship?openOrder(o):go('#/gacha/'+(G.id||'')),text:'看'})); }
+// 倉庫：每位客人一張卡，看得到獎品名稱、到期、免運進度，可以直接傳訊息提醒
+function gcBoxCard(u,L){ const e=Math.min(...L.map(x=>x.exp)), d=Math.max(0,Math.ceil((e-Date.now())/864e5)), v=L.reduce((a,x)=>a+(+x.val||0),0), g=gget(L[0].gid), sh=g?.ship||{};
+  const fr=sh.mode==='incl'?['ok','含運機台 · 申請就免運']:sh.free?(v>=sh.free?['ok','已達免運 '+M$(sh.free)]:['due','差 '+M$(sh.free-v)+' 免運']):['due','運費另計'];
+  const msg='嗨！你在「'+(g?.title||'轉蛋機')+'」抽到的 '+L.length+' 件獎品還寄放在倉庫（最早 '+d+' 天後到期），可以到「我的 → 轉蛋」申請出貨喔～';
+  return h('div',{class:'gc-oc gk-box'}, h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(u,34), h('div',{}, h('b',{text:nameOf(u)}), h('small',{text:L.length+' 件寄放中 · 價值 '+M$(v)})), h('span',{class:'gk-exp'+(d<=7?' hot':''),text:(d<=7?'⚠️ ':'⏳ ')+d+' 天到期'})),
+    h('div',{class:'gk-names'}, ...L.sort((a,b)=>String(a.k).localeCompare(String(b.k))).slice(0,12).map(x=>h('div',{}, h('img',{src:imgOf(x),alt:'',loading:'lazy'}), tc(x.k==='LAST'?'LAST':x.k,x.k==='LAST'?'r4':'r1'), h('span',{text:x.name||''}), x.kind==='plant'?h('em',{text:'🔒'}):null, x.val?h('small',{text:M$(x.val)}):null)), L.length>12?h('div',{class:'more',text:'還有 '+(L.length-12)+' 件'}):null),
+    h('div',{class:'gk-shp'}, h('span',{class:'gc-fr '+fr[0],text:fr[1]}), h('button',{type:'button',class:'btn soft sm',style:'margin-left:auto',onclick:()=>{ quietCopy(msg,'提醒文字已複製，貼到聊天室就能送出'); openChat(u); },text:'💬 提醒出貨'})))); }
 function gcTOrdCard(o){ const so=ordSo(o)||{}, G=so.gacha||o.gacha||{}, g=gget(G.id); const paid=o.status==='paid', d=o.deal||{}, apply=o.status==='apply', later=!!so.later, owe=later&&so.granted;
   const acts=apply?[h('button',{type:'button',onclick:async()=>{ if(!confirm('拒絕這筆先抽再付申請？名額會放回去。')) return; gcReq(G.id,'lno',o.id); },text:'拒絕'}),
       h('button',{type:'button',class:'v',onclick:async()=>{ if(await gcContract('seller',{g:g||{title:G.title,price:G.price},n:G.cap,who:nameOf(o.buyer)})) gcReq(G.id,'lok',o.id); },text:'同意 · 開通先抽（最多 '+(G.cap||'')+' 張）'})]
     :[h('button',{type:'button',onclick:async()=>{ if(!confirm(owe?'取消這筆先抽再付？券已經發出，取消等於不收這筆錢。':'取消這筆抽獎券訂單？名額會放回去。')) return; try{ await setOrder(o,'cancelled',{cancelledAt:Date.now(),cancelWhy:'賣家取消'}); toast(owe?'已取消':'已取消，名額放回去了'); }catch(e){ toast('操作失敗'); } },text:'取消'}),
-      h('button',{type:'button',class:'v',onclick:async e=>{ if(!paid&&!confirm(owe?'買家還沒回報匯款。確定已經收到 '+M$(so.total??o.total)+'？':'買家還沒回報匯款。確定已經收到錢、要發 '+(G.n||'')+' 張券？')) return; e.target.disabled=true; e.target.textContent=owe?'處理中…':'發券中…'; try{ await setOrder(o,'preparing'); toast(owe?'✅ 已確認收款，結清':'🎟 已發 '+(G.n||'')+' 張券給 '+nameOf(o.buyer)); }catch(x){ e.target.disabled=false; toast('操作失敗'); } },text:owe?(paid?'確認收款 · 結清':'已收款 · 結清'):(paid?'確認收款 · 發 ':'已收款 · 發 ')+(G.n||'')+' 張券'})];
+      h('button',{type:'button',class:'v',onclick:async e=>{ if(gcBusy(o.id)) return; if(!paid&&!confirm(owe?'買家還沒回報匯款。確定已經收到 '+M$(so.total??o.total)+'？':'買家還沒回報匯款。確定已經收到錢、要發 '+(G.n||'')+' 張券？')) return; e.target.disabled=true; e.target.textContent=owe?'處理中…':'發券中…'; gcMarkBusy(o.id); try{ await setOrder(o,'preparing'); setTimeout(gcAdmDraw,50); toast(owe?'✅ 已確認收款，結清':'🎟 已發 '+(G.n||'')+' 張券給 '+nameOf(o.buyer)); }catch(x){ e.target.disabled=false; toast('操作失敗'); } },text:owe?(paid?'確認收款 · 結清':'已收款 · 結清'):(paid?'確認收款 · 發 ':'已收款 · 發 ')+(G.n||'')+' 張券'})];
   return h('div',{class:'gc-oc'+(apply?' gk-ap':'')}, h('div',{class:'tp'}, h('span',{class:'gk-tag '+(later?'gk-l':'gk-k'),text:later?'📝 先抽再付':'🎟 抽獎券'}), h('small',{text:o.id+' · '+fmtWhen(o.at)})),
     h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(o.buyer,34), h('div',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:apply?'📱 已手機驗證 · 申請先抽再付（撕多少付多少）':owe?(paid?'已撕 '+(G.n||0)+' 張 · 已匯款，請對帳':'已撕 '+(G.n||0)+' 張 · 還在撕／等付款'):paid?'已匯款，請對帳':'等買家付款（48 小時內）'})), h('div',{class:'amt'}, h('b',{text:M$(so.total??o.total)}))),
       h('div',{class:'tkx '+tplCls(g)}, h('span',{text:G.title||g?.title||''}), h('b',{text:later&&!owe?'≤'+(G.cap||''):'×'+(G.n||0)})),
       apply||owe?h('div',{class:'gc-note r',style:'margin:8px 0 0'}, h('span',{text:'⚖️'}), h('span',{text:apply?'同意＝契約成立，對方可以直接撕、撕多少付多少。未付款由對方自負法律責任，平台不負任何責任。':'先抽再付：付清前，對方的獎品不能申請出貨。'})):null,
-      paid?h('div',{class:'f5'}, '客人回報末五碼 ', h('code',{text:d.pay?.last5||''}), ' · '+M$(d.pay?.amount||0)+(d.pay?.time?' · '+String(d.pay.time).replace('T',' '):'')):null),
+      paid?h('div',{class:'f5'}, '客人回報末五碼 ', h('code',{text:d.pay?.last5||''}), ' · '+M$(d.pay?.amount||0)+(d.pay?.time?' · '+String(d.pay.time).replace('T',' '):'')):null,
+      paid&&d.pay?.amount!=null?(+d.pay.amount===+(so.total??o.total)?h('div',{class:'gk-chk ok',text:'✓ 金額相符'}):h('div',{class:'gk-chk no',text:'⚠️ 金額不符：回報 '+M$(+d.pay.amount)+'，應收 '+M$(so.total??o.total)})):null),
     h('div',{class:'acts2'}, ...acts)); }
 function gcSOrdCard(o){ const so=ordSo(o)||{}, gs=so.gship||{}, f=gs.free; const fee=so.ship?.fee;
   const tag=f==='incl'?['gk-ok','免運 · 含運機台']:f==='thr'?['gk-ok','免運 · 滿額']:f==='merge'?['mg','免運 · 併單 '+(gs.merge||'')]:f==='zero'?['gk-ok','免運']:fee==null?['due','運費另計']:['due','補運費 '+M$(fee)];
   return h('div',{class:'gc-oc'}, h('div',{class:'tp'}, h('span',{class:'gk-tag s',text:'📦 轉蛋出貨'+(gs.auto?'（到期自動）':'')}), h('small',{text:o.id+' · '+fmtWhen(o.at)})),
     h('div',{class:'gk-bd'}, h('div',{class:'who'}, avatar(o.buyer,34), h('div',{}, h('b',{text:nameOf(o.buyer)}), h('small',{text:(gs.list||[]).length+' 件 · 價值 '+M$(gs.val||0)}))),
-      h('div',{class:'gc-pzs'}, ...(gs.list||[]).slice(0,10).map(x=>h('div',{}, tc(x.k,'r1'), h('img',{src:imgOf(x),alt:''})))),
-      h('div',{class:'gk-shp'}, h('span',{text:(SHIP_IC[so.ship?.k]||'📦')+' '+(so.ship?.n||'')}), h('span',{class:'gc-fr '+tag[0],text:tag[1]})),
+      h('div',{class:'gk-names'}, ...(gs.list||[]).slice(0,12).map(x=>h('div',{}, h('img',{src:imgOf(x),alt:'',loading:'lazy'}), tc(x.k==='LAST'?'LAST':x.k,x.k==='LAST'?'r4':'r1'), h('span',{text:(x.name||'')+(x.vn?'（'+x.vn+'）':'')}), x.val?h('small',{text:M$(x.val)}):null))),
+      h('div',{class:'gk-shp'}, h('span',{text:(SHIP_IC[so.ship?.k]||'📦')+' '+(so.ship?.n||'')+(o.deal?.recv?' · 收件資料 ✓':' · 等買家填收件資料')}), h('span',{class:'gc-fr '+tag[0],text:tag[1]})),
       o.status==='confirmed'&&fee?h('div',{class:'gc-note r',style:'margin-top:8px'}, h('span',{text:'⏳'}), h('span',{text:'買家補完運費才能出貨'})):null),
     h('div',{class:'acts2'}, h('button',{type:'button',class:'gk-k',onclick:()=>openOrder(o),text:o.status==='confirmed'?'查看訂單':'填物流 · 出貨'}))); }
 async function gcReq(gid,act,oid){ const ref=S.db.collection('gReq').doc(); const t=toastStay?toastStay(act==='pub'?'送出上架中…':'處理中…'):null;

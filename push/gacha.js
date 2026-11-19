@@ -228,6 +228,8 @@ module.exports = ctx => {
       if (a.later && a.granted && ['preparing', 'shipped'].includes(a.status)) { try { await db.doc(`shops/${shop}/orders/${oid}`).update({ status: 'done', doneAt: Date.now(), updatedAt: Date.now() }); await laterEnd(shop, oid); await push(a.buyer, '✅ 先抽再付已結清', '「' + (await displayName(shop)) + '」已確認收到 ' + nt(a.total), '/#/me/orders', 'gord-' + oid); } catch (e) { logger.warn('laterDone', e.message); } }
       else if (a.later && !a.granted && !['apply', 'cancelled', 'confirmed'].includes(a.status)) { /* 先抽再付只能由賣家同意發券 */ try { await db.doc(`shops/${shop}/orders/${oid}`).update({ status: 'apply', updatedAt: Date.now() }); } catch (e) {} }
       else if (a.later && !a.granted) { /* 等賣家同意 */ }
+      // 已發過券的普通抽獎券訂單又被改回「備貨中」（例如賣家重按一次）→ 直接改回完成，不要掉進待出貨
+      else if (!a.later && a.granted && ['preparing', 'shipped'].includes(a.status)) { try { await db.doc(`shops/${shop}/orders/${oid}`).update({ status: 'done', doneAt: a.doneAt || Date.now(), updatedAt: Date.now() }); } catch (e) { logger.warn('gHeal', e.message); } }
       else if (['preparing', 'shipped', 'done'].includes(a.status) && !a.granted) { try { const g = await grant(shop, oid); if (g) await push(g.uid, '🎟 獲得 ' + g.n + ' 張抽獎券', '「' + (await displayName(shop)) + '」已確認收款，快去撕「' + g.title + '」', '/#/gacha/' + g.gid, 'gtix-' + g.gid); } catch (e) { logger.warn('grant', e.message); } }
       else if (a.status === 'cancelled' && (!b || b.status !== 'cancelled')) { try { await release(shop, oid, 'cancel'); } catch (e) { logger.warn('release', e.message); } }
     }
@@ -336,6 +338,10 @@ module.exports = ctx => {
         if (o.exists && st !== 'confirmed') continue;
         await db.doc(`shops/${x.shop}/orders/${x.oid}`).set({ status: 'cancelled', cancelledAt: now, cancelWhy: '超過 ' + PAY_H + ' 小時沒付款', updatedAt: now }, { merge: true });
         await release(x.shop, x.oid, 'timeout'); await push(x.uid, '抽獎券訂單已取消', '超過 ' + PAY_H + ' 小時沒付款，名額已經放回去', '/#/me/orders', 'gord-' + x.oid); } catch (e) { logger.warn('gTimeout', e.message); } }
+    // 自我修復：已發券卻卡在「備貨中／已出貨」的抽獎券訂單 → 完成
+    try { const shops = [...new Set((await db.collection('gacha').where('status', 'in', ['on', 'pause', 'done', 'end']).get()).docs.map(d => d.data().shop))];
+      for (const sh of shops) { const st = await db.collection(`shops/${sh}/orders`).where('src', '==', 'gacha').where('granted', '==', true).get();
+        for (const d of st.docs) { const o = d.data(); if (!o.later && ['preparing', 'shipped'].includes(o.status)) await d.ref.update({ status: 'done', doneAt: o.doneAt || now, updatedAt: now }); } } } catch (e) { logger.warn('gHealSweep', e.message); }
     // 先抽再付：賣家 48 小時沒回 → 申請失效
     const apl = await db.collection('gRes').where('st', '==', 'apply').get();
     for (const d of apl.docs) { const x = d.data(); if (now - x.at < PAY_H * 36e5) continue;
