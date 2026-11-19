@@ -102,6 +102,14 @@ const W = (p, ms) => p.waitForTimeout(ms);
   await p.evaluate(() => [...document.querySelectorAll('.or')].find(x => /轉蛋獎品出貨 2 件/.test(x.innerText)).click()); await W(p, 1500);
   ok(await p.evaluate(() => /轉蛋獎品 2 件/.test(document.body.innerText) && /熱植文創時鐘/.test(document.querySelector('.od2-info')?.innerText || '')), '打開出貨單看得到獎品清單');
   await shot('c6_ship_detail');
+  // ---------- 訂單管理裡也有轉蛋管理 ----------
+  await p.goto('http://localhost:8767/#orders'); await W(p, 3000);
+  const nav = await p.evaluate(() => [...document.querySelectorAll('button,a')].filter(b => /轉蛋管理/.test(b.textContent)).map(b => b.textContent.replace(/\s+/g, ' ')));
+  ok(nav.length > 0, '訂單管理選單有「🎰 轉蛋管理」' + (nav[0] ? '：' + nav[0] : ''));
+  ok(/發券、先抽申請、獎品出貨、倉庫/.test(nav[0] || '') || await p.evaluate(() => /發券、先抽申請/.test(document.body.innerText)), '選單下面寫清楚管什麼（發券、先抽申請、獎品出貨、倉庫）');
+  await p.evaluate(() => [...document.querySelectorAll('button,a')].find(b => /轉蛋管理/.test(b.textContent)).click()); await W(p, 1200);
+  ok(await p.evaluate(() => !!document.querySelector('.gc-adm .gk-todo')), '點下去打開轉蛋待辦');
+  await shot('c7_order_nav');
   // ---------- 暴力：資料缺漏也不能壞 ----------
   await p.evaluate(() => { __fdb.set('shops/S1/orders/bad1', { buyer: 'B9', src: 'gacha', status: 'paid', at: Date.now() }); __fdb.set('shops/S1/orders/bad2', { buyer: 'B9', src: 'gship', status: 'preparing', at: Date.now() }); __fdb.set('gbi/bad3', { uid: 'B9', shop: 'S1', st: 'box' }); });
   await p.goto('http://localhost:8767/#admin/gacha'); await W(p, 3000);
