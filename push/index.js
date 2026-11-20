@@ -57,7 +57,7 @@ exports.pushChat = onDocumentCreated({ document: 'chats/{cid}/messages/{mid}', .
 // 議價：推給賣家
 exports.pushOffer = onDocumentCreated({ document: 'offers/{id}', ...HOT }, async ev => {
   const o = ev.data?.data(); if (!o || !o.seller) return;
-  await push(o.seller, '🤝 收到議價', (await displayName(o.buyer)) + ' 出價 NT$ ' + Number(o.amt || 0).toLocaleString('zh-TW') + (o.code ? '（' + o.code + '）' : ''), '/#admin/offers', 'offer-' + ev.params.id);
+  await push(o.seller, '🤝 收到議價', '有買家出價 NT$ ' + Number(o.amt || 0).toLocaleString('zh-TW') + (o.code ? '（' + o.code + '）' : ''), '/#admin/offers', 'offer-' + ev.params.id);
 });
 // 日常管理：每 15 分鐘檢查一次，剛到期的項目推一則
 function dueAt(t) {
@@ -170,7 +170,7 @@ exports.pushSocial = onDocumentWritten({ document: 'social/{uid}', ...HOT }, asy
     logger.info('bidLag', { pid, lagMs: Date.now() - bid.at }); if (Date.now() > end + 6e4) continue;
     const others = bids.filter(b => b.uid !== uid), prevTop = leaderAt(p, others, bid.at - 1), nowTop = leaderAt(p, bids, bid.at);
     if (nowTop && nowTop.uid === uid) {
-      await push(p.shop, '⚡ 新出價 ' + nt(bid.amt), me + ' 出價 ' + pLabel(p) + '，目前 ' + bids.length + ' 人出價', '/#/plant/' + pid, 'bid-' + pid);
+      await push(p.shop, '⚡ 新出價 ' + nt(bid.amt), '有人出價 ' + pLabel(p) + '，目前 ' + bids.length + ' 人出價', '/#/plant/' + pid, 'bid-' + pid);
       if (prevTop && prevTop.uid !== uid) await push(prevTop.uid, '😮 你的出價被超越了', pLabel(p) + ' 目前最高 ' + nt(bid.amt) + '（你出 ' + nt(prevTop.amt) + '），回來加價吧', '/#/plant/' + pid, 'outbid-' + pid);
     }
   }
@@ -295,7 +295,7 @@ exports.pushAuctionEnd = onSchedule({ schedule: 'every 5 minutes', timeZone: 'As
           made = true; logger.info('auction order created', { pid: d.id, winner: win.uid, amt: win.amt }); } } catch (e) { logger.error('auction order failed', d.id, String(e)); } }
       const mk = db.doc('sysnotes/auc-' + d.id + '-' + p.endsAtMs); if ((await mk.get()).exists) continue;
       if (win) { await push(win.uid, '🏆 恭喜得標！', pLabel(p) + ' 以 ' + nt(win.amt) + ' 得標，訂單已成立，到訂單頁看匯款資訊', '/#/me/orders', 'won-' + d.id);
-        await push(p.shop, '🔨 競標結束，訂單已自動成立', pLabel(p) + ' 由 ' + (await displayName(win.uid)) + ' 以 ' + nt(win.amt) + ' 得標', '/#orders/orders', 'end-' + d.id); }
+        await push(p.shop, '🔨 競標結束，訂單已自動成立', pLabel(p) + ' 以 ' + nt(win.amt) + ' 得標', '/#orders/orders', 'end-' + d.id); }
       else await push(p.shop, '🔨 競標結束（沒人出價）', pLabel(p) + ' 可以改成直購或重新競標', '/#admin/auc', 'end-' + d.id);
       await mk.set({ at: now, pid: d.id, shop: sd.id });
     }
@@ -844,7 +844,7 @@ async function lvFinalize(id) {
         await oref.set({ buyer, items: L.map(l => l.pid), prices: Object.fromEntries(L.map(l => [l.pid, twNum(l.final)])), total, note: (ev.title || 'VEIN 拍賣會') + ' 得標 ' + L.length + ' 件（自動成立）', status: 'confirmed', payMethod: 'transfer', src: 'live', liveId: id, at: now });
         await db.doc(`deals/${shop}_${oid}`).set({ seller: shop, buyer, orderId: oid, payMethod: 'transfer', bank: bank.exists ? bank.data() : null, at: now }, { merge: true });
         for (const l of L) await db.doc(`shops/${shop}/plants/${l.pid}`).update({ status: 'sold', buyer, soldPrice: twNum(l.final) }).catch(() => {});
-        await push(shop, '🔨 拍賣會成交 ' + L.length + ' 件', (await displayName(buyer)) + ' 得標，合計 NT$ ' + total.toLocaleString('zh-TW') + '，訂單已成立', '/#orders/orders', 'lvo-' + oid); }
+        await push(shop, '🔨 拍賣會成交 ' + L.length + ' 件', '買家得標，合計 NT$ ' + total.toLocaleString('zh-TW') + '，訂單已成立', '/#orders/orders', 'lvo-' + oid); }
     } catch (e) { logger.error('lvFinalize', oid, String(e)); }
     const b = byBuyer.get(buyer) || { n: 0, t: 0, s: 0 }; b.n += L.length; b.t += total; b.s++; byBuyer.set(buyer, b); }
   for (const [buyer, b] of byBuyer) { try { await push(buyer, '🏆 ' + (ev.title || '拍賣會') + ' 得標 ' + b.n + ' 件', '合計 NT$ ' + b.t.toLocaleString('zh-TW') + (b.s > 1 ? '，共 ' + b.s + ' 個賣家各一筆訂單' : '，訂單已成立') + '，請到我的訂單付款', '/#/me/orders', 'lvb-' + id + buyer); } catch (e) {} }
