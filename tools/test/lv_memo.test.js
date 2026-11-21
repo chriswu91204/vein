@@ -27,6 +27,16 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   const ll = await p.evaluate(() => [...document.querySelectorAll('.lv-lt')].map(x => ({ t: x.innerText, m: !!x.querySelector('.memo') })));
   ok(ll.length === 2 && ll[0].m && ll[0].t.includes('親本') && !ll[1].m, '拍賣順序：有備註的那件顯示、沒備註的不顯示空框 (' + btn + ')');
   await p.screenshot({ path: path.join(OUT, 'lvm_list.png') });
+  const nsh = await p.evaluate(() => document.querySelectorAll('.lv-lt .lv-lt-sh2').length); ok(nsh === 2, '拍賣順序：每件都有轉發鈕（' + nsh + '）');
+  const shb = await p.evaluate(() => { const r = document.querySelectorAll('.lv-lt .lv-lt-sh2')[1].getBoundingClientRect(); return { w: r.width, h: r.height }; }); ok(shb.h >= 34 && shb.w >= 40, '轉發鈕好按 ' + JSON.stringify(shb));
+  await p.evaluate(() => document.querySelectorAll('.lv-lt .lv-lt-sh2')[1].click()); await W(1500);
+  const sh = await p.evaluate(() => ({ txt: document.querySelector('.sh-txt')?.value || '', tab: [...document.querySelectorAll('button,[role=tab]')].some(b => /拍賣會拍品/.test(b.innerText)), cv: !!document.querySelector('.sd-cv') }));
+  ok(sh.cv && sh.tab, '點轉發 → 打開分享編輯器，預設「拍賣會拍品」模板');
+  ok(/第 2 件/.test(sh.txt) && /起拍 NT\$ 500/.test(sh.txt) && /#\/live\/E1/.test(sh.txt) && /AN-SWL-00502/.test(sh.txt), '文案：第幾件、起拍價、拍賣會連結、編號 ' + JSON.stringify(sh.txt.slice(0, 80)));
+  await p.screenshot({ path: path.join(OUT, 'lvm_share.png') });
+  await p.keyboard.press('Escape'); await W(400); await p.evaluate(() => { const d = [...document.querySelectorAll('dialog[open]')]; d.forEach(x => x.close && x.close()); });
+  await p.evaluate(() => document.querySelectorAll('.lv-lt .lv-lt-sh2')[0].click()); await W(1200);
+  ok(await p.evaluate(() => /親本 Dark Phoenix/.test(document.querySelector('.sh-txt')?.value || '')), '有備註的拍品：文案帶備註');
   await p.goto('http://localhost:8767/#/live/E2'); await W(4000); await clean();
   const g = await p.evaluate(() => document.querySelector('.lvg-nm')?.parentElement?.innerText || '');
   ok(/親本 Dark Phoenix/.test(g) || /AN-SWL-00502/.test(g) && !/備註/.test(g), '集合中輪播拍品卡：有備註顯示、沒備註不顯示 ' + g.slice(0, 40).replace(/\n/g, ' '));

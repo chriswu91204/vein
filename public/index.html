@@ -6078,6 +6078,7 @@ body.lv-on .toast{bottom:auto!important;top:calc(64px + env(safe-area-inset-top,
 .lv-lt-st{position:absolute;right:8px;top:8px;font-size:11px;font-weight:900;border-radius:999px;padding:4px 8px;background:rgba(0,0,0,.65);color:#fff;backdrop-filter:blur(6px)}.lv-lt.now .lv-lt-st{background:#FF2D55;animation:lvBlink 1.2s ease-in-out infinite}.lv-lt.st-sold .lv-lt-st{background:#D2FF00;color:#111}@keyframes lvBlink{50%{opacity:.65}}
 .lv-lt-h{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:800;color:#111;background:#D2FF00;border-radius:999px;padding:3px 8px;opacity:.92}
 .lv-lt-tx{display:grid;gap:2px;padding:9px 10px 6px;cursor:pointer;min-width:0}.lv-lt-tx b{font-size:13.5px;line-height:1.3;color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}.lv-lt-tx small{font-size:12px;color:#D2FF00;font-weight:800}.lv-lt-tx .lv-lt-sh{color:rgba(255,255,255,.55);font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv-lt-bs{display:flex;gap:8px;margin:2px 10px 10px;align-items:stretch}.lv-lt-bs .lv-lt-b{flex:1;margin:0}.lv-lt-sh2{flex:none;min-width:40px;height:36px;padding:0 12px;border:0;border-radius:999px;background:#D2FF00;color:#111312;font-weight:900;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:2px;cursor:pointer}.lv-lt-sh2 i{font-style:normal;font-size:15px}.lv-lt-bs .lv-lt-sh2:only-child{flex:1}
 .lv-lt-b{margin:2px 10px 10px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;font-weight:800;font-size:12.5px;padding:8px 0}.lv-lt-b.on{background:#D2FF00;color:#111;border-color:#D2FF00}.lv-lt-b.go{background:#FF2D55;border-color:#FF2D55}
 @media (min-width:720px){.lv-ll{grid-template-columns:repeat(3,1fr)}}
 
@@ -11939,16 +11940,22 @@ const SD_MODES=[
   ['multi','🖼','多圖模式','多張照片拼貼',{fmt:'post',tpl:'multi',showPrice:true,showQR:true,showStatus:true,showKind:true,shade:1},p=>'📷 多圖看清楚｜'+saleText(p),p=>sdPhotos(p).length>1],
   ['mpick','🧩','多株拼圖','多選植物拼一張',{fmt:'post',tpl:'mgrid',showPrice:true,showQR:true,showStatus:false,showKind:true,showCode:false,showCaps:true},p=>p.__multi?(p.__text||pkText(p.__multi)):'',p=>true],
   ['parents','🧬','父母本','母本 × 父本',{fmt:'post',tpl:'parents',showPrice:true,showQR:true},p=>sdParText(p),p=>!p.__multi&&sdHasPar(p)],
+  ['lvlot','🔨','拍賣會拍品','第 N 件・起拍',{fmt:'story',tpl:'bold',showPrice:false,showStatus:false,showQR:true,showCode:true,note:p=>p.__lv?'拍賣會 第 '+p.__lv.i+' 件 · 起拍 '+money(p.__lv.start):''},p=>lvLotText(p),p=>!!p.__lv],
   ['mother','👑','母本收藏','不賣也能秀',{fmt:'square',tpl:'magazine',showPrice:false,showStatus:false,showCode:true,note:'母本收藏'},p=>'👑 溫室母本收藏\n'+short(p.species)+(p.cultivar?' '+p.cultivar:'')+'・'+p.code+'\n血統與後代都在 VEIN 👉 '+plantUrl(p)],
 ];
 const SD_KEEP=Object.keys(SD_DEF).filter(k=>!['note','title'].includes(k));
 function sdLoad(){ let L={}; try{ L=JSON.parse(localStorage.getItem('vein.sd2')||'{}'); }catch(e){} const R=S.prefs?.sd||{}; return (R.at||0)>(L.at||0)?R:L; }
 let sdSaveT=0;
 function sdSave(st){ st.at=Date.now(); try{ localStorage.setItem('vein.sd2',JSON.stringify(st)); }catch(e){} clearTimeout(sdSaveT); sdSaveT=setTimeout(()=>{ if(S.me&&S.prefsReady) savePrefs({sd:st}); },2500); }
+function lvLotText(p){ const L=p.__lv||{}, nm=short(p.species)+(p.cultivar?' '+p.cultivar:''), mm=memoOf(p);
+  return '🔨 '+(L.title||'VEIN 拍賣會')+'｜第 '+L.i+' 件'+(L.n?' / 共 '+L.n+' 件':'')+'\n🌱 '+nm+'（'+p.code+'）'+(mm?'\n📝 '+mm:'')+'\n💰 起拍 '+money(L.start||0)+(L.at&&L.at>Date.now()?'\n🕗 '+fmtDate(tsLocal(L.at))+' 開場':'')+'\n有編號、親本與成長履歷，可以查驗\n👉 '+p.__url; }
+function lvLotShare(l,i,n){ const p=S.plants.get(l.pid), ev=LV.ev||{}, url=siteUrl()+'#/live/'+LV.id;
+  if(!p){ if(navigator.share) navigator.share({title:ev.title||'VEIN 拍賣會',url}).catch(()=>{}); else copyText(url); return; }
+  openShare({...p,__url:url,__lv:{title:ev.title||'',i:i+1,n,start:+l.start||0,at:+ev.startAt||0}},'lvlot'); }
 function openShare(p,start){ lsSet('vein.didShare',true);
   const mine=p.shop===S.me, store=sdLoad(); store.m=store.m||{};
   const modeDef=k=>SD_MODES.find(m=>m[0]===k)||SD_MODES[0];
-  const MODES=p.__multi?SD_MODES.filter(m=>m[0]==='mpick'):SD_MODES.filter(m=>!m[6]||m[6](p)); let mode=p.__multi?'mpick':start||store.last||(mine&&onSale(p)?'sale':'story'); if(!MODES.some(m=>m[0]===mode)) mode=p.__multi?'mpick':'story'; if(mode==='mpick'&&!p.__multi) mode='story';
+  const MODES=p.__multi?SD_MODES.filter(m=>m[0]==='mpick'):p.__lv?SD_MODES.filter(m=>['lvlot','story','multi','parents','growth'].includes(m[0])&&(!m[6]||m[6](p))):SD_MODES.filter(m=>!m[6]||m[6](p)&&m[0]!=='lvlot'); let mode=p.__multi?'mpick':start||store.last||(mine&&onSale(p)?'sale':'story'); if(!MODES.some(m=>m[0]===mode)) mode=p.__multi?'mpick':'story'; if(mode==='mpick'&&!p.__multi) mode='story';
   const presetOf=k=>{ const pr={...modeDef(k)[4]}; if(typeof pr.note==='function') pr.note=pr.note(p); return pr; };
   const build=k=>({...SD_DEF,...presetOf(k),...(store.m[k]||{}),photo:sdPhotos(p)[0]||cover(p),title:'',note:presetOf(k).note||''});
   let c=build(mode);
@@ -14425,7 +14432,7 @@ function lvLotsSheet(){ const ov=h('div',{class:'lv-hist lv-lots'}), list=h('div
       return h('div',{class:'lv-lt st-'+l.status+(now2?' now':'')+(on?' wt':'')},
         h('button',{type:'button',class:'lv-lt-im',onclick:()=>lvHist(l.pid),'aria-label':'看履歷'}, h('img',{src:p?cover(p):l.thumb||'m/p1.jpg',alt:'',loading:'lazy'}), h('span',{class:'lv-lt-no',text:String(i+1)}), h('span',{class:'lv-lt-st',text:stx}), h('span',{class:'lv-lt-h',text:'📜 履歷'})),
         h('div',{class:'lv-lt-tx',onclick:()=>lvHist(l.pid)}, h('b',{text:l.name||l.code}), memoEl(p,'mdk lvm'), h('small',{text:'起拍 '+money(l.start||0)}), h('small',{class:'lv-lt-sh',text:shopName(l.shop)})),
-        done?null:now2?h('button',{type:'button',class:'lv-lt-b go',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'回競標'}):h('button',{type:'button',class:'lv-lt-b'+(on?' on':''),onclick:()=>lvWatch(l,!on),text:on?'🔔 已設提醒':'🔔 到了叫我'})); })); };
+        h('div',{class:'lv-lt-bs'}, done?null:now2?h('button',{type:'button',class:'lv-lt-b go',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'回競標'}):h('button',{type:'button',class:'lv-lt-b'+(on?' on':''),onclick:()=>lvWatch(l,!on),text:on?'🔔 已設提醒':'🔔 到了叫我'}), h('button',{type:'button',class:'lv-lt-sh2','aria-label':'轉發這件',onclick:e=>{ e.stopPropagation(); lvLotShare(l,i,L.length); }}, h('i',{text:'↗'}), done?' 轉發':''))); })); };
   ov.__draw=draw; ov.append(h('div',{class:'lv-hh'}, h('b',{text:'🗂 拍賣順序'}), h('button',{type:'button',class:'lv-x',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'✕'})), h('p',{class:'lv-lhint',text:'依序一件一件拍。點圖看履歷，按「到了叫我」輪到時通知你。'}), list); draw();
   document.body.append(ov); blPush('lvl',()=>ov.remove()); }
 
