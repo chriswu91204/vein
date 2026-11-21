@@ -2002,6 +2002,7 @@ textarea.code{font-family:var(--f-mono);font-size:13px;line-height:1.5;tab-size:
 .memo i{flex:none;font-style:normal;font-size:10.5px;font-weight:700;color:var(--leaf-2);background:var(--leaf-soft);border-radius:5px;padding:1px 5px}
 .memo span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .memo.sm{font-size:12px}.memo.mdk{color:rgba(255,255,255,.7)}.memo.mdk i{background:rgba(255,255,255,.14);color:#D4F25A}
+.memo.lvm{display:block!important;font-size:12.5px;line-height:1.45;max-height:2.9em;overflow:hidden;color:#E8EBE3;margin:4px 0 2px;white-space:normal}.memo.lvm i{display:inline-block;margin-right:5px;background:#D2FF00;color:#111312;vertical-align:1px;line-height:1.4}.memo.lvm span{display:inline!important;white-space:normal!important;overflow:visible;word-break:break-word}.memo.lvm{cursor:pointer}.memo.lvm.open{max-height:none}.memo.lvm.lt{color:#2B2F27}.memo.lvm.lt i{background:#111312;color:#D2FF00}
 .tr.dark .tile .memo{color:rgba(255,255,255,.6)}.tr.dark .tile .memo i{background:rgba(255,255,255,.12);color:#D4F25A}
 .pw-memo{opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hk-memo,.gp-memo,.ln-memo{color:var(--fg2)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -7033,6 +7034,7 @@ function tagInput(init){
 }
 const tagsOf=p=>Array.isArray(p.tags)?p.tags:[];
 const memoOf=p=>String(p?.cross||'').trim();
+document.addEventListener('click',e=>{ const m=e.target.closest&&e.target.closest('.memo.lvm'); if(!m) return; e.stopPropagation(); e.preventDefault(); m.classList.toggle('open'); },true);
 const memoEl=(p,cls)=>memoOf(p)?h('div',{class:'memo'+(cls?' '+cls:''),title:memoOf(p)}, h('i',{text:'備註'}), h('span',{text:memoOf(p)})):null;
 function tagCounts(){ const m=new Map(); pub().filter(p=>p.status!=='sold').forEach(p=>tagsOf(p).forEach(t=>m.set(t,(m.get(t)||0)+1))); return m; }
 
@@ -14422,7 +14424,7 @@ function lvLotsSheet(){ const ov=h('div',{class:'lv-hist lv-lots'}), list=h('div
       const stx=l.status==='sold'?'成交 '+money(l.final||0):l.status==='pass'?'流標':l.status==='skip'||ev?.phase==='done'&&!now2?'未開拍':now2?'● 拍賣中':eta!=null?'約 '+Math.max(1,eta)+' 分後':'等待中';
       return h('div',{class:'lv-lt st-'+l.status+(now2?' now':'')+(on?' wt':'')},
         h('button',{type:'button',class:'lv-lt-im',onclick:()=>lvHist(l.pid),'aria-label':'看履歷'}, h('img',{src:p?cover(p):l.thumb||'m/p1.jpg',alt:'',loading:'lazy'}), h('span',{class:'lv-lt-no',text:String(i+1)}), h('span',{class:'lv-lt-st',text:stx}), h('span',{class:'lv-lt-h',text:'📜 履歷'})),
-        h('div',{class:'lv-lt-tx',onclick:()=>lvHist(l.pid)}, h('b',{text:l.name||l.code}), h('small',{text:'起拍 '+money(l.start||0)}), h('small',{class:'lv-lt-sh',text:shopName(l.shop)})),
+        h('div',{class:'lv-lt-tx',onclick:()=>lvHist(l.pid)}, h('b',{text:l.name||l.code}), memoEl(p,'mdk lvm'), h('small',{text:'起拍 '+money(l.start||0)}), h('small',{class:'lv-lt-sh',text:shopName(l.shop)})),
         done?null:now2?h('button',{type:'button',class:'lv-lt-b go',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'回競標'}):h('button',{type:'button',class:'lv-lt-b'+(on?' on':''),onclick:()=>lvWatch(l,!on),text:on?'🔔 已設提醒':'🔔 到了叫我'})); })); };
   ov.__draw=draw; ov.append(h('div',{class:'lv-hh'}, h('b',{text:'🗂 拍賣順序'}), h('button',{type:'button',class:'lv-x',onclick:()=>{ ov.remove(); blDone('lvl'); },text:'✕'})), h('p',{class:'lv-lhint',text:'依序一件一件拍。點圖看履歷，按「到了叫我」輪到時通知你。'}), list); draw();
   document.body.append(ov); blPush('lvl',()=>ov.remove()); }
@@ -14504,7 +14506,7 @@ function lvGather(box,top,L){ const ev=LV.ev, n=L.length; if(LV.gi==null) LV.gi=
   const stage=h('div',{class:'lvg-st'}, lvChatBox(), h('button',{type:'button',class:'lv-cbtn lvg-cb','aria-label':'聊天室',onclick:e=>{ e.stopPropagation(); lvChatOpen(); }}, h('i',{text:'💬'}), h('small',{text:'聊天'}), h('em',{class:'lv-cbn',hidden:true}))), dots=h('div',{class:'lvg-dots'}), info=h('div',{class:'lvg-in'});
   const show=(k,dir)=>{ if(!n) return; k=((k%n)+n)%n; LV.gi=k; const l=L[k], p=S.plants.get(l.pid), on=lvWatchSet().has(l.pid);
     if(stage.dataset.k!==l.id){ stage.dataset.k=l.id; const im=h('img',{src:pic(l),alt:'',class:'lvg-im'+(dir<0?' l':'')}); stage.querySelectorAll('.lvg-im').forEach(x=>{ x.classList.add('out'); setTimeout(()=>x.remove(),700); }); stage.prepend(im); }
-    info.replaceChildren(h('span',{class:'lvg-no mono',text:String(k+1).padStart(2,'0')+' / '+String(n).padStart(2,'0')}), h('b',{class:'lvg-nm',text:p?pName(p):l.name||l.code}), h('small',{class:'mono',text:(l.code||p?.code||'')+' · '+shopName(l.shop)}),
+    info.replaceChildren(h('span',{class:'lvg-no mono',text:String(k+1).padStart(2,'0')+' / '+String(n).padStart(2,'0')}), h('b',{class:'lvg-nm',text:p?pName(p):l.name||l.code}), h('small',{class:'mono',text:(l.code||p?.code||'')+' · '+shopName(l.shop)}), memoEl(p,'mdk lvm'),
       h('div',{class:'lvg-row'}, h('span',{class:'lvg-pr'}, h('small',{text:'起拍'}), h('b',{text:money(l.start||0)})), h('button',{type:'button',class:'lvg-w'+(on?' on':''),onclick:e=>{ e.stopPropagation(); auto(); lvWatch(l,!on).then(()=>show(LV.gi,0)); },text:on?'🔔 已提醒':'🔔 到了叫我'}), h('button',{type:'button',class:'lvg-h',onclick:e=>{ e.stopPropagation(); auto(); lvHist(l.pid); },text:'📜'})));
     dots.replaceChildren(...L.slice(0,40).map((_,i)=>h('i',{class:i===k?'on':''}))); };
   const auto=()=>{ clearInterval(LV.gt); LV.gt=setInterval(()=>{ if(PAGE!=='live'||LV.st!=='gather'){ clearInterval(LV.gt); LV.gt=0; return; } LV.gshow?.(LV.gi+1,1); },3800); };
@@ -14532,7 +14534,7 @@ function lvPaint(){ const box=$('#livePage'), ev=LV.ev; if(!box||!ev) return; co
   const stage=h('div',{class:'lv-stage'}, imgs, pvEl, lvChatBox(), h('div',{class:'lv-lead2'}), h('div',{class:'lv-side'},
     h('button',{type:'button',class:'lv-cbtn',onclick:lvChatOpen}, h('i',{text:'💬'}), h('small',{text:'聊天'}), h('em',{class:'lv-cbn',hidden:true})),
     h('button',{type:'button',onclick:()=>lvHist(c.pid)}, h('i',{text:'📜'}), h('small',{text:'履歷'})), h('button',{type:'button',onclick:lvLotsSheet}, h('i',{text:'🗂'}), h('small',{text:'拍品'})), h('button',{type:'button',onclick:()=>{ if(navigator.share) navigator.share({title:ev.title||'VEIN 拍賣會',url:siteUrl()+'#/live/'+ev.id}).catch(()=>{}); else copyText(siteUrl()+'#/live/'+ev.id); }}, h('i',{text:'↗'}), h('small',{text:'分享'}))), res);
-  const panel=h('div',{class:'lv-panel'}, h('div',{class:'lv-pi'}, h('img',{src:p?cover(p):'m/p1.jpg',alt:''}), h('div',{class:'lv-pn'}, h('b',{text:p?pName(p):c.name||c.code}), h('small',{class:'mono',text:(c.code||p?.code||'')+' · '+shopName(c.shop)}), h('small',{class:'lv-nb',text:(c.n||0)+' 次出價'})),
+  const panel=h('div',{class:'lv-panel'}, h('div',{class:'lv-pi'}, h('img',{src:p?cover(p):'m/p1.jpg',alt:''}), h('div',{class:'lv-pn'}, h('b',{text:p?pName(p):c.name||c.code}), h('small',{class:'mono',text:(c.code||p?.code||'')+' · '+shopName(c.shop)}), memoEl(p,'lvm lt'), h('small',{class:'lv-nb',text:(c.n||0)+' 次出價'})),
       h('div',{class:'lv-price'}, h('small',{text:''}), h('b',{text:''}))),
     h('div',{class:'lv-act'}, h('div',{class:'lv-cd',style:'--p:1'}, h('b',{class:'mono',text:''}), h('small',{text:''}), h('span',{class:'lv-ext'})), h('button',{type:'button',class:'lv-bid',onclick:lvBid}, h('b',{text:''}), h('small',{text:''}))), null);
   box.replaceChildren(h('div',{class:'lv'}, top, stage, panel)); lvPanel(); lvFeed(); lvTickUi(); lvChatDraw(); }
