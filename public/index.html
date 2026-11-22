@@ -14449,7 +14449,7 @@ function lvChatRow(x,full){ const c=LV.ev?.cur;
   if(x.s) return h('div',{class:'lvc-r sys','data-k':x.k}, h('span',{class:'lvc-t',text:x.s}));
   if(x.b){ const b=x.b; return h('div',{class:'lvc-r bid'+(b.uid===S.me?' me':''),'data-k':x.k}, h('span',{class:'lvc-t'}, h('i',{text:'🔨'}), h('b',{text:pubName(b.uid,b.shop||c?.shop)}), ' 出價 ', h('em',{text:money(b.amt)}))); }
   const m=x.m, mine=m.uid===S.me, tag=isAdminUid(m.uid)?'主持':c&&m.uid===c.shop?'賣家':null;
-  return h('div',{class:'lvc-r'+(mine?' me':''),'data-k':x.k}, h('span',{class:'lvc-t'}, tag?h('i',{class:'lvc-tag'+(tag==='主持'?' host':''),text:tag}):null, h('b',{text:mine?'你':m.uid?pubName(m.uid):S.admin?(m.n||'會員'):maskName(m.n||'會員')}), h('span',{class:'lvc-m',text:m.t})),
+  return h('div',{class:'lvc-r'+(mine?' me':''),'data-k':x.k}, h('span',{class:'lvc-t'}, tag?h('i',{class:'lvc-tag'+(tag==='主持'?' host':''),text:tag}):null, h('b',{text:mine?'你':(m.uid&&nameOf(m.uid)&&nameOf(m.uid)!=='會員'?nameOf(m.uid):(m.n||'會員'))}), h('span',{class:'lvc-m',text:m.t})),
     full&&S.admin?h('button',{type:'button',class:'lvc-del','aria-label':'刪除留言',text:'✕',onclick:e=>{ e.stopPropagation(); if(!confirm('刪除這則留言？')) return; S.db.doc('lives/'+LV.id+'/chat/'+m.id).delete().catch(()=>toast('刪除失敗')); }}):null,
     full&&!mine&&!S.admin?h('button',{type:'button',class:'lvc-rpb','aria-label':'檢舉這則留言',text:'🚩',onclick:e=>{ e.stopPropagation(); lvReport(m); }}):null); }
 // 防串通：正在競標這一件、而且出過價的人，結標前不能發言（伺服器規則也會擋）
