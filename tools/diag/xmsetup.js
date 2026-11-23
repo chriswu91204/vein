@@ -23,5 +23,6 @@ const T = s => Date.parse(s);
     const r = await db.collection('broadcast').add({ title: '🎄 聖誕交換禮物開始登錄！', body: '送一株 NT$500+ 的植物、收一份驚喜。SlowLeaf 也放了價值 NT$17,000 的 Muchlis 側芽，快來參加！', link: '/#/xmas', target: 'all', at: Date.now(), by: 'xmas' });
     for (let i = 0; i < 30; i++) { await new Promise(r2 => setTimeout(r2, 4000)); const d = (await r.get()).data(); if (d.done) { console.log('PUSHED', JSON.stringify({ sent: d.sent, fail: d.fail, users: d.users, err: d.err || null })); return; } }
     console.log('PUSH pending', r.id);
+  } else if (MODE === 'touch') { await db.doc('xgE/' + uid).update({ upd: Date.now() }); await new Promise(r => setTimeout(r, 15000)); const c = (await db.doc('xg/main').get()).data(); console.log('COUNTS', c.nOk, c.nPend, c.nAll);
   } else console.log('DRY_RUN', JSON.stringify({ ...cfg, feat: cfg.feat.name }));
 })().catch(e => console.log('ERR', e.message)).finally(() => { process.exitCode = 0; });
