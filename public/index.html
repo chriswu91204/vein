@@ -4233,6 +4233,30 @@ body.ar-shake .pp,body.ar-shake #pgPlant{animation:arShakeP .6s cubic-bezier(.36
 .xm-rvb{display:flex;gap:8px;width:260px;margin-top:18px}.xm-rvb button{flex:1}
 @media (prefers-reduced-motion:reduce){.xm-snow,.xm-gift,.xm-gift .ld,.xm-gift .bw,.ptb.ptb-xmas::before,.ptb.ptb-xmas i,.xm-shine,.xm-go{animation:none!important}}
 
+.xm-min{display:inline-flex;align-items:center;gap:2px;margin-top:8px;font-size:13px;font-weight:800;color:#fff;background:rgba(210,255,0,.14);border:1px solid rgba(210,255,0,.45);border-radius:999px;padding:5px 11px}.xm-min b{color:#D2FF00;font-size:15px}
+.xm-steps{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:12px 12px 0;padding:14px 6px 12px;border-radius:20px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1)}
+.xm-steps::before{content:"";position:absolute;left:12.5%;right:12.5%;top:36px;height:3px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 6px,transparent 6px 11px)}
+.xm-sp{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:0}
+.xm-sp i{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:20px;background:#2A2C33;border:2px solid rgba(255,255,255,.18);z-index:1}
+.xm-sp b{font-size:12.5px;font-weight:900;white-space:nowrap}.xm-sp small{font-size:11px;font-weight:800;color:#C9CCC4;white-space:nowrap}
+.xm-sp.done i{background:#D2FF00;color:#0A0A0C;font-weight:900;border-color:#D2FF00}
+.xm-sp.now i{background:#FF3B5C;border-color:#fff;box-shadow:0 0 0 4px rgba(255,59,92,.35);animation:xmCu 1.6s infinite}
+.xm-sp.now small{color:#FFD66B}
+.xm-sp em{position:absolute;top:-12px;font-style:normal;font-size:10px;font-weight:900;background:#FFD66B;color:#0A0A0C;border-radius:999px;padding:1px 6px;z-index:2}
+/* 限時頁圓形按鈕：聖誕夜空＋下雪＋兩份禮物互換 */
+.pt-story .ptb.ptb-xmas>i{position:relative;overflow:hidden;font-size:0!important;background:radial-gradient(circle at 50% 120%,#1FA36A 0 30%,transparent 31%),linear-gradient(180deg,#22103A,#5A1830) padding-box,conic-gradient(from var(--pta,0deg),#FF3B5C,#FFD66B,#1FA36A,#D2FF00,#FF3B5C) border-box!important;animation:ptSpin 3s linear infinite!important}
+.xm-ti{position:absolute;inset:0;border-radius:50%;overflow:hidden;pointer-events:none}
+.xm-ti .sn{position:absolute;inset:-40px 0 0;background-image:radial-gradient(circle at 8px 6px,#fff 0 1.4px,transparent 2px),radial-gradient(circle at 30px 22px,#fff 0 1.1px,transparent 1.7px),radial-gradient(circle at 48px 10px,#fff 0 1.6px,transparent 2.2px),radial-gradient(circle at 20px 34px,#E8F7FF 0 1px,transparent 1.6px);background-size:58px 40px;animation:xmTsn 2.4s linear infinite}
+@keyframes xmTsn{to{transform:translateY(40px)}}
+.xm-ti .g{position:absolute;top:50%;left:50%;width:20px;height:18px;margin:-6px 0 0 -10px;border-radius:4px;background:linear-gradient(90deg,transparent 40%,#D2FF00 40% 60%,transparent 60%),#FF3B5C;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.xm-ti .g::before{content:"";position:absolute;left:-2px;right:-2px;top:-5px;height:6px;border-radius:3px;background:linear-gradient(90deg,transparent 40%,#D2FF00 40% 60%,transparent 60%),#FF6A82}
+.xm-ti .g.b{background:linear-gradient(90deg,transparent 40%,#FFD66B 40% 60%,transparent 60%),#1FA36A}.xm-ti .g.b::before{background:linear-gradient(90deg,transparent 40%,#FFD66B 40% 60%,transparent 60%),#38C98A}
+.xm-ti .g.a{animation:xmSwA 2.8s cubic-bezier(.6,0,.4,1) infinite}.xm-ti .g.b{animation:xmSwB 2.8s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes xmSwA{0%,20%{transform:translate(-12px,4px) rotate(-8deg)}50%{transform:translate(0,-12px) rotate(10deg) scale(1.1)}80%,100%{transform:translate(12px,4px) rotate(8deg)}}
+@keyframes xmSwB{0%,20%{transform:translate(12px,4px) rotate(8deg)}50%{transform:translate(0,14px) rotate(-10deg) scale(.9)}80%,100%{transform:translate(-12px,4px) rotate(-8deg)}}
+.xm-ti .st{position:absolute;top:7px;left:50%;margin-left:-5px;font-size:10px;line-height:1;color:#FFD66B;text-shadow:0 0 6px #FFD66B;animation:xmTw 1.6s ease-in-out infinite}
+.xm-ti .swp{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-15px 0 0 -17px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);animation:xmRot 2.8s linear infinite}
+@keyframes xmRot{to{transform:rotate(360deg)}}
 /* ===== 福利組合 ===== */
 .dp{position:relative;border-radius:28px;padding:18px 16px 18px;background:linear-gradient(160deg,#17121F,#08060B 70%);color:#fff;overflow:hidden;isolation:isolate;box-shadow:0 30px 70px -36px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.08);margin:0 0 16px}
 .dp.t-lime{background:linear-gradient(160deg,#1B2A12,#070A05 70%)}.dp.t-sunset{background:linear-gradient(160deg,#3A1A10,#0E0705 70%)}
@@ -9488,6 +9512,7 @@ function ptTile(k,info,T,onClick,cfg){ const d=PT_DEF.find(x=>x[0]===k), c=(cfg|
   const b=h('button',{type:'button',class:'ptb ptb-'+k+(info.hot?' hot':'')+(c.img?' has-img':''),'aria-pressed':String(T===k),onclick:onClick});
   if(c.bg) b.style.setProperty('--pt-bg',c.bg); if(c.fg){ b.style.setProperty('--pt-fg',c.fg); b.style.setProperty('--pt-on',c.fg); b.classList.add('cfg'); } if(c.img) b.style.setProperty('--pt-img','url("'+String(c.img).replace(/"/g,'')+'")');
   if(c.html){ const w=h('span',{class:'pt-html'}); w.innerHTML=String(c.html).replace(/\{n\}/g,String(info.n||0)).replace(/\{status\}/g,info.hot||'').replace(/<script[\s\S]*?<\/script>/gi,''); b.append(w); }
+  else if(k==='xmas'&&!c.icon) b.append(h('i',{'aria-hidden':'true'}, h('span',{class:'xm-ti'}, h('span',{class:'sn'}), h('span',{class:'swp'}), h('span',{class:'g a'}), h('span',{class:'g b'}), h('span',{class:'st',text:'★'}))), h('b',{text:c.label||d[2]}), h('small',{class:info.hot?'on':'',text:info.hot||(info.n?info.n+' 個':'尚未開始')}));
   else b.append(h('i',{text:c.icon||d[1]}), h('b',{text:c.label||d[2]}), h('small',{class:info.hot?'on':'',text:info.hot||(info.n?info.n+' 個':'尚未開始')}));
   return b; }
 function ptEdit(){ const cfg=JSON.parse(JSON.stringify(S.ptab||{})); cfg.tabs=cfg.tabs||{}; let order=ptOrder(); PT_DEF.forEach(d=>{ if(!order.includes(d[0])) order.push(d[0]); }); if(cfg.order) order=[...cfg.order.filter(k=>PT_DEF.some(d=>d[0]===k)),...PT_DEF.map(d=>d[0]).filter(k=>!cfg.order.includes(k))];
@@ -9530,6 +9555,10 @@ const xmOn=()=>{ const c=XM.cfg; return !!(c&&c.on!==false&&c.phase!=='done'); }
 const xmPhase=()=>{ const c=XM.cfg||{}; if(c.phase==='matched'||c.phase==='done') return c.phase; return Date.now()>=(+c.regEnd||0)?'closed':'reg'; };
 const xmMD=t=>{ const d=new Date(+t||0); return (d.getMonth()+1)+'/'+d.getDate(); };
 const xmWhen=t=>t?fmtDate(tsLocal(+t)):'';
+const xmCN=t=>{ const d=new Date(+t||0); return (d.getMonth()+1)+'月'+d.getDate()+'日'; };
+function xmSteps(c,ph){ const cur=ph==='reg'?0:ph==='closed'?1:XM.inn?.rcvAt?4:XM.out?.shipAt?3:2;
+  const S4=[['🎁','登錄禮物','到 '+xmCN(c.regEnd)],['🤫','神秘配對',xmCN(c.matchAt)],['🚚','寄出禮物',xmCN(c.shipBy)+' 前'],['🃏','收到翻牌','聖誕節前']];
+  return h('div',{class:'xm-steps'}, ...S4.map(([ic,t,d],k)=>h('div',{class:'xm-sp'+(k<cur?' done':k===cur?' now':'')}, h('i',{text:k<cur?'✓':ic}), h('b',{text:t}), h('small',{text:d}), k===cur?h('em',{text:'現在'}):null))); }
 const XM_WAY={store:'超商店到店',home:'宅配'};
 function xmSub(){ if(!S.db) return;
   if(!XM.subs.cfg) XM.subs.cfg=S.db.doc('xg/main').onSnapshot(d=>{ XM.cfg=d.exists?d.data():null; if(xmOn()&&(!S.ptUser||S.ptWant==='xmas')){ S.playTab='xmas'; S.ptWant=null; } xmPaint(); try{ playSig=''; if(PAGE==='raffle') playRender(); }catch(e){} },()=>{});
@@ -9547,17 +9576,16 @@ function xmCountdown(to,label){ const box=h('div',{class:'xm-cd'}); const cells=
 function xmView(){ xmSub(); const c=XM.cfg, box=h('div',{class:'xm'}); XM.box=box;
   if(!c){ box.append(h('div',{class:'play-empty'}, h('b',{text:'🎁'}), h('h3',{text:'交換禮物載入中…'}))); return box; }
   const ph=xmPhase(), me=XM.me;
-  const cd=ph==='reg'?xmCountdown(+c.matchAt,'⏰ 距離神秘配對（'+xmMD(c.matchAt)+' '+new Date(+c.matchAt).toTimeString().slice(0,5)+'）'):ph==='closed'?xmCountdown(+c.matchAt,'登錄已截止・等待配對'):null;
+  const cd=ph==='reg'?xmCountdown(+c.regEnd,'⏰ 登錄倒數・'+xmCN(c.regEnd)+' '+new Date(+c.regEnd).toTimeString().slice(0,5)+' 截止'):ph==='closed'?xmCountdown(+c.matchAt,'登錄已截止・距離神秘配對'):null;
   box.append(h('section',{class:'xm-hero'}, h('span',{class:'xm-snow'}), h('span',{class:'xm-snow b'}),
     h('div',{class:'xm-band'}, h('span',{text:'🎄 XMAS GIFT SWAP'}), h('span',{text:'LIMITED'})),
-    h('div',{class:'xm-hin'}, xmGift(), h('div',{style:'min-width:0'}, h('h2',{}, '聖誕', h('em',{text:'交換禮物'})), h('p',{text:'送一株、收一份驚喜，收到才翻牌！'}),
-      h('div',{class:'xm-chips'}, h('span',{text:'🌱 一株 ≥ NT$'+(c.min||500)}), h('span',{text:'🤫 神秘配對'}), h('span',{text:'🃏 收到才翻牌'})))),
-    h('div',{class:'xm-kp'}, h('div',{class:'a'}, h('b',{text:'≥ '+(c.min||500)}), h('small',{text:'禮物價值 NT$'})), h('div',{class:'b'}, h('b',{text:xmMD(c.matchAt)}), h('small',{text:'神秘配對'})), h('div',{class:'c'}, h('b',{text:'翻牌'}), h('small',{text:'收到才揭曉'}))),
+    h('div',{class:'xm-hin'}, xmGift(), h('div',{style:'min-width:0'}, h('h2',{}, '聖誕', h('em',{text:'交換禮物'})), h('p',{text:'放一株植物進禮物池，換回一份神秘禮物！'}), h('div',{class:'xm-min'}, '🌱 禮物價值至少 ', h('b',{text:'NT$'+(c.min||500)})))),
+    xmSteps(c,ph),
     cd, h('div',{class:'xm-hb'}, h('button',{type:'button',class:'h',onclick:()=>xmTut(),text:'？怎麼玩'}), h('button',{type:'button',class:'s',onclick:()=>xmShare(),text:'↗ 轉發活動'}))));
   if(c.feat&&c.feat.img) box.append(h('section',{class:'xm-feat'}, h('img',{src:c.feat.img,alt:c.feat.name||''}), h('div',{class:'xm-fi'}, h('span',{class:'xm-ft',text:'🎁 '+(c.feat.by||'SlowLeaf')+' 也放進禮物池'}), h('b',{text:c.feat.name||''}), h('div',{class:'xm-fv',text:'價值 NT$ '+Number(c.feat.val||0).toLocaleString('zh-TW')}), h('p',{text:c.feat.note||'配對完全隨機，說不定就是你收到！快來參加'})), h('span',{class:'xm-shine'})));
   box.append(xmAction(ph,me));
   box.append(h('section',{class:'xm-card'}, h('div',{class:'xm-cnt'}, h('span',{text:'已確認的禮物'}), h('b',{text:String(+c.nOk||0)+' 份'})),
-    h('ol',{class:'xm-rules'}, h('li',{text:'登錄一株價值 NT$'+(c.min||500)+' 以上的植物（可從 VEIN 植物選，或直接拍照登錄）'}), h('li',{text:'管理員確認後才算報名成功'}), h('li',{text:xmMD(c.matchAt)+' 系統隨機配對，你只會拿到對方的收件資料'}), h('li',{text:xmMD(c.shipBy)+' 前把登錄的那株寄出、填物流單號'}), h('li',{text:'收到後按「收件完成」，翻牌揭曉神秘對象與禮物'}), h('li',{text:'登錄截止：'+xmWhen(c.regEnd)}))));
+    h('ol',{class:'xm-rules'}, h('li',{text:'登錄一株價值 NT$'+(c.min||500)+' 以上的植物（可從 VEIN 植物選，或直接拍照登錄）'}), h('li',{text:'管理員確認後才算報名成功'}), h('li',{text:xmCN(c.matchAt)+' 系統隨機配對，你只會拿到對方的收件資料'}), h('li',{text:xmCN(c.shipBy)+' 前把登錄的那株寄出、填物流單號'}), h('li',{text:'收到後按「收件完成」，翻牌揭曉神秘對象與禮物'}), h('li',{text:'登錄截止：'+xmWhen(c.regEnd)}))));
   return box; }
 function xmAction(ph,me){ const c=XM.cfg;
   if(!S.me) return h('section',{class:'xm-card'}, h('h3',{text:'登入就能參加'}), h('button',{type:'button',class:'xm-go',onclick:()=>openLogin(),text:'🎁 登入參加'}));
