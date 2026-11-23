@@ -9557,7 +9557,7 @@ const xmMD=t=>{ const d=new Date(+t||0); return (d.getMonth()+1)+'/'+d.getDate()
 const xmWhen=t=>t?fmtDate(tsLocal(+t)):'';
 const xmCN=t=>{ const d=new Date(+t||0); return (d.getMonth()+1)+'月'+d.getDate()+'日'; };
 function xmSteps(c,ph){ const cur=ph==='reg'?0:ph==='closed'?1:XM.inn?.rcvAt?4:XM.out?.shipAt?3:2;
-  const S4=[['🎁','登錄禮物','到 '+xmCN(c.regEnd)],['🤫','神秘配對',xmCN(c.matchAt)],['🚚','寄出禮物',xmCN(c.shipBy)+' 前'],['🃏','收到翻牌','聖誕節前']];
+  const S4=[['🎁','登錄禮物','到 '+xmCN(c.regEnd)],['🤫','神秘配對',xmCN(c.matchAt)],['🚚','寄出禮物',xmCN(c.shipBy)+' 前'],['🎁','收到揭曉','聖誕節前']];
   return h('div',{class:'xm-steps'}, ...S4.map(([ic,t,d],k)=>h('div',{class:'xm-sp'+(k<cur?' done':k===cur?' now':'')}, h('i',{text:k<cur?'✓':ic}), h('b',{text:t}), h('small',{text:d}), k===cur?h('em',{text:'現在'}):null))); }
 const XM_WAY={store:'超商店到店',home:'宅配'};
 function xmSub(){ if(!S.db) return;
@@ -9579,13 +9579,13 @@ function xmView(){ xmSub(); const c=XM.cfg, box=h('div',{class:'xm'}); XM.box=bo
   const cd=ph==='reg'?xmCountdown(+c.regEnd,'⏰ 登錄倒數・'+xmCN(c.regEnd)+' '+new Date(+c.regEnd).toTimeString().slice(0,5)+' 截止'):ph==='closed'?xmCountdown(+c.matchAt,'登錄已截止・距離神秘配對'):null;
   box.append(h('section',{class:'xm-hero'}, h('span',{class:'xm-snow'}), h('span',{class:'xm-snow b'}),
     h('div',{class:'xm-band'}, h('span',{text:'🎄 XMAS GIFT SWAP'}), h('span',{text:'LIMITED'})),
-    h('div',{class:'xm-hin'}, xmGift(), h('div',{style:'min-width:0'}, h('h2',{}, '聖誕', h('em',{text:'交換禮物'})), h('p',{text:'放一株植物進禮物池，換回一份神秘禮物！'}), h('div',{class:'xm-min'}, '🌱 禮物價值至少 ', h('b',{text:'NT$'+(c.min||500)})))),
+    h('div',{class:'xm-hin'}, xmGift(), h('div',{style:'min-width:0'}, h('h2',{}, '聖誕', h('em',{text:'交換禮物'})), h('p',{text:'寄出一株植物，收到一份神秘禮物！'}), h('div',{class:'xm-min'}, '🌱 禮物價值至少 ', h('b',{text:'NT$'+(c.min||500)})))),
     xmSteps(c,ph),
     cd, h('div',{class:'xm-hb'}, h('button',{type:'button',class:'h',onclick:()=>xmTut(),text:'？怎麼玩'}), h('button',{type:'button',class:'s',onclick:()=>xmShare(),text:'↗ 轉發活動'}))));
   if(c.feat&&c.feat.img) box.append(h('section',{class:'xm-feat'}, h('img',{src:c.feat.img,alt:c.feat.name||''}), h('div',{class:'xm-fi'}, h('span',{class:'xm-ft',text:'🎁 '+(c.feat.by||'SlowLeaf')+' 也放進禮物池'}), h('b',{text:c.feat.name||''}), h('div',{class:'xm-fv',text:'價值 NT$ '+Number(c.feat.val||0).toLocaleString('zh-TW')}), h('p',{text:c.feat.note||'配對完全隨機，說不定就是你收到！快來參加'})), h('span',{class:'xm-shine'})));
   box.append(xmAction(ph,me));
   box.append(h('section',{class:'xm-card'}, h('div',{class:'xm-cnt'}, h('span',{text:'已確認的禮物'}), h('b',{text:String(+c.nOk||0)+' 份'})),
-    h('ol',{class:'xm-rules'}, h('li',{text:'登錄一株價值 NT$'+(c.min||500)+' 以上的植物（可從 VEIN 植物選，或直接拍照登錄）'}), h('li',{text:'管理員確認後才算報名成功'}), h('li',{text:xmCN(c.matchAt)+' 系統隨機配對，你只會拿到對方的收件資料'}), h('li',{text:xmCN(c.shipBy)+' 前把登錄的那株寄出、填物流單號'}), h('li',{text:'收到後按「收件完成」，翻牌揭曉神秘對象與禮物'}), h('li',{text:'登錄截止：'+xmWhen(c.regEnd)}))));
+    h('ol',{class:'xm-rules'}, h('li',{text:'登錄一株價值 NT$'+(c.min||500)+' 以上的植物（可從 VEIN 植物選，或直接拍照登錄）'}), h('li',{text:'管理員確認後才算報名成功'}), h('li',{text:xmCN(c.matchAt)+' 系統隨機配對，你只會拿到對方的收件資料'}), h('li',{text:xmCN(c.shipBy)+' 前把登錄的那株寄出、填物流單號'}), h('li',{text:'收到後按「收件完成」，就會揭曉是誰送你的'}), h('li',{text:'登錄截止：'+xmWhen(c.regEnd)}))));
   return box; }
 function xmAction(ph,me){ const c=XM.cfg;
   if(!S.me) return h('section',{class:'xm-card'}, h('h3',{text:'登入就能參加'}), h('button',{type:'button',class:'xm-go',onclick:()=>openLogin(),text:'🎁 登入參加'}));
@@ -9601,7 +9601,7 @@ function xmAction(ph,me){ const c=XM.cfg;
       st==='ok'?row('ok','✓','管理員已確認','報名成功 🎉',h('span',{class:'xm-pill ok',text:'已通過'})):st==='no'?row('bad','!','沒有通過',me.why||'可以修改或換一株再送出',h('span',{class:'xm-pill no',text:'未通過'})):row('cur','2','等管理員確認','通常 24 小時內',h('span',{class:'xm-pill w',text:'審核中'})),
       shipOK?row('ok','✓','收件資料',[me.ship.name,XM_WAY[me.ship.k]||''].filter(Boolean).join(' · ')):row('cur','📮','還沒填收件資料','配對時要給寄件人，請先填好'),
       row(st==='ok'&&shipOK?'cur':'','3',xmMD(c.matchAt)+' 神秘配對','配對後拿到對方的收件資料'),
-      row('','4','寄出禮物',xmMD(c.shipBy)+' 前寄出'), row('','5','收件完成 → 翻牌揭曉','聖誕節前見分曉')));
+      row('','4','寄出禮物',xmMD(c.shipBy)+' 前寄出'), row('','5','收件完成 → 揭曉是誰送的','聖誕節前見分曉')));
   if(ph==='reg') card.append(h('div',{class:'xm-row'}, !shipOK?h('button',{type:'button',class:'btn lime',onclick:()=>xmShipEdit(),text:'📮 填收件資料'}):h('button',{type:'button',class:'btn soft',onclick:()=>xmShipEdit(),text:'改收件資料'}), h('button',{type:'button',class:'btn soft',onclick:()=>xmReg(me),text:'修改禮物'}), confirmBtn('取消參加','soft',async()=>{ try{ await S.db.doc('xgE/'+S.me).delete(); toast('已取消參加'); }catch(e){ toast('取消失敗，請稍後再試'); } })));
   else if(!shipOK) card.append(h('div',{class:'xm-row'}, h('button',{type:'button',class:'btn lime',onclick:()=>xmShipEdit(),text:'📮 填收件資料'})));
   return card; }
@@ -9660,11 +9660,11 @@ function xmOutCard(){ const o=XM.out||{}, s=o.ship||{};
   return sec; }
 function xmInCard(){ const i=XM.inn||{};
   if(i.rcvAt&&i.from) return h('section',{class:'xm-card'}, h('h3',{text:'🎁 你收到的禮物'}), h('div',{class:'xm-rvd'}, h('img',{src:i.gift?.img||'m/p1.jpg',alt:''}), h('div',{style:'min-width:0'}, h('small',{text:'你的神秘對象'}), h('b',{text:i.from.name||'會員'}), h('b',{style:'font-size:13.5px;margin-top:4px',text:i.gift?.name||''}), h('em',{text:'價值 NT$ '+Number(i.gift?.val||0).toLocaleString('zh-TW')}))),
-    h('div',{class:'xm-row'}, h('button',{type:'button',class:'btn soft',onclick:()=>xmReveal(true),text:'🃏 再看一次翻牌'}), i.from.uid?h('button',{type:'button',class:'btn soft',onclick:()=>go('#/gh/'+i.from.uid),text:'看他的溫室'}):null));
+    h('div',{class:'xm-row'}, h('button',{type:'button',class:'btn soft',onclick:()=>xmReveal(true),text:'🎁 再看一次揭曉'}), i.from.uid?h('button',{type:'button',class:'btn soft',onclick:()=>go('#/gh/'+i.from.uid),text:'看他的溫室'}):null));
   const shipped=!!i.shipAt;
   return h('section',{class:'xm-in'}, xmGift(), h('b',{class:'t',text:shipped?'有人寄了禮物給你！':'等神秘對象寄出…'}), h('p',{class:'hint',style:'margin:6px 0 14px;color:#F2D9DF',text:shipped?((i.trk?'單號 '+i.trk+'・':'')+xmWhen(i.shipAt)+' 寄出'):'對方按「我已寄出」後，這裡會通知你'}),
-    h('button',{type:'button',class:'xm-go r',onclick:()=>xmReceive(),text:'📬 收件完成，翻牌！'}), h('p',{class:'hint',style:'margin-top:10px;color:#C9A9B1',text:'拆開確認植物狀況後再按，按了就會翻牌'})); }
-async function xmReceive(){ if(!confirm('確定已經收到禮物了嗎？按下去就會翻牌揭曉。')) return; try{ await S.db.doc('xgIn/'+S.me).update({rcvAt:Date.now()}); xmReveal(false); }catch(e){ toast('送出失敗，請稍後再試'); } }
+    h('button',{type:'button',class:'xm-go r',onclick:()=>xmReceive(),text:'📬 收件完成，揭曉是誰送的！'}), h('p',{class:'hint',style:'margin-top:10px;color:#C9A9B1',text:'拆開確認植物狀況後再按，按下去就會揭曉是誰送的'})); }
+async function xmReceive(){ if(!confirm('確定已經收到禮物了嗎？按下去就會揭曉是誰送你的。')) return; try{ await S.db.doc('xgIn/'+S.me).update({rcvAt:Date.now()}); xmReveal(false); }catch(e){ toast('送出失敗，請稍後再試'); } }
 function xmConfetti(host){ const cf=h('div',{class:'xm-cf'}), C=['#D2FF00','#FF3B5C','#FFD66B','#fff','#1FA36A','#BDEBFF']; for(let k=0;k<90;k++){ const e=h('i',{}); e.style.left=(Math.random()*100)+'%'; e.style.background=C[k%C.length]; e.style.setProperty('--x',(Math.random()*160-80)+'px'); e.style.setProperty('--r',(Math.random()*900-450)+'deg'); e.style.animationDelay=(Math.random()*.5)+'s'; cf.append(e); } host.append(cf); setTimeout(()=>cf.remove(),3600); }
 function xmReveal(again){ const ov=h('div',{class:'xm-rv'}), big=h('div',{class:'xm-big'}), inner=h('div',{class:'in'}), back=h('div',{class:'bb'}), ttl=h('h2',{text:'你的神秘對象是…'});
   inner.append(h('div',{class:'f'}, h('b',{text:'🎁'}), h('span',{text:'MERRY XMAS'})), back); big.append(inner);
@@ -9674,13 +9674,13 @@ function xmReveal(again){ const ov=h('div',{class:'xm-rv'}), big=h('div',{class:
   const fill=()=>{ const i=XM.inn||{}, f=i.from||{}, g=i.gift||{};
     back.replaceChildren(h('img',{src:g.img||'m/p1.jpg',alt:''}), h('div',{class:'w'}, h('div',{class:'xm-who'}, h('i',{style:f.av?'background-image:url("'+f.av+'")':'',text:f.av?'':(f.name||'?').slice(0,1)}), h('div',{}, h('small',{text:'你的神秘對象'}), h('b',{text:f.name||'會員'}))), h('h4',{text:g.name||''}), h('div',{class:'v',text:'價值 NT$ '+Number(g.val||0).toLocaleString('zh-TW')})));
     setTimeout(()=>{ big.classList.add('flip'); setTimeout(()=>{ xmConfetti(ov); ttl.textContent='🎉 Merry Christmas！'; btns.style.visibility=''; },700); },again?300:900); };
-  if(XM.inn?.from) fill(); else { XM.rvWait=()=>{ XM.rvWait=null; fill(); }; setTimeout(()=>{ if(XM.rvWait&&ov.isConnected){ ttl.textContent='翻牌資料準備中，等一下再回來看'; btns.style.visibility=''; } },20000); } }
+  if(XM.inn?.from) fill(); else { XM.rvWait=()=>{ XM.rvWait=null; fill(); }; setTimeout(()=>{ if(XM.rvWait&&ov.isConnected){ ttl.textContent='揭曉資料準備中，等一下再回來看'; btns.style.visibility=''; } },20000); } }
 function xmTut(){ const c=XM.cfg||{}, MIN=c.min||500; let i=0, tm=0;
   const S5=[['t1','登錄一株植物',h('div',{class:'xm-pola',style:c.feat?.img?'background-image:url("'+c.feat.img+'")':''}, h('span',{class:'xm-tag',text:'≥ NT$'+MIN})),'價值至少 NT$'+MIN+'。可以直接從你的 VEIN 植物裡選，也可以拍照直接登錄，不用先上架。'],
     ['t2','管理員確認',h('div',{class:'xm-stamp',text:'✓'}),'管理員看過照片與價值，確認後就算報名成功。沒通過會告訴你原因，可以換一株再登錄。'],
     ['t3',xmMD(c.matchAt)+' 神秘配對',h('div',{class:'xm-sh2'}, h('div',{class:'c a',text:'?'}), h('div',{class:'c b',text:'?'}), h('span',{class:'xm-lbl',text:'📦 你只會看到：收件人・電話・地址'})),'系統隨機配對。你看不到對方是誰，只拿到寄件需要的收件資料。'],
     ['t4','照收件資料寄出',h('div',{class:'xm-road'}, h('span',{class:'tk',text:'🚚'}), h('span',{class:'hs',text:'🏠'})),'包好你登錄的那株寄給對方，填上物流單號、按「我已寄出」。'+xmMD(c.shipBy)+' 前寄出。'],
-    ['t5','收到才翻牌',h('div',{class:'xm-flp'}, h('div',{class:'in'}, h('div',{class:'f',text:'🎁'}), h('div',{class:'bb',style:c.feat?.img?'background-image:url("'+c.feat.img+'")':''}))),'收到禮物按「收件完成」，卡片翻開：揭曉你的神秘對象和他送你的植物！']];
+    ['t5','收到才揭曉',h('div',{class:'xm-flp'}, h('div',{class:'in'}, h('div',{class:'f',text:'🎁'}), h('div',{class:'bb',style:c.feat?.img?'background-image:url("'+c.feat.img+'")':''}))),'收到禮物按「收件完成」，卡片翻開：揭曉是誰送你的、送了什麼植物！']];
   const st=h('div',{class:'xm-st'}), dots=h('div',{class:'xm-dots'});
   const cards=S5.map(([t,ti,ill,p],k)=>h('div',{class:'xm-ts '+t}, h('span',{class:'n',text:'STEP '+(k+1)+' / 5'}), h('h3',{text:ti}), h('div',{class:'ill'}, ill), h('p',{text:p})));
   st.append(...cards); S5.forEach(()=>dots.append(h('i',{})));
@@ -9693,27 +9693,29 @@ function xmTut(){ const c=XM.cfg||{}, MIN=c.min||500; let i=0, tm=0;
   document.body.append(ov); blPush('xmtut',()=>{ clearTimeout(tm); ov.remove(); }); show(0); }
 const xmUrl=()=>siteUrl()+'#/xmas';
 function xmShareText(fmt){ const c=XM.cfg||{}, f=c.feat;
-  return '🎄 VEIN 聖誕交換禮物開始登錄！\n送一株、收一份驚喜：登錄一株 NT$'+(c.min||500)+' 以上的植物，'+xmMD(c.matchAt)+' 神秘配對，收到才翻牌揭曉是誰送的🎁'+(f?'\n'+(f.by||'SlowLeaf')+' 也把價值 NT$'+Number(f.val||0).toLocaleString('zh-TW')+' 的 '+f.name+' 放進禮物池，說不定就是你收到！':'')+'\n登錄截止 '+xmWhen(c.regEnd)+'\n👉 '+xmUrl(); }
-async function xmPoster(fmt){ const W=1080, H=fmt==='story'?1920:1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d'), c=XM.cfg||{}, f=c.feat||{}, F='"Noto Sans TC","PingFang TC",system-ui,sans-serif';
+  return '🎄 VEIN 聖誕交換禮物｜一起來交換植物吧！\n\n怎麼玩：\n1️⃣ 登錄一株價值 NT$'+(c.min||500)+' 以上的植物（'+xmCN(c.regEnd)+'前）\n2️⃣ '+xmCN(c.matchAt)+'系統隨機配對，把你的植物寄給配對到的人\n3️⃣ 你也會收到別人寄來的植物，收到後才知道是誰送的🎁'+(f?'\n\n'+(f.by||'SlowLeaf')+' 也放了一株價值 NT$'+Number(f.val||0).toLocaleString('zh-TW')+' 的 '+f.name+'，說不定就是你收到！':'')+'\n\n👉 '+xmUrl(); }
+async function xmPoster(fmt){ const ST=fmt==='story', W=1080, H=ST?1920:1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d'), c=XM.cfg||{}, f=c.feat||{}, F='"Noto Sans TC","PingFang TC",system-ui,sans-serif', MIN=c.min||500;
+  const rr=(x,y,w,h2,r)=>{ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h2,r); g.arcTo(x+w,y+h2,x,y+h2,r); g.arcTo(x,y+h2,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); };
   const bg=g.createRadialGradient(W*.85,0,50,W*.6,H*.3,H); bg.addColorStop(0,'#5A1830'); bg.addColorStop(.5,'#1A0A10'); bg.addColorStop(1,'#0A0A0C'); g.fillStyle=bg; g.fillRect(0,0,W,H);
-  g.fillStyle='rgba(255,255,255,.55)'; for(let k=0;k<70;k++){ const x=(k*137)%W, y=(k*263)%H, r=1.5+(k%3); g.beginPath(); g.arc(x,y,r,0,7); g.fill(); }
-  const top=fmt==='story'?170:60; g.save(); g.beginPath(); g.rect(0,top,W,64); g.clip(); for(let x=-80;x<W+80;x+=56){ g.fillStyle='#FF3B5C'; g.beginPath(); g.moveTo(x,top+64); g.lineTo(x+28,top+64); g.lineTo(x+92,top); g.lineTo(x+64,top); g.fill(); } g.restore();
-  g.fillStyle='#fff'; g.fillRect(60,top+12,330,40); g.fillRect(W-250,top+12,190,40); g.fillStyle='#0A0A0C'; g.font='900 26px ui-monospace,Menlo,monospace'; g.textBaseline='middle'; g.fillText('🎄 XMAS GIFT SWAP',72,top+33); g.fillText('VEIN',W-200,top+33);
-  let y=top+150; g.textBaseline='alphabetic'; g.fillStyle='#fff'; g.font='900 104px '+F; g.fillText('聖誕',60,y); g.fillStyle='#D2FF00'; g.fillText('交換禮物',60+g.measureText('聖誕').width,y);
-  y+=64; g.fillStyle='#F2D9DF'; g.font='800 40px '+F; g.fillText('送一株、收一份驚喜，收到才翻牌！',60,y);
-  const im=f.img?await loadImg(f.img,!sameOrigin(f.img)):null; const pw=fmt==='story'?960:540, ph=fmt==='story'?860:640, px=fmt==='story'?60:60, py=y+50;
-  g.save(); const rr=(x,y2,w,h2,r)=>{ g.beginPath(); g.moveTo(x+r,y2); g.arcTo(x+w,y2,x+w,y2+h2,r); g.arcTo(x+w,y2+h2,x,y2+h2,r); g.arcTo(x,y2+h2,x,y2,r); g.arcTo(x,y2,x+w,y2,r); g.closePath(); };
-  rr(px,py,pw,ph,36); g.fillStyle='#1C1D22'; g.fill(); g.clip(); if(im){ const s=Math.max(pw/im.width,ph/im.height); g.drawImage(im,px+(pw-im.width*s)/2,py+(ph-im.height*s)/2,im.width*s,im.height*s); } g.restore();
-  g.lineWidth=8; g.strokeStyle='#FFD66B'; rr(px,py,pw,ph,36); g.stroke();
-  const tx=fmt==='story'?60:px+pw+40, ty=fmt==='story'?py+ph+80:py+40, tw=fmt==='story'?960:W-tx-60;
-  g.fillStyle='#FFD66B'; g.font='900 '+(fmt==='story'?34:28)+'px '+F; g.fillText('🎁 '+(f.by||'SlowLeaf')+' 也放進禮物池',tx,ty);
-  g.fillStyle='#fff'; g.font='900 '+(fmt==='story'?64:46)+'px '+F; let ny=ty+(fmt==='story'?82:66); const words=String(f.name||'神秘禮物'); let line=''; for(const ch of words){ if(g.measureText(line+ch).width>tw){ g.fillText(line,tx,ny); ny+=fmt==='story'?74:56; line=ch; } else line+=ch; } g.fillText(line,tx,ny);
-  ny+=fmt==='story'?92:78; g.fillStyle='#D2FF00'; g.font='900 '+(fmt==='story'?72:58)+'px ui-monospace,Menlo,monospace'; g.fillText('NT$ '+Number(f.val||0).toLocaleString('zh-TW'),tx,ny);
-  ny+=fmt==='story'?70:62; g.fillStyle='#E8E8E2'; g.font='800 '+(fmt==='story'?38:30)+'px '+F; g.fillText('說不定就是你收到！',tx,ny);
-  const by=H-(fmt==='story'?600:250); const box=(x,lab,big,col,fg)=>{ rr(x,by,300,150,28); g.fillStyle=col; g.fill(); g.fillStyle=fg; g.font='900 56px '+F; g.fillText(big,x+28,by+80); g.font='800 26px '+F; g.fillText(lab,x+28,by+124); };
-  box(60,'禮物價值 NT$','≥ '+(c.min||500),'#D2FF00','#0A0A0C'); box(390,'神秘配對',xmMD(c.matchAt),'#FF3B5C','#fff'); box(720,'收到才揭曉','翻牌','#1FA36A','#fff');
-  const qr=await loadQR(); if(qr){ const q=qr(0,'M'); q.addData(xmUrl()); q.make(); const n=q.getModuleCount(), S2=fmt==='story'?220:0; if(S2){ const cs=S2/n, qx=(W-S2)/2, qy=H-400; g.fillStyle='#fff'; rr(qx-14,qy-14,S2+28,S2+28,20); g.fill(); g.fillStyle='#0A0A0C'; for(let r=0;r<n;r++) for(let k=0;k<n;k++) if(q.isDark(r,k)) g.fillRect(qx+k*cs,qy+r*cs,cs+.5,cs+.5); } }
-  g.fillStyle='#A4A8A0'; g.font='800 28px '+F; g.textAlign='center'; g.fillText('登錄截止 '+xmWhen(c.regEnd)+'　VEIN 限時玩法',W/2,H-(fmt==='story'?90:50)); g.textAlign='left';
+  g.fillStyle='rgba(255,255,255,.5)'; for(let k=0;k<80;k++){ const x=(k*137)%W, y=(k*263)%H, r=1.5+(k%3); g.beginPath(); g.arc(x,y,r,0,7); g.fill(); }
+  const top=ST?150:56; g.save(); g.beginPath(); g.rect(0,top,W,60); g.clip(); for(let x=-80;x<W+80;x+=56){ g.fillStyle='#FF3B5C'; g.beginPath(); g.moveTo(x,top+60); g.lineTo(x+28,top+60); g.lineTo(x+88,top); g.lineTo(x+60,top); g.fill(); } g.restore();
+  g.fillStyle='#fff'; rr(60,top+11,340,38,8); g.fill(); rr(W-230,top+11,170,38,8); g.fill(); g.fillStyle='#0A0A0C'; g.font='900 25px ui-monospace,Menlo,monospace'; g.textBaseline='middle'; g.fillText('🎄 XMAS GIFT SWAP',74,top+31); g.textAlign='center'; g.fillText('VEIN',W-145,top+31); g.textAlign='left'; g.textBaseline='alphabetic';
+  let y=top+(ST?196:166); g.fillStyle='#fff'; g.font='900 '+(ST?112:96)+'px '+F; g.fillText('聖誕',60,y); g.fillStyle='#D2FF00'; g.fillText('交換禮物',60+g.measureText('聖誕').width,y);
+  y+=ST?74:64; g.fillStyle='#FFE3EA'; g.font='800 '+(ST?44:40)+'px '+F; g.fillText('寄出一株植物，收到一份神秘禮物 🎁',60,y);
+  const im=f.img?await loadImg(f.img,!sameOrigin(f.img)):null; const px=60, py=y+(ST?50:40), pw=ST?420:400, ph=ST?520:430;
+  g.save(); rr(px,py,pw,ph,32); g.fillStyle='#1C1D22'; g.fill(); g.clip(); if(im){ const s2=Math.max(pw/im.width,ph/im.height); g.drawImage(im,px+(pw-im.width*s2)/2,py+(ph-im.height*s2)/2,im.width*s2,im.height*s2); } g.restore(); g.lineWidth=7; g.strokeStyle='#FFD66B'; rr(px,py,pw,ph,32); g.stroke();
+  const tx=px+pw+40, tw=W-tx-60; let ty=py+44;
+  g.fillStyle='#FFD66B'; rr(tx,ty-34,tw,48,24); g.fill(); g.fillStyle='#0A0A0C'; g.font='900 '+(ST?28:26)+'px '+F; g.fillText('🎁 '+(f.by||'SlowLeaf')+' 也放進禮物池',tx+18,ty);
+  ty+=ST?92:80; g.fillStyle='#fff'; g.font='900 '+(ST?58:50)+'px '+F; let line=''; for(const ch of String(f.name||'神秘禮物')){ if(g.measureText(line+ch).width>tw){ g.fillText(line,tx,ty); ty+=ST?66:58; line=ch; } else line+=ch; } g.fillText(line,tx,ty);
+  ty+=ST?84:72; g.fillStyle='#D2FF00'; g.font='900 '+(ST?60:52)+'px ui-monospace,Menlo,monospace'; g.fillText('NT$ '+Number(f.val||0).toLocaleString('zh-TW'),tx,ty);
+  ty+=ST?64:56; g.fillStyle='#F2F2EE'; g.font='800 '+(ST?36:32)+'px '+F; g.fillText('說不定就是你收到！',tx,ty);
+  const hy=py+ph+(ST?60:40), hh=ST?560:H-(py+ph+40)-80; g.fillStyle='rgba(255,255,255,.08)'; rr(60,hy,W-120,hh,32); g.fill(); g.strokeStyle='rgba(255,255,255,.18)'; g.lineWidth=2; rr(60,hy,W-120,hh,32); g.stroke();
+  g.fillStyle='#FFD66B'; g.font='900 '+(ST?40:34)+'px '+F; g.fillText('怎麼玩？',96,hy+(ST?70:56));
+  const steps=[['#D2FF00','#0A0A0C','登錄一株價值 NT$'+MIN+' 以上的植物',xmCN(c.regEnd)+'前登錄・管理員確認'],['#FF3B5C','#fff',xmCN(c.matchAt)+' 隨機配對，寄給對方','只會拿到對方的收件地址'],['#1FA36A','#fff','你也會收到別人寄來的植物','收到後才知道是誰送的！']];
+  const gap=ST?150:(hh-80)/3; steps.forEach(([bc,fc,t1,t2],k)=>{ const yy=hy+(ST?150:110)+k*gap, cx=126; g.fillStyle=bc; g.beginPath(); g.arc(cx,yy,ST?34:30,0,7); g.fill(); g.fillStyle=fc; g.font='900 '+(ST?36:32)+'px '+F; g.textAlign='center'; g.fillText(String(k+1),cx,yy+(ST?13:11)); g.textAlign='left';
+    g.fillStyle='#fff'; g.font='900 '+(ST?38:34)+'px '+F; g.fillText(t1,180,yy-2); g.fillStyle='#C9CCC4'; g.font='700 '+(ST?30:26)+'px '+F; g.fillText(t2,180,yy+(ST?40:36)); });
+  if(ST){ const qr=await loadQR(); if(qr){ const q=qr(0,'M'); q.addData(xmUrl()); q.make(); const n=q.getModuleCount(), S2=200, cs=S2/n, qx=(W-S2)/2, qy=H-330; g.fillStyle='#fff'; rr(qx-14,qy-14,S2+28,S2+28,20); g.fill(); g.fillStyle='#0A0A0C'; for(let r=0;r<n;r++) for(let k=0;k<n;k++) if(q.isDark(r,k)) g.fillRect(qx+k*cs,qy+r*cs,cs+.5,cs+.5); } }
+  g.fillStyle='#A4A8A0'; g.font='800 28px '+F; g.textAlign='center'; g.fillText('登錄截止 '+xmCN(c.regEnd)+' 23:59　VEIN 限時活動',W/2,H-(ST?70:40)); g.textAlign='left';
   const blob=await new Promise(r=>{ try{ cv.toBlob(b=>r(b),'image/jpeg',.9); }catch(e){ r(null); } }); return {blob,photo:!!im}; }
 function xmShare(){ try{ lsSet('vein.didShare',true); }catch(e){}
   shareDialog({title:'↗ 轉發交換禮物活動',lead:'把活動圖和文字一起傳出去，朋友點連結就能參加。',modes:[{k:'post',label:'貼文',sub:'4:5',text:xmShareText('post'),image:()=>xmPoster('post')},{k:'story',label:'限動',sub:'9:16',aspect:'story',text:xmShareText('story'),image:()=>xmPoster('story')}]}); }

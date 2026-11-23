@@ -60,7 +60,7 @@ module.exports = ctx => {
     const b = ev.data?.before?.data(), a = ev.data?.after?.data(); if (!a || !a.shipAt) return; if (b?.shipAt && b.trk === a.trk) return;
     const p = await db.doc('xgPair/' + ev.params.uid).get(); if (!p.exists) return; const to = p.data().to;
     await db.doc('xgIn/' + to).set({ shipAt: a.shipAt, trk: String(a.trk || '').slice(0, 40) }, { merge: true });
-    if (!b?.shipAt) { await push(to, '🎁 有人寄了交換禮物給你！', '包裹在路上，收到後按「收件完成」就能翻牌', '/#/xmas', 'xmas-i'); await db.doc('xg/main').update({ nShip: require('firebase-admin').firestore.FieldValue.increment(1) }).catch(() => {}); }
+    if (!b?.shipAt) { await push(to, '🎁 有人寄了交換禮物給你！', '包裹在路上，收到後按「收件完成」就會揭曉是誰送的', '/#/xmas', 'xmas-i'); await db.doc('xg/main').update({ nShip: require('firebase-admin').firestore.FieldValue.increment(1) }).catch(() => {}); }
   });
   // 收件人按「收件完成」→ 翻牌資料
   X.xmasIn = onDocumentWritten('xgIn/{uid}', async ev => {
