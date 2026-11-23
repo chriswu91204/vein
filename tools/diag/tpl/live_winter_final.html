@@ -1,0 +1,39 @@
+<style>
+.wf{position:relative;overflow:hidden;border-radius:26px;background:radial-gradient(130% 90% at 85% -10%,#24527E 0%,#0E2036 42%,#05070B 100%);color:#fff;text-align:left;isolation:isolate;border:1.5px solid rgba(189,235,255,.6);box-shadow:0 0 0 4px rgba(189,235,255,.08),0 18px 50px rgba(90,180,255,.28)}
+.wf-snow{position:absolute;inset:-220px 0 0;z-index:-1;pointer-events:none;background-image:radial-gradient(circle at 18px 26px,#fff 0 2.6px,transparent 3.4px),radial-gradient(circle at 92px 118px,#fff 0 1.8px,transparent 2.6px),radial-gradient(circle at 140px 60px,#E8F7FF 0 2.2px,transparent 3px),radial-gradient(circle at 50px 170px,#fff 0 1.5px,transparent 2.3px);background-size:170px 220px;opacity:.75;animation:wfS 10s linear infinite}
+.wf-snow.b{background-size:250px 280px;opacity:.35;animation-duration:16s}
+@keyframes wfS{to{transform:translateY(220px)}}
+.wf-band{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:linear-gradient(90deg,#BDEBFF 0%,#F2FBFF 55%,#D2FF00 100%);color:#05070B;font:900 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.16em;white-space:nowrap}
+.wf-band i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF2D55;margin-right:6px;animation:wfB 1s infinite}
+@keyframes wfB{50%{opacity:.2}}
+.wf-in{position:relative;padding:18px 18px 14px}
+.wf-big{position:absolute;right:-6px;top:4px;font:900 82px/1 system-ui;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1.5px rgba(189,235,255,.32);z-index:-1;white-space:nowrap}
+.wf-k{font:800 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.2em;color:#BDEBFF}
+.wf-t{margin:10px 0 0;font-weight:900;font-size:32px;line-height:1.08;text-shadow:0 0 18px rgba(189,235,255,.55)}
+.wf-s{margin-top:8px;font-size:14px;font-weight:700;color:#CFEFFF}
+.wf-info{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.wf-info span{font-size:11.5px;font-weight:800;color:#EAF7FF;background:rgba(255,255,255,.08);border:1px solid rgba(189,235,255,.28);border-radius:999px;padding:6px 10px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.wf-info span.hl{background:#D2FF00;border-color:#D2FF00;color:#05070B}
+.wf-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:14px;border-top:1px dashed rgba(189,235,255,.3)}
+.wf-when{display:grid}.wf-when small{font-size:11px;color:#BDEBFF;font-weight:800}.wf-when b{font:900 18px ui-monospace,Menlo,monospace;color:#fff}
+.wf-go{position:relative;overflow:hidden;background:linear-gradient(135deg,#F2FBFF,#BDEBFF);color:#05070B;font-weight:900;font-size:14px;border-radius:999px;padding:11px 16px;white-space:nowrap;box-shadow:0 0 22px rgba(189,235,255,.55)}
+.wf-go::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.9),transparent);animation:wfG 2.6s infinite}
+@keyframes wfG{60%,100%{left:130%}}
+.wf-tk{overflow:hidden;border-top:1px solid rgba(189,235,255,.22);background:rgba(189,235,255,.06)}
+.wf-tk div{display:flex;width:max-content;gap:26px;padding:8px 0;font:800 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.18em;color:#BDEBFF;animation:wfT 18s linear infinite}
+@keyframes wfT{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.wf-snow,.wf-tk div,.wf-go::after,.wf-band i{animation:none}}
+</style>
+<div class="wf">
+  <span class="wf-snow"></span><span class="wf-snow b"></span>
+  <div class="wf-band"><span><i></i>❄ FINAL AUCTION</span><span>LAST CALL</span></div>
+  <div class="wf-in">
+    <span class="wf-big">FINAL</span>
+    <div class="wf-k">WINTER BREAK · 冬休前最後一場</div>
+    <div class="wf-t">{title}</div>
+    <div class="wf-s">{sub}</div>
+    <div class="wf-info"><span class="hl">🔥 今年最後一場</span><span>⏳ 開場集合 5 分鐘</span><span>⏱ 每件 {dur} 秒</span><span>🛡 防尾刀 {snipe} 秒</span></div>
+    <div class="wf-foot"><div class="wf-when"><small>{status}</small><b>{start}</b></div><span class="wf-go">{cta}</span></div>
+  </div>
+  <div class="wf-tk"><div><span>SEE YOU IN SPRING 🌱</span><span>❄ 冬休最終場</span><span>SEE YOU IN SPRING 🌱</span><span>❄ 冬休最終場</span><span>SEE YOU IN SPRING 🌱</span><span>❄ 冬休最終場</span><span>SEE YOU IN SPRING 🌱</span><span>❄ 冬休最終場</span></div></div>
+</div>
