@@ -357,6 +357,45 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ===== 聖誕交換禮物（限時玩法）=====
+    // xg/main：活動設定（公開，管理員改）；xgE/{會員}：自己的登錄（含收件資料，只有自己與管理員看得到）
+    // xgOut／xgIn：配對後伺服器寫入；寄件人只能填單號＋寄出時間，收件人只能按收件完成；配對對照表 xgPair 誰都讀不到
+    function xgCfg() { return get(/databases/$(database)/documents/xg/main).data; }
+    function xgReg() { return exists(/databases/$(database)/documents/xg/main) && xgCfg().get('phase', '') == 'reg' && request.time.toMillis() < xgCfg().get('regEnd', 0); }
+    function xgShipOK(s) { return s is map && s.keys().hasOnly(['name', 'phone', 'k', 'place']) && s.name is string && s.name.size() <= 30 && s.phone is string && s.phone.size() <= 20 && s.k in ['store', 'home'] && s.place is string && s.place.size() <= 120; }
+    function xgEntryOK(uid) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['uid', 'src', 'name', 'img', 'val', 'note', 'ship', 'status', 'at', 'upd', 'pid', 'shop', 'code'])
+        && d.uid == uid && d.status == 'pending' && d.src in ['vein', 'manual']
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 60
+        && d.img is string && d.img.size() <= 500
+        && d.val is int && d.val >= xgCfg().get('min', 500) && d.val <= 10000000
+        && (!('note' in d) || (d.note is string && d.note.size() <= 60))
+        && (!('code' in d) || (d.code is string && d.code.size() <= 30))
+        && xgShipOK(d.ship);
+    }
+    match /xg/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /xgE/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow create: if isMe(uid) && notBanned() && xgReg() && xgEntryOK(uid);
+      allow update: if (isMe(uid) && notBanned() && xgReg() && xgEntryOK(uid))
+        || (isMe(uid) && notBanned() && xgCfg().get('phase', '') == 'reg' && onlyKeys(['ship', 'upd']) && xgShipOK(request.resource.data.ship))
+        || (isAdmin() && onlyKeys(['status', 'why', 'rvAt']) && request.resource.data.status in ['ok', 'no', 'pending']);
+      allow delete: if (isMe(uid) && xgCfg().get('phase', '') == 'reg') || isAdmin();
+    }
+    match /xgOut/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow update: if isMe(uid) && onlyKeys(['trk', 'shipAt']) && request.resource.data.trk is string && request.resource.data.trk.size() <= 40 && request.resource.data.shipAt is int;
+    }
+    match /xgIn/{uid} {
+      allow read: if isMe(uid) || isAdmin();
+      allow update: if isMe(uid) && onlyKeys(['rcvAt']) && !('rcvAt' in resource.data) && request.resource.data.rcvAt is int;
+    }
+    match /xgPair/{uid} { allow read, write: if false; }
+
     // ===== 轉蛋機（一番賞）=====
     // 機台：任何人可讀；認證賣家建立草稿、只能改草稿；上架／暫停／結束要送 gReq 給伺服器（伺服器才會改狀態、算名額）
     function gDraftOK() {
